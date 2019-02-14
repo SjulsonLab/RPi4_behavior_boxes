@@ -1,15 +1,17 @@
-from gpiozero import DigitalOutputDevice
+from gpiozero import OutputDevice
 import time
 
-class FlipperOutput(DigitalOutputDevice, session_info):
-    def __init__(self, pin=None, session_info):
+class FlipperOutput(OutputDevice):
+    def __init__(self, session_info, pin=None):
+        super(FlipperOutput, self).__init__(pin = pin)
+        try:
+            self.session_info = session_info
+        except:
+            self.close()
+            raise
         # Additional properties and methods
-        self.pin = pin
-        self.session_info = session_info
         self._flip_thread = None
         self._controller = None # what is this?
-        self.session_info = session_info
-#        self.pin = 9 # the pin number for the flipper hasn't been decided
         self._flipper_file = self.session_info['flipper_filename']
         self._flipper_timestamp = []
 
@@ -53,4 +55,3 @@ class FlipperOutput(DigitalOutputDevice, session_info):
             f.write('pin_tate, time.time(), clock_realtime\n')
             for entry in self._flipper_timestamp:
                 f.write('%f,%f,%f\n' % entry)
-            
