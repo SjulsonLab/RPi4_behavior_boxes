@@ -27,3 +27,4 @@ box.cueLED1.off()
 #session_info['cueLED1']                 = PWMLED(22)
 #session_info['trainingPhase']             = 4
 #session_info['weight']                    = 32.18
+
