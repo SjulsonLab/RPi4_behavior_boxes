@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from .. import behavbox
+from behavbox import BehavBox
 
 from time import sleep
 import collections
