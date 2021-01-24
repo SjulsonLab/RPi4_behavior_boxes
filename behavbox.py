@@ -2,6 +2,7 @@
 # configured as input or output
 
 from gpiozero import PWMLED, LED, Button
+import os
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
@@ -15,9 +16,12 @@ class BoxLED(PWMLED):
 
 
 
-class BehavBox:
-# below are all the pin numbers for Yi's breakout board
-    
+class BehavBox(mouse_name, dir_name, config):
+
+    # if config==something:  <- the configuration determines the hardware pin config, in case there
+    # is more than one hardware configuration
+
+    # below are all the pin numbers for Yi's breakout board
     # cue LEDs - setting PWM frequency of 200 Hz
     cueLED1 = BoxLED(22, frequency=200)
     cueLED2 = BoxLED(18, frequency=200)
@@ -52,7 +56,44 @@ class BehavBox:
     lick3 = Button(15)
 
     # camera strobe signal
-    cameraTTL = Button(4)
+    camera_strobe = Button(4)
+
+
+    # TODO: auditory stimuli - maybe using DIO's??
+
+
+    # TODO: visual stimuli - unsure if better to put that here or somewhere else
+
+
+    # TODO: test these methods to start and stop 
+    def video_start():
+        if self.config=='head_fixed1':
+            # untested - this assumes the second RPi has the same hostname except with a "b"
+            # appended, e.g. bumbrlik02b instead of bumbrlik02
+            os.system("ssh pi@`hostname`b \'/home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " &\' ")
+
+        if self.config=='freely_moving1':
+            # untested - for freely-moving box
+            os.system("/home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " & ")
+            
+    def video_stop():
+        if self.config=='head_fixed1':
+            os.system("ssh pi@`hostname`b " + # sends SIGINT to record_video.py, telling it to exit
+                "\'kill -1 `ps ax | grep -v grep | grep record_video | cut -d \" \" -f 1` \'; " + 
+                "sleep 1; " + 
+                "rsync --delete-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name + " &; " + 
+                "rsync --delete-source-files pi@`hostname`b:Videos/*.log " + self.dir_name + " & ")
+
+        if self.config=='freely_moving1':
+            os.system("\'kill -1 `ps ax | grep -v grep | grep record_video | cut -d \" \" -f 1` \'; " + 
+                "sleep 1; " + 
+                "mv /home/pi/Videos/*.avi " + self.dir_name + " &; " + 
+                "mv /home/pi/Videos/*.log " + self.dir_name + " & ")
+
+
+            
+
+
 
 
 
