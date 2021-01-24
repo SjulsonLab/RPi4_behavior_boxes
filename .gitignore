@@ -1,3 +1,6 @@
+# temporary folder
+temp/
+
 # matlab stuff
 # Windows default autosave extension
 *.asv
