@@ -5,6 +5,7 @@ from behavbox import BehavBox
 from time import sleep
 import collections, pysistence, socket
 import logging
+import datetime
 
 # define all parameters for expt
 
