@@ -1,16 +1,16 @@
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
+from icecream import ic
 import behavbox
+
 
 # adding timing capability to the state machine
 @add_state_features(Timeout)
 class TimedStateMachine(Machine):
 	pass
 
-
 class KellyTask(object):
-
 	# some parameters
 	timeout_length = 5  # in seconds
 	reward_size    = 10 # in uL
@@ -61,9 +61,8 @@ class KellyTask(object):
 	def exit_cue(self):
 		print("stop cue")
 
-
 	########################################################################
-	# initializing object
+	# initializing state machine and behavior box
 	########################################################################
 	def __init__(self, name):
 		self.name = name
@@ -74,14 +73,16 @@ class KellyTask(object):
 		# initialize behavior box
 		self.box = behavbox.BehavBox()
 
-
 	########################################################################
-	# call this method repeatedly in a while loop in the session script
+	# call this method repeatedly in a while loop in the main session script
 	########################################################################
 	def run(self):
 
 		# read in name of an event the box has detected
-		event_name = self.box.event_list.popleft()
+		if event_name:
+			event_name = self.box.event_list.popleft()
+		else:
+			event_name = ''
 
 		if self.state=='standby':
 			pass
@@ -93,6 +94,11 @@ class KellyTask(object):
 		elif self.state=='cue':
 			pass
 
+
+	# to start the behavior session
+	def start_session(self):
+		ic('TODO: open logfile')
+		ic('TODO: start video')
 
 
 
