@@ -14,5 +14,7 @@ for i in range(3):
 	while task.trial_running:
 		task.run()
 
-task.end
+task.end_session()
+
+
 

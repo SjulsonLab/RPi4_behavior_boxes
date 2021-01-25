@@ -79,7 +79,7 @@ class KellyTask(object):
 	def run(self):
 
 		# read in name of an event the box has detected
-		if event_name:
+		if self.box.event_list:
 			event_name = self.box.event_list.popleft()
 		else:
 			event_name = ''
@@ -95,12 +95,13 @@ class KellyTask(object):
 			pass
 
 
-	# to start the behavior session
+	########################################################################
+	# methods to start and end the behavioral session
+	########################################################################
 	def start_session(self):
 		ic('TODO: open logfile')
 		ic('TODO: start video')
 
-	# to end the behavior session
 	def end_session(self):
 		ic("TODO: close logfile")
 		ic('TODO: stop video')
