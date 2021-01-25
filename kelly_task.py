@@ -100,6 +100,9 @@ class KellyTask(object):
 		ic('TODO: open logfile')
 		ic('TODO: start video')
 
-
+	# to end the behavior session
+	def end_session(self):
+		ic("TODO: close logfile")
+		ic('TODO: stop video')
 
 
