@@ -1,8 +1,11 @@
+#!/usr/bin/env python3
+
 # contains the behavior box class, which includes pin numbers and whether DIO pins are
 # configured as input or output
 
 from gpiozero import PWMLED, LED, Button
 import os
+import time
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
@@ -16,10 +19,14 @@ class BoxLED(PWMLED):
 
 
 
-class BehavBox(mouse_name, dir_name, config):
+# class BehavBox(mouse_name, dir_name, config):
+class BehavBox():
 
     # if config==something:  <- the configuration determines the hardware pin config, in case there
     # is more than one hardware configuration
+    config='freely_moving1'
+    mouse_name='fakemouse'
+    dir_name='/home/pi/fakedata'
 
     # below are all the pin numbers for Yi's breakout board
     # cue LEDs - setting PWM frequency of 200 Hz
@@ -66,34 +73,43 @@ class BehavBox(mouse_name, dir_name, config):
 
 
     # TODO: test these methods to start and stop 
-    def video_start():
+    def video_start(self):
         if self.config=='head_fixed1':
             # untested - this assumes the second RPi has the same hostname except with a "b"
             # appended, e.g. bumbrlik02b instead of bumbrlik02
-            os.system("ssh pi@`hostname`b \'/home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " &\' ")
+            tempstr = "ssh pi@`hostname`b \'/home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " &\' "
+            print(tempstr)
+            os.system(tempstr)
 
         if self.config=='freely_moving1':
             # untested - for freely-moving box
-            os.system("/home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " & ")
+            tempstr = "/home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " & "
+            print(tempstr)
+            os.system(tempstr)
             
-    def video_stop():
+    def video_stop(self):
         if self.config=='head_fixed1':
-            os.system("ssh pi@`hostname`b " + # sends SIGINT to record_video.py, telling it to exit
-                "\'kill -1 `ps ax | grep -v grep | grep record_video | cut -d \" \" -f 1` \'; " + 
-                "sleep 1; " + 
-                "rsync --delete-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name + " &; " + 
-                "rsync --delete-source-files pi@`hostname`b:Videos/*.log " + self.dir_name + " & ")
+            # sends SIGINT to record_video.py, telling it to exit
+            os.system("ssh pi@`hostname`b \'kill -1 `ps ax | grep -v grep | grep record_video | cut -d \" \" -f 1` \' ")
+            time.sleep(1)
+            os.system("rsync --delete-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name + " & ") 
+            os.system("rsync --delete-source-files pi@`hostname`b:Videos/*.log " + self.dir_name + " & ")
 
         if self.config=='freely_moving1':
-            os.system("\'kill -1 `ps ax | grep -v grep | grep record_video | cut -d \" \" -f 1` \'; " + 
-                "sleep 1; " + 
-                "mv /home/pi/Videos/*.avi " + self.dir_name + " &; " + 
-                "mv /home/pi/Videos/*.log " + self.dir_name + " & ")
+            l1 = "ssh pi@`hostname`b \'kill -1 `ps uax | grep -v grep | grep record_video | tr -s \" \" | cut -d \" \" -f 2` \' "
+            print(l1)
+            os.system(l1)
+            time.sleep(1)
+            os.system("mv /home/pi/Videos/*.avi " + self.dir_name + " & ")
+            os.system("mv /home/pi/Videos/*.log " + self.dir_name + " & ")
 
 
             
 
-
+box = BehavBox()
+box.video_start()
+time.sleep(5)
+box.video_stop()
 
 
 
