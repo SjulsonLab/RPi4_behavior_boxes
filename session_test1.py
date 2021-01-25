@@ -2,7 +2,7 @@
 
 from kelly_task import KellyTask
 
-# put all session-specific parameters here
+# put all session-specific parameters here, e.g. mouse name, name of protocol, etc.
 
 
 

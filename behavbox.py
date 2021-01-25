@@ -9,15 +9,6 @@ import time
 from collections import deque
 from icecream import ic
 
-# this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
-# currently. BoxLED.set_value is the saved intensity value that determines how bright the 
-# LED will be if BoxLED.on() is called. This is better than the original PWMLED class.
-class BoxLED(PWMLED):
-    set_value = 1  # the intensity value, ranging from 0-1
-    def on(self):  # unlike PWMLED, here the on() function sets the intensity to set_value,
-                   # not to full intensity
-        self.value = self.set_value
-
 
 
 # class BehavBox(mouse_name, dir_name, config):
@@ -31,45 +22,7 @@ class BehavBox():
     dir_name='/home/pi/fakedata'
     event_list = deque() # all detected events are added to this queue
 
-    # callbacks
-    def left_poke_entry(self): 
-        self.event_list.append('left_poke_entry')
-        ic('left_poke_entry')
-    def center_poke_entry(self): 
-        self.event_list.append('center_poke_entry')
-        ic('center_poke_entry')
-    def right_poke_entry(self): 
-        self.event_list.append('right_poke_entry')
-        ic('right_poke_entry')
-    def left_poke_exit(self): 
-        self.event_list.append('left_poke_exit')
-        ic('left_poke_exit')
-    def center_poke_exit(self): 
-        self.event_list.append('center_poke_exit')
-        ic('center_poke_exit')
-    def right_poke_exit(self): 
-        self.event_list.append('right_poke_exit')
-        ic('right_poke_exit')
-
-    def left_lick_start(self): 
-        self.event_list.append('left_lick_start')
-        ic('left_lick_start')
-    def center_lick_start(self): 
-        self.event_list.append('center_lick_start')
-        ic('center_lick_start')
-    def right_lick_start(self): 
-        self.event_list.append('right_lick_start')
-        ic('right_lick_start')
-    def left_lick_stop(self): 
-        self.event_list.append('left_lick_stop')
-        ic('left_lick_stop')
-    def center_lick_stop(self): 
-        self.event_list.append('center_lick_stop')
-        ic('center_lick_stop')
-    def right_lick_stop(self): 
-        self.event_list.append('right_lick_stop')
-        ic('right_lick_stop')
-
+    # TODO: this is a fake reward delivery function
     def reward(self, which_pump, reward_size):
         if which_pump=='left':
             self.pump1.blink(0.2, 0.2, reward_size)  # need to replace this with syringepump class
@@ -103,8 +56,8 @@ class BehavBox():
         self.poke1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False 
         self.poke2 = Button(6, None, True)
         self.poke3 = Button(12, None, True)
-        #self.poke4 = Button(13, None, True)  # won't define pokes 4-5 right now
-        #self.poke5 = Button(16, None, True)
+        #self.poke4 = Button(13, None, True)  # won't define pokes 4-5 right now, but those are the
+        #self.poke5 = Button(16, None, True)  # pin numbers
 
         # link nosepoke event detections to callbacks
         self.poke1.when_pressed  = self.left_poke_entry 
@@ -159,6 +112,15 @@ class BehavBox():
 
 
 
+        ###############################################################################################
+        # TODO: treadmill 
+        ###############################################################################################
+
+
+
+
+
+
     ###############################################################################################
     # methods to start and stop video
     # These work with fake video files but haven't been tested with real ones
@@ -195,13 +157,57 @@ class BehavBox():
             os.system("mv /home/pi/Videos/*.log " + self.dir_name + " & ")
 
 
-# # stuff for testing - won't be in final version            
-# box = BehavBox()
-# box.video_start()
-# print("video started")
-# time.sleep(5)
-# box.video_stop()
-# print("video stopped")
+    ###############################################################################################
+    # callbacks TODO: add logging
+    ###############################################################################################
+    def left_poke_entry(self): 
+        self.event_list.append('left_poke_entry')
+        ic('left_poke_entry')
+    def center_poke_entry(self): 
+        self.event_list.append('center_poke_entry')
+        ic('center_poke_entry')
+    def right_poke_entry(self): 
+        self.event_list.append('right_poke_entry')
+        ic('right_poke_entry')
 
+    def left_poke_exit(self): 
+        self.event_list.append('left_poke_exit')
+        ic('left_poke_exit')
+    def center_poke_exit(self): 
+        self.event_list.append('center_poke_exit')
+        ic('center_poke_exit')
+    def right_poke_exit(self): 
+        self.event_list.append('right_poke_exit')
+        ic('right_poke_exit')
+
+    def left_lick_start(self): 
+        self.event_list.append('left_lick_start')
+        ic('left_lick_start')
+    def center_lick_start(self): 
+        self.event_list.append('center_lick_start')
+        ic('center_lick_start')
+    def right_lick_start(self): 
+        self.event_list.append('right_lick_start')
+        ic('right_lick_start')
+
+    def left_lick_stop(self): 
+        self.event_list.append('left_lick_stop')
+        ic('left_lick_stop')
+    def center_lick_stop(self): 
+        self.event_list.append('center_lick_stop')
+        ic('center_lick_stop')
+    def right_lick_stop(self): 
+        self.event_list.append('right_lick_stop')
+        ic('right_lick_stop')
+
+
+# this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
+# currently. BoxLED.set_value is the saved intensity value that determines how bright the 
+# LED will be if BoxLED.on() is called. This is better than the original PWMLED class.
+class BoxLED(PWMLED):
+    set_value = 1  # the intensity value, ranging from 0-1
+    def on(self):  # unlike PWMLED, here the on() function sets the intensity to set_value,
+                   # not to full intensity
+        self.value = self.set_value
 
 

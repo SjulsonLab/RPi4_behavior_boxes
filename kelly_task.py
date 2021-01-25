@@ -16,7 +16,7 @@ class KellyTask(object):
 	reward_size    = 10 # in uL
 
 	########################################################################
-	# possible states in state machine
+	# Three possible states: standby, reward_available, and cue
 	########################################################################
 	states = [
 		State(name='standby', on_enter=['enter_standby'], on_exit=['exit_standby']),
@@ -36,7 +36,7 @@ class KellyTask(object):
 	]
 
 	########################################################################
-	# functions called on state transitions 
+	# functions called when state transitions occur 
 	########################################################################
 	def enter_standby(self): 
 		print("entering standby")
@@ -62,7 +62,7 @@ class KellyTask(object):
 		print("stop cue")
 
 	########################################################################
-	# initializing state machine and behavior box
+	# initialize state machine and behavior box
 	########################################################################
 	def __init__(self, name):
 		self.name = name
@@ -74,7 +74,9 @@ class KellyTask(object):
 		self.box = behavbox.BehavBox()
 
 	########################################################################
-	# call this method repeatedly in a while loop in the main session script
+	# call the run() method repeatedly in a while loop in the main session
+	# script it will process all detected events from the behavior box (e.g. 
+	# nosepokes and licks) and trigger the appropriate state transitions
 	########################################################################
 	def run(self):
 
@@ -89,7 +91,7 @@ class KellyTask(object):
 
 		elif self.state=='reward_available':
 			if event_name=='left_poke_entry':
-				self.nosepoke()
+				self.nosepoke()  # nosepoke here means the transition 
 
 		elif self.state=='cue':
 			pass
