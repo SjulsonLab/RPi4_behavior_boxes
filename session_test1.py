@@ -2,11 +2,33 @@
 
 from kelly_task import KellyTask
 
+# put all session-specific parameters here
+
+
+
+
+
+
+
+
+
+
+
+
+
+# initiate task object
 task = KellyTask("fentanyl")
 
+
+# start session
 task.start_session()
 
+
+# loop over trials
 for i in range(3):
+
+
+
 	print("starting trial")
 
 	task.trial_start()
