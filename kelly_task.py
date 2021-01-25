@@ -1,7 +1,7 @@
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
-import BehavBox
+import behavbox
 
 # adding timing capability to the state machine
 @add_state_features(Timeout)
@@ -72,7 +72,7 @@ class KellyTask(object):
 		self.trial_running = False
 
 		# initialize behavior box
-		self.box = BehavBox()
+		self.box = behavbox.BehavBox()
 
 
 	########################################################################

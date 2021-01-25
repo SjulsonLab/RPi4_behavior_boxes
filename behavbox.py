@@ -58,13 +58,7 @@ class BehavBox():
     #poke4 = Button(13, None, True)  # won't define pokes 4-5 right now
     #poke5 = Button(16, None, True)
 
-    poke1.when_pressed  = left_poke_entry # link nosepokes to callback functions
-    poke2.when_pressed  = center_poke_entry
-    poke3.when_pressed  = right_poke_entry
-    poke1.when_released = left_poke_exit
-    poke2.when_released = center_poke_exit
-    poke3.when_released = right_poke_exit
-
+    # callbacks
     def left_poke_entry(self): 
         self.event_list.append('left_poke_entry')
         ic('left_poke_entry')
@@ -74,7 +68,6 @@ class BehavBox():
     def right_poke_entry(self): 
         self.event_list.append('right_poke_entry')
         ic('right_poke_entry')
-
     def left_poke_exit(self): 
         self.event_list.append('left_poke_exit')
         ic('left_poke_exit')
@@ -85,6 +78,14 @@ class BehavBox():
         self.event_list.append('right_poke_exit')
         ic('right_poke_exit')
 
+    # link nosepoke event detections to callbacks
+    poke1.when_pressed  = left_poke_entry 
+    poke2.when_pressed  = center_poke_entry
+    poke3.when_pressed  = right_poke_entry
+    poke1.when_released = left_poke_exit
+    poke2.when_released = center_poke_exit
+    poke3.when_released = right_poke_exit
+
     
     ###############################################################################################
     # lick detectors
@@ -92,13 +93,6 @@ class BehavBox():
     lick1 = Button(26)
     lick2 = Button(27)
     lick3 = Button(15)
-
-    lick1.when_pressed  = left_lick_start # link licks to callback functions
-    lick2.when_pressed  = center_lick_start
-    lick3.when_pressed  = right_lick_start
-    lick1.when_released = left_lick_stop
-    lick2.when_released = center_lick_stop
-    lick3.when_released = right_lick_stop
 
     def left_lick_start(self): 
         self.event_list.append('left_lick_start')
@@ -109,7 +103,6 @@ class BehavBox():
     def right_lick_start(self): 
         self.event_list.append('right_lick_start')
         ic('right_lick_start')
-
     def left_lick_stop(self): 
         self.event_list.append('left_lick_stop')
         ic('left_lick_stop')
@@ -119,6 +112,15 @@ class BehavBox():
     def right_lick_stop(self): 
         self.event_list.append('right_lick_stop')
         ic('right_lick_stop')
+
+    # link licks to callback functions
+    lick1.when_pressed  = left_lick_start 
+    lick2.when_pressed  = center_lick_start
+    lick3.when_pressed  = right_lick_start
+    lick1.when_released = left_lick_stop
+    lick2.when_released = center_lick_stop
+    lick3.when_released = right_lick_stop
+
 
     ###############################################################################################
     # syringe pumps - will configure these as LEDs for now until new class is written
