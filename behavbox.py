@@ -10,7 +10,7 @@ import time
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the 
-# LED will be if BoxLED.on() is called
+# LED will be if BoxLED.on() is called. This is better than the original PWMLED class.
 class BoxLED(PWMLED):
     set_value = 1  # the intensity value, ranging from 0-1
     def on(self):  # unlike PWMLED, here the on() function sets the intensity to set_value,
@@ -106,8 +106,7 @@ class BehavBox():
             os.system("mv /home/pi/Videos/*.log " + self.dir_name + " & ")
 
 
-            
-
+# stuff for testing - won't be in final version            
 box = BehavBox()
 box.video_start()
 print("video started")

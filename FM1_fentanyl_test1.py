@@ -7,6 +7,10 @@ import collections, pysistence, socket
 import logging
 import datetime
 
+
+# very little of this has been written yet
+
+
 # define all parameters for expt
 
 # TODO - figure out what to include in ordered dicts (like before)
