@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo killing process `ps uax | grep -v grep | grep record_video.py | tr -s " " | cut -d " " -f 2`
+
 # this sends a SIGINT (equal to Ctrl-C) to record_video.py
-kill -1 `ps uax | grep -v grep | grep record_video.py | tr -s " " | cut -d " " -f 2`
+kill -2 `ps uax | grep -v grep | grep record_video.py | tr -s " " | cut -d " " -f 2`
 

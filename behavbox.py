@@ -24,7 +24,8 @@ class BehavBox():
 
     # if config==something:  <- the configuration determines the hardware pin config, in case there
     # is more than one hardware configuration
-    config='freely_moving1'
+    # config='freely_moving1'
+    config='head_fixed1'
     mouse_name='fakemouse'
     dir_name='/home/pi/fakedata'
 
@@ -77,28 +78,29 @@ class BehavBox():
         if self.config=='head_fixed1':
             # untested - this assumes the second RPi has the same hostname except with a "b"
             # appended, e.g. bumbrlik02b instead of bumbrlik02
-            tempstr = "ssh pi@`hostname`b \'/home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " &\' "
+            os.system("ssh pi@`hostname`b 'date >> ~/Videos/videolog.log ' ")
+            tempstr = "ssh pi@`hostname`b \'nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " >> ~/Videos/videolog.log 2>&1 & \' "
             print(tempstr)
             os.system(tempstr)
 
         if self.config=='freely_moving1':
             # untested - for freely-moving box
-            tempstr = "/home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " & "
+            os.system("date >> ~/Videos/videolog.txt")
+            tempstr = "nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " >> ~/Videos/videolog.log 2>&1 & "
             print(tempstr)
             os.system(tempstr)
             
     def video_stop(self):
         if self.config=='head_fixed1':
             # sends SIGINT to record_video.py, telling it to exit
-            os.system("ssh pi@`hostname`b \'kill -1 `ps ax | grep -v grep | grep record_video | cut -d \" \" -f 1` \' ")
+            os.system("ssh pi@`hostname`b /home/pi/RPi4_behavior_boxes/stop_video")
             time.sleep(1)
-            os.system("rsync --delete-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name + " & ") 
-            os.system("rsync --delete-source-files pi@`hostname`b:Videos/*.log " + self.dir_name + " & ")
+            os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name + " & ") 
+            os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.log " + self.dir_name + " & ")
 
         if self.config=='freely_moving1':
-            l1 = "ssh pi@`hostname`b \'kill -1 `ps uax | grep -v grep | grep record_video | tr -s \" \" | cut -d \" \" -f 2` \' "
-            print(l1)
-            os.system(l1)
+            # sends SIGINT to record_video.py, telling it to exit
+            os.system("/home/pi/RPi4_behavior_boxes/stop_video")
             time.sleep(1)
             os.system("mv /home/pi/Videos/*.avi " + self.dir_name + " & ")
             os.system("mv /home/pi/Videos/*.log " + self.dir_name + " & ")
@@ -108,9 +110,10 @@ class BehavBox():
 
 box = BehavBox()
 box.video_start()
+print("video started")
 time.sleep(5)
 box.video_stop()
-
+print("video stopped")
 
 
 

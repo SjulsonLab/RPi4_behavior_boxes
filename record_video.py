@@ -16,7 +16,7 @@ import os
 # mousename_2021-01-24_150723.avi   (the video)
 # mousename_2021-01-24_150723.log   (frame timestamps)
 #
-# and when it receives a SIGINT (either a Ctrl-C or a kill -1) it would gracefully
+# and when it receives a SIGINT (either a Ctrl-C or a kill -2) it would gracefully
 # stop recording, close the files, and exit.
 
 # for testing only
