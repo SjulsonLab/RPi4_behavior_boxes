@@ -1,7 +1,9 @@
 #!/bin/bash
 
-echo killing process `ps uax | grep -v grep | grep record_video.py | tr -s " " | cut -d " " -f 2`
+# the process number (or numbers) of currently-running sessions of record_video.py
+PROCNUM=`ps uax | grep -v grep | grep record_video.py | tr -s " " | cut -d " " -f 2`
 
 # this sends a SIGINT (equal to Ctrl-C) to record_video.py
-kill -2 `ps uax | grep -v grep | grep record_video.py | tr -s " " | cut -d " " -f 2`
+echo sending SIGINT to process $PROCNUM
+kill -2 $PROCNUM
 
