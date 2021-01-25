@@ -73,21 +73,21 @@ class BehavBox():
     # TODO: visual stimuli - unsure if better to put that here or somewhere else
 
 
-    # TODO: test these methods to start and stop 
+    # These work with fake video files but haven't been tested with real ones
     def video_start(self):
         if self.config=='head_fixed1':
             # untested - this assumes the second RPi has the same hostname except with a "b"
             # appended, e.g. bumbrlik02b instead of bumbrlik02
             os.system("ssh pi@`hostname`b 'date >> ~/Videos/videolog.log ' ")
             tempstr = "ssh pi@`hostname`b \'nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " >> ~/Videos/videolog.log 2>&1 & \' "
-            print(tempstr)
+            # print(tempstr)
             os.system(tempstr)
 
         if self.config=='freely_moving1':
             # untested - for freely-moving box
             os.system("date >> ~/Videos/videolog.txt")
             tempstr = "nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " >> ~/Videos/videolog.log 2>&1 & "
-            print(tempstr)
+            # print(tempstr)
             os.system(tempstr)
             
     def video_stop(self):
