@@ -55,7 +55,7 @@ class KellyTask(object):
 
 	def enter_cue(self):
 		print("deliver reward")
-		self.box.reward('right', self.reward_size)
+		self.box.reward('left', self.reward_size)
 		print("start cue")
 
 	def exit_cue(self):
@@ -87,7 +87,7 @@ class KellyTask(object):
 			pass
 
 		elif self.state=='reward_available':
-			if event_name=='right_poke_entry':
+			if event_name=='left_poke_entry':
 				self.nosepoke()
 
 		elif self.state=='cue':

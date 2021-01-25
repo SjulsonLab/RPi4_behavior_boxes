@@ -31,33 +31,6 @@ class BehavBox():
     dir_name='/home/pi/fakedata'
     event_list = deque() # all detected events are added to this queue
 
-    ###############################################################################################
-    # below are all the pin numbers for Yi's breakout board
-    # cue LEDs - setting PWM frequency of 200 Hz
-    ###############################################################################################
-    cueLED1 = BoxLED(22, frequency=200)
-    cueLED2 = BoxLED(18, frequency=200)
-    cueLED3 = BoxLED(17, frequency=200)
-    cueLED4 = BoxLED(14, frequency=200)
-
-    ###############################################################################################
-    # digital I/O's - TODO: use for audio??
-    ###############################################################################################
-#    DIO1 = LED(7) # for testing, using pin 7 for syringe pump
-    DIO2 = LED(8)
-    DIO3 = LED(9)
-    DIO4 = LED(10)
-    DIO5 = LED(11)
-
-    ###############################################################################################
-    # nosepokes 
-    ###############################################################################################
-    poke1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False 
-    poke2 = Button(6, None, True)
-    poke3 = Button(12, None, True)
-    #poke4 = Button(13, None, True)  # won't define pokes 4-5 right now
-    #poke5 = Button(16, None, True)
-
     # callbacks
     def left_poke_entry(self): 
         self.event_list.append('left_poke_entry')
@@ -78,22 +51,6 @@ class BehavBox():
         self.event_list.append('right_poke_exit')
         ic('right_poke_exit')
 
-    # link nosepoke event detections to callbacks
-    poke1.when_pressed  = left_poke_entry 
-    poke2.when_pressed  = center_poke_entry
-    poke3.when_pressed  = right_poke_entry
-    poke1.when_released = left_poke_exit
-    poke2.when_released = center_poke_exit
-    poke3.when_released = right_poke_exit
-
-    
-    ###############################################################################################
-    # lick detectors
-    ###############################################################################################
-    lick1 = Button(26)
-    lick2 = Button(27)
-    lick3 = Button(15)
-
     def left_lick_start(self): 
         self.event_list.append('left_lick_start')
         ic('left_lick_start')
@@ -113,26 +70,6 @@ class BehavBox():
         self.event_list.append('right_lick_stop')
         ic('right_lick_stop')
 
-    # link licks to callback functions
-    lick1.when_pressed  = left_lick_start 
-    lick2.when_pressed  = center_lick_start
-    lick3.when_pressed  = right_lick_start
-    lick1.when_released = left_lick_stop
-    lick2.when_released = center_lick_stop
-    lick3.when_released = right_lick_stop
-
-
-    ###############################################################################################
-    # syringe pumps - will configure these as LEDs for now until new class is written
-    ###############################################################################################
-    pump1   = LED(7)  # for testing only - the correct pin number is 19
-    # pump1   = LED(19)
-    pump2   = LED(20)
-    pump3   = LED(21)
-    pump4   = LED(23)
-    pump5   = LED(24)
-    pump_en = LED(25) # pump enable
-
     def reward(self, which_pump, reward_size):
         if which_pump=='left':
             self.pump1.blink(0.2, 0.2, reward_size)  # need to replace this with syringepump class
@@ -141,18 +78,82 @@ class BehavBox():
         elif which_pump=='right':
             self.pump3.blink(0.2, 0.2, reward_size)
 
+    def __init__(self):
+        ###############################################################################################
+        # below are all the pin numbers for Yi's breakout board
+        # cue LEDs - setting PWM frequency of 200 Hz
+        ###############################################################################################
+        self.cueLED1 = BoxLED(22, frequency=200)
+        self.cueLED2 = BoxLED(18, frequency=200)
+        self.cueLED3 = BoxLED(17, frequency=200)
+        self.cueLED4 = BoxLED(14, frequency=200)
 
-    ###############################################################################################
-    # camera strobe signal
-    ###############################################################################################
-    camera_strobe = Button(4)
-    # TODO: write code so that rising and falling edges are detected and logged in a separate video file
+        ###############################################################################################
+        # digital I/O's - TODO: use for audio??
+        ###############################################################################################
+        #    self.DIO1 = LED(7) # for testing, using pin 7 for syringe pump
+        self.DIO2 = LED(8)
+        self.DIO3 = LED(9)
+        self.DIO4 = LED(10)
+        self.DIO5 = LED(11)
+
+        ###############################################################################################
+        # nosepokes 
+        ###############################################################################################
+        self.poke1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False 
+        self.poke2 = Button(6, None, True)
+        self.poke3 = Button(12, None, True)
+        #self.poke4 = Button(13, None, True)  # won't define pokes 4-5 right now
+        #self.poke5 = Button(16, None, True)
+
+        # link nosepoke event detections to callbacks
+        self.poke1.when_pressed  = self.left_poke_entry 
+        self.poke2.when_pressed  = self.center_poke_entry
+        self.poke3.when_pressed  = self.right_poke_entry
+        self.poke1.when_released = self.left_poke_exit
+        self.poke2.when_released = self.center_poke_exit
+        self.poke3.when_released = self.right_poke_exit
+
+        
+        ###############################################################################################
+        # lick detectors
+        ###############################################################################################
+        self.lick1 = Button(26)
+        self.lick2 = Button(27)
+        self.lick3 = Button(15)
+
+        # link licks to callback functions
+        self.lick1.when_pressed  = self.left_lick_start 
+        self.lick2.when_pressed  = self.center_lick_start
+        self.lick3.when_pressed  = self.right_lick_start
+        self.lick1.when_released = self.left_lick_stop
+        self.lick2.when_released = self.center_lick_stop
+        self.lick3.when_released = self.right_lick_stop
+
+
+        ###############################################################################################
+        # syringe pumps - will configure these as LEDs for now until new class is written
+        ###############################################################################################
+        self.pump1   = LED(7)  # for testing only - the correct pin number is 19
+        # self.pump1   = LED(19)
+        self.pump2   = LED(20)
+        self.pump3   = LED(21)
+        self.pump4   = LED(23)
+        self.pump5   = LED(24)
+        self.pump_en = LED(25) # pump enable
+
+
+        ###############################################################################################
+        # camera strobe signal
+        ###############################################################################################
+        self.camera_strobe = Button(4)
+        # TODO: write code so that rising and falling edges are detected and logged in a separate video file
 
 
 
-    ###############################################################################################
-    # TODO: visual stimuli - unsure if better to put that here or somewhere else
-    ###############################################################################################
+        ###############################################################################################
+        # TODO: visual stimuli - unsure if better to put that here or somewhere else
+        ###############################################################################################
 
 
 
