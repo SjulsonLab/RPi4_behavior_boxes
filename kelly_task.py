@@ -1,7 +1,7 @@
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
-# import BehavBox
+import BehavBox
 
 # adding timing capability to the state machine
 @add_state_features(Timeout)
@@ -23,7 +23,6 @@ class KellyTask(object):
 		State(name='reward_available', on_enter=['enter_reward_available'], 
 			on_exit=['exit_reward_available']),
 		{'name': 'cue', 'timeout': timeout_length, 'on_timeout': 'timeup', 'on_enter': 'enter_cue', 'on_exit': 'exit_cue'}
-#		State(name='cue', on_enter=['enter_cue'], on_exit=['exit_cue'], timeout=timeout_length, on_timeout=['go'])
 	]
 
 	########################################################################
@@ -56,7 +55,7 @@ class KellyTask(object):
 
 	def enter_cue(self):
 		print("deliver reward")
-#		self.box.reward('right', self.reward_size)
+		self.box.reward('right', self.reward_size)
 		print("start cue")
 
 	def exit_cue(self):
@@ -73,7 +72,7 @@ class KellyTask(object):
 		self.trial_running = False
 
 		# initialize behavior box
-		#self.box = BehavBox(_______________)
+		self.box = BehavBox()
 
 
 	########################################################################
