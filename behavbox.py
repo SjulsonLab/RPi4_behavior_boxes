@@ -8,7 +8,7 @@ import os
 import time
 from collections import deque
 from icecream import ic
-
+import pygame
 
 
 # class BehavBox(mouse_name, dir_name, config):
@@ -117,7 +117,47 @@ class BehavBox():
         ###############################################################################################
 
 
+        ###############################################################################################
+        # Keystroke handler
+        ###############################################################################################
+        DISPLAYSURF = pygame.display.set_mode((200, 200)) 
+        print("\nKeystroke handler initiated. In order for keystrokes to register, the pygame window")
+        print("must be in the foreground. Keys are as follows:")
+        print("         1: left poke            2: center poke            3: right poke")
+        print("         Q: left lick            W: center lick            E: right lick\n")
 
+    ###############################################################################################
+    # check for key presses - uses pygame window to simulate nosepokes and licks
+    ###############################################################################################
+    def check_keybd(self):
+        event = pygame.event.poll()
+        KeyDown = 2  # event type numbers
+        KeyUp   = 3
+        if event:
+            if event.type == KeyDown and event.key == 49:   # 1 key
+                self.left_poke_entry()
+            elif event.type == KeyUp and event.key == 49:
+                self.left_poke_exit()
+            elif event.type == KeyDown and event.key == 50:   # 2 key
+                self.center_poke_entry()
+            elif event.type == KeyUp and event.key == 50:
+                self.center_poke_exit()
+            elif event.type == KeyDown and event.key == 51:   # 3 key
+                self.right_poke_entry()
+            elif event.type == KeyUp and event.key == 52:
+                self.right_poke_exit()
+            elif event.type == KeyDown and event.key == 113:  # Q key
+                self.left_lick_start()
+            elif event.type == KeyUp and event.key == 113:    
+                self.left_lick_stop()
+            elif event.type == KeyDown and event.key == 119:  # W key
+                self.center_lick_start()
+            elif event.type == KeyUp and event.key == 119:
+                self.center_lick_stop()
+            elif event.type == KeyDown and event.key == 101:  # E key
+                self.right_lick_start()
+            elif event.type == KeyUp and event.key == 101:
+                self.right_lick_stop()
 
 
 

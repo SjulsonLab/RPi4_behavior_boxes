@@ -96,6 +96,10 @@ class KellyTask(object):
 		elif self.state=='cue':
 			pass
 
+		# look for keystrokes
+		self.box.check_keybd()
+
+
 
 	########################################################################
 	# methods to start and end the behavioral session
