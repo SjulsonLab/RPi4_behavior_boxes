@@ -1,6 +1,7 @@
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
+import pysistence, collections
 from icecream import ic
 import logging
 from datetime import datetime
@@ -22,15 +23,10 @@ class TimedStateMachine(Machine):
 
 class KellyTask(object):
 
-    # wotan
-    mouse_name = 'mouse01'
-    basedir='/home/pi/fakedata'
-    dirname  = ''
-    filename = ''
-
     # some parameters
     timeout_length = 5  # in seconds
     reward_size    = 10 # in uL
+    config = 'freely_moving_v1'
 
     ########################################################################
     # Three possible states: standby, reward_available, and cue
@@ -48,7 +44,7 @@ class KellyTask(object):
     ########################################################################
     transitions = [
         ['trial_start', 'standby', 'reward_available'],
-        ['nosepoke', 'reward_available', 'cue'],
+        ['active_poke', 'reward_available', 'cue'],
         ['timeup', 'cue', 'standby']
     ]
 
@@ -81,17 +77,16 @@ class KellyTask(object):
     ########################################################################
     # initialize state machine and behavior box
     ########################################################################
-    def __init__(self, name):
+    def __init__(self, name, session_info):
 
         self.name = name
         self.machine = TimedStateMachine(model=self, states=KellyTask.states, transitions=KellyTask.transitions, 
             initial='standby')
         self.trial_running = False
+        self.session_info = session_info
 
         # initialize behavior box
-        self.box = behavbox.BehavBox()
-
-
+        self.box = behavbox.BehavBox(self.session_info)
 
     ########################################################################
     # call the run() method repeatedly in a while loop in the main session
@@ -111,7 +106,7 @@ class KellyTask(object):
 
         elif self.state=='reward_available':
             if event_name=='left_poke_entry':
-                self.nosepoke()  # nosepoke here means the transition 
+                self.active_poke()  # triggers state transition 
 
         elif self.state=='cue':
             pass

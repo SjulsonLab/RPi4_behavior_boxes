@@ -26,5 +26,5 @@ session_info['datetime']					= session_info['date'] + '_' + session_info['time']
 session_info['basename']                  	= mouse_info['mouse_name'] + '_' + session_info['datetime']
 session_info['box_name']             		= socket.gethostname()
 session_info['dirname']  					= session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info['datetime']
-
+session_info['config']						= 'freely_moving_v1'
 

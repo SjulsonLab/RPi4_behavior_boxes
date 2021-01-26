@@ -14,6 +14,7 @@ import socket
 import importlib
 import colorama
 import warnings
+import scipy.io 
 from colorama import Fore, Style
 
 # all modules above this line will have logging disabled
@@ -33,8 +34,6 @@ try:
     session_info = tempmod.session_info
     mouse_info   = tempmod.mouse_info
 
-    ic(session_info['manual_date'])
-    ic(session_info['date'])
     if session_info['manual_date'] != session_info['date']:  # check if file is updated
         print('wrong date!!')
         raise RuntimeError('manual_date field in session_info file is not updated')
@@ -56,12 +55,14 @@ try:
     )
 
     # initiate task object
-    task = KellyTask("fentanyl")
+    # task = KellyTask("fentanyl_task", session_info['mouse_name'], session_info['dirname'], session_info['config'])
+    task = KellyTask("fentanyl_task", session_info)
 
 
     # start session
     task.start_session()
-
+    scipy.io.savemat('mouse_info.mat', {'mouse_info': mouse_info})
+    scipy.io.savemat('session_info.mat', {'session_info': session_info})
 
     # loop over trials
     for i in range(3):

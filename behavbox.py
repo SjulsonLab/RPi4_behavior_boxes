@@ -10,17 +10,17 @@ from collections import deque
 from icecream import ic
 import pygame
 import logging
+import pysistence, collections
 
 
-# class BehavBox(mouse_name, dir_name, config):
-class BehavBox():
+class BehavBox(object):
 
     # if config==something:  <- the configuration determines the hardware pin config, in case there
     # is more than one hardware configuration
-    # config='freely_moving1'
-    config='head_fixed1'
-    mouse_name='fakemouse'
-    dir_name='/home/pi/fakedata'
+    # config='freely_moving_v1'
+    # # config='head_fixed_v1'
+    # mouse_name='fakemouse'
+    # dir_name='/home/pi/fakedata'
     event_list = deque() # all detected events are added to this queue
 
     # TODO: this is a fake reward delivery function
@@ -32,9 +32,12 @@ class BehavBox():
         elif which_pump=='right':
             self.pump3.blink(0.2, 0.2, reward_size)
 
-    def __init__(self):
+    def __init__(self, session_info):
 
         logging.info("behavior_box_initialized")
+        self.mouse_name     = session_info['mouse_name']
+        self.dirname        = session_info['dirname']
+        self.config         = session_info['config']
 
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
@@ -176,7 +179,7 @@ class BehavBox():
     # These work with fake video files but haven't been tested with real ones
     ###############################################################################################
     def video_start(self):
-        if self.config=='head_fixed1':
+        if self.config=='head_fixed_v1':
             # this assumes the second RPi has the same hostname except with a "b"
             # appended, e.g. bumbrlik02b instead of bumbrlik02
             os.system("ssh pi@`hostname`b 'date >> ~/Videos/videolog.log ' ")
@@ -184,7 +187,7 @@ class BehavBox():
             # print(tempstr)
             os.system(tempstr)
 
-        if self.config=='freely_moving1':
+        if self.config=='freely_moving_v1':
             # for freely-moving box
             os.system("date >> ~/Videos/videolog.txt")
             tempstr = "nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " >> ~/Videos/videolog.log 2>&1 & "
@@ -192,14 +195,14 @@ class BehavBox():
             os.system(tempstr)
             
     def video_stop(self):
-        if self.config=='head_fixed1':
+        if self.config=='head_fixed_v1':
             # sends SIGINT to record_video.py, telling it to exit
             os.system("ssh pi@`hostname`b /home/pi/RPi4_behavior_boxes/stop_video")
             time.sleep(1)
             os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name + " & ") 
             os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.log " + self.dir_name + " & ")
 
-        if self.config=='freely_moving1':
+        if self.config=='freely_moving_v1':
             # sends SIGINT to record_video.py, telling it to exit
             os.system("/home/pi/RPi4_behavior_boxes/stop_video")
             time.sleep(1)
