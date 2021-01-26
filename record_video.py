@@ -3,6 +3,7 @@
 import signal
 import sys
 import os
+from icecream import ic
 
 
 # TODO: this needs to be a script that runs from the command line on either RPi 
@@ -21,9 +22,9 @@ import os
 
 # for testing only
 def signal_handler(sig, frame):
-    print('SIGINT detected')
+    ic('SIGINT detected')
     os.system('touch /home/pi/Videos/fakevideo.avi')
-    os.system('touch /home/pi/Videos/fakevideo.log')
+#    os.system('touch /home/pi/Videos/fakevideo.log')
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)

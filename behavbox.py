@@ -36,7 +36,7 @@ class BehavBox(object):
 
         logging.info("behavior_box_initialized")
         self.mouse_name     = session_info['mouse_name']
-        self.dirname        = session_info['dirname']
+        self.dir_name       = session_info['dir_name']
         self.config         = session_info['config']
 
         ###############################################################################################
@@ -187,9 +187,9 @@ class BehavBox(object):
             # print(tempstr)
             os.system(tempstr)
 
-        if self.config=='freely_moving_v1':
+        elif self.config=='freely_moving_v1':
             # for freely-moving box
-            os.system("date >> ~/Videos/videolog.txt")
+            os.system("date >> ~/Videos/videolog.log")
             tempstr = "nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " >> ~/Videos/videolog.log 2>&1 & "
             # print(tempstr)
             os.system(tempstr)
@@ -202,10 +202,10 @@ class BehavBox(object):
             os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name + " & ") 
             os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.log " + self.dir_name + " & ")
 
-        if self.config=='freely_moving_v1':
+        elif self.config=='freely_moving_v1':
             # sends SIGINT to record_video.py, telling it to exit
             os.system("/home/pi/RPi4_behavior_boxes/stop_video")
-            time.sleep(1)
+            time.sleep(2)
             os.system("mv /home/pi/Videos/*.avi " + self.dir_name + " & ")
             os.system("mv /home/pi/Videos/*.log " + self.dir_name + " & ")
 

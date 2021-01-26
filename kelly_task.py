@@ -121,8 +121,9 @@ class KellyTask(object):
     ########################################################################
     def start_session(self):
         ic('TODO: start video')
+        self.box.video_start()
 
     def end_session(self):
         ic('TODO: stop video')
-
+        self.box.video_stop()
 

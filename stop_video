@@ -4,6 +4,5 @@
 PROCNUM=`ps uax | grep -v grep | grep record_video.py | tr -s " " | cut -d " " -f 2`
 
 # this sends a SIGINT (equal to Ctrl-C) to record_video.py
-echo sending SIGINT to process $PROCNUM
+echo stopvideo: sending SIGINT to process $PROCNUM
 kill -2 $PROCNUM
-

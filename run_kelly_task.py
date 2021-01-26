@@ -40,8 +40,8 @@ try:
 
 
     # make data directory and initialize logfile
-    os.makedirs( session_info['dirname'] )
-    os.chdir( session_info['dirname'] )
+    os.makedirs( session_info['dir_name'] )
+    os.chdir( session_info['dir_name'] )
     filename = session_info['mouse_name'] + "_" + session_info['datetime'] + ".log" 
     logging.basicConfig(
         level=logging.INFO,
@@ -55,7 +55,7 @@ try:
     )
 
     # initiate task object
-    # task = KellyTask("fentanyl_task", session_info['mouse_name'], session_info['dirname'], session_info['config'])
+    # task = KellyTask("fentanyl_task", session_info['mouse_name'], session_info['dir_name'], session_info['config'])
     task = KellyTask("fentanyl_task", session_info)
 
 
@@ -65,7 +65,7 @@ try:
     scipy.io.savemat('session_info.mat', {'session_info': session_info})
 
     # loop over trials
-    for i in range(3):
+    for i in range(2):
 
 
         logging.info("starting_trial")
@@ -75,14 +75,15 @@ try:
         while task.trial_running:
             task.run()
 
-    task.end_session()
     raise SystemExit
 
 # graceful exit
 except (KeyboardInterrupt, SystemExit):
-    print(Fore.RED + Style.BRIGHT + 'Exiting now' + Style.RESET_ALL)
+    print(Fore.RED + Style.BRIGHT + 'Exiting now...' + Style.RESET_ALL)
+    ic('about to call end_session()')
+    task.end_session()
+    ic('just called end_session()')
     # save dicts to disk
-    import scipy.io 
     scipy.io.savemat('mouse_info.mat', {'mouse_info': mouse_info})
     scipy.io.savemat('session_info.mat', {'session_info': session_info})
 
@@ -91,7 +92,6 @@ except (KeyboardInterrupt, SystemExit):
 # except (RuntimeError) as ex:
 #     print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
 #     # save dicts to disk
-#     import scipy.io 
 #     scipy.io.savemat('mouse_info.mat', {'mouse_info': mouse_info})
 #     scipy.io.savemat('session_info.mat', {'session_info': session_info})
 
