@@ -9,6 +9,7 @@ import time
 from collections import deque
 from icecream import ic
 import pygame
+import logging
 
 
 # class BehavBox(mouse_name, dir_name, config):
@@ -32,6 +33,9 @@ class BehavBox():
             self.pump3.blink(0.2, 0.2, reward_size)
 
     def __init__(self):
+
+        logging.info("behavior_box_initialized")
+
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
         # cue LEDs - setting PWM frequency of 200 Hz
@@ -144,7 +148,7 @@ class BehavBox():
                 self.center_poke_exit()
             elif event.type == KeyDown and event.key == 51:   # 3 key
                 self.right_poke_entry()
-            elif event.type == KeyUp and event.key == 52:
+            elif event.type == KeyUp and event.key == 51:
                 self.right_poke_exit()
             elif event.type == KeyDown and event.key == 113:  # Q key
                 self.left_lick_start()
@@ -198,47 +202,47 @@ class BehavBox():
 
 
     ###############################################################################################
-    # callbacks TODO: add logging
+    # callbacks
     ###############################################################################################
     def left_poke_entry(self): 
         self.event_list.append('left_poke_entry')
-        ic('left_poke_entry')
+        logging.info('left_poke_entry')
     def center_poke_entry(self): 
         self.event_list.append('center_poke_entry')
-        ic('center_poke_entry')
+        logging.info('center_poke_entry')
     def right_poke_entry(self): 
         self.event_list.append('right_poke_entry')
-        ic('right_poke_entry')
+        logging.info('right_poke_entry')
 
     def left_poke_exit(self): 
         self.event_list.append('left_poke_exit')
-        ic('left_poke_exit')
+        logging.info('left_poke_exit')
     def center_poke_exit(self): 
         self.event_list.append('center_poke_exit')
-        ic('center_poke_exit')
+        logging.info('center_poke_exit')
     def right_poke_exit(self): 
         self.event_list.append('right_poke_exit')
-        ic('right_poke_exit')
+        logging.info('right_poke_exit')
 
     def left_lick_start(self): 
         self.event_list.append('left_lick_start')
-        ic('left_lick_start')
+        logging.info('left_lick_start')
     def center_lick_start(self): 
         self.event_list.append('center_lick_start')
-        ic('center_lick_start')
+        logging.info('center_lick_start')
     def right_lick_start(self): 
         self.event_list.append('right_lick_start')
-        ic('right_lick_start')
+        logging.info('right_lick_start')
 
     def left_lick_stop(self): 
         self.event_list.append('left_lick_stop')
-        ic('left_lick_stop')
+        logging.info('left_lick_stop')
     def center_lick_stop(self): 
         self.event_list.append('center_lick_stop')
-        ic('center_lick_stop')
+        logging.info('center_lick_stop')
     def right_lick_stop(self): 
         self.event_list.append('right_lick_stop')
-        ic('right_lick_stop')
+        logging.info('right_lick_stop')
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)

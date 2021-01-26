@@ -8,6 +8,9 @@ temp/
 # OSX / *nix default autosave extension
 *.m~
 
+# python stuff
+__pycache*
+
 # Compiled MEX binaries (all platforms)
 *.mex*
 
