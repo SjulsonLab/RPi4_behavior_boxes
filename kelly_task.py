@@ -69,9 +69,11 @@ class KellyTask(object):
         print("deliver reward")
         self.box.reward('left', self.reward_size)
         print("start cue")
+        self.box.cueLED1.on()
 
     def exit_cue(self):
         print("stop cue")
+        self.box.cueLED1.off()
 
     ########################################################################
     # initialize state machine and behavior box

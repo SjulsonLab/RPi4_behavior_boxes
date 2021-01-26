@@ -26,13 +26,29 @@ class BehavBox(object):
     event_list = deque() # all detected events are added to this queue
 
     # TODO: this is a fake reward delivery function
+
+
+
+    # TODO: write this up in a syringe pump class
     def reward(self, which_pump, reward_size):
+        print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
+        diameter_mm = 12.06  # for 5 mL syringe
+        # diameter_mm = 14.5   # for 10 mL syringe
+        volPerRevolution_uL = 0.8 * ( diameter_mm/2 )*( diameter_mm/2 ) * 3.1415926535898 # thread is 0.8 mm per turn
+        howManyRevolutions = reward_size / volPerRevolution_uL
+        # // determine total steps needed to reach desired revolutions, @200 steps/revolution
+        # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
+        # // round to nearest int
+        totalSteps = round(200 * howManyRevolutions * 4)
+        reward_duration = 1     # delivery reward over 300 ms
+        cycle_length = reward_duration / totalSteps  # need to know what the minimum value can be
+
         if which_pump=='left':
-            self.pump1.blink(0.2, 0.2, reward_size)  # need to replace this with syringepump class
+            self.pump1.blink(cycle_length*0.1, cycle_length*0.9, totalSteps)
         elif which_pump=='center':
-            self.pump2.blink(0.2, 0.2, reward_size)
+            self.pump2.blink(cycle_length*0.1, cycle_length*0.9, totalSteps)
         elif which_pump=='right':
-            self.pump3.blink(0.2, 0.2, reward_size)
+            self.pump3.blink(cycle_length*0.1, cycle_length*0.9, totalSteps)
 
     def __init__(self, session_info):
 
