@@ -25,20 +25,20 @@ logging.config.dictConfig({
 # import your task class here
 from kelly_task import KellyTask
 
-# import session and mouse info, contingent upon the dates matching
-full_module_name = 'session_info_' + datetime.now().strftime("%Y-%m-%d")
-tempmod = importlib.import_module(full_module_name)
-session_info = tempmod.session_info
-mouse_info   = tempmod.mouse_info
-
-ic(session_info['manual_date'])
-ic(session_info['date'])
-if session_info['manual_date'] != session_info['date']:  # check if file is updated
-    print('wrong date!!')
-    raise RuntimeError('manual_date field in session_info file is not updated')
-
-
 try:
+
+    # import session and mouse info, contingent upon the dates matching
+    full_module_name = 'session_info_' + datetime.now().strftime("%Y-%m-%d")
+    tempmod = importlib.import_module(full_module_name)
+    session_info = tempmod.session_info
+    mouse_info   = tempmod.mouse_info
+
+    ic(session_info['manual_date'])
+    ic(session_info['date'])
+    if session_info['manual_date'] != session_info['date']:  # check if file is updated
+        print('wrong date!!')
+        raise RuntimeError('manual_date field in session_info file is not updated')
+
 
     # make data directory and initialize logfile
     os.makedirs( session_info['dirname'] )
@@ -67,8 +67,7 @@ try:
     for i in range(3):
 
 
-        logging.info("starting trial")
-        print("starting trial")
+        logging.info("starting_trial")
 
         task.trial_start()
 
@@ -83,13 +82,17 @@ except (KeyboardInterrupt, SystemExit):
     print(Fore.RED + Style.BRIGHT + 'Exiting now' + Style.RESET_ALL)
     # save dicts to disk
     import scipy.io 
-    # scipy.io.savemat(filename, {struct_name: dict_to_save})
-    # box_utils.save_mat_file('mouse_info.mat', mouse_info, 'mouse_info')
-    # box_utils.save_mat_file('session_info.mat', session_info, 'session_info')
     scipy.io.savemat('mouse_info.mat', {'mouse_info': mouse_info})
     scipy.io.savemat('session_info.mat', {'session_info': session_info})
 
 
+# # exit because of error
+# except (RuntimeError) as ex:
+#     print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
+#     # save dicts to disk
+#     import scipy.io 
+#     scipy.io.savemat('mouse_info.mat', {'mouse_info': mouse_info})
+#     scipy.io.savemat('session_info.mat', {'session_info': session_info})
 
 
 
