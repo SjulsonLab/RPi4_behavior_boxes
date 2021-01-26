@@ -17,17 +17,7 @@ import pysistence, collections
 
 class BehavBox(object):
 
-    # if config==something:  <- the configuration determines the hardware pin config, in case there
-    # is more than one hardware configuration
-    # config='freely_moving_v1'
-    # # config='head_fixed_v1'
-    # mouse_name='fakemouse'
-    # dir_name='/home/pi/fakedata'
-    event_list = deque() # all detected events are added to this queue
-
-    # TODO: this is a fake reward delivery function
-
-
+    event_list = deque() # all detected events are added to this queue to be read out by the behavior class
 
     # TODO: write this up in a syringe pump class
     def reward(self, which_pump, reward_size):
@@ -45,9 +35,12 @@ class BehavBox(object):
 
         if which_pump=='left':
             self.pump1.blink(cycle_length*0.1, cycle_length*0.9, totalSteps)
+            logging.info('left_reward,' + str(reward_size))
         elif which_pump=='center':
             self.pump2.blink(cycle_length*0.1, cycle_length*0.9, totalSteps)
+            logging.info('center_reward,' + str(reward_size))
         elif which_pump=='right':
+            logging.info('right_reward,' + str(reward_size))
             self.pump3.blink(cycle_length*0.1, cycle_length*0.9, totalSteps)
 
     def __init__(self, session_info):
@@ -69,11 +62,12 @@ class BehavBox(object):
         ###############################################################################################
         # digital I/O's - TODO: use for audio??
         ###############################################################################################
-        #    self.DIO1 = LED(7) # for testing, using pin 7 for syringe pump
+        # self.DIO1 = LED(7)  # don't declare DIO1. It's reserved for the frame out pin for the visual stimuli
         self.DIO2 = LED(8)
-        self.DIO3 = LED(9)
+        # self.DIO3 = LED(9)  # for testing purposes using pin 9 for the syringe pump
         self.DIO4 = LED(10)
         self.DIO5 = LED(11)
+        self.DIO6 = LED(4)  # this pin will be reserved for the frame out 
 
         ###############################################################################################
         # nosepokes 
@@ -112,7 +106,7 @@ class BehavBox(object):
         ###############################################################################################
         # syringe pumps - will configure these as LEDs for now until new class is written
         ###############################################################################################
-        self.pump1   = LED(7)  # for testing only - the correct pin number is 19
+        self.pump1   = LED(9)  # for testing only - the correct pin number is 19
         # self.pump1   = LED(19)
         self.pump2   = LED(20)
         self.pump3   = LED(21)
