@@ -184,21 +184,23 @@ class BehavBox(object):
             # appended, e.g. bumbrlik02b instead of bumbrlik02
             os.system("ssh pi@`hostname`b 'date >> ~/Videos/videolog.log ' ")
             tempstr = "ssh pi@`hostname`b \'nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " >> ~/Videos/videolog.log 2>&1 & \' "
-            # print(tempstr)
             os.system(tempstr)
 
         elif self.config=='freely_moving_v1':
             # for freely-moving box
             os.system("date >> ~/Videos/videolog.log")
             tempstr = "nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " >> ~/Videos/videolog.log 2>&1 & "
-            # print(tempstr)
             os.system(tempstr)
+
+        else:
+            print("config in session_info not recognized by BehavBox!") 
+            raise RuntimeError
             
     def video_stop(self):
         if self.config=='head_fixed_v1':
             # sends SIGINT to record_video.py, telling it to exit
             os.system("ssh pi@`hostname`b /home/pi/RPi4_behavior_boxes/stop_video")
-            time.sleep(1)
+            time.sleep(2)
             os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name + " & ") 
             os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.log " + self.dir_name + " & ")
 

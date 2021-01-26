@@ -26,7 +26,6 @@ class KellyTask(object):
     # some parameters
     timeout_length = 5  # in seconds
     reward_size    = 10 # in uL
-    config = 'freely_moving_v1'
 
     ########################################################################
     # Three possible states: standby, reward_available, and cue
