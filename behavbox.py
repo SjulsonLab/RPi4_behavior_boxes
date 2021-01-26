@@ -5,11 +5,13 @@
 
 from gpiozero import PWMLED, LED, Button
 import os
+import socket
 import time
 from collections import deque
 from icecream import ic
 import pygame
 import logging
+from colorama import Fore, Style
 import pysistence, collections
 
 
@@ -127,12 +129,16 @@ class BehavBox(object):
         ###############################################################################################
         # Keystroke handler
         ###############################################################################################
-        DISPLAYSURF = pygame.display.set_mode((200, 200)) 
+        DISPLAYSURF = pygame.display.set_mode((200, 200))
+        pygame.display.set_caption(session_info['box_name'])
         print("\nKeystroke handler initiated. In order for keystrokes to register, the pygame window")
-        print("must be in the foreground. Keys are as follows:")
-        print("         1: left poke            2: center poke            3: right poke")
+        print("must be in the foreground. Keys are as follows:\n")
+        print(Fore.YELLOW + "         1: left poke            2: center poke            3: right poke")
         print("         Q: left lick            W: center lick            E: right lick")
-        print("                                 Esc: exit\n")
+        print(Fore.CYAN + "                       Esc: close key capture window\n" + Style.RESET_ALL)
+        print(Fore.GREEN + Style.BRIGHT + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C " + 
+            Fore.RED + "ONCE\n" + Style.RESET_ALL)
+
         self.keyboard_active = True
 
     ###############################################################################################
@@ -201,8 +207,12 @@ class BehavBox(object):
             # sends SIGINT to record_video.py, telling it to exit
             os.system("ssh pi@`hostname`b /home/pi/RPi4_behavior_boxes/stop_video")
             time.sleep(2)
-            os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name + " & ") 
-            os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.log " + self.dir_name + " & ")
+            # os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name + " & ") 
+            # os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.log " + self.dir_name + " & ")
+            hostname = socket.gethostname()
+            print("Moving video files from " + hostname + "b to " + hostname + ":")
+            os.system("rsync -av --progress --remove-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name ) 
+            os.system("rsync -av --progress --remove-source-files pi@`hostname`b:Videos/*.log " + self.dir_name )
 
         elif self.config=='freely_moving_v1':
             # sends SIGINT to record_video.py, telling it to exit
