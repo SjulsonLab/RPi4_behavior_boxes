@@ -1,6 +1,7 @@
 # this is the class for creating visual stimuli on the RPi4. It uses a slightly-modified 
 # version of Bill Connelly's rpg library (located here: https://github.com/SjulsonLab/rpg.git)
-# that enables the visual stimuli to be delivered in a separate thread
+# that enables the visual stimuli to be delivered in a separate thread.
+# To build your visual stimulus files, look at the scripts in rpg/examples
 
 import rpg
 import time
