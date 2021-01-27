@@ -1,6 +1,6 @@
 # this is the class for creating visual stimuli on the RPi4. It uses a slightly-modified 
 # version of Bill Connelly's rpg library (located here: https://github.com/SjulsonLab/rpg.git)
-# that enables the visual stimuli to be delivered in a separate thread.
+# that enables the visual stimuli to be delivered in a separate process.
 # To build your visual stimulus files, look at the scripts in rpg/examples
 #
 # Luke Sjulson, 2021-01-27
@@ -10,11 +10,11 @@
 
 import rpg
 import time
-import threading
 import logging
 import os
 from collections import OrderedDict
 from icecream import ic
+from multiprocessing import Process
 
 class VisualStim(object):
 
@@ -51,15 +51,16 @@ class VisualStim(object):
         self.stimuli = {}
         ic(self.stimuli)
 
-    # call this method to display the stimulus. It will launch it in a separate thread
+    # call this method to display the stimulus. It will launch it in a separate process
+    # to run on a separate core
     def show_stimulus(self, stimulus_name):
-        logging.info("ready to make thread")
-        x = threading.Thread(target=self.thread_function, args=(stimulus_name, ) )
-        logging.info("starting thread")
+        logging.info("ready to make process")
+        x = Process(target=self.process_function, args=(stimulus_name, ) )
+        logging.info("starting process")
         x.start()
 
-    # this is the thread function that is launched by show_stimulus
-    def thread_function(self, stimulus_name):
+    # this is the process function that is launched by show_stimulus
+    def process_function(self, stimulus_name):
         logging.info(stimulus_name + "_on")
         self.myscreen.display_grating(self.stimuli[stimulus_name])  
         logging.info(stimulus_name + "_off")
@@ -68,4 +69,4 @@ class VisualStim(object):
 
     def __del__(self):
         self.myscreen.close()
-        
+

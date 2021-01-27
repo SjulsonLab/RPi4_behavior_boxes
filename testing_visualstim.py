@@ -26,8 +26,8 @@ screen.show_stimulus('first_grating.grat')
 
 # proof that the threading works - note that other stuff is done while the 
 # stimulus is playing
-for i in range(11):
-	logging.info("other stuff")
+for i in range(21):
+	logging.info("processing other stuff every 200 ms")
 	time.sleep(0.2)
 
 
