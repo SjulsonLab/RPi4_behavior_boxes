@@ -2,6 +2,11 @@
 # version of Bill Connelly's rpg library (located here: https://github.com/SjulsonLab/rpg.git)
 # that enables the visual stimuli to be delivered in a separate thread.
 # To build your visual stimulus files, look at the scripts in rpg/examples
+#
+# Luke Sjulson, 2021-01-27
+#
+# TODO: make show_random() method to show a random stimulus from the list
+# TODO: (someday) implement triggering of visual stimuli
 
 import rpg
 import time
@@ -13,49 +18,54 @@ from icecream import ic
 
 class VisualStim(object):
 
-    def __init__(self, grating_directory, gray_value):
-        self.grating_directory = grating_directory
+    def __init__(self, gray_value):
+        self.stimuli = OrderedDict()
         self.gray_value = gray_value
         self.myscreen = rpg.Screen()
         self.myscreen.display_greyscale(self.gray_value)
         logging.info("screen_opened")
-        self.load_gratings(grating_directory)
 
-    # this is called by init, but you can call it manually to replace the gratings that
-    # are currently loaded in RAM
-    def load_gratings(self, grating_directory):
-        logging.info('loading_gratings')
-        os.chdir(grating_directory)
-        self.grating_list = os.listdir()
-        self.grating_list.sort()
-        self.gratings = OrderedDict()
-        for fname in self.grating_list:
-            self.gratings.update({fname: self.myscreen.load_grating(fname)})
-        logging.info('gratings_loaded')
-        ic(self.gratings)
+    def load_stimulus_file(self, stimulus_file): # best if stimulus_file is an absolute path
+        fname = os.path.split(stimulus_file)
+        logging.info('loading stimulus file')
+        self.stimuli.update({fname[1]: self.myscreen.load_grating(stimulus_file)})
+        print(fname[1] + ' loaded')
+        logging.info(fname[1] + ' loaded')
+        ic(self.stimuli)
 
-    # here you can add gratings to the gratings already in RAM
-    def add_gratings(self, grating_directory):
-        logging.info('adding_gratings')
-        os.chdir(grating_directory)
-        self.grating_list = os.listdir()
-        self.grating_list.sort()
-        for fname in self.grating_list:
-            self.gratings.update({fname: self.myscreen.load_grating(fname)})
-        logging.info('gratings_added')
-        ic(self.gratings)
+    def load_stimulus_dir(self, stimulus_directory):
+        logging.info('loading stimulus directory')
+        os.chdir(stimulus_directory)
+        self.stimulus_list = os.listdir()
+        self.stimulus_list.sort()
+        for fname in self.stimulus_list:
+            self.stimuli.update({fname: self.myscreen.load_grating(fname)})
+            logging.info(fname + ' loaded')
+            print(fname + ' loaded')
+        ic(self.stimuli)
 
-    # call this method to display the grating. It will launch it in a separate thread
-    def show_grating(self, grating_name):
+    def list_stimuli(self):
+        ic(self.stimuli)
+
+    def clear_stimuli(self):
+        self.stimuli = {}
+        ic(self.stimuli)
+
+    # call this method to display the stimulus. It will launch it in a separate thread
+    def show_stimulus(self, stimulus_name):
         logging.info("ready to make thread")
-        x = threading.Thread(target=self.thread_function, args=(grating_name, ) )
+        x = threading.Thread(target=self.thread_function, args=(stimulus_name, ) )
         logging.info("starting thread")
         x.start()
 
-    # this is the thread function that is launched by show_grating
-    def thread_function(self, grating_name):
-        logging.info(grating_name + "_on")
-        self.myscreen.display_grating(self.gratings[grating_name])  
-        logging.info(grating_name + "_off")
-        self.myscreen.display_greyscale(self.gray_value)
+    # this is the thread function that is launched by show_stimulus
+    def thread_function(self, stimulus_name):
+        logging.info(stimulus_name + "_on")
+        self.myscreen.display_grating(self.stimuli[stimulus_name])  
+        logging.info(stimulus_name + "_off")
+        self.myscreen.display_greyscale(self.gray_value) # resetting the screen to neutral gray
         logging.info("grayscale_on")
+
+    def __del__(self):
+        self.myscreen.close()
+        
