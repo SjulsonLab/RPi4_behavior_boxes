@@ -9,10 +9,8 @@ import time
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
-    # datefmt=('%Y-%m-%d,%H:%M:%S'),
     datefmt=('%H:%M:%S'),
     handlers=[
-#        logging.FileHandler(filename),
         logging.StreamHandler()
     ]
 )
@@ -27,7 +25,7 @@ screen.show_stimulus('first_grating.grat')
 # proof that the threading works - note that other stuff is done while the 
 # stimulus is playing
 for i in range(21):
-	logging.info("processing other stuff every 200 ms")
+	logging.info("these should be slightly more than 200 ms apart")
 	time.sleep(0.2)
 
 

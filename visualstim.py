@@ -59,12 +59,12 @@ class VisualStim(object):
         logging.info("starting process")
         x.start()
 
-    # this is the process function that is launched by show_stimulus
+    # this is the function that is launched by show_stimulus to run in a different process
     def process_function(self, stimulus_name):
         logging.info(stimulus_name + "_on")
         self.myscreen.display_grating(self.stimuli[stimulus_name])  
         logging.info(stimulus_name + "_off")
-        self.myscreen.display_greyscale(self.gray_value) # resetting the screen to neutral gray
+        self.myscreen.display_greyscale(self.gray_value) # reset the screen to neutral gray
         logging.info("grayscale_on")
 
     def __del__(self):
