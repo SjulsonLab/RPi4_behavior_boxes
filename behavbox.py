@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # contains the behavior box class, which includes pin numbers and whether DIO pins are
 # configured as input or output
 
