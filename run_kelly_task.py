@@ -46,7 +46,6 @@ try:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
-        # datefmt=('%Y-%m-%d,%H:%M:%S'),
         datefmt=('%H:%M:%S'),
         handlers=[
             logging.FileHandler(filename),
@@ -55,7 +54,6 @@ try:
     )
 
     # initiate task object
-    # task = KellyTask("fentanyl_task", session_info['mouse_name'], session_info['dir_name'], session_info['config'])
     task = KellyTask("fentanyl_task", session_info)
 
 

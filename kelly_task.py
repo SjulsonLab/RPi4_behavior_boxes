@@ -70,6 +70,7 @@ class KellyTask(object):
         self.box.reward('left', self.reward_size)
         print("start cue")
         self.box.cueLED1.on()
+        self.box.visualstim.show_stimulus('first_grating.grat')
 
     def exit_cue(self):
         print("stop cue")

@@ -1,12 +1,12 @@
-# this is the class for creating visual stimuli on the RPi4. It uses a slightly-modified 
+# this is the class for creating visual gratings on the RPi4. It uses a slightly-modified 
 # version of Bill Connelly's rpg library (located here: https://github.com/SjulsonLab/rpg.git)
-# that enables the visual stimuli to be delivered in a separate process.
-# To build your visual stimulus files, look at the scripts in rpg/examples
+# that enables the visual gratings to be delivered in a separate process.
+# To build your visual grating files, look at the scripts in rpg/examples
 #
 # Luke Sjulson, 2021-01-27
 #
-# TODO: make show_random() method to show a random stimulus from the list
-# TODO: (someday) implement triggering of visual stimuli
+# TODO: make show_random() method to show a random grating from the list
+# TODO: (someday) implement triggering of visual gratings
 
 import rpg
 import time
@@ -18,53 +18,56 @@ from multiprocessing import Process
 
 class VisualStim(object):
 
-    def __init__(self, gray_value):
-        self.stimuli = OrderedDict()
-        self.gray_value = gray_value
+    def __init__(self, session_info):
+        self.session_info = session_info
+        self.gratings = OrderedDict()
         self.myscreen = rpg.Screen()
-        self.myscreen.display_greyscale(self.gray_value)
+        self.myscreen.display_greyscale(self.session_info['gray_level'])
         logging.info("screen_opened")
+        self.load_session_gratings()
 
-    def load_stimulus_file(self, stimulus_file): # best if stimulus_file is an absolute path
-        fname = os.path.split(stimulus_file)
-        logging.info('loading stimulus file')
-        self.stimuli.update({fname[1]: self.myscreen.load_grating(stimulus_file)})
+    def load_grating_file(self, grating_file): # best if grating_file is an absolute path
+        fname = os.path.split(grating_file)
+        logging.info('loading grating file')
+        self.gratings.update({fname[1]: self.myscreen.load_grating(grating_file)})
         print(fname[1] + ' loaded')
         logging.info(fname[1] + ' loaded')
-        ic(self.stimuli)
 
-    def load_stimulus_dir(self, stimulus_directory):
-        logging.info('loading stimulus directory')
-        os.chdir(stimulus_directory)
-        self.stimulus_list = os.listdir()
-        self.stimulus_list.sort()
-        for fname in self.stimulus_list:
-            self.stimuli.update({fname: self.myscreen.load_grating(fname)})
+    def load_grating_dir(self, grating_directory):
+        logging.info('loading all gratings in directory')
+        os.chdir(grating_directory)
+        self.grating_list = os.listdir()
+        self.grating_list.sort()
+        for fname in self.grating_list:
+            self.gratings.update({fname: self.myscreen.load_grating(fname)})
             logging.info(fname + ' loaded')
             print(fname + ' loaded')
-        ic(self.stimuli)
 
-    def list_stimuli(self):
-        ic(self.stimuli)
+    def load_session_gratings(self):
+        for filepath in self.session_info['vis_gratings']:
+            self.load_grating_file(filepath)
 
-    def clear_stimuli(self):
-        self.stimuli = {}
-        ic(self.stimuli)
+    def list_gratings(self):
+        ic(self.gratings)
 
-    # call this method to display the stimulus. It will launch it in a separate process
+    def clear_gratings(self):
+        self.gratings = {}
+        ic(self.gratings)
+
+    # call this method to display the grating. It will launch it in a separate process
     # to run on a separate core
-    def show_stimulus(self, stimulus_name):
+    def show_grating(self, grating_name):
         logging.info("ready to make process")
-        x = Process(target=self.process_function, args=(stimulus_name, ) )
+        x = Process(target=self.process_function, args=(grating_name, ) )
         logging.info("starting process")
         x.start()
 
-    # this is the function that is launched by show_stimulus to run in a different process
-    def process_function(self, stimulus_name):
-        logging.info(stimulus_name + "_on")
-        self.myscreen.display_grating(self.stimuli[stimulus_name])  
-        logging.info(stimulus_name + "_off")
-        self.myscreen.display_greyscale(self.gray_value) # reset the screen to neutral gray
+    # this is the function that is launched by show_grating to run in a different process
+    def process_function(self, grating_name):
+        logging.info(grating_name + "_on")
+        self.myscreen.display_grating(self.gratings[grating_name])  
+        logging.info(grating_name + "_off")
+        self.myscreen.display_greyscale(self.session_info['gray_level']) # reset the screen to neutral gray
         logging.info("grayscale_on")
 
     def __del__(self):

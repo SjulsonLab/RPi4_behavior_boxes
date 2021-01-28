@@ -11,6 +11,7 @@ import pygame
 import logging
 from colorama import Fore, Style
 import pysistence, collections
+from visualstim import VisualStim
 
 
 class BehavBox(object):
@@ -44,9 +45,7 @@ class BehavBox(object):
     def __init__(self, session_info):
 
         logging.info("behavior_box_initialized")
-        self.mouse_name     = session_info['mouse_name']
-        self.dir_name       = session_info['dir_name']
-        self.config         = session_info['config']
+        self.session_info   = session_info
 
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
@@ -65,7 +64,7 @@ class BehavBox(object):
         # self.DIO3 = LED(9)  # for testing purposes using pin 9 for the syringe pump
         self.DIO4 = LED(10)
         self.DIO5 = LED(11)
-        self.DIO6 = LED(4)  # this pin will be reserved for the frame out 
+        # there is a DIO6, but that is the same pin as the camera strobe
 
         ###############################################################################################
         # nosepokes 
@@ -122,9 +121,9 @@ class BehavBox(object):
 
 
         ###############################################################################################
-        # TODO: visual stimuli - unsure if better to put that here or somewhere else
+        # visual stimuli
         ###############################################################################################
-
+        self.visualstim = VisualStim(self.session_info)
 
 
 
@@ -193,17 +192,17 @@ class BehavBox(object):
     # These work with fake video files but haven't been tested with real ones
     ###############################################################################################
     def video_start(self):
-        if self.config=='head_fixed_v1':
+        if self.session_info['config']=='head_fixed_v1':
             # this assumes the second RPi has the same hostname except with a "b"
             # appended, e.g. bumbrlik02b instead of bumbrlik02
             os.system("ssh pi@`hostname`b 'date >> ~/Videos/videolog.log ' ")
-            tempstr = "ssh pi@`hostname`b \'nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " >> ~/Videos/videolog.log 2>&1 & \' "
+            tempstr = "ssh pi@`hostname`b \'nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.session_info['mouse_name'] + " >> ~/Videos/videolog.log 2>&1 & \' "
             os.system(tempstr)
 
-        elif self.config=='freely_moving_v1':
+        elif self.session_info['config']=='freely_moving_v1':
             # for freely-moving box
             os.system("date >> ~/Videos/videolog.log")
-            tempstr = "nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.mouse_name + " >> ~/Videos/videolog.log 2>&1 & "
+            tempstr = "nohup /home/pi/RPi4_behavior_boxes/record_video.py " + self.session_info['mouse_name'] + " >> ~/Videos/videolog.log 2>&1 & "
             os.system(tempstr)
 
         else:
@@ -211,23 +210,21 @@ class BehavBox(object):
             raise RuntimeError
             
     def video_stop(self):
-        if self.config=='head_fixed_v1':
+        if self.session_info['config']=='head_fixed_v1':
             # sends SIGINT to record_video.py, telling it to exit
             os.system("ssh pi@`hostname`b /home/pi/RPi4_behavior_boxes/stop_video")
             time.sleep(2)
-            # os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name + " & ") 
-            # os.system("rsync --remove-source-files pi@`hostname`b:Videos/*.log " + self.dir_name + " & ")
             hostname = socket.gethostname()
             print("Moving video files from " + hostname + "b to " + hostname + ":")
-            os.system("rsync -av --progress --remove-source-files pi@`hostname`b:Videos/*.avi " + self.dir_name ) 
-            os.system("rsync -av --progress --remove-source-files pi@`hostname`b:Videos/*.log " + self.dir_name )
+            os.system("rsync -av --progress --remove-source-files pi@`hostname`b:Videos/*.avi " + self.session_info['dir_name'] ) 
+            os.system("rsync -av --progress --remove-source-files pi@`hostname`b:Videos/*.log " + self.session_info['dir_name'] )
 
-        elif self.config=='freely_moving_v1':
+        elif self.session_info['config']=='freely_moving_v1':
             # sends SIGINT to record_video.py, telling it to exit
             os.system("/home/pi/RPi4_behavior_boxes/stop_video")
             time.sleep(2)
-            os.system("mv /home/pi/Videos/*.avi " + self.dir_name + " & ")
-            os.system("mv /home/pi/Videos/*.log " + self.dir_name + " & ")
+            os.system("mv /home/pi/Videos/*.avi " + self.session_info['dir_name'] + " & ")
+            os.system("mv /home/pi/Videos/*.log " + self.session_info['dir_name'] + " & ")
 
 
     ###############################################################################################
