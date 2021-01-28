@@ -37,6 +37,13 @@ class KellyTask(object):
         {'name': 'cue', 'timeout': timeout_length, 'on_timeout': 'timeup', 'on_enter': 'enter_cue', 'on_exit': 'exit_cue'}
     ]
 
+    # states = [
+    #     {'name': 'standby', 'on_enter': 'enter_standby', 'on_exit': 'exit_standby'},
+    #     {'name': 'reward_available', 'on_enter': 'enter_reward_available', 'on_exit': 'exit_reward_available'},
+    #     {'name': 'cue', 'timeout': session_info['timeout_length'], 'on_timeout': 'timeup', 'on_enter': 'enter_cue', 'on_exit': 'exit_cue'}
+    # ]
+
+
     ########################################################################
     # list of possible transitions between states
     # format is: [event_name, source_state, destination_state]
@@ -70,7 +77,7 @@ class KellyTask(object):
         self.box.reward('left', self.reward_size)
         print("start cue")
         self.box.cueLED1.on()
-        self.box.visualstim.show_stimulus('first_grating.grat')
+        self.box.visualstim.show_grating('first_grating.grat')
 
     def exit_cue(self):
         print("stop cue")
