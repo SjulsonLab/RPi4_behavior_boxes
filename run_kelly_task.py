@@ -14,7 +14,7 @@ import socket
 import importlib
 import colorama
 import warnings
-import scipy.io 
+import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
 
@@ -29,11 +29,21 @@ from kelly_task import KellyTask
 
 try:
 
-    # import session and mouse info, contingent upon the dates matching
-    full_module_name = 'session_info_' + datetime.now().strftime("%Y-%m-%d")
+
+    # load in session_info file, check that dates are correct, put in automatic
+    # time and date stamps for when the experiment was run
+    datestr = datetime.now().strftime("%Y-%m-%d")
+    timestr = datetime.now().strftime('%H%M%S')
+    full_module_name = 'session_info_' + datestr
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
     mouse_info   = tempmod.mouse_info
+
+    session_info['date']            = datestr
+    session_info['time']            = timestr
+    session_info['datetime']        = session_info['date'] + '_' + session_info['time']
+    session_info['basename']        = session_info['mouse_name'] + '_' + session_info['datetime']
+    session_info['dir_name']        = session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info['datetime']
 
     if session_info['manual_date'] != session_info['date']:  # check if file is updated
         print('wrong date!!')
@@ -43,31 +53,30 @@ try:
     # make data directory and initialize logfile
     os.makedirs( session_info['dir_name'] )
     os.chdir( session_info['dir_name'] )
-    filename = session_info['mouse_name'] + "_" + session_info['datetime'] + ".log" 
+    session_info['file_basename'] = session_info['mouse_name'] + "_" + session_info['datetime'] 
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
         datefmt=('%H:%M:%S'),
         handlers=[
-            logging.FileHandler(filename),
-            logging.StreamHandler()
+            logging.FileHandler(session_info['file_basename'] + '.log'),
+            logging.StreamHandler() # sends copy of log output to screen
         ]
     )
 
     # initiate task object
     task = KellyTask(name="fentanyl_task", session_info=session_info)
 
-    # set various parameters
-    task.machine.states['cue'].timeout = 2
+    # # you can change various parameters if you want 
+    # task.machine.states['cue'].timeout = 2
 
     # start session
     task.start_session()
-    scipy.io.savemat('mouse_info.mat', {'mouse_info': mouse_info})
-    scipy.io.savemat('session_info.mat', {'session_info': session_info})
+    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
+    pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
 
     # loop over trials
     for i in range(2):
-
 
         logging.info("starting_trial")
 
@@ -85,8 +94,8 @@ except (KeyboardInterrupt, SystemExit):
     task.end_session()
     ic('just called end_session()')
     # save dicts to disk
-    scipy.io.savemat('mouse_info.mat', {'mouse_info': mouse_info})
-    scipy.io.savemat('session_info.mat', {'session_info': session_info})
+    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
+    pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
     pygame.quit()
 
 
@@ -94,8 +103,8 @@ except (KeyboardInterrupt, SystemExit):
 # except (RuntimeError) as ex:
 #     print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
 #     # save dicts to disk
-#     scipy.io.savemat('mouse_info.mat', {'mouse_info': mouse_info})
-#     scipy.io.savemat('session_info.mat', {'session_info': session_info})
+#     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
+#     pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
 
 
 
