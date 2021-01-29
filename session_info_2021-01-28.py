@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # put all of your mouse and session info in here
 
 from datetime import datetime
@@ -28,11 +26,14 @@ session_info['box_name']             		= socket.gethostname()
 session_info['dir_name']  					= session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info['datetime']
 # session_info['config']						= 'freely_moving_v1'
 session_info['config']						= 'head_fixed_v1'
+
+# behavior parameters
 session_info['timeout_length']              = 5  # in seconds
-session_info['reward_size']					=10  # in microliters
+session_info['reward_size']					= 10  # in microliters
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
-session_info['vis_gratings']				= ['/home/pi/gratings/first_grating.grat', '/home/pi/gratings/second_grating.grat']
+session_info['vis_gratings']				= ['/home/pi/gratings/first_grating.grat', 
+											   '/home/pi/gratings/second_grating.grat']
 session_info['vis_raws']					= []
 

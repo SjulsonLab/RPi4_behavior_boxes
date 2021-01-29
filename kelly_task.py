@@ -23,36 +23,73 @@ class TimedStateMachine(Machine):
 
 class KellyTask(object):
 
-    # some parameters
-    timeout_length = 5  # in seconds
-    reward_size    = 10 # in uL
+    def __init__(self, **kwargs):
 
-    ########################################################################
-    # Three possible states: standby, reward_available, and cue
-    ########################################################################
-    states = [
-        State(name='standby', on_enter=['enter_standby'], on_exit=['exit_standby']),
-        State(name='reward_available', on_enter=['enter_reward_available'], 
-            on_exit=['exit_reward_available']),
-        {'name': 'cue', 'timeout': timeout_length, 'on_timeout': 'timeup', 'on_enter': 'enter_cue', 'on_exit': 'exit_cue'}
-    ]
+        # default parameters (for testing only)
+        if kwargs.get('name', None) is None:
+            self.name = 'name'
+            print('no name!')
+        else: 
+            self.name=kwargs.get('name', None)
 
-    # states = [
-    #     {'name': 'standby', 'on_enter': 'enter_standby', 'on_exit': 'exit_standby'},
-    #     {'name': 'reward_available', 'on_enter': 'enter_reward_available', 'on_exit': 'exit_reward_available'},
-    #     {'name': 'cue', 'timeout': session_info['timeout_length'], 'on_timeout': 'timeup', 'on_enter': 'enter_cue', 'on_exit': 'exit_cue'}
-    # ]
+        if kwargs.get('session_info', None) is None:
+            self.session_info                                = collections.OrderedDict()
+            self.session_info['mouse_name']                  = 'fakemouse01'
+            self.session_info['basedir']                     = '/home/pi/fakedata'
+            self.session_info['date']                        = datetime.now().strftime("%Y-%m-%d")
+            self.session_info['time']                        = datetime.now().strftime('%H%M%S')
+            self.session_info['datetime']                    = self.session_info['date'] + '_' + self.session_info['time']
+            self.session_info['basename']                    = self.session_info['mouse_name'] + '_' + self.session_info['datetime']
+            self.session_info['box_name']                    = socket.gethostname()
+            self.session_info['dir_name']                    = self.session_info['basedir'] + "/" + self.session_info['mouse_name'] + "_" + self.session_info['datetime']
+            # self.session_info['config']                        = 'freely_moving_v1'
+            self.session_info['config']                      = 'head_fixed_v1'
+            self.session_info['timeout_length']              = 5  # in seconds
+            self.session_info['reward_size']                 = 10  # in microliters
+
+            # visual stimulus
+            self.session_info['gray_level']                  = 40  # the pixel value from 0-255 for the screen between stimuli
+            self.session_info['vis_gratings']                = ['/home/pi/gratings/first_grating.grat', '/home/pi/gratings/second_grating.grat']
+            self.session_info['vis_raws']                    = []
+        else: 
+            self.session_info = kwargs.get('session_info', None)
+
+        ic(self.name)
+        print(self.name)
+        ic(self.session_info)
+
+        ########################################################################
+        # Task has three possible states: standby, reward_available, and cue
+        ########################################################################
+        self.states = [
+            State(name='standby', on_enter=['enter_standby'], on_exit=['exit_standby']),
+            Timeout(name='reward_available', on_enter=['enter_reward_available'], on_exit=['exit_reward_available']),
+            Timeout(name='cue', on_enter=['enter_cue'], on_exit=['exit_cue'], timeout=self.session_info['timeout_length'], 
+                on_timeout=['timeup'])
+        ]
+        # can set later with task.machine.states['cue'].timeout etc.
 
 
-    ########################################################################
-    # list of possible transitions between states
-    # format is: [event_name, source_state, destination_state]
-    ########################################################################
-    transitions = [
-        ['trial_start', 'standby', 'reward_available'],
-        ['active_poke', 'reward_available', 'cue'],
-        ['timeup', 'cue', 'standby']
-    ]
+        ########################################################################
+        # list of possible transitions between states
+        # format is: [event_name, source_state, destination_state]
+        ########################################################################
+        self.transitions = [
+            ['trial_start', 'standby', 'reward_available'],
+            ['active_poke', 'reward_available', 'cue'],
+            ['timeup', 'cue', 'standby']
+        ]
+
+
+        ########################################################################
+        # initialize state machine and behavior box
+        ########################################################################
+        self.machine = TimedStateMachine(model=self, states=self.states, transitions=self.transitions, 
+            initial='standby')
+        self.trial_running = False
+
+        # initialize behavior box
+        self.box = behavbox.BehavBox(self.session_info)
 
     ########################################################################
     # functions called when state transitions occur 
@@ -74,7 +111,7 @@ class KellyTask(object):
 
     def enter_cue(self):
         print("deliver reward")
-        self.box.reward('left', self.reward_size)
+        self.box.reward('left', self.session_info['reward_size'])
         print("start cue")
         self.box.cueLED1.on()
         self.box.visualstim.show_grating('first_grating.grat')
@@ -82,20 +119,6 @@ class KellyTask(object):
     def exit_cue(self):
         print("stop cue")
         self.box.cueLED1.off()
-
-    ########################################################################
-    # initialize state machine and behavior box
-    ########################################################################
-    def __init__(self, name, session_info):
-
-        self.name = name
-        self.machine = TimedStateMachine(model=self, states=KellyTask.states, transitions=KellyTask.transitions, 
-            initial='standby')
-        self.trial_running = False
-        self.session_info = session_info
-
-        # initialize behavior box
-        self.box = behavbox.BehavBox(self.session_info)
 
     ########################################################################
     # call the run() method repeatedly in a while loop in the main session

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S ipython3 -i
 
 from transitions import Machine
 from transitions import State
@@ -15,6 +15,7 @@ import importlib
 import colorama
 import warnings
 import scipy.io 
+import pygame
 from colorama import Fore, Style
 
 # all modules above this line will have logging disabled
@@ -54,8 +55,10 @@ try:
     )
 
     # initiate task object
-    task = KellyTask("fentanyl_task", session_info)
+    task = KellyTask(name="fentanyl_task", session_info=session_info)
 
+    # set various parameters
+    task.machine.states['cue'].timeout = 2
 
     # start session
     task.start_session()
@@ -84,6 +87,7 @@ except (KeyboardInterrupt, SystemExit):
     # save dicts to disk
     scipy.io.savemat('mouse_info.mat', {'mouse_info': mouse_info})
     scipy.io.savemat('session_info.mat', {'session_info': session_info})
+    pygame.quit()
 
 
 # # exit because of error
