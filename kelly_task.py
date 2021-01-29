@@ -7,6 +7,7 @@ import logging
 from datetime import datetime
 import os
 from gpiozero import PWMLED, LED, Button
+from colorama import Fore, Style
 import logging.config
 logging.config.dictConfig({
     'version': 1,
@@ -23,39 +24,21 @@ class TimedStateMachine(Machine):
 
 class KellyTask(object):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs):  # name and session_info should be provided as kwargs 
 
-        # default parameters (for testing only)
+        # if no name or session, make fake ones (for testing purposes)
         if kwargs.get('name', None) is None:
             self.name = 'name'
-            print('no name!')
+            print(Fore.RED + Style.BRIGHT + 'Warning: no name supplied; making fake one' + Style.RESET_ALL)
         else: 
             self.name=kwargs.get('name', None)
 
         if kwargs.get('session_info', None) is None:
-            self.session_info                                = collections.OrderedDict()
-            self.session_info['mouse_name']                  = 'fakemouse01'
-            self.session_info['basedir']                     = '/home/pi/fakedata'
-            self.session_info['date']                        = datetime.now().strftime("%Y-%m-%d")
-            self.session_info['time']                        = datetime.now().strftime('%H%M%S')
-            self.session_info['datetime']                    = self.session_info['date'] + '_' + self.session_info['time']
-            self.session_info['basename']                    = self.session_info['mouse_name'] + '_' + self.session_info['datetime']
-            self.session_info['box_name']                    = socket.gethostname()
-            self.session_info['dir_name']                    = self.session_info['basedir'] + "/" + self.session_info['mouse_name'] + "_" + self.session_info['datetime']
-            # self.session_info['config']                        = 'freely_moving_v1'
-            self.session_info['config']                      = 'head_fixed_v1'
-            self.session_info['timeout_length']              = 5  # in seconds
-            self.session_info['reward_size']                 = 10  # in microliters
-
-            # visual stimulus
-            self.session_info['gray_level']                  = 40  # the pixel value from 0-255 for the screen between stimuli
-            self.session_info['vis_gratings']                = ['/home/pi/gratings/first_grating.grat', '/home/pi/gratings/second_grating.grat']
-            self.session_info['vis_raws']                    = []
+            print(Fore.RED + Style.BRIGHT + 'Warning: no session_info supplied; making fake one' + Style.RESET_ALL)
+            from fake_session_info import fake_session_info
+            self.session_info = fake_session_info
         else: 
             self.session_info = kwargs.get('session_info', None)
-
-        ic(self.name)
-        print(self.name)
         ic(self.session_info)
 
         ########################################################################
