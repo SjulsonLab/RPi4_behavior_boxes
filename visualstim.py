@@ -35,6 +35,7 @@ class VisualStim(object):
 
     def load_grating_dir(self, grating_directory):
         logging.info('loading all gratings in directory')
+        current_dir = os.getcwd()
         os.chdir(grating_directory)
         self.grating_list = os.listdir()
         self.grating_list.sort()
@@ -42,6 +43,7 @@ class VisualStim(object):
             self.gratings.update({fname: self.myscreen.load_grating(fname)})
             logging.info(fname + ' loaded')
             print(fname + ' loaded')
+        os.chdir(current_dir)
 
     def load_session_gratings(self):
         for filepath in self.session_info['vis_gratings']:
