@@ -1,5 +1,7 @@
 #!/usr/bin/env -S ipython3 -i
 
+debug_enable = False
+
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
@@ -23,6 +25,13 @@ logging.config.dictConfig({
     'version': 1,
     'disable_existing_loggers': True,
 })
+
+if debug_enable:
+    # enabling debugger
+    from IPython import get_ipython
+    ipython = get_ipython()
+    ipython.magic("pdb on")
+    ipython.magic("xmode Verbose")
 
 # import your task class here
 from kelly_task import KellyTask
