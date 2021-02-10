@@ -3,7 +3,7 @@ The Pi RTC is based on the clock chip DS1307, it can provide a real-time clock(R
 To startup the RTC module on the extend board of RPi. We can use the library from Seeed Studio.
 
 Tap the following command in your terminal
-...python
+```python
 git clone https://github.com/Seeed-Studio/pi-hats.git
 cd pi-hats/tools
 sudo ./install.sh -u rtc_ds1307
@@ -14,4 +14,4 @@ su
 sudo hwclock –r # Read hardware clock and print result
 sudo hwclock –s # Set the system time from the hardware clock
 sudo hwclock –w # Set the hardware clock from the current system time
-...
+```
