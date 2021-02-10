@@ -13,6 +13,9 @@ from colorama import Fore, Style
 import pysistence, collections
 from visualstim import VisualStim
 
+#############
+import Treadmill
+import Adafruit_ADS1x15
 
 class BehavBox(object):
 
@@ -126,12 +129,15 @@ class BehavBox(object):
         self.visualstim = VisualStim(self.session_info)
 
 
-
+        ###############################################################################################
+        # TODO: ADC(Adafruit_ADS1x15) 
+        ###############################################################################################
+        self.ADC = ADS1x15(self.ADS1015)
 
         ###############################################################################################
         # TODO: treadmill 
         ###############################################################################################
-
+        self.treadmill = Treadmill(self.dacval)
 
         ###############################################################################################
         # Keystroke handler
