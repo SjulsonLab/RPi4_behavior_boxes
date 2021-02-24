@@ -6,10 +6,10 @@ import os
 from icecream import ic
 
 
-# TODO: this needs to be a script that runs from the command line on either RPi
+# TODO: this needs to be a script that runs from the command line on either RPi 
 # connected to a behavior box, e.g.
 #
-# record_video.py mousename
+# record_video.py mousename 
 #
 # It should save the videos in /home/pi/Videos
 #
@@ -22,11 +22,11 @@ from icecream import ic
 
 # for testing only
 def signal_handler(sig, frame):
-    ic("SIGINT detected")
-    os.system("touch /home/pi/Videos/fakevideo.avi")
-    #    os.system('touch /home/pi/Videos/fakevideo.log')
+    ic('SIGINT detected')
+    os.system('touch /home/pi/Videos/fakevideo.avi')
+#    os.system('touch /home/pi/Videos/fakevideo.log')
     sys.exit(0)
-
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.pause()
+
