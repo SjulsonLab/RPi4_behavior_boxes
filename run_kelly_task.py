@@ -53,10 +53,22 @@ try:
     session_info['datetime']        = session_info['date'] + '_' + session_info['time']
     session_info['basename']        = session_info['mouse_name'] + '_' + session_info['datetime']
     session_info['dir_name']        = session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info['datetime']
-
+    
     if session_info['manual_date'] != session_info['date']:  # check if file is updated
-        print('wrong date!!')
-        raise RuntimeError('manual_date field in session_info file is not updated')
+        session_date_check = True
+        while session_date_check == True:
+            test_answer = input('wrong date! Are you testing the code? (y/n)').lower()
+            
+            if test_answer == 'y' || test_answer == 'yes':
+                session_info['date'] = datestr + 'test'
+                
+            elif test_answer == 'n' || test_answer == 'no':
+                raise RuntimeError('manual_date field in session_info file is not updated')
+                
+            session_date_check = False
+            
+            else:
+                print('Please enter a valid answer ...')
 
 
     # make data directory and initialize logfile
