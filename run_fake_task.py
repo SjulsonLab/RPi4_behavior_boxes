@@ -1,16 +1,16 @@
 #!/usr/bin/env -S ipython3 -i
 
-debug_enable = False
+debug_enable = True
 
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
 from icecream import ic
-# import logging
+import logging
 from datetime import datetime
 import os
 from gpiozero import PWMLED, LED, Button
-# import logging.config
+import logging.config
 import pysistence, collections
 import socket
 import importlib
@@ -20,19 +20,19 @@ import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
 
-# # all modules above this line will have logging disabled
-# logging.config.dictConfig({
-#     'version': 1,
-#     'disable_existing_loggers': True,
-# })
+# all modules above this line will have logging disabled
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': True,
+})
 
-if debug_enable:
-    # enabling debugger
-    from IPython import get_ipython
-
-    ipython = get_ipython()
-    ipython.magic("pdb on")
-    ipython.magic("xmode Verbose")
+# if debug_enable:
+#    # enabling debugger
+#     from IPython import get_ipython
+# 
+#     ipython = get_ipython()
+#     ipython.magic("pdb on")
+#     ipython.magic("xmode Verbose")
 
 # import your task class here
 from fake_task import FakeTask
@@ -56,23 +56,23 @@ try:
     #     'datetime']
     #
     # if session_info['manual_date'] != session_info['date']:  # check if file is updated
-    #     from fake_session_info import fake_session_info
-    #
-    #     session_info = fake_session_info
 
-    # # make data directory and initialize logfile
-    # os.makedirs(session_info['dir_name'])
-    # os.chdir(session_info['dir_name'])
-    # session_info['file_basename'] = session_info['mouse_name'] + "_" + session_info['datetime']
-    # logging.basicConfig(
-    #     level=logging.INFO,
-    #     format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
-    #     datefmt=('%H:%M:%S'),
-    #     handlers=[
-    #         logging.FileHandler(session_info['file_basename'] + '.log'),
-    #         logging.StreamHandler()  # sends copy of log output to screen
-    #     ]
-    # )
+    from fake_session_info import fake_session_info
+    session_info = fake_session_info
+
+    # make data directory and initialize logfile
+    os.makedirs(session_info['dir_name'])
+    os.chdir(session_info['dir_name'])
+    session_info['file_basename'] = session_info['mouse_name'] + "_" + session_info['datetime']
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
+        datefmt=('%H:%M:%S'),
+        handlers=[
+            logging.FileHandler(session_info['file_basename'] + '.log'),
+            logging.StreamHandler()  # sends copy of log output to screen
+        ]
+    )
 
     # initiate task object\
     task = FakeTask(name="fake_task", session_info= None)
@@ -82,13 +82,13 @@ try:
 
     # start session
     task.start_session()
-    # scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
-    # pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
+    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
+    pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
 
     # loop over trials
-    for i in range(2):
+    for i in range(10):
         print("starting_trial")
-        # logging.info("starting_trial")
+        logging.info("starting_trial")
 
         task.trial_start()
 
@@ -104,13 +104,13 @@ except (KeyboardInterrupt, SystemExit):
     task.end_session()
     ic('just called end_session()')
     # save dicts to disk
-    # scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
-    # pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
+    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
+    pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
     pygame.quit()
 
-# # exit because of error
-# except (RuntimeError) as ex:
-#     print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
-#     # save dicts to disk
-#     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
-#     pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
+# exit because of error
+except (RuntimeError) as ex:
+    print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
+    # save dicts to disk
+    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
+    pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
