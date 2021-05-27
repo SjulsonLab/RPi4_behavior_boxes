@@ -133,6 +133,13 @@ class FakeTask(object):
         print("stop cue")
         self.box.cueLED3.off()
 
+    # def detect_np_entry(self):
+    #     self.box.cueLED1.on()
+    #     print('nose poke entry')
+    #
+    # def detect_np_exit(self):
+    #     self.box.cueLED1.off()
+    #     print('nose poke exit')
     ########################################################################
     # call the run() method repeatedly in a while loop in the main session
     # script it will process all detected events from the behavior box (e.g.
@@ -159,6 +166,9 @@ class FakeTask(object):
         # look for keystrokes
         self.box.check_keybd()
 
+    # def np_detection(self):
+    #     if self.box.event_list:
+    #         event_name = self.box.event_list.popleft()
     ########################################################################
     # methods to start and end the behavioral session
     ########################################################################
