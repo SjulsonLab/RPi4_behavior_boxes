@@ -46,35 +46,23 @@ try:
     full_module_name = 'session_info_' + datestr
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
-    mouse_info   = tempmod.mouse_info
+    mouse_info = tempmod.mouse_info
 
-    session_info['date']            = datestr
-    session_info['time']            = timestr
-    session_info['datetime']        = session_info['date'] + '_' + session_info['time']
-    session_info['basename']        = session_info['mouse_name'] + '_' + session_info['datetime']
-    session_info['dir_name']        = session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info['datetime']
-    
+    session_info['date'] = datestr
+    session_info['time'] = timestr
+    session_info['datetime'] = session_info['date'] + '_' + session_info['time']
+    session_info['basename'] = session_info['mouse_name'] + '_' + session_info['datetime']
+    session_info['dir_name'] = session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info['datetime']
+
     if session_info['manual_date'] != session_info['date']:  # check if file is updated
-        session_date_check = True
-        while session_date_check == True:
-            test_answer = input('wrong date! Are you testing the code? (y/n)').lower()
-            
-            if test_answer == 'y' || test_answer == 'yes':
-                session_info['date'] = datestr + 'test'
-                
-            elif test_answer == 'n' || test_answer == 'no':
-                raise RuntimeError('manual_date field in session_info file is not updated')
-                
-            session_date_check = False
-            
-            else:
-                print('Please enter a valid answer ...')
+        print('wrong date!!')
+        raise RuntimeError('manual_date field in session_info file is not updated')
 
 
     # make data directory and initialize logfile
     os.makedirs( session_info['dir_name'] )
     os.chdir( session_info['dir_name'] )
-    session_info['file_basename'] = session_info['mouse_name'] + "_" + session_info['datetime'] 
+    session_info['file_basename'] = session_info['mouse_name'] + "_" + session_info['datetime']
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
@@ -85,7 +73,7 @@ try:
         ]
     )
 
-    # initiate task object
+    # initiate task object\
     task = KellyTask(name="fentanyl_task", session_info=session_info)
 
     # # you can change various parameters if you want 
@@ -94,7 +82,7 @@ try:
     # start session
     task.start_session()
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
-    pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
+    pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
 
     # loop over trials
     for i in range(2):

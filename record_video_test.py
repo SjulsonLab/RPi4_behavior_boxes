@@ -2,6 +2,7 @@
 
 import signal
 import sys
+import os
 from picamera import PiCamera
 
 # TODO: this needs to be a script that runs from the command line on either RPi
@@ -28,16 +29,16 @@ def signal_handler(signum, frame):
     print("SIGINT detected")
     sys.exit(0)
 
-file_name = sys.argv[1]
+basename = sys.argv[1]
 
 # for external hard drive
-# base_dir = '/home/pi/video/'
+base_dir = '/home/pi/video/'
 # file_name = mouse_name + time_stamp
-# path = os.path.join(base_dir, basename)
+path = os.path.join(base_dir, basename)
 # os.mkdir(path)
 # ic("Video directory '% s' created" % path)
 
-video_name = file_name + '.h264'
+video_name = os.path.join(path, basename + '.h264')
 
 camera = PiCamera()
 camera.start_preview()
