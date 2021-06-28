@@ -269,7 +269,7 @@ class BehavBox(object):
     def video_stop(self):
         # Get the basename from the session information
         basename = self.session_info['basename']
-
+        dir_name = self.session_info['dir_name']
         # Get the ip address for the box video:
         IP_address_video = self.IP_address_video
 
@@ -286,7 +286,7 @@ class BehavBox(object):
 
         # Move the video + log from the box_video SD card to the box_behavior external hard drive
         os.system(
-            "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + " "  # this could be a problem .avi
+            "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + " "
             + hd_dir
         )
         print("rsync finished!")
