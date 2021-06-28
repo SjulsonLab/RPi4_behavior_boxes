@@ -274,7 +274,7 @@ class BehavBox(object):
         IP_address_video = self.IP_address_video
 
         # Run the stop_video script in the box video
-        os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video_test")
+        os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video")
         time.sleep(2)
         hostname = socket.gethostname()
         print("Moving video files from " + hostname + "video to " + hostname + ":")
