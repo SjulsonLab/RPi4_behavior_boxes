@@ -281,7 +281,7 @@ class BehavBox(object):
 
         # Create a directory for storage on the hard drive mounted on the box behavior
         base_dir = '/mnt/hd/'
-        hd_dir = base_dir + basename
+        hd_dir = base_dir + dir_name
         os.mkdir(hd_dir)
 
         # Move the video + log from the box_video SD card to the box_behavior external hard drive
