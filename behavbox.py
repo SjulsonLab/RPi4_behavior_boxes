@@ -260,7 +260,7 @@ class BehavBox(object):
         tempstr = (
                 "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/record_video.py "
                 + file_name
-                + " >> " + file_name + ".log 2>&1 & ' "  # file descriptors
+                + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
         )
 
         # start recording
