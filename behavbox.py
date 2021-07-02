@@ -281,12 +281,12 @@ class BehavBox(object):
 
         # Create a directory for storage on the hard drive mounted on the box behavior
         base_dir = '/mnt/hd/'
-        hd_dir = base_dir + dir_name
+        hd_dir = base_dir + basename
         os.mkdir(hd_dir)
 
         # Move the video + log from the box_video SD card to the box_behavior external hard drive
         os.system(
-            "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + " "
+            "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + "/* "
             + hd_dir
         )
         print("rsync finished!")
