@@ -272,9 +272,9 @@ class BehavBox(object):
         hd_dir = base_dir + basename
         os.mkdir(hd_dir)
 
-        scipy.io.savemat(hd_dir + basename + '_session_info.mat', {'session_info': self.session_info})
+        scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
         print("dumping session_info")
-        pickle.dump(self.session_info, open(hd_dir + basename + '_session_info.pkl', "wb"))
+        pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
     def video_stop(self):
         # Get the basename from the session information
@@ -295,9 +295,9 @@ class BehavBox(object):
         hd_dir = base_dir + basename
         # os.mkdir(hd_dir)
 
-        scipy.io.savemat(hd_dir + basename + '_session_info.mat', {'session_info': self.session_info})
+        scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
         print("dumping session_info")
-        pickle.dump(self.session_info, open(hd_dir + basename + '_session_info.pkl', "wb"))
+        pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
         # Move the video + log from the box_video SD card to the box_behavior external hard drive
         os.system(
