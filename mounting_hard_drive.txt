@@ -29,3 +29,6 @@ sudo umount /mnt/hd
 
 # for the hard drive, UUID:
 /dev/sda: UUID="6f266a44-3224-4afc-818e-d5c9e665f2b7" TYPE="ext4"
+
+# automatic mounting
+

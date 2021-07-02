@@ -15,7 +15,8 @@ logging.config.dictConfig(
 )
 # all modules above this line will have logging disabled
 
-import behavbox_test
+# import behavbox_test
+import behavbox
 class KellyRecordTask(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
 
@@ -46,8 +47,8 @@ class KellyRecordTask(object):
         print(self.session_info)
 
         # initialize behavior box
-        self.box = behavbox_test.BehavBoxTest(self.session_info)
-
+        # self.box = behavbox_test.BehavBoxTest(self.session_info)
+        self.box = behavbox.BehavBox(self.session_info)
     def start_session(self):
         print("Start recording video")
         self.box.video_start()

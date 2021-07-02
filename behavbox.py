@@ -15,8 +15,8 @@ from visualstim import VisualStim
 
 #############
 import Treadmill
-import Adafruit_ADS1x15
-
+# import Adafruit_ADS1x15
+import adafruit_ads1x15
 
 class BehavBox(object):
 
@@ -60,7 +60,7 @@ class BehavBox(object):
         IP_address = socket.gethostbyname(socket.gethostname() + ".local")
         self.IP_address = IP_address
         IP_address_video_list = list(IP_address)
-        IP_address_video_list[-3] = 2
+        IP_address_video_list[-3] = "2"
         self.IP_address_video = "".join(IP_address_video_list)
 
         ###############################################################################################
@@ -133,20 +133,20 @@ class BehavBox(object):
         self.camera_strobe = Button(4)
         # TODO: write code so that rising and falling edges are detected and logged in a separate video file
 
-        ###############################################################################################
-        # visual stimuli
-        ###############################################################################################
-        self.visualstim = VisualStim(self.session_info)
+        # ###############################################################################################
+        # # visual stimuli
+        # ###############################################################################################
+        # self.visualstim = VisualStim(self.session_info)
 
-        ###############################################################################################
-        # TODO: ADC(Adafruit_ADS1x15)
-        ###############################################################################################
-        self.ADC = ADS1x15(self.ADS1015)
+        # ###############################################################################################
+        # # TODO: ADC(Adafruit_ADS1x15)
+        # ###############################################################################################
+        # self.ADC = ADS1x15(self.ADS1015)
 
-        ###############################################################################################
-        # TODO: treadmill
-        ###############################################################################################
-        self.treadmill = Treadmill(self.dacval)
+        # ###############################################################################################
+        # # TODO: treadmill
+        # ###############################################################################################
+        # self.treadmill = Treadmill(self.dacval)
 
         ###############################################################################################
         # Keystroke handler
