@@ -11,7 +11,7 @@ sudo mkdir hd
 
 sudo mount /dev/sdc /mnt/hd
 
-# if an erro appear:
+# if an error appear:
 # mount: /mnt/hd:wrong fs type, bad option, bad superblock on /dev/sdc, missing codepage or helper program, or other error.
 
 # If that happens

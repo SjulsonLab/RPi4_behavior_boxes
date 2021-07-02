@@ -256,11 +256,11 @@ class BehavBox(object):
         file_name = dir_name + "/" + basename
 
         os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name)
-        os.system("ssh pi@" + IP_address_video + " 'date >> ~/videolog.log' ")  # I/O redirection
+        os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
         tempstr = (
                 "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/record_video.py "
-                + file_name
-                + " >> " + file_name + ".log 2>&1 & ' "  # file descriptors
+                + dir_name
+                + " >> " + dir_name + ".log 2>&1 & ' "  # file descriptors
         )
 
         # start recording
