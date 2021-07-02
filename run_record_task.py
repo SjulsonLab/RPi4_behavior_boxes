@@ -73,9 +73,9 @@ try:
     print("start_session")
     duration = int(input("Enter the time in seconds: "))
     task.start_session()
-    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
-    print("dumping session_info")
-    pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
+    # scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
+    # print("dumping session_info")
+    # pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
     sleep(duration)
     task.start_session()
     task.end_session()
@@ -83,10 +83,10 @@ try:
 except (KeyboardInterrupt, SystemExit):
     print(Fore.RED + Style.BRIGHT + 'Exiting now...' + Style.RESET_ALL)
     task.end_session()
-    # save dicts to disk
-    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
-    pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
-    # pygame.quit()
+    # # save dicts to disk
+    # scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
+    # pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
+    # # pygame.quit()
 
 
 # exit because of error

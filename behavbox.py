@@ -13,6 +13,8 @@ from colorama import Fore, Style
 import pysistence, collections
 from visualstim import VisualStim
 
+import scipy.io, pickle
+
 #############
 import Treadmill
 # import Adafruit_ADS1x15
@@ -266,6 +268,10 @@ class BehavBox(object):
         # start recording
         os.system(tempstr)
 
+        scipy.io.savemat(file_name + '_session_info.mat', {'session_info': self.session_info})
+        print("dumping session_info")
+        pickle.dump(session_info, open(file_name + '_session_info.pkl', "wb"))
+
     def video_stop(self):
         # Get the basename from the session information
         basename = self.session_info['basename']
@@ -276,6 +282,11 @@ class BehavBox(object):
         # Run the stop_video script in the box video
         os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video")
         time.sleep(2)
+
+        scipy.io.savemat(file_name + '_session_info.mat', {'session_info': self.session_info})
+        print("dumping session_info")
+        pickle.dump(session_info, open(file_name + '_session_info.pkl', "wb"))
+
         hostname = socket.gethostname()
         print("Moving video files from " + hostname + "video to " + hostname + ":")
 
@@ -287,6 +298,10 @@ class BehavBox(object):
         # Move the video + log from the box_video SD card to the box_behavior external hard drive
         os.system(
             "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + "/* "
+            + hd_dir
+        )
+        os.system(
+            "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":videos/*.log "
             + hd_dir
         )
         print("rsync finished!")
