@@ -52,9 +52,9 @@ try:
         raise RuntimeError('manual_date field in session_info file is not updated')
 
 
-    # make data directory and initialize logfile
-    os.makedirs(session_info['dir_name'])
-    os.chdir(session_info['dir_name'])
+    # # make data directory and initialize logfile
+    # os.makedirs(session_info['dir_name'])
+    # os.chdir(session_info['dir_name'])
     session_info['file_basename'] = session_info['mouse_name'] + "_" + session_info['datetime']
     logging.basicConfig(
         level=logging.INFO,

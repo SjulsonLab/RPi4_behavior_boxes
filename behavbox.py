@@ -259,8 +259,8 @@ class BehavBox(object):
         os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
         tempstr = (
                 "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/record_video.py "
-                + dir_name
-                + " >> " + dir_name + ".log 2>&1 & ' "  # file descriptors
+                + file_name
+                + " >> " + file_name + ".log 2>&1 & ' "  # file descriptors
         )
 
         # start recording
