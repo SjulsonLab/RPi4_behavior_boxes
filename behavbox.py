@@ -59,7 +59,8 @@ class BehavBox(object):
         logging.info("behavior_box_initialized")
         self.session_info = session_info
 
-        IP_address = socket.gethostbyname(socket.gethostname() + ".local")
+        from subprocess import check_output
+        IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
         self.IP_address = IP_address
         IP_address_video_list = list(IP_address)
         IP_address_video_list[-3] = "2"
