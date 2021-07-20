@@ -62,14 +62,20 @@ try:
     task.start_session()
     sleep(duration)
     task.end_session()
+    dir_name = session_info['dir_name']
+    basename = session_info['basename']
+    file_name = dir_name + "/" + basename
+    base_dir = '/mnt/hd/'
+    hd_dir = base_dir + basename
 
-    # # Per Kelly's request, remove all the files except the video file from the hard drive
-    # print("Remove mat - ")
-    # os.system("rm -r /mnt/hd/*.mat")
-    # print("Remove pkl - ")
-    # os.system("rm -r /mnt/hd/*.pkl")
-    # print("Remove log -")
-    # os.system("rm -r /mnt/hd/*.log")
+    # Per Kelly's request, remove all the files except the video file from the hard drive
+    print("Remove mat - ")
+    os.system("rm -r " + hd_dir + "/*.mat")
+    print("Remove pkl - ")
+    os.system("rm -r " + hd_dir + "/*.pkl")
+    print("Remove log -")
+    os.system("rm -r " + hd_dir + "/*.log")
+
 # graceful exit
 except (KeyboardInterrupt, SystemExit):
     print(Fore.RED + Style.BRIGHT + 'Exiting now...' + Style.RESET_ALL)
