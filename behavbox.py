@@ -225,34 +225,6 @@ class BehavBox(object):
     # These work with fake video files but haven't been tested with real ones
     ###############################################################################################
     def video_start(self):
-        # IP_address_video = self.IP_address_video
-        # dir_name = self.session_info['dir_name']
-        # if self.session_info["config"] == "head_fixed_v1":
-        #     # this assumes the second RPi has the same hostname except with a "b"
-        #     # appended, e.g. bumbrlik02b instead of bumbrlik02
-        #
-        #     # Now that we have the IP_address_video:
-        #     os.system("ssh pi@" + IP_address_video + " 'date >> " + dir_name + "/videolog.log ' ")
-        #     tempstr = (
-        #         "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/record_video.py "
-        #         + self.session_info["mouse_name"]
-        #         + " >> ~/Videos/videolog.log 2>&1 & ' "
-        #     )
-        #     os.system(tempstr)
-        #
-        # elif self.session_info["config"] == "freely_moving_v1":
-        #     # for freely-moving box
-        #     os.system("ssh pi@" + IP_address_video + " 'date >> ~/Videos/videolog.log ' ")
-        #     tempstr = (
-        #         "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/record_video.py "
-        #         + self.session_info["mouse_name"]
-        #         + " >> ~/Videos/videolog.log 2>&1 & "
-        #     )
-        #     os.system(tempstr)
-        #
-        # else:
-        #     print("config in session_info not recognized by BehavBox!")
-        #     raise RuntimeError
         IP_address_video = self.IP_address_video
         dir_name = self.session_info['dir_name']
         basename = self.session_info['basename']
