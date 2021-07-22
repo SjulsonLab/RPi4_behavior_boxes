@@ -10,8 +10,11 @@ def signal_handler(signum, frame):
     # Exit
     print("SIGINT detected")
     camera.stop_preview()
+    camera.close()
     sys.exit(0)
 
+camera.resolution = (640, 480)
+camera.framerate = 90
 
 camera = PiCamera()
 camera.start_preview()
