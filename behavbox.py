@@ -13,10 +13,12 @@ from colorama import Fore, Style
 import pysistence, collections
 from visualstim import VisualStim
 
+import scipy.io, pickle
+
 #############
 import Treadmill
-import Adafruit_ADS1x15
-
+# import Adafruit_ADS1x15
+import adafruit_ads1x15
 
 class BehavBox(object):
 
@@ -56,6 +58,13 @@ class BehavBox(object):
 
         logging.info("behavior_box_initialized")
         self.session_info = session_info
+
+        from subprocess import check_output
+        IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
+        self.IP_address = IP_address
+        IP_address_video_list = list(IP_address)
+        IP_address_video_list[-3] = "2"
+        self.IP_address_video = "".join(IP_address_video_list)
 
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
@@ -127,20 +136,20 @@ class BehavBox(object):
         self.camera_strobe = Button(4)
         # TODO: write code so that rising and falling edges are detected and logged in a separate video file
 
-        ###############################################################################################
-        # visual stimuli
-        ###############################################################################################
-        self.visualstim = VisualStim(self.session_info)
+        # ###############################################################################################
+        # # visual stimuli
+        # ###############################################################################################
+        # self.visualstim = VisualStim(self.session_info)
 
-        ###############################################################################################
-        # TODO: ADC(Adafruit_ADS1x15)
-        ###############################################################################################
-        self.ADC = ADS1x15(self.ADS1015)
+        # ###############################################################################################
+        # # TODO: ADC(Adafruit_ADS1x15)
+        # ###############################################################################################
+        # self.ADC = ADS1x15(self.ADS1015)
 
-        ###############################################################################################
-        # TODO: treadmill
-        ###############################################################################################
-        self.treadmill = Treadmill(self.dacval)
+        # ###############################################################################################
+        # # TODO: treadmill
+        # ###############################################################################################
+        # self.treadmill = Treadmill(self.dacval)
 
         ###############################################################################################
         # Keystroke handler
@@ -216,57 +225,89 @@ class BehavBox(object):
     # These work with fake video files but haven't been tested with real ones
     ###############################################################################################
     def video_start(self):
-        if self.session_info["config"] == "head_fixed_v1":
-            # this assumes the second RPi has the same hostname except with a "b"
-            # appended, e.g. bumbrlik02b instead of bumbrlik02
-            os.system("ssh pi@`hostname`b 'date >> ~/Videos/videolog.log ' ")
-            tempstr = (
-                "ssh pi@`hostname`b 'nohup /home/pi/RPi4_behavior_boxes/record_video.py "
-                + self.session_info["mouse_name"]
-                + " >> ~/Videos/videolog.log 2>&1 & ' "
-            )
-            os.system(tempstr)
+        IP_address_video = self.IP_address_video
+        dir_name = self.session_info['dir_name']
+        basename = self.session_info['basename']
+        file_name = dir_name + "/" + basename
 
-        elif self.session_info["config"] == "freely_moving_v1":
-            # for freely-moving box
-            os.system("date >> ~/Videos/videolog.log")
-            tempstr = (
-                "nohup /home/pi/RPi4_behavior_boxes/record_video.py "
-                + self.session_info["mouse_name"]
-                + " >> ~/Videos/videolog.log 2>&1 & "
-            )
-            os.system(tempstr)
+        os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name)
+        os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
+        tempstr = (
+                "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/record_video.py "
+                + file_name
+                + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
+        )
 
-        else:
-            print("config in session_info not recognized by BehavBox!")
-            raise RuntimeError
+        # start recording
+        os.system(tempstr)
+
+        base_dir = '/mnt/hd/'
+        hd_dir = base_dir + basename
+        os.mkdir(hd_dir)
+
+        scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
+        print("dumping session_info")
+        pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
     def video_stop(self):
-        if self.session_info["config"] == "head_fixed_v1":
-            # sends SIGINT to record_video.py, telling it to exit
-            os.system("ssh pi@`hostname`b /home/pi/RPi4_behavior_boxes/stop_video")
-            time.sleep(2)
-            hostname = socket.gethostname()
-            print("Moving video files from " + hostname + "b to " + hostname + ":")
-            os.system(
-                "rsync -av --progress --remove-source-files pi@`hostname`b:Videos/*.avi "
-                + self.session_info["dir_name"]
-            )
-            os.system(
-                "rsync -av --progress --remove-source-files pi@`hostname`b:Videos/*.log "
-                + self.session_info["dir_name"]
-            )
+        # Get the basename from the session information
+        basename = self.session_info['basename']
+        dir_name = self.session_info['dir_name']
+        # Get the ip address for the box video:
+        IP_address_video = self.IP_address_video
 
-        elif self.session_info["config"] == "freely_moving_v1":
-            # sends SIGINT to record_video.py, telling it to exit
-            os.system("/home/pi/RPi4_behavior_boxes/stop_video")
-            time.sleep(2)
-            os.system(
-                "mv /home/pi/Videos/*.avi " + self.session_info["dir_name"] + " & "
-            )
-            os.system(
-                "mv /home/pi/Videos/*.log " + self.session_info["dir_name"] + " & "
-            )
+        # Run the stop_video script in the box video
+        os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video")
+        time.sleep(2)
+
+        hostname = socket.gethostname()
+        print("Moving video files from " + hostname + "video to " + hostname + ":")
+
+        # Create a directory for storage on the hard drive mounted on the box behavior
+        base_dir = '/mnt/hd/'
+        hd_dir = base_dir + basename
+        # os.mkdir(hd_dir)
+
+        scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
+        print("dumping session_info")
+        pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+
+        # Move the video + log from the box_video SD card to the box_behavior external hard drive
+        os.system(
+            "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + "/* "
+            + hd_dir
+        )
+        os.system(
+            "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":~/video/*.log "
+            + hd_dir
+        )
+        print("rsync finished!")
+
+        # # if self.session_info["config"] == "head_fixed_v1":
+        # # sends SIGINT to record_video.py, telling it to exit
+        # os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video")
+        # time.sleep(2)
+        # hostname = socket.gethostname()
+        # print("Moving video files from " + hostname + "video to " + hostname + ":")
+        # os.system(
+        #     "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":Videos/*.avi " # this could be a problem .avi
+        #     + self.session_info["dir_name"]
+        # )
+        # os.system(
+        #     "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":Videos/*.log "
+        #     + self.session_info["dir_name"]
+        # )
+        #
+        # elif self.session_info["config"] == "freely_moving_v1":
+        #     # sends SIGINT to record_video.py, telling it to exit
+        #     os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video")
+        #     time.sleep(2)
+        #     os.system(
+        #         "mv /home/pi/Videos/*.avi " + self.session_info["dir_name"] + " & "
+        #     )
+        #     os.system(
+        #         "mv /home/pi/Videos/*.log " + self.session_info["dir_name"] + " & "
+        #     )
 
     ###############################################################################################
     # callbacks

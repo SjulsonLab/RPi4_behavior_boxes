@@ -1,0 +1,34 @@
+# List all the mounted disk, available disk connected to the Pi
+fdisk -l
+# at the bottomn shows sdc
+
+# change directory to the mount directory
+cd /mnt
+ls
+
+# create a mount drive directory
+sudo mkdir hd
+
+sudo mount /dev/sdc /mnt/hd
+
+# if an error appear:
+# mount: /mnt/hd:wrong fs type, bad option, bad superblock on /dev/sdc, missing codepage or helper program, or other error.
+
+# If that happens
+# format the external harddrive
+sudo mkfs.ext4 /dev/sdc
+
+# Change permission to the external hard drive directory
+sudo chmod ugo+rwx hd/
+
+# Mount the hard drive
+sudo mount /dev/sdc /mnt/hd
+
+# Unmount the hard drive
+sudo umount /mnt/hd
+
+# for the hard drive, UUID:
+/dev/sda: UUID="6f266a44-3224-4afc-818e-d5c9e665f2b7" TYPE="ext4"
+
+# automatic mounting
+
