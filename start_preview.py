@@ -13,10 +13,10 @@ def signal_handler(signum, frame):
     camera.close()
     sys.exit(0)
 
-camera.resolution = (640, 480)
-# camera.framerate = 90
-
 camera = PiCamera()
+camera.resolution = (640, 480)
+camera.framerate = 30
+
 camera.start_preview()
 
 signal.signal(signal.SIGINT, signal_handler)
