@@ -42,6 +42,7 @@ video_name = file_name + '.h264'
 camera = PiCamera()
 
 camera.resolution = (640, 480)
+camera.framerate = 30
 # camera.framerate = 90
 
 camera.start_preview()
