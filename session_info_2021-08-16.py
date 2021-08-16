@@ -16,7 +16,7 @@ session_info                              	= collections.OrderedDict()
 session_info['mouse_info']					= mouse_info
 session_info['mouse_name']                 	= mouse_info['mouse_name']
 #session_info['trainingPhase']             	= 4
-session_info['basedir']					  	= '/home/pi/fakedata'
+session_info['basedir']					  	= '/home/pi/videos'
 # for actual data save to this dir:
 #session_info['basedir']					  	= '/home/pi/video'
 session_info['weight']                	    = 32.18
