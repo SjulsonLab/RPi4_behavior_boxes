@@ -186,6 +186,7 @@ class BehavBox(object):
     ###############################################################################################
     # check for key presses - uses pygame window to simulate nosepokes and licks
     ###############################################################################################
+
     def check_keybd(self):
         if self.keyboard_active == True:
             event = pygame.event.poll()
@@ -229,6 +230,10 @@ class BehavBox(object):
         dir_name = self.session_info['dir_name']
         basename = self.session_info['basename']
         file_name = dir_name + "/" + basename
+        # Kill any python process before start recording
+        print("Kill any python process before start recording!")
+
+        os.system("ssh pi@" + IP_address_video + " pkill python")
 
         os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name)
         os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
@@ -266,7 +271,6 @@ class BehavBox(object):
         # Create a directory for storage on the hard drive mounted on the box behavior
         base_dir = '/mnt/hd/'
         hd_dir = base_dir + basename
-        # os.mkdir(hd_dir)
 
         scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
         print("dumping session_info")
@@ -274,7 +278,7 @@ class BehavBox(object):
 
         # Move the video + log from the box_video SD card to the box_behavior external hard drive
         os.system(
-            "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + "/* "
+            "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + "/ "
             + hd_dir
         )
         os.system(

@@ -7,7 +7,7 @@ import socket
 
 
 # defining immutable mouse dict (once defined for a mouse, NEVER EDIT IT)
-mouse_info = pysistence.make_dict({'mouse_name': 'FSA_061_OF_SALINE',
+mouse_info = pysistence.make_dict({'mouse_name': 'FSA071_OF_COCAINE',
                  'fake_field': 'fake_info',
                  })
 
@@ -20,7 +20,7 @@ session_info['basedir']					  	= '/home/pi/fakedata'
 # for actual data save to this dir:
 #session_info['basedir']					  	= '/home/pi/video'
 session_info['weight']                	    = 32.18
-session_info['manual_date']					= '2021-07-21'
+session_info['manual_date']					= '2021-08-05'
 session_info['box_name']             		= socket.gethostname()
 
 # session_info['config']						= 'freely_moving_v1'
