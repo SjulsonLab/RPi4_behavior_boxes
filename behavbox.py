@@ -230,11 +230,23 @@ class BehavBox(object):
         dir_name = self.session_info['dir_name']
         basename = self.session_info['basename']
         file_name = dir_name + "/" + basename
-        # Kill any python process before start recording
-        print("Kill any python process before start recording!")
+        # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
+
+        # Preview check per Kelly request
+        print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
 
         os.system("ssh pi@" + IP_address_video + " pkill python")
+        print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)
+        print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
 
+        os.system("ssh pi@" + IP_address_video + " '/home/pi/RPi4_behavior_boxes/start_preview.py'")
+        # Kill any python process before start recording
+        print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
+
+        os.system("ssh pi@" + IP_address_video + " pkill python")
+        time.sleep(2)
+
+        # Prepare the path for recording
         os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name)
         os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
         tempstr = (
@@ -244,7 +256,10 @@ class BehavBox(object):
         )
 
         # start recording
+        print(Fore.BLUE + "\nQuiet on set!")
+        print(Fore.GREEN + "\nStart Recording: ACTION!!!" + Style.RESET_ALL)
         os.system(tempstr)
+        print(Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
 
         base_dir = '/mnt/hd/'
         hd_dir = base_dir + basename
