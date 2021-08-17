@@ -26,7 +26,7 @@ class TimedStateMachine(Machine):
     pass
 
 
-class KellyTask(object):
+class FakeTask(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
 
         # if no name or session, make fake ones (for testing purposes)
@@ -104,30 +104,42 @@ class KellyTask(object):
     ########################################################################
     def enter_standby(self):
         print("entering standby")
+        # self.box.cueLED1.on()
         self.trial_running = False
 
     def exit_standby(self):
+        # print("exiting standby")
+        # self.box.cueLED1.off()
         pass
 
     def enter_reward_available(self):
         print("entering reward_available")
         print("start white noise")
+        # self.box.cueLED2.on()
         self.trial_running = True
 
     def exit_reward_available(self):
         print("stop white noise")
+        # self.box.cueLED2.off()
 
     def enter_cue(self):
         print("deliver reward")
         self.box.reward("left", self.session_info["reward_size"])
         print("start cue")
-        self.box.cueLED1.on()
-        self.box.visualstim.show_grating("first_grating.grat")
+        self.box.cueLED3.on()
+        # self.box.visualstim.show_grating("first_grating.grat")
 
     def exit_cue(self):
         print("stop cue")
-        self.box.cueLED1.off()
+        self.box.cueLED3.off()
 
+    # def detect_np_entry(self):
+    #     self.box.cueLED1.on()
+    #     print('nose poke entry')
+    #
+    # def detect_np_exit(self):
+    #     self.box.cueLED1.off()
+    #     print('nose poke exit')
     ########################################################################
     # call the run() method repeatedly in a while loop in the main session
     # script it will process all detected events from the behavior box (e.g.
@@ -154,6 +166,9 @@ class KellyTask(object):
         # look for keystrokes
         self.box.check_keybd()
 
+    # def np_detection(self):
+    #     if self.box.event_list:
+    #         event_name = self.box.event_list.popleft()
     ########################################################################
     # methods to start and end the behavioral session
     ########################################################################
