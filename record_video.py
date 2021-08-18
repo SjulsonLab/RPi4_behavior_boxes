@@ -44,6 +44,6 @@ while True:
     camera.wait_recording(0.005)
     frame = camera.frame
     if frame.index > last_frame and frame.timestamp != None:  # a new frame was detected and the time stamp is not NONE
-        camera.annotate_text = str(frame.index) + "; " + dt.now().strftime("%H:%M:%S.%f")
+        #camera.annotate_text = str(frame.index) + "; " + dt.now().strftime("%H:%M:%S.%f")
         logfile.write(str(frame.index) + ';' + str(frame.timestamp) + '\n')
         last_frame = frame.index
