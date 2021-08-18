@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-
 import signal
 import sys
 from picamera import PiCamera
+from datetime import datetime as dt
 
 # TODO: this needs to be a script that runs from the command line on either RPi
 # connected to a behavior box, e.g.
@@ -19,34 +19,31 @@ from picamera import PiCamera
 # stop recording, close the files, and exit.
 # function takes in the session information, and it uses the information
 # to create directory and video file...
-
-# for testing only
+# this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
-    # Call the video record function
-    # Wait for an user-defined amount of time
-    # Exit
     print("SIGINT detected")
+    camera.stop_recording(video_name)
+    print("Camera stopped recording.")
+    logfile.close()
+    print("Log file stopped logging.")
     sys.exit(0)
 
+signal.signal(signal.SIGINT, signal_handler)
 file_name = sys.argv[1]
 
-# for external hard drive
-# base_dir = '/home/pi/video/'
-# file_name = mouse_name + time_stamp
-# path = os.path.join(base_dir, basename)
-# os.mkdir(path)
-# ic("Video directory '% s' created" % path)
-
 video_name = file_name + '.h264'
+logfile = open(file_name + '.txt', 'a')
 
 camera = PiCamera()
-
-camera.resolution = (640, 480)
-camera.framerate = 30
-# camera.framerate = 90
-
 camera.start_preview()
 camera.start_recording(video_name)
 
-signal.signal(signal.SIGINT, signal_handler)
-signal.pause()
+last_frame = -1
+
+while True:
+    camera.wait_recording(0.005)
+    frame = camera.frame
+    if frame.index > last_frame and frame.timestamp != None:  # a new frame was detected and the time stamp is not NONE
+        camera.annotate_text = str(frame.index) + "; " + dt.now().strftime("%H:%M:%S.%f")
+        logfile.write(str(frame.index) + ';' + str(frame.timestamp) + '\n')
+        last_frame = frame.index
