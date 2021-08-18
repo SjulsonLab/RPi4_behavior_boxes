@@ -35,6 +35,9 @@ video_name = file_name + '.h264'
 logfile = open(file_name + '.txt', 'a')
 
 camera = PiCamera()
+camera.resolution = (640, 480)
+camera.framerate = 30
+
 camera.start_preview()
 camera.start_recording(video_name)
 
