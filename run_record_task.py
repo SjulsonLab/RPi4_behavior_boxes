@@ -69,12 +69,12 @@ try:
     hd_dir = base_dir + basename
 
     # Per Kelly's request, remove all the files except the video file from the hard drive
-    print("Remove mat - ")
-    os.system("rm -r " + hd_dir + "/*.mat")
-    print("Remove pkl - ")
-    os.system("rm -r " + hd_dir + "/*.pkl")
-    print("Remove log -")
-    os.system("rm -r " + hd_dir + "/*.log")
+#    print("Remove mat - ")
+#    os.system("rm -r " + hd_dir + "/*.mat")
+#    print("Remove pkl - ")
+#    os.system("rm -r " + hd_dir + "/*.pkl")
+#    print("Remove log -")
+#    os.system("rm -r " + hd_dir + "/*.log")
 
 # graceful exit
 except (KeyboardInterrupt, SystemExit):
