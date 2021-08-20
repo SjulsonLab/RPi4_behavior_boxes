@@ -17,6 +17,9 @@ camera = PiCamera()
 camera.resolution = (640, 480)
 camera.framerate = 30
 
+camera.annotate_text = "PREVIEW ONLY"
+camera.annotate_text_size = 60
+
 camera.start_preview()
 
 signal.signal(signal.SIGINT, signal_handler)
