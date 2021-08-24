@@ -40,6 +40,7 @@ camera.framerate = 30
 
 camera.start_preview()
 camera.start_recording(video_name)
+camera.annotate_text_size = 10
 
 last_frame = -1
 
@@ -47,6 +48,6 @@ while True:
     camera.wait_recording(0.005)
     frame = camera.frame
     if frame.index > last_frame and frame.timestamp != None:  # a new frame was detected and the time stamp is not NONE
-        #camera.annotate_text = str(frame.index) + "; " + dt.now().strftime("%H:%M:%S.%f")
+        camera.annotate_text = str(frame.index) + "; " + dt.now().strftime("%H:%M:%S.%f")
         logfile.write(str(frame.index) + ';' + str(frame.timestamp) + '\n')
         last_frame = frame.index
