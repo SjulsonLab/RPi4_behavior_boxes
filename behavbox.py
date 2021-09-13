@@ -248,7 +248,7 @@ class BehavBox(object):
         os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name)
         os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
         tempstr = (
-                "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/record_video.py "
+                "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
                 + file_name
                 + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
         )
@@ -275,7 +275,7 @@ class BehavBox(object):
         IP_address_video = self.IP_address_video
 
         # Run the stop_video script in the box video
-        os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video")
+        os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
         time.sleep(2)
 
         hostname = socket.gethostname()
