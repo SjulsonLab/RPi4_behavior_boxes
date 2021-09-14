@@ -152,47 +152,47 @@ class TimestampOutput(object):
     def close(self):
         self._video.close()
 
-camera = PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE)
-camera.brightness = BRIGHTNESS
-camera.contrast = CONTRAST
-camera.sharpness = SHARPNESS
-camera.video_stabilization = VIDEO_STABILIZATION
-camera.hflip = False
-camera.vflip = False
+with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
+    camera.brightness = BRIGHTNESS
+    camera.contrast = CONTRAST
+    camera.sharpness = SHARPNESS
+    camera.video_stabilization = VIDEO_STABILIZATION
+    camera.hflip = False
+    camera.vflip = False
 
-#warm-up time to camera to set its initial settings
-time.sleep(2)
+    #warm-up time to camera to set its initial settings
+    time.sleep(2)
 
-camera.exposure_mode = EXPOSURE_MODE
-camera.awb_mode = AWB_MODE
-camera.awb_gains = AWB_GAINS
+    camera.exposure_mode = EXPOSURE_MODE
+    camera.awb_mode = AWB_MODE
+    camera.awb_gains = AWB_GAINS
 
-#time to let camera change parameters according to exposure and AWB
-time.sleep(2)
+    #time to let camera change parameters according to exposure and AWB
+    time.sleep(2)
 
-#switch off the exposure since the camera has been set now
-camera.exposure_mode = 'off'
+    #switch off the exposure since the camera has been set now
+    camera.exposure_mode = 'off'
 
-output = TimestampOutput(camera, VIDEO_FILE_NAME, TIMESTAMP_FILE_NAME, TTL_FILE_NAME)
+    output = TimestampOutput(camera, VIDEO_FILE_NAME, TIMESTAMP_FILE_NAME, TTL_FILE_NAME)
 
-GPIO.add_event_callback(pinTTL, output.ttlTimestampsWrite)
+    GPIO.add_event_callback(pinTTL, output.ttlTimestampsWrite)
+    try:
+        camera.start_preview()
+        # Construct an instance of our custom output splitter with a filename  and a connected socket
+        print('Starting Recording')
+        camera.start_recording(output, format='h264')
+        print('Started Recording')
+        camera.annotate_text_size = 10
 
-camera.start_preview()
-# Construct an instance of our custom output splitter with a filename  and a connected socket
-print('Starting Recording')
-camera.start_recording(output, format='h264')
-print('Started Recording')
-camera.annotate_text_size = 10
-
-last_frame = 0
-while True:
-    camera.wait_recording(0.005)
-    frame = output._timestamps[-1][0]
-    if frame != None:
-        if frame > last_frame:
-            # a new frame was detected and the time stamp is not NONE
-            camera.annotate_text = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
-            last_frame = frame
+        last_frame = 0
+        while True:
+            camera.wait_recording(0.005)
+            frame = output._timestamps[-1][0]
+            if frame != None:
+                if frame > last_frame:
+                    # a new frame was detected and the time stamp is not NONE
+                    camera.annotate_text = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
+                    last_frame = frame
     except Exception as e:
         output.close()
         print(e)
