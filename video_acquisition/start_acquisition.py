@@ -193,6 +193,7 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
                     # a new frame was detected and the time stamp is not NONE
                     camera.annotate_text = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
                     last_frame = frame
+
     except Exception as e:
         output.close()
         print(e)
