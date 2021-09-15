@@ -124,7 +124,7 @@ class TimestampOutput(object):
 
     def write(self, buf):
         if self.camera.frame.complete and self.camera.frame.timestamp is not None:
-            if len(self._timestamps) > 0: 
+            if len(self._timestamps) > 0:
                 if self.camera.frame.timestamp != self._timestamps[-1][0]: # Ignore the 0 interval consecutive timestamp
                     self._timestamps.append((
                         self.camera.frame.timestamp,
