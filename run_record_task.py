@@ -58,7 +58,8 @@ try:
 
     # start session
     print("start_session")
-    duration = int(input("Enter the time in seconds: "))
+    duration_buffer = 10 # it takes 8 seconds for the camera and the video_start function to be set up
+    duration = int(input("Enter the time in seconds: ")) + duration_buffer
     task.start_session()
     sleep(duration)
     task.end_session()
