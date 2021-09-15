@@ -257,7 +257,7 @@ class BehavBox(object):
             print(Fore.BLUE + "\nQuiet on set!")
             print(Fore.GREEN + "\nStart Recording: ACTION!!!" + Style.RESET_ALL)
             os.system(tempstr)
-            print(Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
+            print(Fore.RED + Style.BRIGHT + "Please wait for 10 seconds and check if the preview screen is on!\nIt takes 8 seconds to warm up the camera\n Cancel the session if it's not!" + Style.RESET_ALL)
 
             base_dir = '/mnt/hd/'
             hd_dir = base_dir + basename
