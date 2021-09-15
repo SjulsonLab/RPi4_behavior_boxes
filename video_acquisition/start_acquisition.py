@@ -30,7 +30,7 @@ base_path = sys.argv[1]
 try:
     os.nice(-20)
 except:
-    print("set nice level failed. \nsudo nano /etc/security/limits.conf \npi -       nice    0")
+    print("set nice level failed. \nsudo nano /etc/security/limits.conf \npi	-       nice    -20")
 
 #camera parameter setting
 WIDTH  = 640
@@ -124,7 +124,7 @@ class TimestampOutput(object):
 
     def write(self, buf):
         if self.camera.frame.complete and self.camera.frame.timestamp is not None:
-            if len(self._timestamps) > 0: 
+            if len(self._timestamps) > 0:
                 if self.camera.frame.timestamp != self._timestamps[-1][0]: # Ignore the 0 interval consecutive timestamp
                     self._timestamps.append((
                         self.camera.frame.timestamp,
