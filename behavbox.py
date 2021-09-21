@@ -24,34 +24,6 @@ class BehavBox(object):
         deque()
     )  # all detected events are added to this queue to be read out by the behavior class
 
-    # TODO: write this up in a syringe pump class
-    def reward(self, which_pump, reward_size):
-        print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
-        diameter_mm = 12.06  # for 5 mL syringe
-        # diameter_mm = 14.5   # for 10 mL syringe
-        volPerRevolution_uL = (
-            0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
-        )  # thread is 0.8 mm per turn
-        howManyRevolutions = reward_size / volPerRevolution_uL
-        # // determine total steps needed to reach desired revolutions, @200 steps/revolution
-        # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
-        # // round to nearest int
-        totalSteps = round(200 * howManyRevolutions * 4)
-        reward_duration = 1  # delivery reward over 300 ms
-        cycle_length = (
-            reward_duration / totalSteps
-        )  # need to know what the minimum value can be
-
-        if which_pump == "left":
-            self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info("left_reward," + str(reward_size))
-        elif which_pump == "center":
-            self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info("center_reward," + str(reward_size))
-        elif which_pump == "right":
-            logging.info("right_reward," + str(reward_size))
-            self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-
     def __init__(self, session_info):
 
         logging.info("behavior_box_initialized")
@@ -116,17 +88,6 @@ class BehavBox(object):
         self.lick1.when_released = self.left_lick_stop
         self.lick2.when_released = self.center_lick_stop
         self.lick3.when_released = self.right_lick_stop
-
-        ###############################################################################################
-        # syringe pumps - will configure these as LEDs for now until new class is written
-        ###############################################################################################
-        self.pump1 = LED(9)  # for testing only - the correct pin number is 19
-        # self.pump1   = LED(19)
-        self.pump2 = LED(20)
-        self.pump3 = LED(21)
-        self.pump4 = LED(23)
-        self.pump5 = LED(24)
-        self.pump_en = LED(25)  # pump enable
 
         ###############################################################################################
         # camera strobe signal
@@ -395,3 +356,43 @@ class BoxLED(PWMLED):
     ):  # unlike PWMLED, here the on() function sets the intensity to set_value,
         # not to full intensity
         self.value = self.set_value
+
+class Pump(LED):
+    def __init__(self, LED):
+        ###############################################################################################
+        # syringe pumps
+        ###############################################################################################
+        self.pump1 = LED(19)  # for testing only - the correct pin number is 19
+        self.pump2 = LED(20)
+        self.pump3 = LED(21)
+        self.pump4 = LED(23)
+        self.pump5 = LED(24)
+        self.pump_en = LED(25)  # pump enable
+
+    def reward(self, which_pump, reward_size):
+        print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
+        diameter_mm = 12.06  # for 5 mL syringe
+        # diameter_mm = 14.5   # for 10 mL syringe
+        volPerRevolution_uL = (
+            0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
+        )  # thread is 0.8 mm per turn
+        howManyRevolutions = reward_size / volPerRevolution_uL
+        # // determine total steps needed to reach desired revolutions, @200 steps/revolution
+        # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
+        # // round to nearest int
+        totalSteps = round(200 * howManyRevolutions * 4)
+        reward_duration = 1  # delivery reward over 300 ms
+        cycle_length = (
+            reward_duration / totalSteps
+        )  # need to know what the minimum value can be
+
+        if which_pump == "left":
+            self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info("left_reward," + str(reward_size))
+        elif which_pump == "center":
+            self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info("center_reward," + str(reward_size))
+        elif which_pump == "right":
+            logging.info("right_reward," + str(reward_size))
+            self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            
