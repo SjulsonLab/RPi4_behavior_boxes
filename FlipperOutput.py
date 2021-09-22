@@ -1,8 +1,8 @@
-from gpiozero import OutputDevice
+from gpiozero import DigitalOutputDevice
 import io
 import time
 
-class FlipperOutput(OutputDevice):
+class FlipperOutput(DigitalOutputDevice):
     def __init__(self, session_info, pin=None):
         super(FlipperOutput, self).__init__(pin = pin)
         try:
@@ -13,7 +13,7 @@ class FlipperOutput(OutputDevice):
         # Additional properties and methods
         self._flip_thread = None
         self._controller = None # what is this?
-        self._flipper_file = self.session_info['flipper_filename']
+        self._flipper_file = self.session_info['flipper_filename'] + self.session_info['datetime'] + 'txt'
         self._flipper_timestamp = []
 
     def flip(self, time_min=0.5, time_max=2, n=None, background=True):
@@ -30,10 +30,11 @@ class FlipperOutput(OutputDevice):
         if getattr(self, '_controller', None):
             self._controller._stop_flip(self)
         self._controller = None
-        self.flipper_flush()
+
 
         if getattr(self, '_flip_thread', None):
             self._flip_thread.stop()
+            self.flipper_flush()
         self._flip_thread = None
 
     def _flip_device(self, time_min, time_max, n):
@@ -50,6 +51,11 @@ class FlipperOutput(OutputDevice):
                 pin_state = False
                 self._flipper_timestamp.append((pin_state, time.time(), time.clock_gettime(time.CLOCK_REALTIME)))
                 break
+
+    def flipper_stop(self):
+        self._flip_thread.join()
+        self._flip_thread = None
+        self._stop_flip()
 
     def flipper_flush(self):
         with io.open(self._flipper_file, 'w') as f:
