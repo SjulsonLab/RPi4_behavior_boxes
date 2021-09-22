@@ -8,4 +8,4 @@ flip_box.flip()
 
 sleep(20)
 
-flip_box.off()
+flip_box.flipper_stop()
