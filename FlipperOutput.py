@@ -1,29 +1,8 @@
-from __future__ import (
-    unicode_literals,
-    print_function,
-    absolute_import,
-    division,
-)
-str = type('')
-
-from itertools import repeat
-try:
-    from math import log2
-except ImportError:
-    from .compat import log2
-
-from .threads import GPIOThread
-
-try:
-    from .pins.pigpio import PiGPIOFactory
-except ImportError:
-    PiGPIOFactory = None
-
-from gpiozero import DigitalOutputDevice
+from gpiozero import LED
 import io
 import time
 
-class FlipperOutput(DigitalOutputDevice):
+class FlipperOutput(LED):
     def __init__(self, session_info, pin=None):
         super(FlipperOutput, self).__init__(pin = pin)
         try:
