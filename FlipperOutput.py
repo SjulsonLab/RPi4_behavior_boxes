@@ -1,4 +1,5 @@
 from gpiozero import OutputDevice
+import io
 import time
 
 class FlipperOutput(OutputDevice):
