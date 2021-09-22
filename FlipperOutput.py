@@ -1,6 +1,3 @@
-from gpiozero import DigitalOutputDevice
-import io
-import time
 from __future__ import (
     unicode_literals,
     print_function,
@@ -21,6 +18,10 @@ try:
     from .pins.pigpio import PiGPIOFactory
 except ImportError:
     PiGPIOFactory = None
+
+from gpiozero import DigitalOutputDevice
+import io
+import time
 
 class FlipperOutput(DigitalOutputDevice):
     def __init__(self, session_info, pin=None):
