@@ -1,7 +1,26 @@
 from gpiozero import DigitalOutputDevice
 import io
 import time
+from __future__ import (
+    unicode_literals,
+    print_function,
+    absolute_import,
+    division,
+)
+str = type('')
+
+from itertools import repeat
+try:
+    from math import log2
+except ImportError:
+    from .compat import log2
+
 from .threads import GPIOThread
+
+try:
+    from .pins.pigpio import PiGPIOFactory
+except ImportError:
+    PiGPIOFactory = None
 
 class FlipperOutput(DigitalOutputDevice):
     def __init__(self, session_info, pin=None):
