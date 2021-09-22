@@ -1,6 +1,7 @@
 from gpiozero import DigitalOutputDevice
 import io
 import time
+from .threads import GPIOThread
 
 class FlipperOutput(DigitalOutputDevice):
     def __init__(self, session_info, pin=None):
