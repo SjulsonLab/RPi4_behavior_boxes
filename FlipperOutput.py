@@ -30,8 +30,8 @@ class FlipperOutput(DigitalOutputDevice):
             self._flip_thread = None
 
     def close(self):
-        self._flip_thread.join()
-        self._flip_thread = None
+        # self._flip_thread.join()
+        # self._flip_thread = None
         self._stop_flip()
         super().close()
 
