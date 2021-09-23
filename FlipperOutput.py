@@ -22,7 +22,7 @@ class FlipperOutput(DigitalOutputDevice):
     def flip(self, time_min=0.5, time_max=2, n=None, background=True):
         self._stop_flip()
         self._flip_thread = Thread(
-            target=self._flip_device, (time_min, time_max, n)
+            target=self._flip_device, args=(time_min, time_max, n)
         )
         self._flip_thread.start()
         if not background:
