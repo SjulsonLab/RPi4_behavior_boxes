@@ -1,8 +1,11 @@
-from gpiozero import LED
+from gpiozero import DigitalOutputDevice
+from threading import Thread
+from itertools import repeat
 import io
 import time
+import random
 
-class FlipperOutput(LED):
+class FlipperOutput(DigitalOutputDevice):
     def __init__(self, session_info, pin=None):
         super(FlipperOutput, self).__init__(pin = pin)
         try:
@@ -18,7 +21,7 @@ class FlipperOutput(LED):
 
     def flip(self, time_min=0.5, time_max=2, n=None, background=True):
         self._stop_flip()
-        self._flip_thread = GPIOThread(
+        self._flip_thread = Thread(
             self._flip_device, (time_min, time_max, n)
         )
         self._flip_thread.start()
@@ -30,8 +33,6 @@ class FlipperOutput(LED):
         if getattr(self, '_controller', None):
             self._controller._stop_flip(self)
         self._controller = None
-
-
         if getattr(self, '_flip_thread', None):
             self._flip_thread.stop()
             self.flipper_flush()
@@ -62,3 +63,4 @@ class FlipperOutput(LED):
             f.write('pin_tate, time.time(), clock_realtime\n')
             for entry in self._flipper_timestamp:
                 f.write('%f,%f,%f\n' % entry)
+        self.close()
