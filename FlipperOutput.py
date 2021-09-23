@@ -29,6 +29,12 @@ class FlipperOutput(DigitalOutputDevice):
             self._flip_thread.join()
             self._flip_thread = None
 
+    def close(self):
+        self._flip_thread.join()
+        self._flip_thread = None
+        self._stop_flip()
+        super().close()
+
     def _stop_flip(self):
         if getattr(self, '_controller', None):
             self._controller._stop_flip(self)
@@ -54,14 +60,8 @@ class FlipperOutput(DigitalOutputDevice):
                 self._flipper_timestamp.append((self.pin_state, time.time(), time.clock_gettime(time.CLOCK_REALTIME)))
                 break
 
-    def flipper_stop(self):
-        self._flip_thread.join()
-        self._flip_thread = None
-        self._stop_flip()
-
     def flipper_flush(self):
         with io.open(self._flipper_file, 'w') as f:
             f.write('pin_tate, time.time(), clock_realtime\n')
             for entry in self._flipper_timestamp:
                 f.write('%f,%f,%f\n' % entry)
-        self.close()

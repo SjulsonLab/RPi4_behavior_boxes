@@ -6,7 +6,7 @@ with FlipperOutput(fake_session_info, pin=22) as flip_box:
     try:
         flip_box.flip()
         sleep(20)
-        flip_box.flipper_stop()
+        flip_box.close()
     except KeyboardInterrupt:
         flip_box.close()
         print("Closing the output.")
