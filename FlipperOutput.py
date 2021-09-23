@@ -42,7 +42,7 @@ class FlipperOutput(DigitalOutputDevice):
         iterable = repeat(0) if n is None else repeat(0, n)
         self._flip_thread.stopping = Event()
         for _ in iterable:
-            self._flop_thread.stopping.clear()
+            self._flip_thread.stopping.clear()
             on_time = round(random.uniform(time_min, time_max), 3)
             off_time = round(random.uniform(time_min, time_max), 3)
             self._write(True)
