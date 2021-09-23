@@ -1,5 +1,5 @@
 from gpiozero import DigitalOutputDevice
-from threading import Thread
+from threading import Thread, Event
 from itertools import repeat
 import io
 import time
@@ -40,17 +40,18 @@ class FlipperOutput(DigitalOutputDevice):
 
     def _flip_device(self, time_min, time_max, n):
         iterable = repeat(0) if n is None else repeat(0, n)
+        self._flip_thread.stopping = Event()
         for _ in iterable:
-            self._write(True)
+            self._flop_thread.stopping.clear()
             on_time = round(random.uniform(time_min, time_max), 3)
             off_time = round(random.uniform(time_min, time_max), 3)
+            self._write(True)
             if self._flip_thread.stopping.wait(on_time):
-                pin_state = True
-                self._flipper_timestamp.append((pin_state, time.time(), time.clock_gettime(time.CLOCK_REALTIME)))
+                self._flipper_timestamp.append((self.pin_state, time.time(), time.clock_gettime(time.CLOCK_REALTIME)))
                 break
+            self._write(False)
             if self._flip_thread.stopping.wait(off_time):
-                pin_state = False
-                self._flipper_timestamp.append((pin_state, time.time(), time.clock_gettime(time.CLOCK_REALTIME)))
+                self._flipper_timestamp.append((self.pin_state, time.time(), time.clock_gettime(time.CLOCK_REALTIME)))
                 break
 
     def flipper_stop(self):
