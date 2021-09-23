@@ -5,7 +5,7 @@ from time import sleep
 with FlipperOutput(fake_session_info, pin=22) as flip_box:
     try:
         flip_box.flip()
-        sleep(20)
+        sleep(10)
         flip_box.close()
     except KeyboardInterrupt:
         flip_box.close()
