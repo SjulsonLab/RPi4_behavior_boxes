@@ -15,7 +15,7 @@ class FlipperOutput(DigitalOutputDevice):
             raise
         # Additional properties and methods
         self._flip_thread = None
-        self._controller = None # what is this?
+        # self._controller = None # what is this?
         self._flipper_file = self.session_info['flipper_filename'] + self.session_info['datetime'] + 'txt'
         self._flipper_timestamp = []
 
@@ -32,15 +32,15 @@ class FlipperOutput(DigitalOutputDevice):
             self._flip_thread = None
 
     def close(self):
-        # self._flip_thread.join()
-        # self._flip_thread = None
+        self._flip_thread.join()
+        self._flip_thread = None
         self._stop_flip()
         super().close()
 
     def _stop_flip(self):
-        if getattr(self, '_controller', None):
-            self._controller._stop_flip(self)
-        self._controller = None
+        # if getattr(self, '_controller', None):
+        #     self._controller._stop_flip(self)
+        # self._controller = None
         if getattr(self, '_flip_thread', None):
             self._flip_thread.join(5)
             self.flipper_flush()
@@ -50,7 +50,7 @@ class FlipperOutput(DigitalOutputDevice):
         iterable = repeat(0) if n is None else repeat(0, n)
         self._flip_thread.stopping = Event()
         for _ in iterable:
-            # self._flip_thread.stopping.clear()
+            self._flip_thread.stopping.clear()
             on_time = round(random.uniform(time_min, time_max), 3)
             off_time = round(random.uniform(time_min, time_max), 3)
             self._write(True)
