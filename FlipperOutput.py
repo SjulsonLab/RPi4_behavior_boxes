@@ -25,7 +25,7 @@ class FlipperOutput(DigitalOutputDevice):
             target=self._flip_device, args=(time_min, time_max, n)
         )
         # self._flip_thread.stopping = Event()
-        # self._flip_thread.daemon = True
+        self._flip_thread.daemon = True
         self._flip_thread.start()
         if not background:
             self._flip_thread.join()
