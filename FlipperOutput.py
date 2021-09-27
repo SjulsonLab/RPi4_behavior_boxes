@@ -8,7 +8,7 @@ import random
 
 class FlipperOutput(DigitalOutputDevice):
     def __init__(self, session_info, pin=None):
-        super(FlipperOutput, self).__init__(pin = pin)
+        # super(FlipperOutput, self).__init__(pin = pin)
         try:
             self.session_info = session_info
         except:
@@ -20,10 +20,6 @@ class FlipperOutput(DigitalOutputDevice):
         self._flipper_file = self.session_info['flipper_filename'] + self.session_info['datetime'] + '.txt'
         self._flipper_timestamp = []
 
-        # # experiment
-        # self._output = io.open(file_name, 'wb', buffering=0)
-        # self._event = Event()
-        # self._queue = Queue()
     def flip(self, time_min=0.5, time_max=2, n=None, background=True):
         self._stop_flip()
         self._flip_thread = Thread(
@@ -38,6 +34,7 @@ class FlipperOutput(DigitalOutputDevice):
 
     def close(self):
         # self._flip_thread.stopping.set()
+        print("Attempts to close!")
         self._flip_thread.join()
         self._flip_thread = None
         self._stop_flip()
@@ -47,6 +44,7 @@ class FlipperOutput(DigitalOutputDevice):
         # if getattr(self, '_controller', None):
         #     self._controller._stop_flip(self)
         # self._controller = None
+        print("Attempts to stop!")
         if getattr(self, '_flip_thread', None):
             self._flip_thread.join(5)
             self.flipper_flush()
