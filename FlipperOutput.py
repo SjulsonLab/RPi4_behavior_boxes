@@ -54,8 +54,9 @@ class FlipperOutput(DigitalOutputDevice):
         self._flip_thread = None
 
     def _flip_device(self, time_min, time_max, n):
-        iterable = repeat(0) if n is None else repeat(0, n)
-        for _ in iterable:
+        # iterable = repeat(0) if n is None else repeat(0, n)
+        # for _ in iterable:
+        while True:
             # if self._flip_thread is not None:
             # self._flip_thread.stopping.clear()
             on_time = round(random.uniform(time_min, time_max), 3)
