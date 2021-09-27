@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 from gpiozero import DigitalOutputDevice
 from threading import Thread, Event
-from itertools import repeat
+# from itertools import repeat
 import io
 import time
 import random
@@ -83,5 +83,6 @@ class FlipperOutput(DigitalOutputDevice):
         print(self._flipper_file)
         with io.open(self._flipper_file, 'w') as f:
             f.write('pin_tate, time.time()\n')
-            # for entry in self._flipper_timestamp:
+            for entry in self._flipper_timestamp:
+                print(str(entry))
             #     f.write('%f,%f\n' % entry)
