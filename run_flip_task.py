@@ -17,9 +17,11 @@ with FlipperOutput(fake_session_info, pin=22) as flip_box:
         sleep(10)
         flip_box.close()
     except KeyboardInterrupt:
+        print("try to interrupt")
         flip_box.close()
         print("Closing the output.")
     except Exception as e:
+        print("Exception!")
         flip_box.close()
         print("Closing the output.")
         print(e)
