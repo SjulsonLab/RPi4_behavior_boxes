@@ -33,7 +33,7 @@ class FlipperOutput(DigitalOutputDevice):
             self._flip_thread = None
 
     def close(self):
-        self._flip_thread.stopping.set()
+        # self._flip_thread.stopping.set()
         print("Attempts to close!")
         # self._flip_thread.join() # joining of the thread prevented the rest of the stop code
         self._flip_thread = None
@@ -76,7 +76,6 @@ class FlipperOutput(DigitalOutputDevice):
             self._flipper_timestamp.append(timestamp)
             if self._flip_thread.stopping.wait(off_time):
                 break
-
 
 
     def flipper_flush(self):
