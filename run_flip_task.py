@@ -14,7 +14,7 @@ import sys
 with FlipperOutput(fake_session_info, pin=22) as flip_box:
     try:
         flip_box.flip()
-        sleep(10)
+        sleep(5)
         flip_box.close()
     except KeyboardInterrupt:
         print("try to interrupt")
