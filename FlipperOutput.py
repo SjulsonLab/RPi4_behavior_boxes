@@ -35,7 +35,7 @@ class FlipperOutput(DigitalOutputDevice):
     def close(self):
         # self._flip_thread.stopping.set()
         print("Attempts to close!")
-        self._flip_thread.join()
+        # self._flip_thread.join()
         self._flip_thread = None
         print("Attempts to stop!")
         self._stop_flip()
@@ -46,6 +46,7 @@ class FlipperOutput(DigitalOutputDevice):
         # if getattr(self, '_controller', None):
         #     self._controller._stop_flip(self)
         # self._controller = None
+        print("Entered _stop_flip")
         if getattr(self, '_flip_thread', None):
             # self._flip_thread.join(5)
             self._flip_thread.stop()
