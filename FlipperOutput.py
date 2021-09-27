@@ -37,7 +37,7 @@ class FlipperOutput(DigitalOutputDevice):
         print("Attempts to close!")
         # self._flip_thread.join() # joining of the thread prevented the rest of the stop code
         self._flip_thread = None
-        print("Attempts to stop!")
+        # print("Attempts to stop!")
         self._stop_flip()
         self.flipper_flush()
         # super().close()
@@ -64,7 +64,7 @@ class FlipperOutput(DigitalOutputDevice):
             self._write(True)
             pin_state = self.is_active
             timestamp = (pin_state, time.time())
-            print(str(timestamp))
+            # print(str(timestamp))
             self._flipper_timestamp.append(timestamp)
             if self._flip_thread.stopping.wait(on_time):
                 break
@@ -72,7 +72,7 @@ class FlipperOutput(DigitalOutputDevice):
             self._write(False)
             pin_state = self.is_active
             timestamp = (pin_state, time.time())
-            print(str(timestamp))
+            # print(str(timestamp))
             self._flipper_timestamp.append(timestamp)
             if self._flip_thread.stopping.wait(off_time):
                 break
