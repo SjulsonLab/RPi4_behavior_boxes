@@ -8,7 +8,7 @@ import random
 
 class FlipperOutput(DigitalOutputDevice):
     def __init__(self, session_info, pin=None):
-        # super(FlipperOutput, self).__init__(pin = pin)
+        super(FlipperOutput, self).__init__(pin = pin)
         try:
             self.session_info = session_info
         except:
