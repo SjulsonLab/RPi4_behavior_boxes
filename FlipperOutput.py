@@ -1,3 +1,4 @@
+import RPi.GPIO as GPIO
 from gpiozero import DigitalOutputDevice
 from threading import Thread, Event
 from itertools import repeat
@@ -60,14 +61,16 @@ class FlipperOutput(DigitalOutputDevice):
             off_time = round(random.uniform(time_min, time_max), 3)
 
             self._write(True)
-            timestamp = (self.pin_state, time.time())
+            pin_state = GPIO.output(self.pin)
+            timestamp = (pin_state, time.time())
             print(str(timestamp))
             self._flipper_timestamp.append(timestamp)
             if self._flip_thread.stopping.wait(on_time):
                 break
 
             self._write(False)
-            timestamp = (self.pin_state, time.time())
+            pin_state = GPIO.output(self.pin)
+            timestamp = (pin_state, time.time())
             print(str(timestamp))
             self._flipper_timestamp.append(timestamp)
             if self._flip_thread.stopping.wait(off_time):
