@@ -16,6 +16,7 @@ class FlipperOutput(DigitalOutputDevice):
             raise
         # Additional properties and methods
         self._flip_thread = None
+        self._flip_thread.stopping = Event()
         # self._controller = None # what is this?
         self._flipper_file = self.session_info['flipper_filename'] + self.session_info['datetime'] + '.csv'
         self._flipper_timestamp = []
@@ -25,7 +26,7 @@ class FlipperOutput(DigitalOutputDevice):
         self._flip_thread = Thread(
             target=self._flip_device, args=(time_min, time_max, n)
         )
-        self._flip_thread.stopping = Event()
+        # self._flip_thread.stopping = Event()
         # self._flip_thread.daemon = True
         self._flip_thread.start()
         if not background:
@@ -43,39 +44,37 @@ class FlipperOutput(DigitalOutputDevice):
         # super().close()
 
     def _stop_flip(self):
-        # if getattr(self, '_controller', None):
-        #     self._controller._stop_flip(self)
-        # self._controller = None
         print("Entered _stop_flip")
         if getattr(self, '_flip_thread', None):
             # self._flip_thread.join(5)
+            self._flip_thread.stopping.set() #TEST
             self._flip_thread.stop()
-            # self.flipper_flush()
         self._flip_thread = None
 
     def _flip_device(self, time_min, time_max, n):
         iterable = repeat(0) if n is None else repeat(0, n)
+        self._flip_thread.stopping.clear()
         for _ in iterable:
-            if self._flip_thread is not None:
-                # self._flip_thread.stopping.clear()
-                on_time = round(random.uniform(time_min, time_max), 3)
-                off_time = round(random.uniform(time_min, time_max), 3)
+            # if self._flip_thread is not None:
+            # self._flip_thread.stopping.clear()
+            on_time = round(random.uniform(time_min, time_max), 3)
+            off_time = round(random.uniform(time_min, time_max), 3)
 
-                self._write(True)
-                pin_state = self.is_active
-                timestamp = (pin_state, time.time())
-                print(str(timestamp))
-                self._flipper_timestamp.append(timestamp)
-                if self._flip_thread.stopping.wait(on_time):
-                    break
+            self._write(True)
+            pin_state = self.is_active
+            timestamp = (pin_state, time.time())
+            print(str(timestamp))
+            self._flipper_timestamp.append(timestamp)
+            if self._flip_thread.stopping.wait(on_time):
+                break
 
-                self._write(False)
-                pin_state = self.is_active
-                timestamp = (pin_state, time.time())
-                print(str(timestamp))
-                self._flipper_timestamp.append(timestamp)
-                if self._flip_thread.stopping.wait(off_time):
-                    break
+            self._write(False)
+            pin_state = self.is_active
+            timestamp = (pin_state, time.time())
+            print(str(timestamp))
+            self._flipper_timestamp.append(timestamp)
+            if self._flip_thread.stopping.wait(off_time):
+                break
 
 
     def flipper_flush(self):
