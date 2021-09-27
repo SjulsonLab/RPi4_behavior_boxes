@@ -61,7 +61,7 @@ class FlipperOutput(DigitalOutputDevice):
             off_time = round(random.uniform(time_min, time_max), 3)
 
             self._write(True)
-            pin_state = GPIO.output(self.pin)
+            pin_state = self.is_active
             timestamp = (pin_state, time.time())
             print(str(timestamp))
             self._flipper_timestamp.append(timestamp)
@@ -69,7 +69,7 @@ class FlipperOutput(DigitalOutputDevice):
                 break
 
             self._write(False)
-            pin_state = GPIO.output(self.pin)
+            pin_state = self.is_active
             timestamp = (pin_state, time.time())
             print(str(timestamp))
             self._flipper_timestamp.append(timestamp)
