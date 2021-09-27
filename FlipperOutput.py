@@ -85,4 +85,4 @@ class FlipperOutput(DigitalOutputDevice):
             f.write('pin_tate, time.time()\n')
             for entry in self._flipper_timestamp:
                 print(str(entry))
-            #     f.write('%f,%f\n' % entry)
+                f.write('%f,%f\n' % entry)
