@@ -39,6 +39,7 @@ class FlipperOutput(DigitalOutputDevice):
         self._flip_thread = None
         # print("Attempts to stop!")
         self._stop_flip()
+        self.off()
         self.flipper_flush()
         # super().close()
 
