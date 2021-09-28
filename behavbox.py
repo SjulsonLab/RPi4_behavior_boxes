@@ -232,40 +232,43 @@ class BehavBox(object):
 
         # Preview check per Kelly request
         print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
+        try:
+            os.system("ssh pi@" + IP_address_video + " pkill python")
+            print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)
+            print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
 
-        os.system("ssh pi@" + IP_address_video + " pkill python")
-        print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)
-        print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
+            os.system("ssh pi@" + IP_address_video + " '/home/pi/RPi4_behavior_boxes/start_preview.py'")
+            # Kill any python process before start recording
+            print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
 
-        os.system("ssh pi@" + IP_address_video + " '/home/pi/RPi4_behavior_boxes/start_preview.py'")
-        # Kill any python process before start recording
-        print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
+            os.system("ssh pi@" + IP_address_video + " pkill python")
+            time.sleep(2)
 
-        os.system("ssh pi@" + IP_address_video + " pkill python")
-        time.sleep(2)
+            # Prepare the path for recording
+            os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name)
+            os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
+            tempstr = (
+                    "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
+                    + file_name
+                    + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
+            )
 
-        # Prepare the path for recording
-        os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name)
-        os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
-        tempstr = (
-                "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/record_video.py "
-                + file_name
-                + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
-        )
+            # start recording
+            print(Fore.BLUE + "\nQuiet on set!")
+            print(Fore.GREEN + "\nStart Recording: ACTION!!!" + Style.RESET_ALL)
+            os.system(tempstr)
+            print(Fore.RED + Style.BRIGHT + "Please wait for 10 seconds and check if the preview screen is on!\nIt takes 8 seconds to warm up the camera\n Cancel the session if it's not!" + Style.RESET_ALL)
 
-        # start recording
-        print(Fore.BLUE + "\nQuiet on set!")
-        print(Fore.GREEN + "\nStart Recording: ACTION!!!" + Style.RESET_ALL)
-        os.system(tempstr)
-        print(Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
+            base_dir = '/mnt/hd/'
+            hd_dir = base_dir + basename
+            os.mkdir(hd_dir)
 
-        base_dir = '/mnt/hd/'
-        hd_dir = base_dir + basename
-        os.mkdir(hd_dir)
+            scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
+            print("dumping session_info")
+            pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
-        scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
-        print("dumping session_info")
-        pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+        except Exception as e:
+            print(e)
 
     def video_stop(self):
         # Get the basename from the session information
@@ -273,32 +276,35 @@ class BehavBox(object):
         dir_name = self.session_info['dir_name']
         # Get the ip address for the box video:
         IP_address_video = self.IP_address_video
+        try:
+            # Run the stop_video script in the box video
+            os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
+            time.sleep(2)
 
-        # Run the stop_video script in the box video
-        os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video")
-        time.sleep(2)
+            hostname = socket.gethostname()
+            print("Moving video files from " + hostname + "video to " + hostname + ":")
 
-        hostname = socket.gethostname()
-        print("Moving video files from " + hostname + "video to " + hostname + ":")
+            # Create a directory for storage on the hard drive mounted on the box behavior
+            base_dir = '/mnt/hd/'
+            hd_dir = base_dir + basename
 
-        # Create a directory for storage on the hard drive mounted on the box behavior
-        base_dir = '/mnt/hd/'
-        hd_dir = base_dir + basename
+            scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
+            print("dumping session_info")
+            pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
-        scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
-        print("dumping session_info")
-        pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+            # Move the video + log from the box_video SD card to the box_behavior external hard drive
+            os.system(
+                "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + "/ "
+                + hd_dir
+            )
+            os.system(
+                "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":~/video/*.log "
+                + hd_dir
+            )
+            print("rsync finished!")
 
-        # Move the video + log from the box_video SD card to the box_behavior external hard drive
-        os.system(
-            "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + "/ "
-            + hd_dir
-        )
-        os.system(
-            "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":~/video/*.log "
-            + hd_dir
-        )
-        print("rsync finished!")
+        except Exception as e:
+            print(e)
 
         # # if self.session_info["config"] == "head_fixed_v1":
         # # sends SIGINT to record_video.py, telling it to exit
