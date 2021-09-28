@@ -18,6 +18,9 @@ import scipy.io, pickle
 import Treadmill
 import ADS1x15
 
+# for the flipper
+from FlipperOutput import FlipperOutput
+
 class BehavBox(object):
 
     event_list = (
@@ -28,6 +31,9 @@ class BehavBox(object):
 
         logging.info("behavior_box_initialized")
         self.session_info = session_info
+
+        #initiating flipper object
+        self.flipper = FlipperOutput(self.session_info, pin=22)
 
         from subprocess import check_output
         IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
@@ -213,17 +219,21 @@ class BehavBox(object):
                     + file_name
                     + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
             )
+            # start the flipper before the recording start
+            # initiate the flipper
+            self.flipper.flip()
 
             # start recording
-            print(Fore.BLUE + "\nQuiet on set!")
-            print(Fore.GREEN + "\nStart Recording: ACTION!!!" + Style.RESET_ALL)
+            print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
             print(Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
 
+            # create directory on the external storage
             base_dir = '/mnt/hd/'
             hd_dir = base_dir + basename
             os.mkdir(hd_dir)
 
+            # start initiating the dumping of the session information when available
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
             print("dumping session_info")
             pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
@@ -240,6 +250,12 @@ class BehavBox(object):
         try:
             # Run the stop_video script in the box video
             os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
+            time.sleep(2)
+            # now stop the flipper after the video stopped recording
+            try: # try to stop the flipper
+                self.flipper.close()
+            except:
+                pass
             time.sleep(2)
 
             hostname = socket.gethostname()
@@ -395,4 +411,3 @@ class Pump(LED):
         elif which_pump == "right":
             logging.info("right_reward," + str(reward_size))
             self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            

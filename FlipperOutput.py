@@ -1,7 +1,5 @@
-import RPi.GPIO as GPIO
 from gpiozero import DigitalOutputDevice
 from threading import Thread, Event
-# from itertools import repeat
 import io
 import time
 import random
