@@ -18,11 +18,13 @@ import scipy.io, pickle
 import Treadmill
 import ADS1x15
 
+from fake_session_info import fake_session_info
+
 # for the flipper
 from FlipperOutput import FlipperOutput
 
-class BehavBox(object):
 
+class BehavBox(object):
     event_list = (
         deque()
     )  # all detected events are added to this queue to be read out by the behavior class
@@ -32,7 +34,7 @@ class BehavBox(object):
         logging.info(str(time.time()) + ", behavior_box_initialized")
         self.session_info = session_info
 
-        #initiating flipper object
+        # initiating flipper object
         self.flipper = FlipperOutput(self.session_info, pin=22)
 
         from subprocess import check_output
@@ -104,7 +106,7 @@ class BehavBox(object):
         ###############################################################################################
         # visual stimuli
         ###############################################################################################
-        #self.visualstim = VisualStim(self.session_info)
+        # self.visualstim = VisualStim(self.session_info)
 
         ###############################################################################################
         # TODO: ADC(Adafruit_ADS1x15)
@@ -126,24 +128,24 @@ class BehavBox(object):
         )
         print("must be in the foreground. Keys are as follows:\n")
         print(
-            Fore.YELLOW
-            + "         1: left poke            2: center poke            3: right poke"
+                Fore.YELLOW
+                + "         1: left poke            2: center poke            3: right poke"
         )
         print(
             "         Q: left lick            W: center lick            E: right lick"
         )
         print(
-            Fore.CYAN
-            + "                       Esc: close key capture window\n"
-            + Style.RESET_ALL
+                Fore.CYAN
+                + "                       Esc: close key capture window\n"
+                + Style.RESET_ALL
         )
         print(
-            Fore.GREEN
-            + Style.BRIGHT
-            + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
-            + Fore.RED
-            + "ONCE\n"
-            + Style.RESET_ALL
+                Fore.GREEN
+                + Style.BRIGHT
+                + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
+                + Fore.RED
+                + "ONCE\n"
+                + Style.RESET_ALL
         )
 
         self.keyboard_active = True
@@ -226,7 +228,8 @@ class BehavBox(object):
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
-            print(Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
+            print(
+                        Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
 
             # create directory on the external storage
             base_dir = '/mnt/hd/'
@@ -249,10 +252,11 @@ class BehavBox(object):
         IP_address_video = self.IP_address_video
         try:
             # Run the stop_video script in the box video
-            os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
+            os.system(
+                "ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
             time.sleep(2)
             # now stop the flipper after the video stopped recording
-            try: # try to stop the flipper
+            try:  # try to stop the flipper
                 self.flipper.close()
             except:
                 pass
@@ -368,13 +372,15 @@ class BoxLED(PWMLED):
     set_value = 1  # the intensity value, ranging from 0-1
 
     def on(
-        self,
+            self,
     ):  # unlike PWMLED, here the on() function sets the intensity to set_value,
         # not to full intensity
         self.value = self.set_value
 
+
 class Pump(LED):
-    def __init__(self, session_info):
+    def __init__(self, session_info=fake_session_info):
+        self.reward_size = session_info["reward_size"]
         ###############################################################################################
         # syringe pumps
         ###############################################################################################
@@ -385,15 +391,14 @@ class Pump(LED):
         self.pump5 = LED(24)
         self.pump_en = LED(25)  # pump enable
 
-        self.session_info = session_info
-    def reward(self, which_pump):
+    def reward(self, which_pump="left"):
         print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
         diameter_mm = 12.06  # for 5 mL syringe
         # diameter_mm = 14.5   # for 10 mL syringe
         volPerRevolution_uL = (
-            0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
+                0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
         )  # thread is 0.8 mm per turn
-        reward_size = session_info["reward_size"]
+        reward_size = self.reward_size
         howManyRevolutions = reward_size / volPerRevolution_uL
         # // determine total steps needed to reach desired revolutions, @200 steps/revolution
         # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
@@ -401,7 +406,7 @@ class Pump(LED):
         totalSteps = round(200 * howManyRevolutions * 4)
         reward_duration = 1  # delivery reward over 300 ms
         cycle_length = (
-            reward_duration / totalSteps
+                reward_duration / totalSteps
         )  # need to know what the minimum value can be
 
         if which_pump == "left":
