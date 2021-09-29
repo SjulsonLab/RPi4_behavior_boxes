@@ -37,8 +37,6 @@ if debug_enable:
 from kelly_task import KellyTask
 
 try:
-
-
     # load in session_info file, check that dates are correct, put in automatic
     # time and date stamps for when the experiment was run
     datestr = datetime.now().strftime("%Y-%m-%d")
@@ -86,8 +84,9 @@ try:
 
     # loop over trials
     for i in range(2):
-
-        logging.info("starting_trial")
+        logging.info(str("##############################\n" +
+                         time.time()) + ", starting_trial, " + str(i) +
+                     str("\n##############################"))
 
         task.trial_start()
 

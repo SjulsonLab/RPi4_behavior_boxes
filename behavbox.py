@@ -29,7 +29,7 @@ class BehavBox(object):
 
     def __init__(self, session_info):
 
-        logging.info("behavior_box_initialized")
+        logging.info(str(time.time()) + ", behavior_box_initialized")
         self.session_info = session_info
 
         #initiating flipper object
@@ -314,51 +314,51 @@ class BehavBox(object):
     ###############################################################################################
     def left_poke_entry(self):
         self.event_list.append("left_poke_entry")
-        logging.info("left_poke_entry")
+        logging.info(str(time.time()) + ", left_poke_entry")
 
     def center_poke_entry(self):
         self.event_list.append("center_poke_entry")
-        logging.info("center_poke_entry")
+        logging.info(str(time.time()) + ", center_poke_entry")
 
     def right_poke_entry(self):
         self.event_list.append("right_poke_entry")
-        logging.info("right_poke_entry")
+        logging.info(str(time.time()) + ", right_poke_entry")
 
     def left_poke_exit(self):
         self.event_list.append("left_poke_exit")
-        logging.info("left_poke_exit")
+        logging.info(str(time.time()) + ", left_poke_exit")
 
     def center_poke_exit(self):
         self.event_list.append("center_poke_exit")
-        logging.info("center_poke_exit")
+        logging.info(str(time.time()) + ", center_poke_exit")
 
     def right_poke_exit(self):
         self.event_list.append("right_poke_exit")
-        logging.info("right_poke_exit")
+        logging.info(str(time.time()) + ", right_poke_exit")
 
     def left_lick_start(self):
         self.event_list.append("left_lick_start")
-        logging.info("left_lick_start")
+        logging.info(str(time.time()) + ", left_lick_start")
 
     def center_lick_start(self):
         self.event_list.append("center_lick_start")
-        logging.info("center_lick_start")
+        logging.info(str(time.time()) + ", center_lick_start")
 
     def right_lick_start(self):
         self.event_list.append("right_lick_start")
-        logging.info("right_lick_start")
+        logging.info(str(time.time()) + ", right_lick_start")
 
     def left_lick_stop(self):
         self.event_list.append("left_lick_stop")
-        logging.info("left_lick_stop")
+        logging.info(str(time.time()) + ", left_lick_stop")
 
     def center_lick_stop(self):
         self.event_list.append("center_lick_stop")
-        logging.info("center_lick_stop")
+        logging.info(str(time.time()) + ", center_lick_stop")
 
     def right_lick_stop(self):
         self.event_list.append("right_lick_stop")
-        logging.info("right_lick_stop")
+        logging.info(str(time.time()) + ", right_lick_stop")
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
@@ -385,13 +385,15 @@ class Pump(LED):
         self.pump5 = LED(24)
         self.pump_en = LED(25)  # pump enable
 
-    def reward(self, which_pump, reward_size):
+        self.session_info = session_info
+    def reward(self, which_pump):
         print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
         diameter_mm = 12.06  # for 5 mL syringe
         # diameter_mm = 14.5   # for 10 mL syringe
         volPerRevolution_uL = (
             0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
         )  # thread is 0.8 mm per turn
+        reward_size = session_info["reward_size"]
         howManyRevolutions = reward_size / volPerRevolution_uL
         # // determine total steps needed to reach desired revolutions, @200 steps/revolution
         # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
@@ -404,10 +406,10 @@ class Pump(LED):
 
         if which_pump == "left":
             self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info("left_reward," + str(reward_size))
+            logging.info(str(time.time()) + ", left_reward," + str(reward_size))
         elif which_pump == "center":
             self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info("center_reward," + str(reward_size))
+            logging.info(str(time.time()) + ", center_reward," + str(reward_size))
         elif which_pump == "right":
-            logging.info("right_reward," + str(reward_size))
+            logging.info(str(time.time()) + ", right_reward," + str(reward_size))
             self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
