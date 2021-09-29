@@ -378,9 +378,9 @@ class BoxLED(PWMLED):
         self.value = self.set_value
 
 
-class Pump(LED):
-    def __init__(self, session_info=fake_session_info):
-        self.reward_size = session_info["reward_size"]
+class Pump(object):
+    def __init__(self):
+
         ###############################################################################################
         # syringe pumps
         ###############################################################################################
@@ -391,14 +391,13 @@ class Pump(LED):
         self.pump5 = LED(24)
         self.pump_en = LED(25)  # pump enable
 
-    def reward(self, which_pump="left"):
+    def reward(self, which_pump, reward_size):
         print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
         diameter_mm = 12.06  # for 5 mL syringe
         # diameter_mm = 14.5   # for 10 mL syringe
         volPerRevolution_uL = (
                 0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
         )  # thread is 0.8 mm per turn
-        reward_size = self.reward_size
         howManyRevolutions = reward_size / volPerRevolution_uL
         # // determine total steps needed to reach desired revolutions, @200 steps/revolution
         # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
