@@ -374,7 +374,7 @@ class BoxLED(PWMLED):
         self.value = self.set_value
 
 class Pump(LED):
-    def __init__(self, LED, session_info):
+    def __init__(self, session_info):
         ###############################################################################################
         # syringe pumps
         ###############################################################################################
