@@ -1,11 +1,27 @@
 from FlipperOutput import FlipperOutput
 from fake_session_info import fake_session_info
 from time import sleep
+import sys
 
-flip_box = FlipperOutput(fake_session_info, pin = 22)
+# def signal_handler(signum):
+#     print("SIGINT detected")
+#     FlipperOutput.close()
+#     print('Closing the output.')
+#     sys.exit(0)
+#
+# signal.signal(signal.SIGINT, signal_handler)
 
-flip_box.flip()
-
-sleep(20)
-
-flip_box.off()
+with FlipperOutput(fake_session_info, pin=22) as flip_box:
+    try:
+        flip_box.flip()
+        sleep(5)
+        flip_box.close()
+    except KeyboardInterrupt:
+        print("try to interrupt")
+        flip_box.close()
+        print("Closing the output.")
+    except Exception as e:
+        print("Exception!")
+        flip_box.close()
+        print("Closing the output.")
+        print(e)

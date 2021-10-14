@@ -7,7 +7,7 @@ import socket
 
 
 # defining immutable mouse dict (once defined for a mouse, NEVER EDIT IT)
-mouse_info = pysistence.make_dict({'mouse_name': 'test_timestamp',
+mouse_info = pysistence.make_dict({'mouse_name': 'test_pump',
                  'fake_field': 'fake_info',
                  })
 
@@ -16,7 +16,8 @@ session_info                              	= collections.OrderedDict()
 session_info['mouse_info']					= mouse_info
 session_info['mouse_name']                 	= mouse_info['mouse_name']
 #session_info['trainingPhase']             	= 4
-session_info['basedir']					  	= '/home/pi/fakedata'
+session_info['basedir']					  	= '/home/pi/buffer'
+fake_session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
 # for actual data save to this dir:
 #session_info['basedir']					  	= '/home/pi/video'
 session_info['weight']                	    = 32.18
