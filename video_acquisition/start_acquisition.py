@@ -195,9 +195,19 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
                     last_frame = frame
 
     except Exception as e:
+        camera.stop_recording()
+        camera.stop_preview()
+        print('Recording Stopped')
         output.close()
+        print('Closing Output File')
         print(e)
+        sys.exit(0)
     finally:
+        camera.stop_recording()
+        camera.stop_preview()
+        print('Recording Stopped')
         output.close()
-        print('Output File Closed')
+        print('Closing Output File')
+        print(e)
         GPIO.cleanup()
+        sys.exit(0)

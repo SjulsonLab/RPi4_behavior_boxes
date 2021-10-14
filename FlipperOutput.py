@@ -1,4 +1,5 @@
 from gpiozero import DigitalOutputDevice
+from threading import Thread
 import io
 import time
 
@@ -18,7 +19,7 @@ class FlipperOutput(DigitalOutputDevice):
 
     def flip(self, time_min=0.5, time_max=2, n=None, background=True):
         self._stop_flip()
-        self._flip_thread = GPIOThread(
+        self._flip_thread = Thread(
             self._flip_device, (time_min, time_max, n)
         )
         self._flip_thread.start()
