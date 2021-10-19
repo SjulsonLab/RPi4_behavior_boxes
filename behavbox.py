@@ -35,7 +35,7 @@ class BehavBox(object):
         self.session_info = session_info
 
         # initiating flipper object
-        self.flipper = FlipperOutput(self.session_info, pin=22)
+        self.flipper = FlipperOutput(self.session_info, pin=4)
 
         from subprocess import check_output
         IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
@@ -43,7 +43,6 @@ class BehavBox(object):
         IP_address_video_list = list(IP_address)
         IP_address_video_list[-3] = "2"
         self.IP_address_video = "".join(IP_address_video_list)
-
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
         # cue LEDs - setting PWM frequency of 200 Hz
@@ -100,13 +99,13 @@ class BehavBox(object):
         ###############################################################################################
         # camera strobe signal
         ###############################################################################################
-        self.camera_strobe = Button(4)
+        #self.camera_strobe = Button(4)
         # TODO: write code so that rising and falling edges are detected and logged in a separate video file
 
         ###############################################################################################
         # visual stimuli
         ###############################################################################################
-        # self.visualstim = VisualStim(self.session_info)
+        #self.visualstim = VisualStim(self.session_info)
 
         ###############################################################################################
         # TODO: ADC(Adafruit_ADS1x15)
