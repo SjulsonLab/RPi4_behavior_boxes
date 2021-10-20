@@ -104,6 +104,7 @@ class KellyTask(object):
     ########################################################################
     def enter_standby(self):
         print("entering standby")
+        self.box.visualstim.show_grating(0)
         self.trial_running = False
 
     def exit_standby(self):
@@ -122,7 +123,8 @@ class KellyTask(object):
         self.box.reward("left", self.session_info["reward_size"])
         print("start cue")
         self.box.cueLED1.on()
-        self.box.visualstim.show_grating("first_grating.dat")
+        # self.box.visualstim.show_grating("first_grating.dat")
+        self.box.visualstim.show_grating(1)
 
     def exit_cue(self):
         print("stop cue")
