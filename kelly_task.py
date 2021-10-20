@@ -122,7 +122,8 @@ class KellyTask(object):
         self.box.reward("left", self.session_info["reward_size"])
         print("start cue")
         self.box.cueLED1.on()
-        self.box.visualstim.show_grating("first_grating.dat")
+        # self.box.visualstim.show_grating("first_grating.dat")
+        self.box.visualstim.show_grating(0)
 
     def exit_cue(self):
         print("stop cue")
