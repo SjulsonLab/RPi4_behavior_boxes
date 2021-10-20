@@ -112,6 +112,7 @@ class KellyTask(object):
     def enter_reward_available(self):
         print("entering reward_available")
         print("start white noise")
+        self.box.visualstim.show_grating("/home/pi/gratings/first_grating.dat")
         self.trial_running = True
 
     def exit_reward_available(self):
