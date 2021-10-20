@@ -37,6 +37,13 @@ try:
     datestr = datetime.now().strftime("%Y-%m-%d")
     timestr = datetime.now().strftime('%H%M%S')
     full_module_name = 'session_info_' + datestr
+    ### test starts here
+    import sys
+    task_info_path = '/home/pi/experiment_info/test_task/session_info/phase_1'
+    sys.path.insert(0, task_info_path)
+    
+
+    ### test end here
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
     mouse_info = tempmod.mouse_info
