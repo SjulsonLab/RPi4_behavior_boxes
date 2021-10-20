@@ -167,3 +167,4 @@ class KellyTask(object):
     def end_session(self):
         ic("TODO: stop video")
         self.box.video_stop()
+        self.box.visualstim.myscreen.close()
