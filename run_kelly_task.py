@@ -19,7 +19,7 @@ import warnings
 import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
-
+import time
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
     'version': 1,
@@ -85,7 +85,7 @@ try:
     # loop over trials
     for i in range(2):
         logging.info(str("##############################\n" +
-                         time.time()) + ", starting_trial, " + str(i) +
+                         str(time.time())) + ", starting_trial, " + str(i) +
                      str("\n##############################"))
 
         task.trial_start()
