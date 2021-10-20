@@ -20,5 +20,5 @@ fake_session_info['reward_size']                 = 10  # in microliters
 
 # visual stimulus
 fake_session_info['gray_level']                  = 40  # the pixel value from 0-255 for the screen between stimuli
-fake_session_info['vis_gratings']                = ['/home/pi/gratings/first_grating.grat', '/home/pi/gratings/second_grating.grat']
+fake_session_info['vis_gratings']                = ['/home/pi/gratings/first_grating.dat', '/home/pi/gratings/second_grating.dat']
 fake_session_info['vis_raws']                    = []
