@@ -6,11 +6,11 @@ import os
 import socket
 import time
 from collections import deque
-from icecream import ic
+# from icecream import ic
 import pygame
 import logging
 from colorama import Fore, Style
-import pysistence, collections
+# import pysistence, collections
 from visualstim import VisualStim
 
 import scipy.io, pickle
@@ -99,13 +99,13 @@ class BehavBox(object):
         ###############################################################################################
         # camera strobe signal
         ###############################################################################################
-        #self.camera_strobe = Button(4)
-        # TODO: write code so that rising and falling edges are detected and logged in a separate video file
+        # self.camera_strobe = Button(4)
+        # # TODO: write code so that rising and falling edges are detected and logged in a separate video file
 
         ###############################################################################################
         # visual stimuli
         ###############################################################################################
-        #self.visualstim = VisualStim(self.session_info)
+        self.visualstim = VisualStim(self.session_info)
 
         ###############################################################################################
         # TODO: ADC(Adafruit_ADS1x15)
