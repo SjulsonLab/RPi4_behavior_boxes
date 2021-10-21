@@ -95,12 +95,12 @@ class BehavBox(object):
         self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use)
 
         # link noseIR_rx event detections to callbacks
-        self.IR_rx1.when_pressed = self.left_IR_rx_entry
-        self.IR_rx2.when_pressed = self.center_IR_rx_entry
-        self.IR_rx3.when_pressed = self.right_IR_rx_entry
-        self.IR_rx1.when_released = self.left_IR_rx_exit
-        self.IR_rx2.when_released = self.center_IR_rx_exit
-        self.IR_rx3.when_released = self.right_IR_rx_exit
+        self.IR_rx1.when_pressed = self.left_IR_entry
+        self.IR_rx2.when_pressed = self.center_IR_entry
+        self.IR_rx3.when_pressed = self.right_IR_entry
+        self.IR_rx1.when_released = self.left_IR_exit
+        self.IR_rx2.when_released = self.center_IR_exit
+        self.IR_rx3.when_released = self.right_IR_exit
 
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
@@ -204,17 +204,17 @@ class BehavBox(object):
             KeyUp = 3
             if event:
                 if event.type == KeyDown and event.key == 49:  # 1 key
-                    self.left_IR_rx_entry()
+                    self.left_IR_entry()
                 elif event.type == KeyUp and event.key == 49:
-                    self.left_IR_rx_exit()
+                    self.left_IR_exit()
                 elif event.type == KeyDown and event.key == 50:  # 2 key
-                    self.center_IR_rx_entry()
+                    self.center_IR_entry()
                 elif event.type == KeyUp and event.key == 50:
-                    self.center_IR_rx_exit()
+                    self.center_IR_exit()
                 elif event.type == KeyDown and event.key == 51:  # 3 key
-                    self.right_IR_rx_entry()
+                    self.right_IR_entry()
                 elif event.type == KeyUp and event.key == 51:
-                    self.right_IR_rx_exit()
+                    self.right_IR_exit()
                 # elif event.type == KeyDown and event.key == 113:  # Q key
                 #     self.left_lick_start()
                 # elif event.type == KeyUp and event.key == 113:
@@ -318,29 +318,29 @@ class BehavBox(object):
         except Exception as e:
             print(e)
 
-    def left_IR_rx_entry(self):
-        self.event_list.append("left_IR_rx_entry")
-        logging.info("left_IR_rx_entry")
+    def left_IR_entry(self):
+        self.event_list.append("left_IR_entry")
+        logging.info("left_IR_entry")
 
-    def center_IR_rx_entry(self):
-        self.event_list.append("center_IR_rx_entry")
-        logging.info("center_IR_rx_entry")
+    def center_IR_entry(self):
+        self.event_list.append("center_IR_entry")
+        logging.info("center_IR_entry")
 
-    def right_IR_rx_entry(self):
-        self.event_list.append("right_IR_rx_entry")
-        logging.info("right_IR_rx_entry")
+    def right_IR_entry(self):
+        self.event_list.append("right_IR_entry")
+        logging.info("right_IR_entry")
 
-    def left_IR_rx_exit(self):
-        self.event_list.append("left_IR_rx_exit")
-        logging.info("left_IR_rx_exit")
+    def left_IR_exit(self):
+        self.event_list.append("left_IR_exit")
+        logging.info("left_IR_exit")
 
-    def center_IR_rx_exit(self):
-        self.event_list.append("center_IR_rx_exit")
-        logging.info("center_IR_rx_exit")
+    def center_IR_exit(self):
+        self.event_list.append("center_IR_exit")
+        logging.info("center_IR_exit")
 
-    def right_IR_rx_exit(self):
-        self.event_list.append("right_IR_rx_exit")
-        logging.info("right_IR_rx_exit")
+    def right_IR_exit(self):
+        self.event_list.append("right_IR_exit")
+        logging.info("right_IR_exit")
 
     # def left_lick_start(self):
     #     self.event_list.append("left_lick_start")
