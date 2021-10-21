@@ -4,9 +4,10 @@ import io
 import time
 import random
 
+
 class FlipperOutput(DigitalOutputDevice):
     def __init__(self, session_info, pin=None):
-        super(FlipperOutput, self).__init__(pin = pin)
+        super(FlipperOutput, self).__init__(pin=pin)
         try:
             self.session_info = session_info
         except:
@@ -38,8 +39,8 @@ class FlipperOutput(DigitalOutputDevice):
             self.off()
             self.flipper_flush()
             # super().close()
-        except Exception as e:
-            print(e)
+        except:
+            pass
 
     def _stop_flip(self):
         print("Entered _stop_flip")
@@ -65,7 +66,6 @@ class FlipperOutput(DigitalOutputDevice):
             self._flipper_timestamp.append(timestamp)
             if self._flip_thread.stopping.wait(off_time):
                 break
-
 
     def flipper_flush(self):
         print(self._flipper_file)
