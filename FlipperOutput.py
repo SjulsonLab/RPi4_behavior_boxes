@@ -29,14 +29,17 @@ class FlipperOutput(DigitalOutputDevice):
             self._flip_thread = None
 
     def close(self):
-        self._flip_thread.stopping.set()
-        print("Attempts to close!")
-        self._flip_thread.join(5)
-        self._flip_thread = None
-        self._stop_flip()
-        self.off()
-        self.flipper_flush()
-        # super().close()
+        try:
+            self._flip_thread.stopping.set()
+            print("Attempts to close!")
+            self._flip_thread.join(5)
+            self._flip_thread = None
+            self._stop_flip()
+            self.off()
+            self.flipper_flush()
+            # super().close()
+        except Exception as e:
+            print(e)
 
     def _stop_flip(self):
         print("Entered _stop_flip")
