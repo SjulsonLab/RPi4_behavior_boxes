@@ -26,6 +26,6 @@ duration = int(input("Enter the time in seconds: "))
 
 #command_line_start = "nohup start_acquisition.py"
 #command_line_end = "stop_acquisition"
-os.system("python3 /home/pi/PicameraPaper/PicameraVideoAcquisitionScripts/StartAcquisition_skip_3.py /home/pi/video/test &")
+os.system("python3 /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py /home/pi/video/test &")
 sleep(duration + 4)
-os.system("/home/pi/PicameraPaper/PicameraVideoAcquisitionScripts/stop_acquisition.sh")
+os.system("/home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")

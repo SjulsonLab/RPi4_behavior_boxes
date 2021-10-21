@@ -43,7 +43,6 @@ class BehavBox(object):
         IP_address_video_list = list(IP_address)
         IP_address_video_list[-3] = "2"
         self.IP_address_video = "".join(IP_address_video_list)
-
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
         # cue LEDs - setting PWM frequency of 200 Hz

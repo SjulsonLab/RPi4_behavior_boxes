@@ -11,10 +11,10 @@ import sys
 #
 # signal.signal(signal.SIGINT, signal_handler)
 
-with FlipperOutput(fake_session_info, pin=22) as flip_box:
+with FlipperOutput(fake_session_info, pin=4) as flip_box:
     try:
         flip_box.flip()
-        sleep(5)
+        sleep(30)
         flip_box.close()
     except KeyboardInterrupt:
         print("try to interrupt")

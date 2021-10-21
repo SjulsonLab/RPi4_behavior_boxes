@@ -115,11 +115,9 @@ class TimestampOutput(object):
     def flipper_timestamps_write(self, pin_flipper):
         input_state = GPIO.input(pin_flipper)
         GPIO.remove_event_detect(pin_flipper)
-        if self.camera.frame.timestamp is not None:
-            self._flipper_timestamps.append((input_state, self.camera.timestamp, self.camera.frame.timestamp, time.time(), time.clock_gettime(time.CLOCK_REALTIME)))
-        else:
-            self._flipper_timestamps.append((input_state, self.camera.timestamp, -1, time.time(), time.clock_gettime(time.CLOCK_REALTIME)))
-        print(input_state, self.camera.timestamp, self.camera.frame.timestamp)
+        self._flipper_timestamps.append((input_state, time.time()))
+        #print(input_state, time.time())
+        print(str(self._flipper_timestamps))
         GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
 
     def write(self, buf):
@@ -144,10 +142,10 @@ class TimestampOutput(object):
             f.write('GPU Times, time.time(), clock_realtime\n')
             for entry in self._timestamps:
                 f.write('%d,%f,%f\n' % entry)
-        with io.open(self.flipper_filename, 'w') as f:
-            f.write('Input State, Timestamp, GPU Times, time.time(), clock_realtime\n')
+        with io.open(self._flipper_file, 'w') as f:
+            f.write('Input State, Timestamp\n')
             for entry in self._flipper_timestamps:
-                f.write('%f,%f,%f,%f,%f\n' % entry)
+                f.write('%f,%f\n' % entry)
 
     def close(self):
         self._video.close()
@@ -196,9 +194,19 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
                     last_frame = frame
 
     except Exception as e:
+        camera.stop_recording()
+        camera.stop_preview()
+        print('Recording Stopped')
         output.close()
+        print('Closing Output File')
         print(e)
+        sys.exit(0)
     finally:
+        camera.stop_recording()
+        camera.stop_preview()
+        print('Recording Stopped')
         output.close()
-        print('Output File Closed')
+        print('Closing Output File')
+        print(e)
         GPIO.cleanup()
+        sys.exit(0)

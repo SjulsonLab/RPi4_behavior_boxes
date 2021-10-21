@@ -19,7 +19,7 @@ import warnings
 import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
-
+import time
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
     'version': 1,
@@ -39,9 +39,13 @@ from kelly_task import KellyTask
 try:
     # load in session_info file, check that dates are correct, put in automatic
     # time and date stamps for when the experiment was run
+
     datestr = datetime.now().strftime("%Y-%m-%d")
     timestr = datetime.now().strftime('%H%M%S')
     full_module_name = 'session_info_' + datestr
+    import sys
+    task_info_path = '/home/pi/experiment_info/kelly_task/session_info'
+    sys.path.insert(0, task_info_path)
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
     mouse_info = tempmod.mouse_info
@@ -85,7 +89,7 @@ try:
     # loop over trials
     for i in range(2):
         logging.info(str("##############################\n" +
-                         time.time()) + ", starting_trial, " + str(i) +
+                         str(time.time())) + ", starting_trial, " + str(i) +
                      str("\n##############################"))
 
         task.trial_start()
