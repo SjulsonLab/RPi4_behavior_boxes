@@ -103,16 +103,14 @@ class BehavBox(object):
         self.IR_rx3.when_released = self.right_IR_rx_exit
 
         ###############################################################################################
-        # audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
+        # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
-
-        # self.DIO1 = LED(7)  # don't declare DIO1. It's reserved for the frame out pin for the visual stimuli
-        self.DIO1 = LED(7)
-        self.DIO2 = LED(8)
+        self.sound1 = LED(23)
+        self.sound2 = LED(24)
         # pins originally reserved for the lick detection is now used for audio board TTL input signal
-        self.lick1 = LED(26)
-        self.lick2 = LED(27)
-        self.lick3 = LED(15)
+        self.sound3 = LED(26)
+        self.sound4 = LED(27)
+        self.sound5 = LED(15)
 
         # ###############################################################################################
         # # lick detectors (original intended usage)
@@ -132,12 +130,12 @@ class BehavBox(object):
         ###############################################################################################
         # syringe pumps - will configure these as LEDs for now until new class is written
         ###############################################################################################
-        self.pump1 = LED(9)  # for testing only - the correct pin number is 19
+        self.pump1 = LED(19)  # for testing only - the correct pin number is 19
         # self.pump1   = LED(19)
         self.pump2 = LED(20)
         self.pump3 = LED(21)
-        self.pump4 = LED(23)
-        self.pump5 = LED(24)
+        self.pump4 = LED(8)
+        self.pump5 = LED(7)
         self.pump_en = LED(25)  # pump enable
 
         ###############################################################################################
@@ -344,29 +342,29 @@ class BehavBox(object):
         self.event_list.append("right_IR_rx_exit")
         logging.info("right_IR_rx_exit")
 
-    def left_lick_start(self):
-        self.event_list.append("left_lick_start")
-        logging.info("left_lick_start")
-
-    def center_lick_start(self):
-        self.event_list.append("center_lick_start")
-        logging.info("center_lick_start")
-
-    def right_lick_start(self):
-        self.event_list.append("right_lick_start")
-        logging.info("right_lick_start")
-
-    def left_lick_stop(self):
-        self.event_list.append("left_lick_stop")
-        logging.info("left_lick_stop")
-
-    def center_lick_stop(self):
-        self.event_list.append("center_lick_stop")
-        logging.info("center_lick_stop")
-
-    def right_lick_stop(self):
-        self.event_list.append("right_lick_stop")
-        logging.info("right_lick_stop")
+    # def left_lick_start(self):
+    #     self.event_list.append("left_lick_start")
+    #     logging.info("left_lick_start")
+    #
+    # def center_lick_start(self):
+    #     self.event_list.append("center_lick_start")
+    #     logging.info("center_lick_start")
+    #
+    # def right_lick_start(self):
+    #     self.event_list.append("right_lick_start")
+    #     logging.info("right_lick_start")
+    #
+    # def left_lick_stop(self):
+    #     self.event_list.append("left_lick_stop")
+    #     logging.info("left_lick_stop")
+    #
+    # def center_lick_stop(self):
+    #     self.event_list.append("center_lick_stop")
+    #     logging.info("center_lick_stop")
+    #
+    # def right_lick_stop(self):
+    #     self.event_list.append("right_lick_stop")
+    #     logging.info("right_lick_stop")
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
