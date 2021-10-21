@@ -105,12 +105,12 @@ class BehavBox(object):
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
-        self.sound1 = LED(23)
-        self.sound2 = LED(24)
+        self.sound1 = LED(23) # originally DIO1
+        self.sound2 = LED(24) # originally DIO2
         # pins originally reserved for the lick detection is now used for audio board TTL input signal
-        self.sound3 = LED(26)
-        self.sound4 = LED(27)
-        self.sound5 = LED(15)
+        self.sound3 = LED(26) # originally lick1
+        self.sound4 = LED(27) # originally lick2
+        self.sound5 = LED(15) # originally lick3
 
         # ###############################################################################################
         # # lick detectors (original intended usage)
