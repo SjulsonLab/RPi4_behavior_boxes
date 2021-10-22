@@ -15,7 +15,7 @@ class FlipperOutput(DigitalOutputDevice):
             raise
         # Additional properties and methods
         self._flip_thread = None
-        self._flipper_file = self.session_info['flipper_filename'] + self.session_info['datetime'] + '.csv'
+        self._flipper_file = self.session_info['flipper_filename'] + '_' + self.session_info['datetime'] + '.csv'
         self._flipper_timestamp = []
 
     def flip(self, time_min=0.5, time_max=2, n=None, background=True):

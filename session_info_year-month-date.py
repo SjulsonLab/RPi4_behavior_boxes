@@ -17,6 +17,7 @@ session_info['mouse_info']					= mouse_info
 session_info['mouse_name']                 	= mouse_info['mouse_name']
 #session_info['trainingPhase']             	= 4
 session_info['basedir']					  	= '/home/pi/buffer'
+session_info['external_storage']            = '/mnt/hd'
 # session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
 # for actual data save to this dir:
 #session_info['basedir']					  	= '/home/pi/video'

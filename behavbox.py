@@ -34,9 +34,10 @@ class BehavBox(object):
         logging.info(str(time.time()) + ", behavior_box_initialized")
         # set up the external hard drive path for the flipper output
         self.session_info = session_info
-        self.session_info['flipper_filename'] = '/mnt/hd/' + self.session_info['basename'] + 'flipper_output'
+        storage_path = self.session_info['external_storage'] + '/' + self.session_info['basename']
+        self.session_info['flipper_filename'] = storage_path + '/' + self.session_info['basename'] + 'flipper_output'
         print(self.session_info['flipper_filename'])
-        
+
         # initiating flipper object
         self.flipper = FlipperOutput(self.session_info, pin=4)
 
