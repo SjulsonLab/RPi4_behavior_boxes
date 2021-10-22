@@ -159,7 +159,6 @@ class BehavBox(object):
             KeyDown = 2  # event type numbers
             KeyUp = 3
             if event:
-                print(str(event))
                 if event.type == KeyDown and event.key == 49:  # 1 key
                     self.left_poke_entry()
                 elif event.type == KeyUp and event.key == 49:
@@ -318,6 +317,7 @@ class BehavBox(object):
     ###############################################################################################
     def left_poke_entry(self):
         self.event_list.append("left_poke_entry")
+        print("left_poke_entry")
         logging.info(str(time.time()) + ", left_poke_entry")
 
     def center_poke_entry(self):
