@@ -131,24 +131,24 @@ class BehavBox(object):
         )
         print("must be in the foreground. Keys are as follows:\n")
         print(
-                Fore.YELLOW
-                + "         1: left poke            2: center poke            3: right poke"
+            Fore.YELLOW
+            + "         1: left poke            2: center poke            3: right poke"
         )
         print(
             "         Q: left lick            W: center lick            E: right lick"
         )
         print(
-                Fore.CYAN
-                + "                       Esc: close key capture window\n"
-                + Style.RESET_ALL
+            Fore.CYAN
+            + "                       Esc: close key capture window\n"
+            + Style.RESET_ALL
         )
         print(
-                Fore.GREEN
-                + Style.BRIGHT
-                + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
-                + Fore.RED
-                + "ONCE\n"
-                + Style.RESET_ALL
+            Fore.GREEN
+            + Style.BRIGHT
+            + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
+            + Fore.RED
+            + "ONCE\n"
+            + Style.RESET_ALL
         )
 
         self.keyboard_active = True
@@ -162,7 +162,7 @@ class BehavBox(object):
             event = pygame.event.poll()
             # KeyDown = 2  # event type numbers
             # KeyUp = 3
-            KeyDown = 768 # find a more flexible solution for different computer
+            KeyDown = 768  # find a more flexible solution for different computer
             KeyUp = 769
             if event:
                 if event.type == KeyDown and event.key == 49:  # 1 key
@@ -228,13 +228,15 @@ class BehavBox(object):
             )
             # start the flipper before the recording start
             # initiate the flipper
-            self.flipper.flip()
-
+            try:
+                self.flipper.flip()
+            except:
+                pass
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
             print(
-                        Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
+                Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
 
             # create directory on the external storage
             base_dir = '/mnt/hd/'
