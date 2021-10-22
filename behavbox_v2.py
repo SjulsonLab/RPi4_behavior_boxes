@@ -195,18 +195,18 @@ class BehavBox(object):
                     self.right_IR_entry()
                 elif event.type == KeyUp and event.key == 51:
                     self.right_IR_exit()
-                elif event.type == KeyDown and event.key == 113:  # Q key
-                    self.left_lick_start()
-                elif event.type == KeyUp and event.key == 113:
-                    self.left_lick_stop()
-                elif event.type == KeyDown and event.key == 119:  # W key
-                    self.center_lick_start()
-                elif event.type == KeyUp and event.key == 119:
-                    self.center_lick_stop()
-                elif event.type == KeyDown and event.key == 101:  # E key
-                    self.right_lick_start()
-                elif event.type == KeyUp and event.key == 101:
-                    self.right_lick_stop()
+                # elif event.type == KeyDown and event.key == 113:  # Q key
+                #     self.left_lick_start()
+                # elif event.type == KeyUp and event.key == 113:
+                #     self.left_lick_stop()
+                # elif event.type == KeyDown and event.key == 119:  # W key
+                #     self.center_lick_start()
+                # elif event.type == KeyUp and event.key == 119:
+                #     self.center_lick_stop()
+                # elif event.type == KeyDown and event.key == 101:  # E key
+                #     self.right_lick_start()
+                # elif event.type == KeyUp and event.key == 101:
+                #     self.right_lick_stop()
                 elif event.type == KeyDown and event.key == 27:  # escape key
                     pygame.quit()
                     self.keyboard_active = False
@@ -246,8 +246,10 @@ class BehavBox(object):
             )
             # start the flipper before the recording start
             # initiate the flipper
-            self.flipper.flip()
-
+            try:
+                self.flipper.flip()
+            except:
+                pass
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
