@@ -241,7 +241,7 @@ class BehavBox(object):
         # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
 
         # create directory on the external storage
-        base_dir = self.session_info['external_storage']
+        base_dir = self.session_info['external_storage'] + '/'
         hd_dir = base_dir + basename
         os.mkdir(hd_dir)
 
@@ -309,7 +309,7 @@ class BehavBox(object):
             print("Moving video files from " + hostname + "video to " + hostname + ":")
 
             # Create a directory for storage on the hard drive mounted on the box behavior
-            base_dir = self.session_info['external_storage']
+            base_dir = self.session_info['external_storage'] + '/'
             hd_dir = base_dir + basename
 
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
