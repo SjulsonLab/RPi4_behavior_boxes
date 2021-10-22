@@ -159,39 +159,71 @@ class BehavBox(object):
 
     def check_keybd(self):
         if self.keyboard_active == True:
-            event = pygame.event.poll()
-            # KeyDown = 2  # event type numbers
-            # KeyUp = 3
-            KeyDown = 768  # find a more flexible solution for different computer
-            KeyUp = 769
-            if event:
-                if event.type == KeyDown and event.key == 49:  # 1 key
-                    self.left_poke_entry()
-                elif event.type == KeyUp and event.key == 49:
-                    self.left_poke_exit()
-                elif event.type == KeyDown and event.key == 50:  # 2 key
-                    self.center_poke_entry()
-                elif event.type == KeyUp and event.key == 50:
-                    self.center_poke_exit()
-                elif event.type == KeyDown and event.key == 51:  # 3 key
-                    self.right_poke_entry()
-                elif event.type == KeyUp and event.key == 51:
-                    self.right_poke_exit()
-                elif event.type == KeyDown and event.key == 113:  # Q key
-                    self.left_lick_start()
-                elif event.type == KeyUp and event.key == 113:
-                    self.left_lick_stop()
-                elif event.type == KeyDown and event.key == 119:  # W key
-                    self.center_lick_start()
-                elif event.type == KeyUp and event.key == 119:
-                    self.center_lick_stop()
-                elif event.type == KeyDown and event.key == 101:  # E key
-                    self.right_lick_start()
-                elif event.type == KeyUp and event.key == 101:
-                    self.right_lick_stop()
-                elif event.type == KeyDown and event.key == 27:  # escape key
-                    pygame.quit()
-                    self.keyboard_active = False
+            ### Testing ###
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if pygame.event.poll().key == 49:  # 1 key
+                        self.left_poke_entry()
+                    elif pygame.event.poll().key == 50:  # 2 key
+                        self.center_poke_entry()
+                    elif pygame.event.poll().key == 51:  # 3 key
+                        self.right_poke_entry()
+                    elif pygame.event.poll().key == 113:  # Q key
+                        self.left_lick_start()
+                    elif pygame.event.poll().key == 119:  # W key
+                        self.center_lick_start()
+                    elif pygame.event.poll().key == 101:  # E key
+                        self.right_lick_start()
+                    elif pygame.event.poll().key == 27:  # escape key
+                        pygame.quit()
+                        self.keyboard_active = False
+                elif event.type == pygame.KEYUP:
+                    if pygame.event.poll().key == 49:
+                        self.left_poke_exit()
+                    elif pygame.event.poll().key == 50:
+                        self.center_poke_exit()
+                    elif pygame.event.poll().key == 51:
+                        self.right_poke_exit()
+                    elif pygame.event.poll().key == 113:
+                        self.left_lick_stop()
+                    elif pygame.event.poll().key == 119:
+                        self.center_lick_stop()
+                    elif pygame.event.poll().key == 101:
+                        self.right_lick_stop()
+            ### Testing end ###
+            # event = pygame.event.poll()
+            # # KeyDown = 2  # event type numbers
+            # # KeyUp = 3
+            # KeyDown = 768  # find a more flexible solution for different computer
+            # KeyUp = 769
+            # if event:
+            #     if event.type == KeyDown and event.key == 49:  # 1 key
+            #         self.left_poke_entry()
+            #     elif event.type == KeyUp and event.key == 49:
+            #         self.left_poke_exit()
+            #     elif event.type == KeyDown and event.key == 50:  # 2 key
+            #         self.center_poke_entry()
+            #     elif event.type == KeyUp and event.key == 50:
+            #         self.center_poke_exit()
+            #     elif event.type == KeyDown and event.key == 51:  # 3 key
+            #         self.right_poke_entry()
+            #     elif event.type == KeyUp and event.key == 51:
+            #         self.right_poke_exit()
+            #     elif event.type == KeyDown and event.key == 113:  # Q key
+            #         self.left_lick_start()
+            #     elif event.type == KeyUp and event.key == 113:
+            #         self.left_lick_stop()
+            #     elif event.type == KeyDown and event.key == 119:  # W key
+            #         self.center_lick_start()
+            #     elif event.type == KeyUp and event.key == 119:
+            #         self.center_lick_stop()
+            #     elif event.type == KeyDown and event.key == 101:  # E key
+            #         self.right_lick_start()
+            #     elif event.type == KeyUp and event.key == 101:
+            #         self.right_lick_stop()
+            #     elif event.type == KeyDown and event.key == 27:  # escape key
+            #         pygame.quit()
+            #         self.keyboard_active = False
 
     ###############################################################################################
     # methods to start and stop video
