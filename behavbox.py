@@ -105,7 +105,11 @@ class BehavBox(object):
         ###############################################################################################
         # visual stimuli
         ###############################################################################################
-        self.visualstim = VisualStim(self.session_info)
+        try:
+            self.visualstim = VisualStim(self.session_info)
+        except Exception as error_message:
+            print("visualstim issue\n")
+            print(str(error_message))
 
         ###############################################################################################
         # TODO: ADC(Adafruit_ADS1x15)
@@ -158,7 +162,7 @@ class BehavBox(object):
             event = pygame.event.poll()
             # KeyDown = 2  # event type numbers
             # KeyUp = 3
-            KeyDown = 768
+            KeyDown = 768 # find a more flexible solution for different computer
             KeyUp = 769
             if event:
                 if event.type == KeyDown and event.key == 49:  # 1 key
