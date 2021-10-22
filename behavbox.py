@@ -156,11 +156,12 @@ class BehavBox(object):
     def check_keybd(self):
         if self.keyboard_active == True:
             event = pygame.event.poll()
-            KeyDown = 2  # event type numbers
-            KeyUp = 3
+            # KeyDown = 2  # event type numbers
+            # KeyUp = 3
+            KeyDown = 768
+            KeyUp = 769
             if event:
                 if event.type == KeyDown and event.key == 49:  # 1 key
-                    print("left_poke_entry")
                     self.left_poke_entry()
                 elif event.type == KeyUp and event.key == 49:
                     self.left_poke_exit()
