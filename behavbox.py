@@ -32,7 +32,9 @@ class BehavBox(object):
     def __init__(self, session_info):
 
         logging.info(str(time.time()) + ", behavior_box_initialized")
+        # set up the external hard drive path for the flipper output
         self.session_info = session_info
+        self.session_info['flipper_filename'] = '/mnt/hd/' + self.session_info['basename'] + 'flipper_output'
 
         # initiating flipper object
         self.flipper = FlipperOutput(self.session_info, pin=4)
@@ -236,6 +238,11 @@ class BehavBox(object):
         file_name = dir_name + "/" + basename
         # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
 
+        # create directory on the external storage
+        base_dir = '/mnt/hd/'
+        hd_dir = base_dir + basename
+        os.mkdir(hd_dir)
+
         # Preview check per Kelly request
         print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
         try:
@@ -269,11 +276,6 @@ class BehavBox(object):
             os.system(tempstr)
             print(
                 Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
-
-            # create directory on the external storage
-            base_dir = '/mnt/hd/'
-            hd_dir = base_dir + basename
-            os.mkdir(hd_dir)
 
             # start initiating the dumping of the session information when available
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
