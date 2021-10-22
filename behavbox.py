@@ -32,11 +32,11 @@ class BehavBox(object):
     def __init__(self, session_info):
 
         logging.info(str(time.time()) + ", behavior_box_initialized")
+
         # set up the external hard drive path for the flipper output
         self.session_info = session_info
         storage_path = self.session_info['external_storage'] + '/' + self.session_info['basename']
-        self.session_info['flipper_filename'] = storage_path + '/' + self.session_info['basename'] + 'flipper_output'
-        print(self.session_info['flipper_filename'])
+        self.session_info['flipper_filename'] = storage_path + '/' + self.session_info['basename'] + '_flipper_output'
 
         # initiating flipper object
         self.flipper = FlipperOutput(self.session_info, pin=4)
@@ -241,7 +241,7 @@ class BehavBox(object):
         # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
 
         # create directory on the external storage
-        base_dir = '/mnt/hd/'
+        base_dir = self.session_info['external_storage']
         hd_dir = base_dir + basename
         os.mkdir(hd_dir)
 
@@ -309,7 +309,7 @@ class BehavBox(object):
             print("Moving video files from " + hostname + "video to " + hostname + ":")
 
             # Create a directory for storage on the hard drive mounted on the box behavior
-            base_dir = '/mnt/hd/'
+            base_dir = self.session_info['external_storage']
             hd_dir = base_dir + basename
 
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
