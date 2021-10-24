@@ -98,6 +98,7 @@ class KellyTask(object):
 
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
+        self.pump = behavbox.Pump()
 
     ########################################################################
     # functions called when state transitions occur
@@ -112,7 +113,7 @@ class KellyTask(object):
     def enter_reward_available(self):
         print("entering reward_available")
         print("start white noise")
-        self.box.visualstim.show_grating("/home/pi/gratings/first_grating.dat")
+        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
         self.trial_running = True
 
     def exit_reward_available(self):
@@ -120,11 +121,11 @@ class KellyTask(object):
 
     def enter_cue(self):
         print("deliver reward")
-        self.box.reward("left", self.session_info["reward_size"])
+        self.pump.reward("left", self.session_info["reward_size"])
         print("start cue")
         self.box.cueLED1.on()
-        # self.box.visualstim.show_grating("first_grating.dat")
-        self.box.visualstim.show_grating("/home/pi/gratings/first_grating.dat")
+        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
+
 
     def exit_cue(self):
         print("stop cue")
