@@ -330,32 +330,6 @@ class BehavBox(object):
         except Exception as e:
             print(e)
 
-        # # if self.session_info["config"] == "head_fixed_v1":
-        # # sends SIGINT to record_video.py, telling it to exit
-        # os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video")
-        # time.sleep(2)
-        # hostname = socket.gethostname()
-        # print("Moving video files from " + hostname + "video to " + hostname + ":")
-        # os.system(
-        #     "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":Videos/*.avi " # this could be a problem .avi
-        #     + self.session_info["dir_name"]
-        # )
-        # os.system(
-        #     "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":Videos/*.log "
-        #     + self.session_info["dir_name"]
-        # )
-        #
-        # elif self.session_info["config"] == "freely_moving_v1":
-        #     # sends SIGINT to record_video.py, telling it to exit
-        #     os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video")
-        #     time.sleep(2)
-        #     os.system(
-        #         "mv /home/pi/Videos/*.avi " + self.session_info["dir_name"] + " & "
-        #     )
-        #     os.system(
-        #         "mv /home/pi/Videos/*.log " + self.session_info["dir_name"] + " & "
-        #     )
-
     ###############################################################################################
     # callbacks
     ###############################################################################################

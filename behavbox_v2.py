@@ -180,8 +180,8 @@ class BehavBox(object):
     def check_keybd(self):
         if self.keyboard_active == True:
             event = pygame.event.poll()
-            KeyDown = 2  # event type numbers
-            KeyUp = 3
+            KeyDown = 768  # event type numbers
+            KeyUp = 769
             if event:
                 if event.type == KeyDown and event.key == 49:  # 1 key
                     self.left_IR_entry()
@@ -222,6 +222,11 @@ class BehavBox(object):
         file_name = dir_name + "/" + basename
         # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
 
+        # create directory on the external storage
+        base_dir = self.session_info['external_storage'] + '/'
+        hd_dir = base_dir + basename
+        os.mkdir(hd_dir)
+
         # Preview check per Kelly request
         print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
         try:
@@ -256,10 +261,10 @@ class BehavBox(object):
             print(
                         Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
 
-            # create directory on the external storage
-            base_dir = '/mnt/hd/'
-            hd_dir = base_dir + basename
-            os.mkdir(hd_dir)
+            # # create directory on the external storage
+            # base_dir = '/mnt/hd/'
+            # hd_dir = base_dir + basename
+            # os.mkdir(hd_dir)
 
             # start initiating the dumping of the session information when available
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
@@ -291,7 +296,7 @@ class BehavBox(object):
             print("Moving video files from " + hostname + "video to " + hostname + ":")
 
             # Create a directory for storage on the hard drive mounted on the box behavior
-            base_dir = '/mnt/hd/'
+            base_dir = self.session_info['external_storage'] + '/'
             hd_dir = base_dir + basename
 
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
@@ -312,35 +317,6 @@ class BehavBox(object):
         except Exception as e:
             print(e)
 
-        # # if self.session_info["config"] == "head_fixed_v1":
-        # # sends SIGINT to record_video.py, telling it to exit
-        # os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video")
-        # time.sleep(2)
-        # hostname = socket.gethostname()
-        # print("Moving video files from " + hostname + "video to " + hostname + ":")
-        # os.system(
-        #     "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":Videos/*.avi " # this could be a problem .avi
-        #     + self.session_info["dir_name"]
-        # )
-        # os.system(
-        #     "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":Videos/*.log "
-        #     + self.session_info["dir_name"]
-        # )
-        #
-        # elif self.session_info["config"] == "freely_moving_v1":
-        #     # sends SIGINT to record_video.py, telling it to exit
-        #     os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/stop_video")
-        #     time.sleep(2)
-        #     os.system(
-        #         "mv /home/pi/Videos/*.avi " + self.session_info["dir_name"] + " & "
-        #     )
-        #     os.system(
-        #         "mv /home/pi/Videos/*.log " + self.session_info["dir_name"] + " & "
-        #     )
-
-    ###############################################################################################
-    # callbacks
-    ###############################################################################################
     def left_IR_entry(self):
         self.event_list.append("left_IR_entry")
         logging.info(str(time.time()) + ", left_IR_entry")
