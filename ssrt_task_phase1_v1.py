@@ -25,8 +25,9 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class SSRT_task(object):
-    def __init__(self, **kwargs):  # name and SSRT_session_info should be provided as kwargs
+
+class ssrt_task(object):
+    def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
 
         # if no name or session, make fake ones (for testing purposes)
         if kwargs.get("name", None) is None:
@@ -40,18 +41,18 @@ class SSRT_task(object):
         else:
             self.name = kwargs.get("name", None)
 
-        if kwargs.get("SSRT_session_info", None) is None:
+        if kwargs.get("session_info", None) is None:
             print(
                 Fore.RED
                 + Style.BRIGHT
-                + "Warning: no SSRT_session_info supplied; making fake one"
+                + "Warning: no session_info supplied; making fake one"
                 + Style.RESET_ALL
             )
-            from fake_SSRT_session_info import fake_SSRT_session_info
+            from fake_session_info import fake_session_info
 
-            self.session_info = fake_SSRT_session_info
+            self.session_info = fake_session_info
         else:
-            self.session_info = kwargs.get("SSRT_session_info", None)
+            self.session_info = kwargs.get("session_info", None)
         ic(self.session_info)
 
         ########################################################################
@@ -107,6 +108,7 @@ class SSRT_task(object):
 
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
+        self.pump = behavbox.Pump()
 
     ########################################################################
     # functions called when state transitions occur
@@ -178,5 +180,4 @@ class SSRT_task(object):
     def end_session(self):
         ic("TODO: stop video")
         self.box.video_stop()
-
-
+        self.box.visualstim.myscreen.close()

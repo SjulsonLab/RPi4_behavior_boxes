@@ -17,7 +17,7 @@ import warnings
 import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
-
+import time
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
     'version': 1,
@@ -32,7 +32,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import the SSRT task class here
-from SSRT_task_phase1_v1 import SSRT_task
+from ssrt_task_phase1_v1 import ssrt_task
 
 try:
     # load in session_info file, check that dates are correct, put in automatic
@@ -41,7 +41,7 @@ try:
     timestr = datetime.now().strftime('%H%M%S')
     full_module_name = 'session_info_' + datestr
     import sys
-    task_info_path = 'home/pi/experiment_info/SSRT_task/session_info'
+    task_info_path = 'home/pi/experiment_info/ssrt_task/session_info'
     sys.path.insert(0, task_info_path)
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
@@ -51,8 +51,7 @@ try:
     session_info['time'] = timestr
     session_info['datetime'] = session_info['date'] + '_' + session_info['time']
     session_info['basename'] = session_info['mouse_name'] + '_' + session_info['datetime']
-    session_info['dir_name'] = session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info[
-        'datetime']
+    session_info['dir_name'] = session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info['datetime']
 
     if session_info['manual_date'] != session_info['date']:  # check if file is updated
         print('wrong date!!')
@@ -75,7 +74,7 @@ try:
 
 
     # initiate task object
-    task = SSRT_task(name="phase1 training", session_info=session_info)
+    task = ssrt_task(name="phase1 training", session_info=session_info)
     # we can change various parameters if needed
     # task.machine.states['initiation'].timeout = 2
 
