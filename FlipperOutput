@@ -1,0 +1,55 @@
+from gpiozero import DigitalOutputDevice
+
+class FlipperOutput(DigitalOutputDevice, session_info):
+
+    def __init__(self, pin_num, session_info, flipper_filename):
+        # Inherit from the DigitalOutputDevice object
+        super().__init__(pin=None, active_high=True, initial_value=False, pin_factory=None)
+        # Additional properties and methods
+        self._flip_thread = None
+        self.session_info = session_info
+        self.pin_num = pin_num
+        self._flipper_file = flipper_filename
+        self._flipper_timestamp = []
+
+    def flip(self, time_min=0.5, time_max=2, n=None, background=True):
+        self._stop_blink()
+        self._flip_thread = GPIOThread(
+            self._flip_device, (time_min, time_max, n)
+        )
+        self._flip_thread.start()
+        if not background:
+            self._flip_thread.join()
+            self._flip_thread = None
+
+    def _stop_flip(self):
+        if getattr(self, '_controller', None):
+            self._controller.stop_flip(self)
+        self_controller = None
+
+        if getattr(self, '_flip_thread', None):
+            self._flip_thread.stop()
+        self._flip_thread = None
+
+    def _flip_device(self, time_min, time_max, n):
+        iterable = repeat(0) if n is None else repeat(0, n)
+        for _ in iterable:
+            self._write(True)
+            on_time = round(random.uniform(time_min, time_max), 3)
+            off_time = round(random.uniform(time_min, time_max), 3)
+            if self._blink_thread.stopping.wait(on_time):
+                break
+            if self.blink_thread.stopping.wait(off_time):
+                break
+
+    def flipper_write(self, input_pin):
+        inputState = GPIO.input(input_pin)
+        GPIO.remove_event_detect(input_pin)
+        self._flipper_timestamp.append((inputState, time.time(), time.clock_gettime(time.CLOCK_REALTIME)))
+
+    def flipper_flush(self):
+        with io.open(self._flipper_file, 'w') as f:
+            f.write('Input State, time.time(), clock_realtime\n')
+            for entry in self._ttlTimestamps:
+                f.write('%f,%f,%f\n' % entry)
+            
