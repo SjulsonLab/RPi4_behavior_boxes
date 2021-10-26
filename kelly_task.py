@@ -120,11 +120,12 @@ class KellyTask(object):
         print("stop white noise")
 
     def enter_cue(self):
-        print("deliver reward")
-        self.pump.reward("left", self.session_info["reward_size"])
-        print("start cue")
-        self.box.cueLED1.on()
-        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
+        print("5s until timeout")
+        # print("deliver reward")
+        # self.pump.reward("left", self.session_info["reward_size"])
+        # print("start cue")
+        # self.box.cueLED1.on()
+        # self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
 
 
     def exit_cue(self):

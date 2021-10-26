@@ -18,7 +18,7 @@ logging.config.dictConfig(
 )
 # all modules above this line will have logging disabled
 
-import behavbox
+import behavbox_DT
 
 # adding timing capability to the state machine
 @add_state_features(Timeout)
@@ -48,15 +48,15 @@ class ssrt_task(object):
                 + "Warning: no session_info supplied; making fake one"
                 + Style.RESET_ALL
             )
-            from fake_session_info import fake_session_info
+            from fake_ssrt_session_info import fake_ssrt_session_info
 
-            self.session_info = fake_session_info
+            self.session_info = fake_ssrt_session_info
         else:
             self.session_info = kwargs.get("session_info", None)
         ic(self.session_info)
 
         ########################################################################
-        # Task has four possible states: standby, initiation, stim, iti
+        # Task has 5 possible states: standby, initiation, stim, reward_available, and iti
         ########################################################################
         self.states = [
             State(name="standby", on_enter=["enter_standby"], on_exit=["exit_standby"]),
@@ -64,22 +64,29 @@ class ssrt_task(object):
                 name="initiation",
                 on_enter=["enter_initiation"],
                 on_exit=["exit_initiation"],
-                init_end=self.session_info["init_length"],
-                on_init_end=["abort_init"],
+                timeout=self.session_info["init_length"],
+                on_timeout=["abort_init"],
             ),
             Timeout(
                 name="vstim",
-                on_enter=["enter_stim"],
-                on_exit=["exit_stim"],
-                vstim_end=self.session_info["cue_length"],
-                on_vstim_end=["abort_vstim"],
+                on_enter=["enter_vstim"],
+                on_exit=["exit_vstim"],
+                timeout=self.session_info["lockout_length"],
+                on_timeout=["reward_vstim"],
+            ),
+            Timeout(
+                name="reward_available",
+                on_enter=["enter_reward_available"],
+                on_exit=["exit_reward_available"],
+                timeout=self.session_info["reward_available_length"],
+                on_timeout=["abort_vstim"],
             ),
             Timeout(
                 name="iti",
                 on_enter=["enter_iti"],
                 on_exit=["exit_iti"],
-                iti_end=self.session_info["iti_length"],
-                on_iti_end=["abort_iti"],
+                timeout=self.session_info["iti_length"],
+                on_timeout=["abort_iti"],
             ),
         ]
         # can set later with task.machine.states['cue'].timeout etc.
@@ -91,7 +98,8 @@ class ssrt_task(object):
         self.transitions = [
             ["trial_start", "standby", "initiation"],
             ["abort_init", "initiation", "vstim"],
-            ["abort_vstim", "vstim", "iti"],
+            ["reward_vstim", "vstim", "reward_available"],
+            ["abort_vstim", "reward_available", "iti"],
             ["abort_iti", "iti", "standby"],
         ]
 
@@ -107,8 +115,8 @@ class ssrt_task(object):
         self.trial_running = False
 
         # initialize behavior box
-        self.box = behavbox.BehavBox(self.session_info)
-        self.pump = behavbox.Pump()
+        self.box = behavbox_DT.BehavBox(self.session_info)
+        self.pump = behavbox_DT.Pump()
 
     ########################################################################
     # functions called when state transitions occur
@@ -118,35 +126,39 @@ class ssrt_task(object):
         self.trial_running = False
 
     def exit_standby(self):
-        pass
+        print("exiting standby")
 
     def enter_initiation(self):
+        self.trial_running = True
         print("entering initiation")
         print("port LED ON!")
         self.box.cueLED1.on()
-        self.trial_running = True
 
     def exit_initiation(self):
         print("port LED OFF!")
         self.box.cueLED1.off()
 
     def enter_vstim(self):
-        print("display GO vstim")
-        self.box.visualstim.show_grating("first_grating.grat")
+        print("display GO vstim, enter lockout period")
+        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
 
     def exit_vstim(self):
-        print("abort GO vstim")
+        print("GO vstim playing,  exit lockout period")
+
+    def enter_reward_available(self):
+        print("deliver reward if lick detected")
+
+    def exit_reward_available(self):
+        print("exit vstim")
 
     def enter_iti(self):
         print("entering ITI")
-        pass
 
     def exit_iti(self):
         print("exiting ITI")
-        pass
 
     ########################################################################
-    # call the run() method repeatedly in a while loop in the run_SSRT_task_phase1_v1.py script
+    # call the run() method repeatedly in a while loop in the run_ssrt_task_phase1_v1.py script
     # it will process all detected events from the behavior box (e.g.
     # licks, reward delivery, etc.) and trigger the appropriate state transitions
     ########################################################################
@@ -165,7 +177,13 @@ class ssrt_task(object):
             pass
 
         elif self.state == "vstim":
-            pass
+            # Deliver reward from left pump if there is a lick detected on the left port
+            lick_number = 0
+            if event_name == "left_IR_entry":
+                lick_number = lick_number + 1
+                if lick_number == 1:
+                    self.pump.reward("left", self.session_info["reward_size"])
+
 
         # look for keystrokes
         self.box.check_keybd()

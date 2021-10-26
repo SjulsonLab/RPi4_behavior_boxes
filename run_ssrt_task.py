@@ -86,7 +86,9 @@ try:
     # loop over trials (300 trials), # of trials need to be incorporated into session_info
     for i in range(300):
         logging.info(f"starting trial {i}")
+        # transitions from 'stanby' state to 'initiation'
         task.trial_start()
+
         while task.trial_running:
             task.run()
 
