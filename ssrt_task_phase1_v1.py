@@ -177,13 +177,20 @@ class ssrt_task(object):
             pass
 
         elif self.state == "vstim":
+            pass
+
+        elif self.state == "reward_available":
             # Deliver reward from left pump if there is a lick detected on the left port
             lick_number = 0
             if event_name == "left_IR_entry":
                 lick_number = lick_number + 1
                 if lick_number == 1:
                     self.pump.reward("left", self.session_info["reward_size"])
+            else:
+                pass
 
+        elif self.state == "iti":
+            pass
 
         # look for keystrokes
         self.box.check_keybd()

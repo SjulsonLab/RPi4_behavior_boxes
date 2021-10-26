@@ -74,7 +74,7 @@ try:
 
 
     # initiate task object
-    task = ssrt_task(name="phase1 training", session_info=session_info)
+    task = ssrt_task(name="phase1_ssrt_training", session_info=session_info)
     # we can change various parameters if needed
     # task.machine.states['initiation'].timeout = 2
 
@@ -83,10 +83,12 @@ try:
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
     pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
 
-    # loop over trials (300 trials), # of trials need to be incorporated into session_info
-    for i in range(300):
-        logging.info(f"starting trial {i}")
-        # transitions from 'stanby' state to 'initiation'
+    # loop over trials
+    for i in range(2):
+        logging.info(str("##############################\n" +
+                         str(time.time())) + ", starting_trial, " + str(i) +
+                     str("\n##############################"))
+
         task.trial_start()
 
         while task.trial_running:
@@ -97,9 +99,9 @@ try:
 # graceful exit
 except (KeyboardInterrupt, SystemExit):
     print(Fore.RED + Style.BRIGHT + 'Exiting now...' + Style.RESET_ALL)
-    ic('about to enter standby')
+    ic('about to call end_session()')
     task.end_session()
-    ic('just entered standby')
+    ic('just called end_session()')
     # save dicts to disk
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
     pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
