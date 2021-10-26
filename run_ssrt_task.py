@@ -39,7 +39,7 @@ try:
     # time and date stamps for when the experiment was run
     datestr = datetime.now().strftime("%Y-%m-%d")
     timestr = datetime.now().strftime('%H%M%S')
-    full_module_name = 'session_info_' + datestr
+    full_module_name = 'ssrt_session_info_' + datestr
     import sys
     task_info_path = 'home/pi/experiment_info/ssrt_task/session_info'
     sys.path.insert(0, task_info_path)
