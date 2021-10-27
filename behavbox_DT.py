@@ -342,6 +342,8 @@ class BehavBox(object):
     def left_IR_entry(self):
         self.event_list.append("left_IR_entry")
         logging.info(str(time.time()) + ", left_IR_entry")
+        #  count the number of licks detected
+        self.lick_count = self.event_list.count("left_IR_entry")
 
     def center_IR_entry(self):
         self.event_list.append("center_IR_entry")
