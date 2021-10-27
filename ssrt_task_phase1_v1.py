@@ -149,9 +149,12 @@ class ssrt_task(object):
         print("deliver reward if lick detected")
 
     def exit_reward_available(self):
+        # turn vacuum ON at the end of the trial
+        self.box.vacuum_on()
         print("exit vstim")
 
     def enter_iti(self):
+        self.box.vacuum_off()
         print("entering ITI")
 
     def exit_iti(self):

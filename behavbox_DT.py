@@ -60,10 +60,11 @@ class BehavBox(object):
         # digital I/O's - used for cue LED
         # cue for animals
         # DIO 1 and 2 are reserved for the audio board
+        # DIO 3 is reserved for vacuum
         ###############################################################################################
         # self.DIO1 = LED(7)  # don't declare DIO1. It's reserved for the frame out pin for the visual stimuli
         self.DIO2 = LED(8)
-        # self.DIO3 = LED(9)  # for testing purposes using pin 9 for the syringe pump
+        self.DIO3 = LED(9)  # use pin 9 for vacuum
         self.DIO4 = LED(10)
         self.DIO5 = LED(11)
         # there is a DIO6, but that is the same pin as the camera strobe
@@ -77,13 +78,13 @@ class BehavBox(object):
         self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
         self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
 
-        # link nosepoke event detections to callbacks
-        self.IR_rx1.when_pressed = self.left_IR_entry
-        self.IR_rx2.when_pressed = self.center_IR_entry
-        self.IR_rx3.when_pressed = self.right_IR_entry
-        self.IR_rx1.when_released = self.left_IR_exit
-        self.IR_rx2.when_released = self.center_IR_exit
-        self.IR_rx3.when_released = self.right_IR_exit
+        # link nosepoke event detections to callbacks (exit and entry are opposite to pressed and release)
+        self.IR_rx1.when_pressed = self.left_IR_exit
+        self.IR_rx2.when_pressed = self.center_IR_exit
+        self.IR_rx3.when_pressed = self.right_IR_exit
+        self.IR_rx1.when_released = self.left_IR_entry
+        self.IR_rx2.when_released = self.center_IR_entry
+        self.IR_rx3.when_released = self.right_IR_entry
 
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
@@ -322,6 +323,18 @@ class BehavBox(object):
 
         except Exception as e:
             print(e)
+
+    ###############################################################################################
+    # method to start and stop vacuum
+    ###############################################################################################
+    def vacuum_on(self):
+        self.DIO3.on()
+        logging.info(str(time.time()) + ", vacuum ON!")
+
+    def vacuum_off(self):
+        self.DIO3.off()
+        logging.info(str(time.time()) + ", vacuum OFF!")
+
 
     ###############################################################################################
     # callbacks
