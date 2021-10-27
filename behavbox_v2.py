@@ -57,7 +57,7 @@ class BehavBox(object):
         # cue for animals
         # DIO 1 and 2 are reserved for the audio board
         ###############################################################################################
-        self.DIO3 = LED(9)  # for testing purposes using pin 9 for the syringe pump
+        # self.DIO3 = LED(9)  # reserved for vacuum function
         self.DIO4 = LED(10)
         self.DIO5 = LED(11)
         # there is a DIO6, but that is the same pin as the camera strobe
@@ -82,12 +82,14 @@ class BehavBox(object):
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
-        self.sound1 = LED(23) # originally DIO1
-        self.sound2 = LED(24) # originally DIO2
         # pins originally reserved for the lick detection is now used for audio board TTL input signal
-        self.sound3 = LED(26) # originally lick1
-        self.sound4 = LED(27) # originally lick2
-        self.sound5 = LED(15) # originally lick3
+        self.sound1 = LED(26) # originally lick1
+        self.sound2 = LED(27) # originally lick2
+        self.sound3 = LED(15) # originally lick3
+
+        self.sound4 = LED(23) # originally DIO1
+        self.sound5 = LED(24) # originally DIO2
+
 
         # ###############################################################################################
         # # lick detectors
@@ -251,18 +253,15 @@ class BehavBox(object):
             )
             # start the flipper before the recording start
             # initiate the flipper
-            self.flipper.flip()
-
+            try:
+                self.flipper.flip()
+            except:
+                pass
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
             print(
                         Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
-
-            # # create directory on the external storage
-            # base_dir = '/mnt/hd/'
-            # hd_dir = base_dir + basename
-            # os.mkdir(hd_dir)
 
             # start initiating the dumping of the session information when available
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})

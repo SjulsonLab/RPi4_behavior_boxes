@@ -57,48 +57,57 @@ class BehavBox(object):
         self.cueLED4 = BoxLED(14, frequency=200)
 
         ###############################################################################################
-        # digital I/O's - TODO: use for audio??
+        # digital I/O's - used for cue LED
+        # cue for animals
+        # DIO 1 and 2 are reserved for the audio board
         ###############################################################################################
-        # self.DIO1 = LED(7)  # don't declare DIO1. It's reserved for the frame out pin for the visual stimuli
-        self.DIO2 = LED(8)
-        # self.DIO3 = LED(9)  # for testing purposes using pin 9 for the syringe pump
+        # self.DIO3 = LED(9)  # reserved for vacuum function
         self.DIO4 = LED(10)
         self.DIO5 = LED(11)
         # there is a DIO6, but that is the same pin as the camera strobe
 
         ###############################################################################################
-        # nosepokes
+        # IR detection - for nosepoke
         ###############################################################################################
-        self.poke1 = Button(
-            5, None, True
-        )  # None, True inverts the signal so poke=True, no-poke=False
-        self.poke2 = Button(6, None, True)
-        self.poke3 = Button(12, None, True)
-        # self.poke4 = Button(13, None, True)  # won't define pokes 4-5 right now, but those are the
-        # self.poke5 = Button(16, None, True)  # pin numbers
+        self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
+        self.IR_rx2 = Button(6, None, True)
+        self.IR_rx3 = Button(12, None, True)
+        self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
+        self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
 
         # link nosepoke event detections to callbacks
-        self.poke1.when_pressed = self.left_poke_entry
-        self.poke2.when_pressed = self.center_poke_entry
-        self.poke3.when_pressed = self.right_poke_entry
-        self.poke1.when_released = self.left_poke_exit
-        self.poke2.when_released = self.center_poke_exit
-        self.poke3.when_released = self.right_poke_exit
+        self.IR_rx1.when_pressed = self.left_IR_entry
+        self.IR_rx2.when_pressed = self.center_IR_entry
+        self.IR_rx3.when_pressed = self.right_IR_entry
+        self.IR_rx1.when_released = self.left_IR_exit
+        self.IR_rx2.when_released = self.center_IR_exit
+        self.IR_rx3.when_released = self.right_IR_exit
 
         ###############################################################################################
-        # lick detectors
+        # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
-        self.lick1 = Button(26)
-        self.lick2 = Button(27)
-        self.lick3 = Button(15)
+        # pins originally reserved for the lick detection is now used for audio board TTL input signal
+        self.sound1 = LED(26)  # originally lick1
+        self.sound2 = LED(27)  # originally lick2
+        self.sound3 = LED(15)  # originally lick3
 
-        # link licks to callback functions
-        self.lick1.when_pressed = self.left_lick_start
-        self.lick2.when_pressed = self.center_lick_start
-        self.lick3.when_pressed = self.right_lick_start
-        self.lick1.when_released = self.left_lick_stop
-        self.lick2.when_released = self.center_lick_stop
-        self.lick3.when_released = self.right_lick_stop
+        self.sound4 = LED(23)  # originally DIO1
+        self.sound5 = LED(24)  # originally DIO2
+
+        # ###############################################################################################
+        # # lick detectors
+        # ###############################################################################################
+        # self.lick1 = Button(26)
+        # self.lick2 = Button(27)
+        # self.lick3 = Button(15)
+        #
+        # # link licks to callback functions
+        # self.lick1.when_pressed = self.left_lick_start
+        # self.lick2.when_pressed = self.center_lick_start
+        # self.lick3.when_pressed = self.right_lick_start
+        # self.lick1.when_released = self.left_lick_stop
+        # self.lick2.when_released = self.center_lick_stop
+        # self.lick3.when_released = self.right_lick_stop
 
         ###############################################################################################
         # camera strobe signal
@@ -118,44 +127,56 @@ class BehavBox(object):
         ###############################################################################################
         # TODO: ADC(Adafruit_ADS1x15)
         ###############################################################################################
-        self.ADC = ADS1x15.ADS1015
+        try:
+            self.ADC = ADS1x15.ADS1015
+        except Exception as error_message:
+            print("ADC issue\n")
+            print(str(error_message))
 
         # ###############################################################################################
         # # TODO: treadmill
         # ###############################################################################################
-        self.treadmill = Treadmill.dacval
+        try:
+            self.treadmill = Treadmill.dacval
+        except Exception as error_message:
+            print("treadmill issue\n")
+            print(str(error_message))
 
         ###############################################################################################
         # Keystroke handler
         ###############################################################################################
-        DISPLAYSURF = pygame.display.set_mode((200, 200))
-        pygame.display.set_caption(session_info["box_name"])
-        print(
-            "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
-        )
-        print("must be in the foreground. Keys are as follows:\n")
-        print(
-            Fore.YELLOW
-            + "         1: left poke            2: center poke            3: right poke"
-        )
-        print(
-            "         Q: left lick            W: center lick            E: right lick"
-        )
-        print(
-            Fore.CYAN
-            + "                       Esc: close key capture window\n"
-            + Style.RESET_ALL
-        )
-        print(
-            Fore.GREEN
-            + Style.BRIGHT
-            + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
-            + Fore.RED
-            + "ONCE\n"
-            + Style.RESET_ALL
-        )
+        try:
+            DISPLAYSURF = pygame.display.set_mode((200, 200))
+            pygame.display.set_caption(session_info["box_name"])
+            print(
+                "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
+            )
+            print("must be in the foreground. Keys are as follows:\n")
+            print(
+                    Fore.YELLOW
+                    + "         1: left poke            2: center poke            3: right poke"
+            )
+            print(
+                "         Q: left lick            W: center lick            E: right lick"
+            )
+            print(
+                    Fore.CYAN
+                    + "                       Esc: close key capture window\n"
+                    + Style.RESET_ALL
+            )
+            print(
+                    Fore.GREEN
+                    + Style.BRIGHT
+                    + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
+                    + Fore.RED
+                    + "ONCE\n"
+                    + Style.RESET_ALL
+            )
 
-        self.keyboard_active = True
+            self.keyboard_active = True
+        except Exception as error_message:
+            print("pygame issue\n")
+            print(str(error_message))
 
     ###############################################################################################
     # check for key presses - uses pygame window to simulate nosepokes and licks
@@ -333,29 +354,29 @@ class BehavBox(object):
     ###############################################################################################
     # callbacks
     ###############################################################################################
-    def left_poke_entry(self):
-        self.event_list.append("left_poke_entry")
-        logging.info(str(time.time()) + ", left_poke_entry")
+    def left_IR_entry(self):
+        self.event_list.append("left_IR_entry")
+        logging.info(str(time.time()) + ", left_IR_entry")
 
-    def center_poke_entry(self):
-        self.event_list.append("center_poke_entry")
-        logging.info(str(time.time()) + ", center_poke_entry")
+    def center_IR_entry(self):
+        self.event_list.append("center_IR_entry")
+        logging.info(str(time.time()) + ", center_IR_entry")
 
-    def right_poke_entry(self):
-        self.event_list.append("right_poke_entry")
-        logging.info(str(time.time()) + ", right_poke_entry")
+    def right_IR_entry(self):
+        self.event_list.append("right_IR_entry")
+        logging.info(str(time.time()) + ", right_IR_entry")
 
-    def left_poke_exit(self):
-        self.event_list.append("left_poke_exit")
-        logging.info(str(time.time()) + ", left_poke_exit")
+    def left_IR_exit(self):
+        self.event_list.append("left_IR_exit")
+        logging.info(str(time.time()) + ", left_IR_exit")
 
-    def center_poke_exit(self):
-        self.event_list.append("center_poke_exit")
-        logging.info(str(time.time()) + ", center_poke_exit")
+    def center_IR_exit(self):
+        self.event_list.append("center_IR_exit")
+        logging.info(str(time.time()) + ", center_IR_exit")
 
-    def right_poke_exit(self):
-        self.event_list.append("right_poke_exit")
-        logging.info(str(time.time()) + ", right_poke_exit")
+    def right_IR_exit(self):
+        self.event_list.append("right_IR_exit")
+        logging.info(str(time.time()) + ", right_IR_exit")
 
     def left_lick_start(self):
         self.event_list.append("left_lick_start")
