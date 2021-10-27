@@ -63,7 +63,7 @@ class BehavBox(object):
         # DIO 3 is reserved for vacuum
         ###############################################################################################
         # self.DIO1 = LED(7)  # don't declare DIO1. It's reserved for the frame out pin for the visual stimuli
-        self.DIO2 = LED(8)
+        # self.DIO2 = LED(8)  # currently used for pump
         self.DIO3 = LED(9)  # use pin 9 for vacuum
         self.DIO4 = LED(10)
         self.DIO5 = LED(11)
