@@ -86,13 +86,6 @@ class BehavBox(object):
         self.IR_rx2.when_released = self.center_IR_entry
         self.IR_rx3.when_released = self.right_IR_entry
 
-        # ###############################################################################################
-        # # lick counts
-        # ###############################################################################################
-        self.left_lick_count = self.left_entry_count
-        self.center_lick_count = self.center_entry_count
-        self.right_lick_count = self.right_entry_count
-
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
@@ -394,17 +387,6 @@ class BehavBox(object):
         self.event_list.append("right_lick_stop")
         logging.info(str(time.time()) + ", right_lick_stop")
 
-    def left_entry_count(self):
-        self.left_lick_count = self.event_list.count("left_IR_entry")
-        print('lick count ', self.left_lick_count)
-
-    def center_entry_count(self):
-        self.center_lick_count = self.event_list.count("center_IR_entry")
-        print('lick count ', self.center_lick_count)
-
-    def right_entry_count(self):
-        self.right_lick_count = self.event_list.count("right_IR_entry")
-        print('lick count ', self.right_lick_count)
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the

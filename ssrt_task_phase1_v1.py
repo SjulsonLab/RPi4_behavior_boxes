@@ -8,6 +8,7 @@ from datetime import datetime
 import os
 from gpiozero import PWMLED, LED, Button
 from colorama import Fore, Style
+from collections import deque
 import logging.config
 
 logging.config.dictConfig(
@@ -183,13 +184,12 @@ class ssrt_task(object):
             pass
 
         elif self.state == "reward_available":
-
             # Deliver reward from left pump if there is a lick detected on the left port
-            if self.box.left_lick_count == 1:
+            left_lick_count = self.box.event_list.count("left_IR_entry")
+
+            while left_lick_count < 2:
                 self.pump.reward("left", self.session_info["reward_size"])
                 print("delivering reward")
-            else:
-                pass
 
         elif self.state == "iti":
             pass
