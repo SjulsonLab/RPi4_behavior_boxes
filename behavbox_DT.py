@@ -342,6 +342,10 @@ class BehavBox(object):
     def left_IR_entry(self):
         self.event_list.append("left_IR_entry")
         logging.info(str(time.time()) + ", left_IR_entry")
+        left_lick_count = self.event_list.count("left_IR_entry")
+        print("left_lick_count " + str(left_lick_count))
+        if left_lick_count == 1:
+            self.event_list.append("first_lick_detected")
 
     def center_IR_entry(self):
         self.event_list.append("center_IR_entry")
