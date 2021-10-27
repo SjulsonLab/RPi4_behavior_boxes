@@ -148,7 +148,7 @@ class KellyTask(object):
             pass
 
         elif self.state == "reward_available":
-            if event_name == "left_poke_entry":
+            if event_name == "left_IR_entry":
                 self.active_poke()  # triggers state transition
 
         elif self.state == "cue":
