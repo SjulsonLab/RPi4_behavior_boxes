@@ -8,7 +8,6 @@ from datetime import datetime
 import os
 from gpiozero import PWMLED, LED, Button
 from colorama import Fore, Style
-from collections import deque
 import logging.config
 
 logging.config.dictConfig(
