@@ -186,7 +186,7 @@ class ssrt_task(object):
 
             # Deliver reward from left pump if there is a lick detected on the left port
 
-            if self.box.lick_count < 2:
+            if self.box.left_lick_count < 2:
                 self.pump.reward("left", self.session_info["reward_size"])
                 print("delivering reward")
             else:
