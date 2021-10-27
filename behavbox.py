@@ -215,7 +215,7 @@ class BehavBox(object):
                 elif event.type == KeyDown and event.key == 27:  # escape key
                     pygame.quit()
                     self.keyboard_active = False
-                print(event)
+                # print(event) # for debug purpose
     ###############################################################################################
     # methods to start and stop video
     # These work with fake video files but haven't been tested with real ones
