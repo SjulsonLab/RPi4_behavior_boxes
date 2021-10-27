@@ -34,6 +34,7 @@ session_info['init_length']                 = 1  # in seconds
 session_info['lockout_length']              = 0.2  # in seconds
 session_info['reward_available_length']     = trial_length - session_info['lockout_length']
 session_info['reward_size']					= 10  # in microliters
+session_info['iti_length']                  = 3  # in seconds
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
