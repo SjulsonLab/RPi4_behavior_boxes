@@ -425,8 +425,8 @@ class Pump(object):
         self.pump1 = LED(19)  # for testing only - the correct pin number is 19
         self.pump2 = LED(20)
         self.pump3 = LED(21)
-        self.pump4 = LED(23)
-        self.pump5 = LED(24)
+        self.pump4 = LED(8)
+        self.pump5 = LED(7)
         self.pump_en = LED(25)  # pump enable
 
     def reward(self, which_pump, reward_size):
