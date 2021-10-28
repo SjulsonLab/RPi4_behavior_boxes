@@ -29,10 +29,12 @@ session_info['box_name']             		= socket.gethostname()
 session_info['config']						= 'head_fixed_v1'
 
 # behavior parameters
-trial_length                                = 3  # in seconds
+session_info['trial_length']                = 3  # in seconds
 session_info['init_length']                 = 1  # in seconds
 session_info['lockout_length']              = 0.2  # in seconds
-session_info['reward_available_length']     = trial_length - session_info['lockout_length']
+session_info['vacuum_length']               = 0.1  # in seconds
+session_info['reward_available_length']     = session_info['trial_length'] - session_info['lockout_length'] - session_info['vacuum_length']
+session_info['lick_count_length']           = 3  # in seconds (default is 3, but will be changed during task)
 session_info['reward_size']					= 10  # in microliters
 session_info['iti_length']                  = 3  # in seconds
 
