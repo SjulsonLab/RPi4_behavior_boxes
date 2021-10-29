@@ -17,13 +17,7 @@ import warnings
 import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
-import time
 
-import behavbox_DT
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import matplotlib
 
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
