@@ -226,13 +226,13 @@ class ssrt_task(object):
             if event_name == "left_IR_entry":
                 self.pump.reward("left", self.session_info["reward_size"])
                 print("delivering reward!!")
-                self.time_elapsed = time.time() - self.time_initial
-                print("time elapsed at transition to lick_count: " + str(self.time_elapsed))
                 self.start_lick_count()  # trigger state transition to lick_count
             else:
                 pass
 
         elif self.state == "lick_count":
+            self.time_elapsed = time.time() - self.time_initial
+            print("time elapsed at transition to lick_count: " + str(self.time_elapsed))
             self.machine.states['lick_count'].timeout = self.session_info["reward_available_length"] - self.time_elapsed
 
         elif self.state == "vacuum":
