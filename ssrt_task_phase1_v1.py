@@ -76,6 +76,7 @@ class ssrt_task(object):
                 on_timeout=["start_vstim"],
             ),
             # vstim state: start vstim display (automatic once start, can move on to the next state)
+            # visual stim is initiated at the exit of initation state, vstim state is actually lockout state (200ms)
             Timeout(
                 name="vstim",
                 on_enter=["enter_vstim"],
@@ -171,12 +172,14 @@ class ssrt_task(object):
         logging.info(str(time.time()) + ", exiting initiation")
         self.box.cueLED1.off()
         print("LED OFF!")
+        # start to load vstim and display it
+        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
+        # start the countdown of time since display of vstim, this is used as timeup to transition lick_count to vacuum
+        self.countdown(3)
 
     def enter_vstim(self):
         # print("displaying vstim")
         logging.info(str(time.time()) + ", entering vstim")
-        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
-        self.countdown(3)
 
     def exit_vstim(self):
         # print("transitioning to reward_available")
