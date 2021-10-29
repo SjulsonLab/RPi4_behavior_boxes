@@ -173,9 +173,12 @@ class ssrt_task(object):
         print("transitioning to reward_available")
 
     def enter_reward_available(self):
+        self.time_enter_reward_available = time.time()
         print("entering reward_available")
 
     def exit_reward_available(self):
+        self.time_exit_reward_available = time.time()
+        self.time_elapsed = self.time_exit_reward_available - self.time_enter_reward_available
         print("exiting reward_available")
 
     def enter_lick_count(self):
@@ -222,7 +225,6 @@ class ssrt_task(object):
 
         elif self.state == "reward_available":
             # Deliver reward from left pump if there is a lick detected on the left port
-            self.time_initial = time.time()
             if event_name == "left_IR_entry":
                 self.pump.reward("left", self.session_info["reward_size"])
                 print("delivering reward!!")
@@ -231,8 +233,6 @@ class ssrt_task(object):
                 pass
 
         elif self.state == "lick_count":
-            self.time_elapsed = time.time() - self.time_initial
-            print("time elapsed at transition to lick_count: " + str(self.time_elapsed))
             self.machine.states['lick_count'].timeout = self.session_info["reward_available_length"] - self.time_elapsed
 
         elif self.state == "vacuum":
