@@ -96,7 +96,7 @@ class ssrt_task(object):
                 name="lick_count",
                 on_enter=["enter_lick_count"],
                 on_exit=["exit_lick_count"],
-                timeout=self.time_spent_in_lick_count,
+                timeout=self.session_info["lick_count_length"],
                 on_timeout=["start_vacuum_from_lick_count"],
             ),
             # vacuum state: open vacuum for specified amount of time (right before trial ends)
@@ -184,7 +184,6 @@ class ssrt_task(object):
     def enter_reward_available(self):
         # print("entering reward_available")
         logging.info(str(time.time()) + ", entering reward_available")
-        self.time_enter_reward_available = time.time()
 
     def exit_reward_available(self):
         # print("exiting reward_available")
@@ -193,11 +192,6 @@ class ssrt_task(object):
     def enter_lick_count(self):
         # print("entering lick_count")
         logging.info(str(time.time()) + ", entering lick_count")
-        self.time_enter_lick_count = time.time()
-        self.time_elapsed = self.time_enter_lick_count - self.time_enter_reward_available
-        self.time_spent_in_lick_count = self.session_info["reward_available_length"] - self.time_elapsed
-        print("Will spend " + str(self.time_spent_in_lick_count) + "s in lick_count")
-
 
     def exit_lick_count(self):
         # print("exiting lick_count")
@@ -221,6 +215,21 @@ class ssrt_task(object):
         # print("exiting ITI")
         logging.info(str(time.time()) + ", exiting iti")
 
+    ########################################################################
+    # countdown function to run when vstim starts to play
+    # t is the length of countdown (in seconds)
+    ########################################################################
+    t = 3
+    def countdown(self, t):
+        while t:
+            mins, secs = divmod(t, 60)
+            timer = '{:02d}:{:02d}'.format(mins, secs)
+            print(timer, end="\r")
+            time.sleep(1)
+            t -= 1
+
+        print('vstim time up!')
+        self.box.event_list.append("vstim 3s countdown is up!")
 
     ########################################################################
     # call the run() method repeatedly in a while loop in the run_ssrt_task_phase1_v1.py script
@@ -254,7 +263,10 @@ class ssrt_task(object):
                 pass
 
         elif self.state == "lick_count":
-            pass
+            if event_name == "vstim 3s countdown is up!":
+                self.start_vacuum_from_lick_count()
+            else:
+                pass
 
         elif self.state == "vacuum":
             pass
