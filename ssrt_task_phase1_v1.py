@@ -176,6 +176,7 @@ class ssrt_task(object):
         # print("displaying vstim")
         logging.info(str(time.time()) + ", entering vstim")
         self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
+        self.countdown(3)
 
     def exit_vstim(self):
         # print("transitioning to reward_available")
@@ -219,7 +220,6 @@ class ssrt_task(object):
     # countdown function to run when vstim starts to play
     # t is the length of countdown (in seconds)
     ########################################################################
-    t = 3
     def countdown(self, t):
         while t:
             mins, secs = divmod(t, 60)
