@@ -36,7 +36,7 @@ session_info['vacuum_length']               = 0.1  # in seconds
 session_info['reward_available_length']     = session_info['trial_length'] - session_info['lockout_length']
 session_info['lick_count_length']           = 10  # in seconds (default is 3, but will be changed during task)
 session_info['reward_size']					= 10  # in microliters
-session_info['iti_length']                  = 3  # in seconds
+session_info['iti_length']                  = 3 - session_info['vacuum_length']  # in seconds
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
