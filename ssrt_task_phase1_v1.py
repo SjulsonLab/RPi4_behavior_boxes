@@ -10,6 +10,9 @@ from gpiozero import PWMLED, LED, Button
 from colorama import Fore, Style
 import logging.config
 import time
+import numpy as np
+from matplotlib import pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 logging.config.dictConfig(
     {
@@ -227,7 +230,7 @@ class ssrt_task(object):
                 print("time elapsed at transition to lick_count: " + str(self.time_elapsed))
                 self.start_lick_count()  # trigger state transition to lick_count
             else:
-                    pass
+                pass
 
         elif self.state == "lick_count":
             self.machine.states['lick_count'].timeout = self.session_info["reward_available_length"] - self.time_elapsed
@@ -240,6 +243,31 @@ class ssrt_task(object):
 
         # look for keystrokes
         self.box.check_keybd()
+
+    # def plot_animation(self):
+    #     w = 0
+    #     start_time = time.time()
+    #
+    #     while w < 1:
+    #         if self.box.event_list:
+    #             event_plot = self.box.event_list.popleft()
+    #         else:
+    #             event_plot = ""
+    #
+    #         if event_plot == "left_IR_entry":
+    #             time_elapsed_at_left_IR_entry = round(time.time() - start_time)
+    #
+    #         if event_plot == "left_IR_exit":
+    #             time_elapsed_at_left_IR_exit = round(time.time() - start_time)
+    #
+    #
+    #
+    #         x1 = np.linspace(0, 10, 1000)
+    #         y1 = np.zeros(1000)
+
+
+
+
 
     ########################################################################
     # methods to start and end the behavioral session

@@ -18,6 +18,13 @@ import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
 import time
+
+import behavbox_DT
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import matplotlib
+
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
     'version': 1,
@@ -83,18 +90,18 @@ try:
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
     pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
 
-    # loop over trials
-    for i in range(2):
-        logging.info(str("##############################\n" +
-                         str(time.time())) + ", starting_trial, " + str(i) +
-                     str("\n##############################"))
-
-        task.trial_start()
-
-        while task.trial_running:
-            task.run()
-
-    raise SystemExit
+    # Loops over trials
+    # for i in range(2):
+    #     logging.info(str("##############################\n" +
+    #                      str(time.time())) + ", starting_trial, " + str(i) +
+    #                  str("\n##############################"))
+    #
+    #     task.trial_start()
+    #
+    #     while task.trial_running:
+    #         task.run()
+    #
+    # raise SystemExit
 
 # graceful exit
 except (KeyboardInterrupt, SystemExit):
