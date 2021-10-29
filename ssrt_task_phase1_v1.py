@@ -193,7 +193,7 @@ class ssrt_task(object):
         self.time_enter_lick_count = time.time()
         self.time_elapsed = self.time_enter_lick_count - self.time_enter_reward_available
         self.machine.states['lick_count'].timeout = self.session_info["reward_available_length"] - self.time_elapsed
-        print("Will spend " + str(self.time_elapsed) + "s in lick_count")
+        print("Will spend " + str(self.machine.states['lick_count'].timeout) + "s in lick_count")
 
 
     def exit_lick_count(self):
