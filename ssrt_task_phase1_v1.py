@@ -173,27 +173,29 @@ class ssrt_task(object):
         print("transitioning to reward_available")
 
     def enter_reward_available(self):
-        self.time_enter_reward_available = time.time()
         print("entering reward_available")
+        self.time_enter_reward_available = time.time()
 
     def exit_reward_available(self):
-        self.time_exit_reward_available = time.time()
-        self.time_elapsed = self.time_exit_reward_available - self.time_enter_reward_available
         print("exiting reward_available")
 
     def enter_lick_count(self):
         print("entering lick_count")
+        self.time_enter_lick_count = time.time()
+        self.time_elapsed = self.time_enter_lick_count - self.time_enter_reward_available
+        self.machine.states['lick_count'].timeout = self.session_info["reward_available_length"] - self.time_elapsed
+        print("Will spend " + str(self.time_elapsed) + "s in lick_count")
 
     def exit_lick_count(self):
         print("exiting lick_count")
 
     def enter_vacuum(self):
-        self.box.vacuum_on()
         print("entering vacuum")
+        self.box.vacuum_on()
 
     def exit_vacuum(self):
-        self.box.vacuum_off()
         print("exiting vacuum")
+        self.box.vacuum_off()
 
     def enter_iti(self):
         print("entering ITI")
@@ -233,7 +235,7 @@ class ssrt_task(object):
                 pass
 
         elif self.state == "lick_count":
-            self.machine.states['lick_count'].timeout = self.session_info["reward_available_length"] - self.time_elapsed
+            pass
 
         elif self.state == "vacuum":
             pass
