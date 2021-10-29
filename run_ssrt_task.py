@@ -18,6 +18,8 @@ import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
 import time
+from matplotlib import pyplot as plt
+import matplotlib.animation as animation
 
 
 # all modules above this line will have logging disabled
@@ -84,6 +86,9 @@ try:
     task.start_session()
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
     pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
+
+    # Plot animation
+    task.plot_animation()
 
     # Loops over trials
     for i in range(2):

@@ -4,15 +4,15 @@ from transitions.extensions.states import add_state_features, Timeout
 import pysistence, collections
 from icecream import ic
 import logging
-from datetime import datetime
+import datetime as dt
 import os
 from gpiozero import PWMLED, LED, Button
 from colorama import Fore, Style
 import logging.config
 import time
 import numpy as np
-# from matplotlib import pyplot as plt
-# from matplotlib.animation import FuncAnimation
+from matplotlib import pyplot as plt
+import matplotlib.animation as animation
 
 logging.config.dictConfig(
     {
@@ -97,8 +97,8 @@ class ssrt_task(object):
                 name="lick_count",
                 on_enter=["enter_lick_count"],
                 on_exit=["exit_lick_count"],
-                timeout=self.session_info["lick_count_length"],
-                on_timeout=["start_vacuum_from_lick_count"],
+                # timeout=self.session_info["lick_count_length"],
+                # on_timeout=["start_vacuum_from_lick_count"],
             ),
             # vacuum state: open vacuum for specified amount of time (right before trial ends)
             Timeout(
@@ -280,29 +280,58 @@ class ssrt_task(object):
         # look for keystrokes
         self.box.check_keybd()
 
-    # def plot_animation(self):
-    #     w = 0
-    #     start_time = time.time()
-    #
-    #     while w < 1:
-    #         if self.box.event_list:
-    #             event_plot = self.box.event_list.popleft()
-    #         else:
-    #             event_plot = ""
-    #
-    #         if event_plot == "left_IR_entry":
-    #             time_elapsed_at_left_IR_entry = round(time.time() - start_time)
-    #
-    #         if event_plot == "left_IR_exit":
-    #             time_elapsed_at_left_IR_exit = round(time.time() - start_time)
-    #
-    #
-    #
-    #         x1 = np.linspace(0, 10, 1000)
-    #         y1 = np.zeros(1000)
+    ########################################################################
+    # define functions called when plotting
+    ########################################################################
+
+    # create a function to output lick data
+    def lick_detector(self):
+
+        if self.box.event_list:
+            detected_events = self.box.event_list.popleft()
+        else:
+            detected_events = ""
+
+        if detected_events == "left_IR_entry":
+            return(1)
+        elif detected_events == "left_IR_exit":
+            return(0)
 
 
+    # This function is called periodically from FuncAnimation
 
+    def plot_animation(self):
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        xs = []
+        ys = []
+
+        def animate(i, xs, ys):
+            # read detection value from lick_detector
+            detection_value = self.lick_detector()
+
+            # Add x and y to lists
+            xs.append(dt.datetime.now().strftime('%H:%M:%S.%f'))
+            ys.append(detection_value)
+
+            # Limit x and y lists to 100 items
+            xs = xs[-100:]
+            ys = ys[-100:]
+
+            # Draw x and y lists
+            ax.clear()
+            ax.plot(xs, ys)
+
+            # Format plot
+            plt.xticks(rotation=45, ha='right')
+            plt.subplots_adjust(bottom=0.30)
+            plt.title('licks over time (s)')
+            plt.ylabel('events')
+
+        # Set up plot to call animate() function periodically
+        ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=1000)
+        plt.show()
 
 
     ########################################################################
