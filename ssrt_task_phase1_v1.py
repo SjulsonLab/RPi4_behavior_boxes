@@ -59,6 +59,9 @@ class ssrt_task(object):
             self.session_info = kwargs.get("session_info", None)
         ic(self.session_info)
 
+        # indicates time in lick_out, will be updated later
+        self.time_spent_in_lick_count = 10
+
         ########################################################################
         # Task has many possible states
         ########################################################################
