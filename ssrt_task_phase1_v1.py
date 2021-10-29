@@ -11,8 +11,8 @@ from colorama import Fore, Style
 import logging.config
 import time
 import numpy as np
-from matplotlib import pyplot as plt
-from matplotlib.animation import FuncAnimation
+# from matplotlib import pyplot as plt
+# from matplotlib.animation import FuncAnimation
 
 logging.config.dictConfig(
     {
