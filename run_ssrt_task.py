@@ -17,6 +17,7 @@ import warnings
 import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
+import time
 
 
 # all modules above this line will have logging disabled
@@ -85,17 +86,18 @@ try:
     pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
 
     # Loops over trials
-    # for i in range(2):
-    #     logging.info(str("##############################\n" +
-    #                      str(time.time())) + ", starting_trial, " + str(i) +
-    #                  str("\n##############################"))
-    #
-    #     task.trial_start()
-    #
-    #     while task.trial_running:
-    #         task.run()
-    #
-    # raise SystemExit
+    for i in range(2):
+        logging.info(str("##############################\n" +
+                         str(time.time())) + ", starting_trial, " + str(i) +
+                     str("\n##############################"))
+
+        task.trial_start()
+
+        while task.trial_running:
+            task.run()
+
+    raise SystemExit
+
 
 # graceful exit
 except (KeyboardInterrupt, SystemExit):
