@@ -172,14 +172,14 @@ class ssrt_task(object):
         logging.info(str(time.time()) + ", exiting initiation")
         self.box.cueLED1.off()
         print("LED OFF!")
-        # start to load vstim and display it
-        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
-        # start the countdown of time since display of vstim, this is used as timeup to transition lick_count to vacuum
-        self.countdown(3)
 
     def enter_vstim(self):
         # print("displaying vstim")
         logging.info(str(time.time()) + ", entering vstim")
+        # start to load vstim and display it
+        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
+        # start the countdown of time since display of vstim, this is used as timeup to transition lick_count to vacuum
+        self.countdown(3)
 
     def exit_vstim(self):
         # print("transitioning to reward_available")
