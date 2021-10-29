@@ -149,59 +149,75 @@ class ssrt_task(object):
     # functions called when state transitions occur
     ########################################################################
     def enter_standby(self):
-        print("entering standby")
+        # print("entering standby")
+        logging.info(str(time.time()) + ", entering standby")
         self.trial_running = False
 
     def exit_standby(self):
-        print("exiting standby")
+        # print("exiting standby")
+        logging.info(str(time.time()) + ", exiting standby")
 
     def enter_initiation(self):
         self.trial_running = True
-        print("entering initiation")
+        # print("entering initiation")
+        logging.info(str(time.time()) + ", entering initiation")
         self.box.cueLED1.on()
         print("LED ON!")
 
     def exit_initiation(self):
-        print("LED OFF!")
+        logging.info(str(time.time()) + ", exiting initiation")
         self.box.cueLED1.off()
+        print("LED OFF!")
 
     def enter_vstim(self):
-        print("displaying vstim")
+        # print("displaying vstim")
+        logging.info(str(time.time()) + ", entering vstim")
         self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
 
     def exit_vstim(self):
-        print("transitioning to reward_available")
+        # print("transitioning to reward_available")
+        logging.info(str(time.time()) + ", exiting vstim")
 
     def enter_reward_available(self):
-        print("entering reward_available")
+        # print("entering reward_available")
+        logging.info(str(time.time()) + ", entering reward_available")
         self.time_enter_reward_available = time.time()
 
     def exit_reward_available(self):
-        print("exiting reward_available")
+        # print("exiting reward_available")
+        logging.info(str(time.time()) + ", exiting reward_available")
 
     def enter_lick_count(self):
-        print("entering lick_count")
+        # print("entering lick_count")
+        logging.info(str(time.time()) + ", entering lick_count")
         self.time_enter_lick_count = time.time()
         self.time_elapsed = self.time_enter_lick_count - self.time_enter_reward_available
         self.machine.states['lick_count'].timeout = self.session_info["reward_available_length"] - self.time_elapsed
         print("Will spend " + str(self.time_elapsed) + "s in lick_count")
 
+
     def exit_lick_count(self):
-        print("exiting lick_count")
+        # print("exiting lick_count")
+        logging.info(str(time.time()) + ", exiting lick_count")
 
     def enter_vacuum(self):
-        print("entering vacuum")
+        # print("entering vacuum")
+        logging.info(str(time.time()) + ", entering vacuum")
         self.box.vacuum_on()
 
     def exit_vacuum(self):
-        print("exiting vacuum")
+        # print("exiting vacuum")
+        logging.info(str(time.time()) + ", exiting vacuum")
         self.box.vacuum_off()
 
     def enter_iti(self):
-        print("entering ITI")
+        # print("entering ITI")
+        logging.info(str(time.time()) + ", entering iti")
 
     def exit_iti(self):
-        print("exiting ITI")
+        # print("exiting ITI")
+        logging.info(str(time.time()) + ", exiting iti")
+
 
     ########################################################################
     # call the run() method repeatedly in a while loop in the run_ssrt_task_phase1_v1.py script
