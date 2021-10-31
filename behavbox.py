@@ -76,7 +76,7 @@ class BehavBox(object):
         self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
 
         # link nosepoke event detections to callbacks
-        self.IR_rx1.when_pressed = self.
+        self.IR_rx1.when_pressed = self.left_IR_entry
         self.IR_rx2.when_pressed = self.center_IR_entry
         self.IR_rx3.when_pressed = self.right_IR_entry
         self.IR_rx1.when_released = self.left_IR_exit
