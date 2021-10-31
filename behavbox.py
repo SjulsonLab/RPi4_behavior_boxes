@@ -83,9 +83,6 @@ class BehavBox(object):
         self.IR_rx2.when_released = self.center_IR_exit
         self.IR_rx3.when_released = self.right_IR_exit
 
-        # debug purpose
-        self.IR_rx5.when_pressed = self.left_IR_entry
-        self.IR_rx5.when_released = self.left_IR_exit
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
