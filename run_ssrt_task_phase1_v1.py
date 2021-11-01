@@ -90,18 +90,26 @@ try:
     # Plot animation
     task.plot_animation()
 
-    # Loops over trials
-    for i in range(2):
-        logging.info(str("##############################\n" +
+    # Whether to run bait or not
+    what_to_run = input("What is the task: bait or phase1?:\n")
+    print(f'You entered {what_to_run}')
+
+    while what_to_run == "bait":
+        task.bait()
+        if task.value == "stop":
+            break
+
+    if what_to_run == "phase1":
+        # Loops over trials for phase 1 training
+        for i in range(2):
+            logging.info(str("##############################\n" +
                          str(time.time())) + ", starting_trial, " + str(i) +
-                     str("\n##############################"))
+                         str("\n##############################"))
+            task.trial_start()
 
-        task.trial_start()
-
-        while task.trial_running:
-            task.run()
-
-    raise SystemExit
+            while task.trial_running:
+                task.run()
+        raise SystemExit
 
 
 # graceful exit

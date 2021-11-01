@@ -281,6 +281,22 @@ class ssrt_task(object):
         self.box.check_keybd()
 
     ########################################################################
+    # define function called for baiting
+    ########################################################################
+    def bait(self):
+        # read in name of an event the box has detected
+        if self.box.event_list:
+            event_name = self.box.event_list.popleft()
+        else:
+            event_name = ""
+
+        # read for input trigger for reward (1 is the input trigger)
+        self.value = input("Please enter 'r' for reward delivery, 'stop' to stop: \n")
+        if self.value == "r":
+            print(f'You entered {self.value}, delivering reward')
+            self.pump.reward("left", self.session_info["reward_size"])
+
+    ########################################################################
     # define functions called when plotting
     ########################################################################
 
