@@ -85,7 +85,7 @@ try:
     task.start_session()
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
     pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
-
+    sleep(10)
     # loop over trials
     for i in range(2):
         logging.info(str("##############################\n" +
