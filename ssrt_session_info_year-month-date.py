@@ -29,6 +29,7 @@ session_info['box_name']             		= socket.gethostname()
 session_info['config']						= 'head_fixed_v1'
 
 # behavior parameters
+session_info['number_of_trials']            = 300
 session_info['trial_length']                = 3  # in seconds
 session_info['init_length']                 = 1  # in seconds
 session_info['lockout_length']              = 0.2  # in seconds
