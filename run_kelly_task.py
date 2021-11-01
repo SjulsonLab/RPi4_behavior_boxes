@@ -20,6 +20,7 @@ import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
 import time
+from time import sleep
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
     'version': 1,
