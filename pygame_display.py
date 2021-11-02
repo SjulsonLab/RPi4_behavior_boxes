@@ -4,7 +4,7 @@ import matplotlib.backends.backend_agg as agg
 import pylab
 
 fig = pylab.figure(figsize=[6, 6], # Inches
-                   dpi=100,        # 100 dots per inch, so the resulting buffer is 400x400 pixels
+                   dpi=100,        # 100 dots per inch, so the resulting buffer is 600x600 pixels
                    )
 ax = fig.gca()
 ax.plot([1, 2, 4])

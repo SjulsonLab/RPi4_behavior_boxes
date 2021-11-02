@@ -11,9 +11,16 @@ from colorama import Fore, Style
 import logging.config
 import time
 import numpy as np
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.backends.backend_agg as agg
+import pylab
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import pygame
+from pygame.locals import *
 
 logging.config.dictConfig(
     {
@@ -310,17 +317,17 @@ class ssrt_task(object):
             return(1)
         elif detected_events == "left_IR_exit":
             return(0)
+        else:
+            return(0)
 
 
     # This function is called periodically from FuncAnimation
-
     def plot_animation(self):
 
-        plot_display = pygame.display.set_mode((600, 600))
-        pygame.display.set_caption("task_plots")
-
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
+        fig = pylab.figure(figsize=[6, 6],  # Inches
+                           dpi=100,  # 100 dots per inch, so the resulting buffer is 600x600 pixels
+                           )
+        ax = fig.gca()
         xs = []
         ys = []
 
@@ -349,6 +356,26 @@ class ssrt_task(object):
         # Set up plot to call animate() function periodically
         ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=1000)
         plt.show()
+
+        canvas = agg.FigureCanvasAgg(fig)
+        canvas.draw()
+        renderer = canvas.get_renderer()
+        raw_data = renderer.tostring_rgb()
+
+        # initialize pygame to be display the plot
+        pygame.init()
+        window = pygame.display.set_mode((600, 600), DOUBLEBUF)
+        screen = pygame.display.get_surface()
+        size = canvas.get_width_height()
+        surf = pygame.image.fromstring(raw_data, size, "RGB")
+        screen.blit(surf, (0, 0))
+        pygame.display.flip()
+
+        crashed = False
+        while not crashed:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    crashed = True
 
 
     ########################################################################
