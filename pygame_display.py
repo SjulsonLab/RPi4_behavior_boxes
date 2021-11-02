@@ -1,12 +1,9 @@
 import matplotlib
 matplotlib.use("Agg")
-
 import matplotlib.backends.backend_agg as agg
-
-
 import pylab
 
-fig = pylab.figure(figsize=[4, 4], # Inches
+fig = pylab.figure(figsize=[6, 6], # Inches
                    dpi=100,        # 100 dots per inch, so the resulting buffer is 400x400 pixels
                    )
 ax = fig.gca()
@@ -22,7 +19,7 @@ from pygame.locals import *
 
 pygame.init()
 
-window = pygame.display.set_mode((600, 400), DOUBLEBUF)
+window = pygame.display.set_mode((600, 600), DOUBLEBUF)
 screen = pygame.display.get_surface()
 
 size = canvas.get_width_height()
