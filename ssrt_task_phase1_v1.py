@@ -291,7 +291,7 @@ class ssrt_task(object):
             event_name = ""
 
         # read for input trigger for reward (1 is the input trigger)
-        self.value = input("Please enter 'r' for reward delivery, 'stop' to stop: \n")
+        self.value = input("Please enter 'r' for reward delivery, 'stop', or 'phase1': \n")
         if self.value == "r":
             print(f'You entered {self.value}, delivering reward')
             self.pump.reward("left", self.session_info["reward_size"])
