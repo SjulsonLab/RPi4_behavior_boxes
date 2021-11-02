@@ -96,10 +96,11 @@ try:
 
     while what_to_run == "bait":
         task.bait()
-        if task.value == "stop":
+        if task.value == "phase1":
+            what_to_run = "phase1"
             break
 
-    if what_to_run == "phase1" or task.value == "phase1":
+    if what_to_run == "phase1":
         # Loops over trials for phase 1 training
         for i in range(session_info['number_of_trial']):
             logging.info(str("##############################\n" +
