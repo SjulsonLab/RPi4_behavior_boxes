@@ -316,7 +316,7 @@ class ssrt_task(object):
 
     def plot_animation(self):
 
-        plot_display = pygame.display.set_mode((400, 400))
+        plot_display = pygame.display.set_mode((600, 600))
         pygame.display.set_caption("task_plots")
 
         fig = plt.figure()
