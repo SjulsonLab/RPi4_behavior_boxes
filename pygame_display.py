@@ -11,10 +11,12 @@ import pygame
 from pygame.locals import *
 import numpy as np
 
-fig = pylab.figure(figsize=[6, 6],  # Inches
+fig = plt.figure(figsize=[6, 6],  # Inches
                        dpi=100,  # 100 dots per inch, so the resulting buffer is 600x600 pixels
                        )
-ax = fig.gca()
+ax = fig.add_subplot(111)
+canvas = agg.FigureCanvasAgg(fig)
+
 xs = []
 ys = []
 
@@ -40,9 +42,8 @@ def animate(i, xs, ys):
 
 # Set up plot to call animate() function periodically
 ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=1000)
-plt.show()
+# plt.show()
 
-canvas = agg.FigureCanvasAgg(fig)
 canvas.draw()
 renderer = canvas.get_renderer()
 raw_data = renderer.tostring_rgb()
