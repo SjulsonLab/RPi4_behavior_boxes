@@ -24,8 +24,8 @@ def plot_animation(self):
         detection_value = self.lick_detector()
 
         # Add x and y to lists
-        xs.append(dt.datetime.now().strftime('%H:%M:%S.%f'))
-        ys = np.sin(10 * np.pi * (x1 - 0.02 * i))
+        xs = np.linspace(0, 10, 1000)
+        ys = np.sin(10 * np.pi * (xs - 0.02 * i))
 
         # Limit x and y lists to 100 items
         xs = xs[-100:]
