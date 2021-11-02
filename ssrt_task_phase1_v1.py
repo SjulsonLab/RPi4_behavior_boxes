@@ -314,11 +314,11 @@ class ssrt_task(object):
             detected_events = ""
 
         if detected_events == "left_IR_entry":
-            return(1)
+            return(2)
         elif detected_events == "left_IR_exit":
-            return(0)
+            return(1)
         else:
-            return(0)
+            return(1)
 
 
     # This function is called periodically from FuncAnimation
@@ -355,7 +355,7 @@ class ssrt_task(object):
 
         # Set up plot to call animate() function periodically
         ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=1000)
-        plt.show()
+        # plt.show()
 
         canvas = agg.FigureCanvasAgg(fig)
         canvas.draw()
