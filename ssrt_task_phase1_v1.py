@@ -283,7 +283,7 @@ class ssrt_task(object):
             pass
 
         # look for keystrokes
-        self.box.check_keybd()
+        # self.box.check_keybd()
 
     ########################################################################
     # define function called for baiting
