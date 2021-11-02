@@ -13,6 +13,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import pygame
 
 logging.config.dictConfig(
     {
@@ -314,6 +315,9 @@ class ssrt_task(object):
     # This function is called periodically from FuncAnimation
 
     def plot_animation(self):
+
+        plot_display = pygame.display.set_mode((400, 400))
+        pygame.display.set_caption("task_plots")
 
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
