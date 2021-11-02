@@ -102,7 +102,7 @@ try:
 
     if what_to_run == "phase1":
         # Loops over trials for phase 1 training
-        for i in range(session_info['number_of_trial']):
+        for i in range(session_info['number_of_trials']):
             logging.info(str("##############################\n" +
                          str(time.time())) + ", starting_trial, " + str(i) +
                          str("\n##############################"))
