@@ -20,6 +20,7 @@ import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
 import time
+from time import sleep
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
     'version': 1,
@@ -85,7 +86,7 @@ try:
     task.start_session()
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
     pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
-
+    sleep(10)
     # loop over trials
     for i in range(2):
         logging.info(str("##############################\n" +
