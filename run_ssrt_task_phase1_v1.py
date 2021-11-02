@@ -87,9 +87,6 @@ try:
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
     pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
 
-    # Plot animation
-    # task.plot_animation()
-
     # Whether to run bait or not
     what_to_run = input("What is the task: bait or phase1?:\n")
     print(f'You entered {what_to_run}')

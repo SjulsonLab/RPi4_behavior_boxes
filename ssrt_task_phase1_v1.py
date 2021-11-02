@@ -354,7 +354,7 @@ class ssrt_task(object):
             plt.ylabel('events')
 
         # Set up plot to call animate() function periodically
-        ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=1000)
+        anim = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=1000)
         # plt.show()
 
         canvas = agg.FigureCanvasAgg(fig)
