@@ -120,12 +120,10 @@ class KellyTask(object):
         print("stop white noise")
 
     def enter_cue(self):
-        print("5s until timeout")
-        # print("deliver reward")
-        # self.pump.reward("left", self.session_info["reward_size"])
-        # print("start cue")
-        # self.box.cueLED1.on()
-        # self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
+        print("deliver reward")
+        self.pump.reward("left", self.session_info["reward_size"])
+        print("start cue")
+        self.box.cueLED1.on()
 
 
     def exit_cue(self):
@@ -149,7 +147,7 @@ class KellyTask(object):
             pass
 
         elif self.state == "reward_available":
-            if event_name == "left_poke_entry":
+            if event_name == "left_IR_entry":
                 self.active_poke()  # triggers state transition
 
         elif self.state == "cue":

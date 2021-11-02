@@ -60,11 +60,8 @@ class BehavBox(object):
         # digital I/O's - used for cue LED
         # cue for animals
         # DIO 1 and 2 are reserved for the audio board
-        # DIO 3 is reserved for vacuum
         ###############################################################################################
-        # self.DIO1 = LED(7)  # don't declare DIO1. It's reserved for the frame out pin for the visual stimuli
-        # self.DIO2 = LED(8)  # currently used for pump
-        self.DIO3 = LED(9)  # use pin 9 for vacuum
+        self.DIO3 = LED(9)  # reserved for vacuum function
         self.DIO4 = LED(10)
         self.DIO5 = LED(11)
         # there is a DIO6, but that is the same pin as the camera strobe
@@ -89,12 +86,13 @@ class BehavBox(object):
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
-        self.sound1 = LED(23) # originally DIO1
-        self.sound2 = LED(24) # originally DIO2
         # pins originally reserved for the lick detection is now used for audio board TTL input signal
-        self.sound3 = LED(26) # originally lick1
-        self.sound4 = LED(27) # originally lick2
-        self.sound5 = LED(15) # originally lick3
+        self.sound1 = LED(26)  # originally lick1
+        self.sound2 = LED(27)  # originally lick2
+        self.sound3 = LED(15)  # originally lick3
+
+        self.sound4 = LED(23)  # originally DIO1
+        self.sound5 = LED(24)  # originally DIO2
 
         # ###############################################################################################
         # # lick detectors
@@ -202,22 +200,10 @@ class BehavBox(object):
                     self.right_IR_entry()
                 elif event.type == KeyUp and event.key == 51:
                     self.right_IR_exit()
-                # elif event.type == KeyDown and event.key == 113:  # Q key
-                #     self.left_lick_start()
-                # elif event.type == KeyUp and event.key == 113:
-                #     self.left_lick_stop()
-                # elif event.type == KeyDown and event.key == 119:  # W key
-                #     self.center_lick_start()
-                # elif event.type == KeyUp and event.key == 119:
-                #     self.center_lick_stop()
-                # elif event.type == KeyDown and event.key == 101:  # E key
-                #     self.right_lick_start()
-                # elif event.type == KeyUp and event.key == 101:
-                #     self.right_lick_stop()
                 elif event.type == KeyDown and event.key == 27:  # escape key
                     pygame.quit()
                     self.keyboard_active = False
-
+                # print(event) # for debug purpose
     ###############################################################################################
     # methods to start and stop video
     # These work with fake video files but haven't been tested with real ones
@@ -267,11 +253,6 @@ class BehavBox(object):
             os.system(tempstr)
             print(
                 Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
-
-            # # create directory on the external storage
-            # base_dir = '/mnt/hd/'
-            # hd_dir = base_dir + basename
-            # os.mkdir(hd_dir)
 
             # start initiating the dumping of the session information when available
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
@@ -365,29 +346,29 @@ class BehavBox(object):
         self.event_list.append("right_IR_exit")
         logging.info(str(time.time()) + ", right_IR_exit")
 
-    def left_lick_start(self):
-        self.event_list.append("left_lick_start")
-        logging.info(str(time.time()) + ", left_lick_start")
-
-    def center_lick_start(self):
-        self.event_list.append("center_lick_start")
-        logging.info(str(time.time()) + ", center_lick_start")
-
-    def right_lick_start(self):
-        self.event_list.append("right_lick_start")
-        logging.info(str(time.time()) + ", right_lick_start")
-
-    def left_lick_stop(self):
-        self.event_list.append("left_lick_stop")
-        logging.info(str(time.time()) + ", left_lick_stop")
-
-    def center_lick_stop(self):
-        self.event_list.append("center_lick_stop")
-        logging.info(str(time.time()) + ", center_lick_stop")
-
-    def right_lick_stop(self):
-        self.event_list.append("right_lick_stop")
-        logging.info(str(time.time()) + ", right_lick_stop")
+    # def left_lick_start(self):
+    #     self.event_list.append("left_lick_start")
+    #     logging.info(str(time.time()) + ", left_lick_start")
+    #
+    # def center_lick_start(self):
+    #     self.event_list.append("center_lick_start")
+    #     logging.info(str(time.time()) + ", center_lick_start")
+    #
+    # def right_lick_start(self):
+    #     self.event_list.append("right_lick_start")
+    #     logging.info(str(time.time()) + ", right_lick_start")
+    #
+    # def left_lick_stop(self):
+    #     self.event_list.append("left_lick_stop")
+    #     logging.info(str(time.time()) + ", left_lick_stop")
+    #
+    # def center_lick_stop(self):
+    #     self.event_list.append("center_lick_stop")
+    #     logging.info(str(time.time()) + ", center_lick_stop")
+    #
+    # def right_lick_stop(self):
+    #     self.event_list.append("right_lick_stop")
+    #     logging.info(str(time.time()) + ", right_lick_stop")
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
