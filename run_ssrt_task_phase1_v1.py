@@ -111,7 +111,6 @@ try:
 
             while task.trial_running:
                 trial_outcome[i] = task.run()
-                print("This is a " + trial_outcome[i] + " trial")
 
         raise SystemExit
 

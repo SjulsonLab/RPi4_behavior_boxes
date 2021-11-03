@@ -245,9 +245,6 @@ class ssrt_task(object):
     ########################################################################
     def run(self):
 
-        # record outcomes of trials, then return these values at the end of trial
-        trial_outcome = ""
-
         # read in name of an event the box has detected
         if self.box.event_list:
             event_name = self.box.event_list.popleft()
@@ -273,21 +270,14 @@ class ssrt_task(object):
                 pass
 
         elif self.state == "lick_count":
-            if event_name == "left_IR_entry":
-                trial_outcome = "Hit"
-            elif event_name == "vstim 3s countdown is up!":
+            if event_name == "vstim 3s countdown is up!":
                 self.start_vacuum_from_lick_count()
 
         elif self.state == "vacuum":
-            if trial_outcome == "":
-                trial_outcome = "Miss!"
-            else:
-                pass
+            pass
 
         elif self.state == "iti":
             pass
-
-        return trial_outcome
 
         # look for keystrokes
         # self.box.check_keybd()
@@ -315,12 +305,10 @@ class ssrt_task(object):
         else:
             detected_events = ""
 
-        if detected_events == "left_IR_entry":
-            return(2)
-        elif detected_events == "left_IR_exit":
-            return(1)
+        while detected_events == "left_IR_entry":
+            return 1
         else:
-            return(1)
+            return 0
 
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
