@@ -258,7 +258,7 @@ class ssrt_task(object):
             self.time_at_lick = np.append(self.time_at_lick, time.time())
 
         if self.state == "standby":
-            self.plot_ssrt()
+            self.plot_ssrt(current_trial)
 
         elif self.state == "initiation":
             pass
