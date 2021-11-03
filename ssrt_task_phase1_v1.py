@@ -246,7 +246,7 @@ class ssrt_task(object):
     # it will process all detected events from the behavior box (e.g.
     # licks, reward delivery, etc.) and trigger the appropriate state transitions
     ########################################################################
-    def run(self,current_trial):
+    def run(self, current_trial):
 
         # read in name of an event the box has detected
         if self.box.event_list:
@@ -259,7 +259,7 @@ class ssrt_task(object):
 
         if self.state == "standby":
             if current_trial > 0:
-                self.plot_ssrt()
+                self.plot_ssrt(current_trial)
             else:
                 pass
 
