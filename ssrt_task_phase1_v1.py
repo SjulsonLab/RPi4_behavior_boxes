@@ -289,11 +289,6 @@ class ssrt_task(object):
     # define function called for baiting
     ########################################################################
     def bait(self):
-        # read in name of an event the box has detected
-        if self.box.event_list:
-            event_name = self.box.event_list.popleft()
-        else:
-            event_name = ""
 
         # read for input trigger for reward (1 is the input trigger)
         self.value = input("Please enter 'r' for reward delivery, 'phase1' to start the task: \n")
@@ -323,7 +318,7 @@ class ssrt_task(object):
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
 
-    def plot_ssrt(self):
+    def plot_ssrt(self, current_trial):
 
         # Plot the figure
         fig, axs = plt.subplots(2, 2)

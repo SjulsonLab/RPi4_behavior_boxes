@@ -7,6 +7,9 @@ import pygame
 from pygame.locals import *
 import numpy as np
 
+current_trial = 1
+trial_outcome = "Hit"
+
 # Plot the figure
 fig, axs = plt.subplots(2, 2)
 matplotlib.rcParams['font.size'] = 5.0
@@ -18,12 +21,20 @@ colors1 = ['C{}'.format(i) for i in range(6)]
 # note that some overlap
 lineoffsets1 = np.array([-15, -3, 1, 1.5, 6, 10])
 linelengths1 = [5, 2, 1, 1, 3, 1.5]
-# create a horizontal plot
-axs[0, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
-                    linelengths=linelengths1)
+
+# create an outcome plot
+textstr = '\n'.join((
+    f"trial {current_trial} : {trial_outcome}",
+    f"trial {current_trial} : {trial_outcome}",
+    f"trial {current_trial} : {trial_outcome}"))
+# these are matplotlib.patch.Patch properties
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+axs[0, 0].text(0.05, 0.95, textstr, transform=axs.transAxes, fontsize=14,
+        verticalalignment='top', bbox=props)
+
 # create a vertical plot
 axs[1, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
-                    linelengths=linelengths1, orientation='vertical')
+                    linelengths=linelengths1)
 # create another set of random data.
 # the gamma distribution is only used fo aesthetic purposes
 data2 = np.random.gamma(4, size=[60, 50])
@@ -33,9 +44,9 @@ data2 = np.random.gamma(4, size=[60, 50])
 colors2 = 'black'
 lineoffsets2 = 1
 linelengths2 = 1
-# # create a horizontal plot
-# axs[0, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
-#                     linelengths=linelengths2)
+# create a horizontal plot
+axs[0, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+                    linelengths=linelengths2)
 # create a vertical plot
 axs[1, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
                     linelengths=linelengths2, orientation='vertical')
