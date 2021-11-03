@@ -106,7 +106,7 @@ try:
             task.trial_start()
 
             while task.trial_running:
-                task.run()
+                task.run(i)
 
         raise SystemExit
 

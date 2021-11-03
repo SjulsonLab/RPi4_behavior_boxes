@@ -168,7 +168,7 @@ class ssrt_task(object):
     def enter_initiation(self):
         self.trial_running = True
         self.time_at_lick = []
-        self.trial_start = time.time()
+        self.trial_start_time = time.time()
         # print("entering initiation")
         logging.info(str(time.time()) + ", entering initiation")
         self.box.cueLED1.on()
@@ -223,7 +223,7 @@ class ssrt_task(object):
 
     def exit_iti(self):
         # print("exiting ITI")
-        self.trial_end = time.time()
+        self.trial_end_time = time.time()
         logging.info(str(time.time()) + ", exiting iti")
 
     ########################################################################
@@ -246,7 +246,7 @@ class ssrt_task(object):
     # it will process all detected events from the behavior box (e.g.
     # licks, reward delivery, etc.) and trigger the appropriate state transitions
     ########################################################################
-    def run(self):
+    def run(self,current_trial):
 
         # read in name of an event the box has detected
         if self.box.event_list:
@@ -258,7 +258,10 @@ class ssrt_task(object):
             self.time_at_lick = np.append(self.time_at_lick, time.time())
 
         if self.state == "standby":
-            pass
+            if current_trial > 0:
+                self.plot_ssrt()
+            else:
+                pass
 
         elif self.state == "initiation":
             pass
@@ -356,8 +359,8 @@ class ssrt_task(object):
 
         # create a vertical plot
         # create data to plot
-        lick_times = self.time_at_lick - self.trial_start
-        reward_time = self.time_at_reward - self.trial_start
+        lick_times = self.time_at_lick - self.trial_start_time
+        reward_time = self.time_at_reward - self.trial_start_time
         events_to_plot = [lick_times, reward_time]
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(2)]
