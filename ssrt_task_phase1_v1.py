@@ -362,12 +362,13 @@ class ssrt_task(object):
         lick_times = self.time_at_lick - self.trial_start_time
         reward_time = self.time_at_reward - self.trial_start_time
         events_to_plot = [lick_times, reward_time]
+        print(events_to_plot)
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(2)]
         # set different line properties for each set of positions
         # note that some overlap
-        lineoffsets1 = np.array([-15, -3])
-        linelengths1 = 4
+        lineoffsets1 = np.array([-3, 2])
+        linelengths1 = [2, 3]
         axs[1, 0].eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
 
         # the gamma distribution is only used fo aesthetic purposes
