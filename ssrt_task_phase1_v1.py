@@ -246,7 +246,7 @@ class ssrt_task(object):
     # it will process all detected events from the behavior box (e.g.
     # licks, reward delivery, etc.) and trigger the appropriate state transitions
     ########################################################################
-    def run(self, current_trial):
+    def run(self):
 
         # read in name of an event the box has detected
         if self.box.event_list:
@@ -258,10 +258,7 @@ class ssrt_task(object):
             self.time_at_lick = np.append(self.time_at_lick, time.time())
 
         if self.state == "standby":
-            if current_trial > 0:
-                self.plot_ssrt(current_trial)
-            else:
-                pass
+            pass
 
         elif self.state == "initiation":
             pass
@@ -370,7 +367,7 @@ class ssrt_task(object):
         linelengths1 = [4, 4]
         axs[1, 0].eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1,
                             linelengths=linelengths1)
-        
+
         # the gamma distribution is only used fo aesthetic purposes
         data2 = np.random.gamma(4, size=[60, 50])
         # use individual values for the parameters this time
