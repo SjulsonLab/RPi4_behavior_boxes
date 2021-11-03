@@ -7,11 +7,6 @@ import pygame
 from pygame.locals import *
 import numpy as np
 
-# Set up the fig to plot
-# fig = plt.figure(figsize=[6, 6],  # Inches
-#                  dpi=100,         # 100 dots per inch, so buffer is 400x400 pixels
-#                  )
-
 # Plot the figure
 fig, axs = plt.subplots(2, 2)
 matplotlib.rcParams['font.size'] = 5.0
@@ -45,22 +40,20 @@ axs[0, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
 axs[1, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
                     linelengths=linelengths2, orientation='vertical')
 
+# Draw on canvas
 canvas = agg.FigureCanvasAgg(fig)
 canvas.draw()
 renderer = canvas.get_renderer()
 raw_data = renderer.tostring_rgb()
-
 pygame.init()
-
-window = pygame.display.set_mode((600, 600), DOUBLEBUF)
+window = pygame.display.set_mode((800, 800), DOUBLEBUF)
 screen = pygame.display.get_surface()
-
 size = canvas.get_width_height()
-
 surf = pygame.image.fromstring(raw_data, size, "RGB")
 screen.blit(surf, (0,0))
 pygame.display.flip()
 
+# Close figure when pygame quit
 show = True
 while show:
     for event in pygame.event.get():
