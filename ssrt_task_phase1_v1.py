@@ -245,6 +245,9 @@ class ssrt_task(object):
     ########################################################################
     def run(self):
 
+        # record outcomes of trials, then return these values at the end of trial
+        trial_outcome = ""
+
         # read in name of an event the box has detected
         if self.box.event_list:
             event_name = self.box.event_list.popleft()
@@ -252,7 +255,6 @@ class ssrt_task(object):
             event_name = ""
 
         if self.state == "standby":
-            self.plot_ssrt()
             pass
 
         elif self.state == "initiation":
@@ -271,16 +273,21 @@ class ssrt_task(object):
                 pass
 
         elif self.state == "lick_count":
-            if event_name == "vstim 3s countdown is up!":
+            if event_name == "left_IR_entry":
+                trial_outcome = "Hit"
+            elif event_name == "vstim 3s countdown is up!":
                 self.start_vacuum_from_lick_count()
+
+        elif self.state == "vacuum":
+            if trial_outcome == "":
+                trial_outcome = "Miss!"
             else:
                 pass
 
-        elif self.state == "vacuum":
-            pass
-
         elif self.state == "iti":
             pass
+
+        return trial_outcome
 
         # look for keystrokes
         # self.box.check_keybd()
@@ -318,7 +325,11 @@ class ssrt_task(object):
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
 
-    def plot_ssrt(self, current_trial):
+    def plot_ssrt(self):
+
+        # establish trial_list and trial_outcome
+        # trial_list = list(range(0, self.session_info["number_of_trials"]))
+        # trial_outcome = ["" for o in range(self.session_info["number_of_trials"])]
 
         # Plot the figure
         fig, axs = plt.subplots(2, 2)

@@ -8,7 +8,8 @@ from pygame.locals import *
 import numpy as np
 
 current_trial = 1
-trial_outcome = "Hit"
+trial_list = list(range(0, 300))
+trial_outcome = ["" for o in range(300)]
 
 # Plot the figure
 fig, axs = plt.subplots(2, 2)
@@ -23,13 +24,24 @@ lineoffsets1 = np.array([-15, -3, 1, 1.5, 6, 10])
 linelengths1 = [5, 2, 1, 1, 3, 1.5]
 
 # create an outcome plot
+
 textstr = '\n'.join((
-    f"trial {current_trial} : {trial_outcome}",
-    f"trial {current_trial} : {trial_outcome}",
-    f"trial {current_trial} : {trial_outcome}"))
-# these are matplotlib.patch.Patch properties
-# props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-axs[0, 0].text(0.05, 0.95, textstr, fontsize=5, verticalalignment='top')
+    f"trial {trial_list[0]} : {trial_outcome[0]}",
+    f"trial {trial_list[1]} : {trial_outcome[1]}",
+    f"trial {trial_list[2]} : {trial_outcome[2]}",
+    f"trial {trial_list[3]} : {trial_outcome[3]}",
+    f"trial {trial_list[4]} : {trial_outcome[4]}",
+    f"trial {trial_list[5]} : {trial_outcome[5]}",
+    f"trial {trial_list[6]} : {trial_outcome[6]}",
+    f"trial {trial_list[7]} : {trial_outcome[7]}",
+    f"trial {trial_list[8]} : {trial_outcome[8]}",
+    f"trial {trial_list[9]} : {trial_outcome[9]}",
+    f"trial {trial_list[10]} : {trial_outcome[10]}",
+    f"trial {trial_list[11]} : {trial_outcome[11]}",
+    f"trial {trial_list[12]} : {trial_outcome[12]}",
+    f"trial {trial_list[13]} : {trial_outcome[13]}",
+    f"trial {trial_list[14]} : {trial_outcome[14]}"))
+axs[0, 0].text(0.05, 0.95, textstr, fontsize=6, verticalalignment='top')
 
 # create a vertical plot
 axs[1, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,

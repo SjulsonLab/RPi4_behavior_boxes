@@ -98,6 +98,10 @@ try:
             break
 
     if what_to_run == "phase1":
+        # establish trial_list and trial_outcome
+        trial_list = list(range(0, session_info["number_of_trials"]))
+        trial_outcome = ["" for o in range(session_info["number_of_trials"])]
+
         # Loops over trials for phase 1 training
         for i in range(session_info['number_of_trials']):
             logging.info(str("##############################\n" +
@@ -106,7 +110,8 @@ try:
             task.trial_start()
 
             while task.trial_running:
-                task.run()
+                trial_outcome[i] = task.run()
+                print("This is a " + trial_outcome[i] + " trial")
 
         raise SystemExit
 
