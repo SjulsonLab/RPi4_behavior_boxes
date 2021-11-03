@@ -110,7 +110,7 @@ try:
             task.trial_start()
 
             while task.trial_running:
-                trial_outcome[i] = task.run()
+                task.run(i)
 
         raise SystemExit
 

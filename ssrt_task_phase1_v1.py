@@ -167,6 +167,8 @@ class ssrt_task(object):
 
     def enter_initiation(self):
         self.trial_running = True
+        self.time_at_lick = []
+        self.trial_start = time.time()
         # print("entering initiation")
         logging.info(str(time.time()) + ", entering initiation")
         self.box.cueLED1.on()
@@ -221,6 +223,7 @@ class ssrt_task(object):
 
     def exit_iti(self):
         # print("exiting ITI")
+        self.trial_end = time.time()
         logging.info(str(time.time()) + ", exiting iti")
 
     ########################################################################
@@ -243,7 +246,7 @@ class ssrt_task(object):
     # it will process all detected events from the behavior box (e.g.
     # licks, reward delivery, etc.) and trigger the appropriate state transitions
     ########################################################################
-    def run(self):
+    def run(self, current_trial):
 
         # read in name of an event the box has detected
         if self.box.event_list:
@@ -251,8 +254,14 @@ class ssrt_task(object):
         else:
             event_name = ""
 
+        if event_name == "left_IR_entry":
+            self.time_at_lick = np.append(self.time_at_lick, time.time())
+
         if self.state == "standby":
-            pass
+            if current_trial > 0:
+                self.plot_ssrt(current_trial)
+            else:
+                pass
 
         elif self.state == "initiation":
             pass
@@ -264,6 +273,7 @@ class ssrt_task(object):
             # Deliver reward from left pump if there is a lick detected on the left port
             if event_name == "left_IR_entry":
                 self.pump.reward("left", self.session_info["reward_size"])
+                self.time_at_reward = time.time()
                 print("delivering reward!!")
                 self.start_lick_count()  # trigger state transition to lick_count
             else:
@@ -294,49 +304,73 @@ class ssrt_task(object):
             self.pump.reward("left", self.session_info["reward_size"])
 
     ########################################################################
-    # define functions called when plotting
+    # function for plotting
     ########################################################################
-
-    # create a function to output lick data
-    def lick_detector(self):
-
-        if self.box.event_list:
-            detected_events = self.box.event_list.popleft()
-        else:
-            detected_events = ""
-
-        while detected_events == "left_IR_entry":
-            return 1
-        else:
-            return 0
 
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
 
-    def plot_ssrt(self):
+    def plot_ssrt(self, current_trial):
 
         # establish trial_list and trial_outcome
-        # trial_list = list(range(0, self.session_info["number_of_trials"]))
-        # trial_outcome = ["" for o in range(self.session_info["number_of_trials"])]
+        trial_list = list(range(0, 300))
+        trial_outcome = ["" for o in range(300)]
 
         # Plot the figure
         fig, axs = plt.subplots(2, 2)
-        matplotlib.rcParams['font.size'] = 3.0
-        # create random data
-        data1 = np.random.random([4, 50])
+        matplotlib.rcParams['font.size'] = 5.0
+
+        # create an outcome plot
+        if current_trial < 15:
+            textstr = '\n'.join((
+                f"trial {trial_list[0]} : {trial_outcome[0]}",
+                f"trial {trial_list[1]} : {trial_outcome[1]}",
+                f"trial {trial_list[2]} : {trial_outcome[2]}",
+                f"trial {trial_list[3]} : {trial_outcome[3]}",
+                f"trial {trial_list[4]} : {trial_outcome[4]}",
+                f"trial {trial_list[5]} : {trial_outcome[5]}",
+                f"trial {trial_list[6]} : {trial_outcome[6]}",
+                f"trial {trial_list[7]} : {trial_outcome[7]}",
+                f"trial {trial_list[8]} : {trial_outcome[8]}",
+                f"trial {trial_list[9]} : {trial_outcome[9]}",
+                f"trial {trial_list[10]} : {trial_outcome[10]}",
+                f"trial {trial_list[11]} : {trial_outcome[11]}",
+                f"trial {trial_list[12]} : {trial_outcome[12]}",
+                f"trial {trial_list[13]} : {trial_outcome[13]}",
+                f"trial {trial_list[14]} : {trial_outcome[14]}"))
+        elif current_trial >= 15:
+            textstr = '\n'.join((
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}"))
+        axs[0, 0].text(0.05, 0.95, textstr, fontsize=6, verticalalignment='top')
+
+        # create a vertical plot
+        # create data to plot
+        lick_times = self.time_at_lick - self.trial_start
+        reward_time = self.time_at_reward - self.trial_start
+        events_to_plot = [lick_times, reward_time]
         # set different colors for each set of positions
-        colors1 = ['C{}'.format(i) for i in range(6)]
+        colors1 = ['C{}'.format(i) for i in range(2)]
         # set different line properties for each set of positions
         # note that some overlap
-        lineoffsets1 = np.array([-15, -3, 1, 1.5])
-        linelengths1 = [5, 2, 1, 1]
-        # create a horizontal plot
-        axs[0, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
+        lineoffsets1 = np.array([-15, -3])
+        linelengths1 = [4, 4]
+        axs[1, 0].eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1,
                             linelengths=linelengths1)
-        # create a vertical plot
-        axs[1, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
-                            linelengths=linelengths1, orientation='vertical')
-        # create another set of random data.
+        
         # the gamma distribution is only used fo aesthetic purposes
         data2 = np.random.gamma(4, size=[60, 50])
         # use individual values for the parameters this time
@@ -358,7 +392,7 @@ class ssrt_task(object):
         renderer = canvas.get_renderer()
         raw_data = renderer.tostring_rgb()
         pygame.init()
-        window = pygame.display.set_mode((1000, 800), DOUBLEBUF)
+        window = pygame.display.set_mode((800, 800), DOUBLEBUF)
         screen = pygame.display.get_surface()
         size = canvas.get_width_height()
         surf = pygame.image.fromstring(raw_data, size, "RGB")
