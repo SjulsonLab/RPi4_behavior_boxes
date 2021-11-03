@@ -255,7 +255,7 @@ class ssrt_task(object):
             event_name = ""
 
         if event_name == "left_IR_entry":
-            self.time_at_lick = np.append(self.time_at_lick, time.time())
+            self.time_at_lick = np.append(self.time_at_lick, time.time() - self.trial_start_time)
 
         if self.state == "standby":
             self.plot_ssrt(current_trial)
@@ -356,9 +356,9 @@ class ssrt_task(object):
 
         # create a vertical plot
         # create data to plot
-        lick_times = self.time_at_lick - self.trial_start_time
+        lick_times = self.time_at_lick
         reward_time = self.time_at_reward - self.trial_start_time
-        events_to_plot = ([lick_times], [reward_time])
+        events_to_plot = np.array([[lick_times], [reward_time]])
         print(events_to_plot)
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(2)]
