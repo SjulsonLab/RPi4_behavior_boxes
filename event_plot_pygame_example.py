@@ -48,7 +48,7 @@ axs[1, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
 fig.canvas.draw()
 screen = pygame.display.set_mode((800, 800))
 # use the fig as pygame.surface
-screen.blit(fig, (600, 600))
+screen.blit(pygame.surface, (600, 600))
 
 show = True
 while show:
