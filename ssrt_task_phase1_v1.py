@@ -15,12 +15,11 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.backends.backend_agg as agg
-import pylab
-
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+
 import pygame
 from pygame.locals import *
+import numpy as np
 
 logging.config.dictConfig(
     {
@@ -321,25 +320,22 @@ class ssrt_task(object):
         else:
             return(1)
 
-
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
 
     def plot_ssrt(self):
-        fig = plt.figure(figsize=[6, 6])
+
+        # Plot the figure
         fig, axs = plt.subplots(2, 2)
-        # canvas = agg.FigureCanvasAgg(fig)
-
-
-        matplotlib.rcParams['font.size'] = 8.0
+        matplotlib.rcParams['font.size'] = 3.0
         # create random data
-        data1 = np.random.random([6, 50])
+        data1 = np.random.random([4, 50])
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(6)]
         # set different line properties for each set of positions
         # note that some overlap
-        lineoffsets1 = np.array([-15, -3, 1, 1.5, 6, 10])
-        linelengths1 = [5, 2, 1, 1, 3, 1.5]
+        lineoffsets1 = np.array([-15, -3, 1, 1.5])
+        linelengths1 = [5, 2, 1, 1]
         # create a horizontal plot
         axs[0, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
                             linelengths=linelengths1)
@@ -362,11 +358,20 @@ class ssrt_task(object):
         axs[1, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
                             linelengths=linelengths2, orientation='vertical')
 
-        fig.canvas.draw()
-        screen = pygame.display.set_mode((800, 800))
-        # use the fig as pygame.surface
-        screen.blit(fig, (600, 600))
+        # Draw on canvas
+        canvas = agg.FigureCanvasAgg(fig)
+        canvas.draw()
+        renderer = canvas.get_renderer()
+        raw_data = renderer.tostring_rgb()
+        pygame.init()
+        window = pygame.display.set_mode((1000, 800), DOUBLEBUF)
+        screen = pygame.display.get_surface()
+        size = canvas.get_width_height()
+        surf = pygame.image.fromstring(raw_data, size, "RGB")
+        screen.blit(surf, (0, 0))
+        pygame.display.flip()
 
+        # Close figure when pygame quit
         show = True
         while show:
             for event in pygame.event.get():
@@ -374,8 +379,6 @@ class ssrt_task(object):
                     # Stop showing when quit
                     show = False
             pygame.display.update()
-
-
 
     ########################################################################
     # methods to start and end the behavioral session

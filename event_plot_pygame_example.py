@@ -33,9 +33,9 @@ data2 = np.random.gamma(4, size=[60, 50])
 colors2 = 'black'
 lineoffsets2 = 1
 linelengths2 = 1
-# create a horizontal plot
-axs[0, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
-                    linelengths=linelengths2)
+# # create a horizontal plot
+# axs[0, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+#                     linelengths=linelengths2)
 # create a vertical plot
 axs[1, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
                     linelengths=linelengths2, orientation='vertical')
