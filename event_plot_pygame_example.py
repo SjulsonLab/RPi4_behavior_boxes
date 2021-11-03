@@ -29,7 +29,7 @@ textstr = '\n'.join((
     f"trial {current_trial} : {trial_outcome}"))
 # these are matplotlib.patch.Patch properties
 props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-axs[0, 0].text(0.05, 0.95, textstr, fontsize=14, verticalalignment='top', bbox=props)
+axs[0, 0].text(0.05, 0.95, textstr, fontsize=7, verticalalignment='top', bbox=props)
 
 # create a vertical plot
 axs[1, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
