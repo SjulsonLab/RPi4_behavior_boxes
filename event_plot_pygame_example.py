@@ -1,20 +1,20 @@
 import matplotlib
-import matplotlib.backends.backend_agg as agg
 matplotlib.use("Agg")
-import pylab
-import numpy as np
-
+import matplotlib.backends.backend_agg as agg
 import matplotlib.pyplot as plt
+
 import pygame
 from pygame.locals import *
+import numpy as np
 
+# Set up the fig to plot
+# fig = plt.figure(figsize=[6, 6],  # Inches
+#                  dpi=100,         # 100 dots per inch, so buffer is 400x400 pixels
+#                  )
 
-fig = plt.figure(figsize=[6, 6])
+# Plot the figure
 fig, axs = plt.subplots(2, 2)
-canvas = agg.FigureCanvasAgg(fig)
-
-
-matplotlib.rcParams['font.size'] = 8.0
+matplotlib.rcParams['font.size'] = 5.0
 # create random data
 data1 = np.random.random([6, 50])
 # set different colors for each set of positions
@@ -45,10 +45,21 @@ axs[0, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
 axs[1, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
                     linelengths=linelengths2, orientation='vertical')
 
-fig.canvas.draw()
-screen = pygame.display.set_mode((800, 800))
-# use the fig as pygame.surface
-screen.blit(pygame.surface, (600, 600))
+canvas = agg.FigureCanvasAgg(fig)
+canvas.draw()
+renderer = canvas.get_renderer()
+raw_data = renderer.tostring_rgb()
+
+pygame.init()
+
+window = pygame.display.set_mode((600, 600), DOUBLEBUF)
+screen = pygame.display.get_surface()
+
+size = canvas.get_width_height()
+
+surf = pygame.image.fromstring(raw_data, size, "RGB")
+screen.blit(surf, (0,0))
+pygame.display.flip()
 
 show = True
 while show:
