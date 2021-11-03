@@ -11,7 +11,7 @@ from pygame.locals import *
 
 fig = plt.figure(figsize=[6, 6])
 fig, axs = plt.subplots(2, 2)
-# canvas = agg.FigureCanvasAgg(fig)
+canvas = agg.FigureCanvasAgg(fig)
 
 
 matplotlib.rcParams['font.size'] = 8.0
