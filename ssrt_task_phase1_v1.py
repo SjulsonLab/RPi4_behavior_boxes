@@ -367,7 +367,7 @@ class ssrt_task(object):
         # set different line properties for each set of positions
         # note that some overlap
         lineoffsets1 = np.array([-15, -3])
-        linelengths1 = [4, 4]
+        linelengths1 = 4
         axs[1, 0].eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
 
         # the gamma distribution is only used fo aesthetic purposes
