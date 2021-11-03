@@ -258,10 +258,7 @@ class ssrt_task(object):
             self.time_at_lick = np.append(self.time_at_lick, time.time())
 
         if self.state == "standby":
-            if current_trial > 0:
-                self.plot_ssrt(current_trial)
-            else:
-                pass
+            self.plot_ssrt()
 
         elif self.state == "initiation":
             pass
@@ -361,7 +358,7 @@ class ssrt_task(object):
         # create data to plot
         lick_times = self.time_at_lick - self.trial_start_time
         reward_time = self.time_at_reward - self.trial_start_time
-        events_to_plot = np.array([lick_times, reward_time])
+        events_to_plot = np.append(lick_times, reward_time)
         print(events_to_plot)
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(2)]
