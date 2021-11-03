@@ -253,6 +253,7 @@ class ssrt_task(object):
             event_name = ""
 
         if self.state == "standby":
+            self.plot_ssrt()
             pass
 
         elif self.state == "initiation":
@@ -321,61 +322,59 @@ class ssrt_task(object):
             return(1)
 
 
-    # This function is called periodically from FuncAnimation
-    def plot_animation(self):
+    # this function plots event_plot using matplotlib and pygame
+    # will be updated at the end of each trial during standby period
 
-        fig = pylab.figure(figsize=[6, 6],  # Inches
-                           dpi=100,  # 100 dots per inch, so the resulting buffer is 600x600 pixels
-                           )
-        ax = fig.gca()
-        xs = []
-        ys = []
+    def plot_ssrt(self):
+        fig = plt.figure(figsize=[6, 6])
+        fig, axs = plt.subplots(2, 2)
+        # canvas = agg.FigureCanvasAgg(fig)
 
-        def animate(i, xs, ys):
-            # read detection value from lick_detector
-            detection_value = self.lick_detector()
 
-            # Add x and y to lists
-            xs.append(dt.datetime.now().strftime('%H:%M:%S.%f'))
-            ys.append(detection_value)
+        matplotlib.rcParams['font.size'] = 8.0
+        # create random data
+        data1 = np.random.random([6, 50])
+        # set different colors for each set of positions
+        colors1 = ['C{}'.format(i) for i in range(6)]
+        # set different line properties for each set of positions
+        # note that some overlap
+        lineoffsets1 = np.array([-15, -3, 1, 1.5, 6, 10])
+        linelengths1 = [5, 2, 1, 1, 3, 1.5]
+        # create a horizontal plot
+        axs[0, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
+                            linelengths=linelengths1)
+        # create a vertical plot
+        axs[1, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
+                            linelengths=linelengths1, orientation='vertical')
+        # create another set of random data.
+        # the gamma distribution is only used fo aesthetic purposes
+        data2 = np.random.gamma(4, size=[60, 50])
+        # use individual values for the parameters this time
+        # these values will be used for all data sets (except lineoffsets2, which
+        # sets the increment between each data set in this usage)
+        colors2 = 'black'
+        lineoffsets2 = 1
+        linelengths2 = 1
+        # create a horizontal plot
+        axs[0, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+                            linelengths=linelengths2)
+        # create a vertical plot
+        axs[1, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+                            linelengths=linelengths2, orientation='vertical')
 
-            # Limit x and y lists to 100 items
-            xs = xs[-100:]
-            ys = ys[-100:]
+        fig.canvas.draw()
+        screen = pygame.display.set_mode((800, 800))
+        # use the fig as pygame.surface
+        screen.blit(fig, (600, 600))
 
-            # Draw x and y lists
-            ax.clear()
-            ax.plot(xs, ys)
-
-            # Format plot
-            plt.xticks(rotation=45, ha='right')
-            plt.subplots_adjust(bottom=0.30)
-            plt.title('licks over time (s)')
-            plt.ylabel('events')
-
-        # Set up plot to call animate() function periodically
-        anim = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=1000)
-        # plt.show()
-
-        canvas = agg.FigureCanvasAgg(fig)
-        canvas.draw()
-        renderer = canvas.get_renderer()
-        raw_data = renderer.tostring_rgb()
-
-        # initialize pygame to be display the plot
-        pygame.init()
-        window = pygame.display.set_mode((600, 600), DOUBLEBUF)
-        screen = pygame.display.get_surface()
-        size = canvas.get_width_height()
-        surf = pygame.image.fromstring(raw_data, size, "RGB")
-        screen.blit(surf, (0, 0))
-        pygame.display.flip()
-
-        crashed = False
-        while not crashed:
+        show = True
+        while show:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    crashed = True
+                    # Stop showing when quit
+                    show = False
+            pygame.display.update()
+
 
 
     ########################################################################
