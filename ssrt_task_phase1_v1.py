@@ -397,6 +397,7 @@ class ssrt_task(object):
         vstim_plot_data_x = np.linspace(0, 7, num=vstim_bins)
         vstim_plot_data_y = np.zeros(vstim_bins)
         range_of_vstim_on = int(time_vstim_index_off - time_vstim_index_on + 1)
+        print(range_of_vstim_on)
         vstim_plot_data_y[time_vstim_index_on:time_vstim_index_off] = np.ones(range_of_vstim_on)
 
         # set different colors for each set of positions
