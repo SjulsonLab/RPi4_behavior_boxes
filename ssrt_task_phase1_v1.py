@@ -328,6 +328,7 @@ class ssrt_task(object):
         # create an outcome plot
         ########################################################################
         lick_events = self.time_at_lick
+        print(lick_events)
         i, j = self.time_enter_lick_count, self.time_exit_lick_out
         self.trial_outcome[current_trial] = "Reward but no lick !"
 
