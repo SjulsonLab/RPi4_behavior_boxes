@@ -392,11 +392,11 @@ class ssrt_task(object):
         vstim_duration = 3  # in seconds
         vstim_bins = 70  # number of bins
         time_vstim_on = self.time_at_vstim_on - self.trial_start_time
-        time_vstim_index_on = round(time_vstim_on * vstim_bins/7)
-        time_vstim_index_off = time_vstim_index_on + vstim_duration*(vstim_bins/7)
+        time_vstim_index_on = int(round(time_vstim_on * vstim_bins/7))
+        time_vstim_index_off = int(time_vstim_index_on + round(vstim_duration*(vstim_bins/7)))
         vstim_plot_data_x = np.linspace(0, 7, num=vstim_bins)
         vstim_plot_data_y = np.zeros(vstim_bins)
-        range_of_vstim_on = time_vstim_index_off - time_vstim_index_on + 1
+        range_of_vstim_on = int(time_vstim_index_off - time_vstim_index_on + 1)
         vstim_plot_data_y[time_vstim_index_on:time_vstim_index_off] = np.ones(range_of_vstim_on)
 
         # set different colors for each set of positions
