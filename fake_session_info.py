@@ -12,29 +12,29 @@ mouse_info = pysistence.make_dict({'mouse_name': 'test_pump',
                  })
 
 # Information for this session (the user should edit this each session)
-session_info                              	= collections.OrderedDict()
-session_info['mouse_info']					= mouse_info
-session_info['mouse_name']                 	= mouse_info['mouse_name']
-#session_info['trainingPhase']             	= 4
-session_info['basedir']					  	= '/home/pi/buffer'
-session_info['external_storage']            = '/mnt/hd'
-# session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
+fale_session_info                              	= collections.OrderedDict()
+fale_session_info['mouse_info']					= mouse_info
+fale_session_info['mouse_name']                 	= mouse_info['mouse_name']
+#fale_session_info['trainingPhase']             	= 4
+fale_session_info['basedir']					  	= '/home/pi/buffer'
+fale_session_info['external_storage']            = '/mnt/hd'
+# fale_session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
 # for actual data save to this dir:
-#session_info['basedir']					  	= '/home/pi/video'
-session_info['weight']                	    = 32.18
-session_info['manual_date']					= '2021-09-14'
-session_info['box_name']             		= socket.gethostname()
+#fale_session_info['basedir']					  	= '/home/pi/video'
+fale_session_info['weight']                	    = 32.18
+fale_session_info['manual_date']					= '2021-09-14'
+fale_session_info['box_name']             		= socket.gethostname()
 
-# session_info['config']						= 'freely_moving_v1'
-session_info['config']						= 'head_fixed_v1'
+# fale_session_info['config']						= 'freely_moving_v1'
+fale_session_info['config']						= 'head_fixed_v1'
 
 # behavior parameters
-session_info['timeout_length']              = 5  # in seconds
-session_info['reward_size']					= 10  # in microliters
+fale_session_info['timeout_length']              = 5  # in seconds
+fale_session_info['reward_size']					= 10  # in microliters
 
 # visual stimulus
-session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
-session_info['vis_gratings']				= ['/home/pi/gratings/first_grating.dat',
+fale_session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
+fale_session_info['vis_gratings']				= ['/home/pi/gratings/first_grating.dat',
 											   '/home/pi/gratings/second_grating.dat']
-session_info['vis_raws']					= []
+fale_session_info['vis_raws']					= []
 
