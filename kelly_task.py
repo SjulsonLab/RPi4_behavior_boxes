@@ -148,7 +148,7 @@ class KellyTask(object):
 
         elif self.state == "reward_available":
             if event_name == "left_IR_entry":
-                self.box.sound1
+                self.box.sound1.blink(0.5,0.1,1)
                 self.active_poke()  # triggers state transition
 
         elif self.state == "cue":
