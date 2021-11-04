@@ -390,7 +390,7 @@ class ssrt_task(object):
 
         # create vstim time data
         vstim_duration = 3  # in seconds
-        vstim_bins = 70  # number of bins
+        vstim_bins = 700  # number of bins
         time_vstim_on = self.time_at_vstim_on - self.trial_start_time
         time_vstim_index_on = int(round(time_vstim_on * vstim_bins/7))
         time_vstim_index_off = int(time_vstim_index_on + round(vstim_duration*(vstim_bins/7)))
