@@ -375,7 +375,7 @@ class ssrt_task(object):
                 f"trial {self.trial_list[13 + (current_trial - 14)]} : {self.trial_outcome[13 + (current_trial - 14)]}",
                 f"trial {self.trial_list[14 + (current_trial - 14)]} : {self.trial_outcome[14 + (current_trial - 14)]}"))
 
-        ax1.set_title('Trial Outcome', fontsize=12)
+        ax1.set_title('Trial Outcome', fontsize=11)
         ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
         ax1.set_xticklabels([])
         ax1.set_xticks([])
@@ -404,10 +404,13 @@ class ssrt_task(object):
         # set different line properties for each set of positions
         lineoffsets1 = np.array([4, 3])
         linelengths1 = [1, 1]
-        ax2.set_title('Events', fontsize=12)
+        ax2.set_title('Events', fontsize=11)
         ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
         ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
         ax2.set_xlim([0, 7])  # 7s total since the start of initiation until the end of iti
+        ax2.set_xlabel('Time (s)', fontsize=9)
+        ax2.set_yticklabels('Events')
+        ax2.set_yticks([])
 
         ########################################################################
         # create cummulative outcome plots
