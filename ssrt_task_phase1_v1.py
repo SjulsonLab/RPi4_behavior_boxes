@@ -188,6 +188,7 @@ class ssrt_task(object):
         logging.info(str(time.time()) + ", entering vstim")
         # start to load vstim and display it
         self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
+        self.time_at_vstim_on = time.time()
         # start the countdown of time since display of vstim, this is used as timeup to transition lick_count to vacuum
         self.countdown(3)
 
@@ -318,7 +319,7 @@ class ssrt_task(object):
         ########################################################################
         # initialize the figure
         ########################################################################
-        fig = plt.figure(figsize=(15, 9))
+        fig = plt.figure(figsize=(13, 8))
         ax1 = fig.add_subplot(231)  # outcome
         ax2 = fig.add_subplot(212)  # eventplot
         ax3 = fig.add_subplot(232)
@@ -328,12 +329,11 @@ class ssrt_task(object):
         # create an outcome plot
         ########################################################################
         lick_events = self.time_at_lick
-        print(lick_events)
         i, j = self.time_enter_lick_count, self.time_exit_lick_out
-        self.trial_outcome[current_trial] = "Miss !!! reward but no lick"
+        self.trial_outcome[current_trial] = "Miss !!! Reward but no lick"
 
         if lick_events.size == 0:
-            self.trial_outcome[current_trial] = "No lick at all !!!"
+            self.trial_outcome[current_trial] = "Miss !!! No lick at all"
         else:
             for ele in lick_events:
                 if i < ele < j:
@@ -385,21 +385,33 @@ class ssrt_task(object):
         ########################################################################
         # create eventplot (vertical)
         ########################################################################
+        # create a 2D array for eventplot
         events_to_plot = [self.time_at_lick, [self.time_at_reward]]
+
+        # create vstim time data
+        vstim_duration = 3  # in seconds
+        vstim_bins = 70  # number of bins
+        time_vstim_on = self.time_at_vstim_on - self.trial_start_time
+        time_vstim_index_on = round(time_vstim_on * vstim_bins/7)
+        time_vstim_index_off = time_vstim_index_on + vstim_duration*(vstim_bins/7)
+        vstim_plot_data_x = np.linspace(0, 7, num=vstim_bins)
+        vstim_plot_data_y = np.zeros(vstim_bins)
+        range_of_vstim_on = time_vstim_index_off - time_vstim_index_on + 1
+        vstim_plot_data_y[time_vstim_index_on:time_vstim_index_off] = np.ones(range_of_vstim_on)
+
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(2)]
         # set different line properties for each set of positions
-        lineoffsets1 = np.array([6, 3])
+        lineoffsets1 = np.array([7, 4])
         linelengths1 = [2, 2]
         ax2.set_title('Events', fontsize=12)
         ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
+        ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
         ax2.set_xlim([0, 7])  # 7s total since the start of initiation until the end of iti
 
         ########################################################################
         # create cummulative outcome plots
         ########################################################################
-
-
 
         # the gamma distribution is only used fo aesthetic purposes
         data2 = np.random.gamma(4, size=[60, 50])
@@ -422,20 +434,12 @@ class ssrt_task(object):
         renderer = canvas.get_renderer()
         raw_data = renderer.tostring_rgb()
         pygame.init()
-        window = pygame.display.set_mode((1500, 900), DOUBLEBUF)
+        window = pygame.display.set_mode((1300, 800), DOUBLEBUF)
         screen = pygame.display.get_surface()
         size = canvas.get_width_height()
         surf = pygame.image.fromstring(raw_data, size, "RGB")
         screen.blit(surf, (0, 0))
         pygame.display.flip()
-
-        # Close figure when transition to standby
-        # show = True
-        # while show:
-        #     if self.state == "standby":
-        #         # Stop showing when transition to standby
-        #         show = False
-        #     pygame.display.update()
 
     ########################################################################
     # methods to start and end the behavioral session
