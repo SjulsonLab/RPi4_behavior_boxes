@@ -330,14 +330,14 @@ class ssrt_task(object):
         ########################################################################
         lick_events = self.time_at_lick
         i, j = self.time_enter_lick_count, self.time_exit_lick_out
-        self.trial_outcome[current_trial] = "Miss !!! Reward but no lick"
+        self.trial_outcome[current_trial] = "Miss !!!"
 
         if lick_events.size == 0:
             self.trial_outcome[current_trial] = "Miss !!! No lick at all"
         else:
             for ele in lick_events:
                 if i < ele < j:
-                    self.trial_outcome[current_trial] = "Hit! lick after reward"
+                    self.trial_outcome[current_trial] = "Hit!"
                     break
 
         if current_trial < 15:
@@ -415,21 +415,20 @@ class ssrt_task(object):
         ########################################################################
         # create cummulative outcome plots
         ########################################################################
-
         # the gamma distribution is only used fo aesthetic purposes
-        data2 = np.random.gamma(4, size=[60, 50])
-        # use individual values for the parameters this time
-        # these values will be used for all data sets (except lineoffsets2, which
-        # sets the increment between each data set in this usage)
-        colors2 = 'black'
-        lineoffsets2 = 1
-        linelengths2 = 1
-        # create a horizontal plot
-        ax3.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
-                            linelengths=linelengths2)
-        # create a vertical plot
-        ax4.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
-                            linelengths=linelengths2, orientation='vertical')
+        # data2 = np.random.gamma(4, size=[60, 50])
+        # # use individual values for the parameters this time
+        # # these values will be used for all data sets (except lineoffsets2, which
+        # # sets the increment between each data set in this usage)
+        # colors2 = 'black'
+        # lineoffsets2 = 1
+        # linelengths2 = 1
+        # # create a horizontal plot
+        # ax3.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+        #                     linelengths=linelengths2)
+        # # create a vertical plot
+        # ax4.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+        #                     linelengths=linelengths2, orientation='vertical')
 
         # Draw on canvas
         canvas = agg.FigureCanvasAgg(fig)
