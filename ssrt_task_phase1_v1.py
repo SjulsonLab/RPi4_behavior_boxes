@@ -397,13 +397,13 @@ class ssrt_task(object):
         vstim_plot_data_x = np.linspace(0, 7, num=vstim_bins)
         vstim_plot_data_y = np.zeros(vstim_bins)
         range_of_vstim_on = int(time_vstim_index_off - time_vstim_index_on)
-        vstim_plot_data_y[time_vstim_index_on:time_vstim_index_off] = np.ones(range_of_vstim_on)
+        vstim_plot_data_y[time_vstim_index_on:time_vstim_index_off] = np.zeros(range_of_vstim_on) + 2
 
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(2)]
         # set different line properties for each set of positions
-        lineoffsets1 = np.array([7, 4])
-        linelengths1 = [2, 2]
+        lineoffsets1 = np.array([4, 3])
+        linelengths1 = [1, 1]
         ax2.set_title('Events', fontsize=12)
         ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
         ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
