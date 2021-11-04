@@ -131,7 +131,7 @@ class KellyTask(object):
 
     def exit_cue(self):
         print("stop cue")
-        self.box.sound3.blink(0.5, 0.1, 1)
+        # self.box.sound3.blink(0.5, 0.1, 1)
         self.box.cueLED1.off()
 
     ########################################################################
