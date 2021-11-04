@@ -106,7 +106,9 @@ try:
             task.trial_start()
 
             while task.trial_running:
-                task.run(i)
+                task.run()
+
+            task.plot_ssrt(i)
 
         raise SystemExit
 

@@ -153,6 +153,10 @@ class ssrt_task(object):
         self.box = behavbox_DT.BehavBox(self.session_info)
         self.pump = behavbox_DT.Pump()
 
+        # establish trial_list and trial_outcome
+        self.trial_list = list(range(0, self.session_info["number_of_trials"]))
+        self.trial_outcome = ["" for o in range(self.session_info["number_of_trials"])]
+
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
@@ -201,10 +205,12 @@ class ssrt_task(object):
 
     def enter_lick_count(self):
         # print("entering lick_count")
+        self.time_enter_lick_count = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", entering lick_count")
 
     def exit_lick_count(self):
         # print("exiting lick_count")
+        self.time_exit_lick_out = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting lick_count")
 
     def enter_vacuum(self):
@@ -223,7 +229,7 @@ class ssrt_task(object):
 
     def exit_iti(self):
         # print("exiting ITI")
-        self.trial_end_time = time.time()
+        self.trial_end_time = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting iti")
 
     ########################################################################
@@ -246,7 +252,7 @@ class ssrt_task(object):
     # it will process all detected events from the behavior box (e.g.
     # licks, reward delivery, etc.) and trigger the appropriate state transitions
     ########################################################################
-    def run(self, current_trial):
+    def run(self):
 
         # read in name of an event the box has detected
         if self.box.event_list:
@@ -258,7 +264,7 @@ class ssrt_task(object):
             self.time_at_lick = np.append(self.time_at_lick, time.time() - self.trial_start_time)
 
         if self.state == "standby":
-            self.plot_ssrt(current_trial)
+            pass
 
         elif self.state == "initiation":
             pass
@@ -270,7 +276,7 @@ class ssrt_task(object):
             # Deliver reward from left pump if there is a lick detected on the left port
             if event_name == "left_IR_entry":
                 self.pump.reward("left", self.session_info["reward_size"])
-                self.time_at_reward = time.time()
+                self.time_at_reward = time.time() - self.trial_start_time
                 print("delivering reward!!")
                 self.start_lick_count()  # trigger state transition to lick_count
             else:
@@ -309,64 +315,90 @@ class ssrt_task(object):
 
     def plot_ssrt(self, current_trial):
 
-        # establish trial_list and trial_outcome
-        trial_list = list(range(0, 300))
-        trial_outcome = ["" for o in range(300)]
+        ########################################################################
+        # initialize the figure
+        ########################################################################
+        fig = plt.figure(figsize=(20, 12))
+        ax1 = fig.add_subplot(231)  # outcome
+        ax2 = fig.add_subplot(212)  # eventplot
+        ax3 = fig.add_subplot(232)
+        ax4 = fig.add_subplot(233)
 
-        # Plot the figure
-        fig, axs = plt.subplots(2, 2)
-        matplotlib.rcParams['font.size'] = 5.0
-
+        ########################################################################
         # create an outcome plot
+        ########################################################################
+        lick_events = self.time_at_lick
+        i, j = self.time_enter_lick_count, self.time_exit_lick_out
+        self.trial_outcome[current_trial] = "Reward but no lick !"
+
+        if not lick_events:
+            self.trial_outcome[current_trial] = "No lick at all !!!"
+        else:
+            for ele in lick_events:
+                if i < ele < j:
+                    self.trial_outcome[current_trial] = "Lick after reward"
+                    break
+
         if current_trial < 15:
             textstr = '\n'.join((
-                f"trial {trial_list[0]} : {trial_outcome[0]}",
-                f"trial {trial_list[1]} : {trial_outcome[1]}",
-                f"trial {trial_list[2]} : {trial_outcome[2]}",
-                f"trial {trial_list[3]} : {trial_outcome[3]}",
-                f"trial {trial_list[4]} : {trial_outcome[4]}",
-                f"trial {trial_list[5]} : {trial_outcome[5]}",
-                f"trial {trial_list[6]} : {trial_outcome[6]}",
-                f"trial {trial_list[7]} : {trial_outcome[7]}",
-                f"trial {trial_list[8]} : {trial_outcome[8]}",
-                f"trial {trial_list[9]} : {trial_outcome[9]}",
-                f"trial {trial_list[10]} : {trial_outcome[10]}",
-                f"trial {trial_list[11]} : {trial_outcome[11]}",
-                f"trial {trial_list[12]} : {trial_outcome[12]}",
-                f"trial {trial_list[13]} : {trial_outcome[13]}",
-                f"trial {trial_list[14]} : {trial_outcome[14]}"))
+                f"trial {self.trial_list[0]} : {self.trial_outcome[0]}",
+                f"trial {self.trial_list[1]} : {self.trial_outcome[1]}",
+                f"trial {self.trial_list[2]} : {self.trial_outcome[2]}",
+                f"trial {self.trial_list[3]} : {self.trial_outcome[3]}",
+                f"trial {self.trial_list[4]} : {self.trial_outcome[4]}",
+                f"trial {self.trial_list[5]} : {self.trial_outcome[5]}",
+                f"trial {self.trial_list[6]} : {self.trial_outcome[6]}",
+                f"trial {self.trial_list[7]} : {self.trial_outcome[7]}",
+                f"trial {self.trial_list[8]} : {self.trial_outcome[8]}",
+                f"trial {self.trial_list[9]} : {self.trial_outcome[9]}",
+                f"trial {self.trial_list[10]} : {self.trial_outcome[10]}",
+                f"trial {self.trial_list[11]} : {self.trial_outcome[11]}",
+                f"trial {self.trial_list[12]} : {self.trial_outcome[12]}",
+                f"trial {self.trial_list[13]} : {self.trial_outcome[13]}",
+                f"trial {self.trial_list[14]} : {self.trial_outcome[14]}"))
         elif current_trial >= 15:
             textstr = '\n'.join((
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}",
-                f"trial {trial_list[0 + (current_trial - 14)]} : {trial_outcome[0 + (current_trial - 14)]}"))
-        axs[0, 0].text(0.05, 0.95, textstr, fontsize=6, verticalalignment='top')
+                f"trial {self.trial_list[0 + (current_trial - 14)]} : {self.trial_outcome[0 + (current_trial - 14)]}",
+                f"trial {self.trial_list[1 + (current_trial - 14)]} : {self.trial_outcome[1 + (current_trial - 14)]}",
+                f"trial {self.trial_list[2 + (current_trial - 14)]} : {self.trial_outcome[2 + (current_trial - 14)]}",
+                f"trial {self.trial_list[3 + (current_trial - 14)]} : {self.trial_outcome[3 + (current_trial - 14)]}",
+                f"trial {self.trial_list[4 + (current_trial - 14)]} : {self.trial_outcome[4 + (current_trial - 14)]}",
+                f"trial {self.trial_list[5 + (current_trial - 14)]} : {self.trial_outcome[5 + (current_trial - 14)]}",
+                f"trial {self.trial_list[6 + (current_trial - 14)]} : {self.trial_outcome[6 + (current_trial - 14)]}",
+                f"trial {self.trial_list[7 + (current_trial - 14)]} : {self.trial_outcome[7 + (current_trial - 14)]}",
+                f"trial {self.trial_list[8 + (current_trial - 14)]} : {self.trial_outcome[8 + (current_trial - 14)]}",
+                f"trial {self.trial_list[9 + (current_trial - 14)]} : {self.trial_outcome[9 + (current_trial - 14)]}",
+                f"trial {self.trial_list[10 + (current_trial - 14)]} : {self.trial_outcome[10 + (current_trial - 14)]}",
+                f"trial {self.trial_list[11 + (current_trial - 14)]} : {self.trial_outcome[11 + (current_trial - 14)]}",
+                f"trial {self.trial_list[12 + (current_trial - 14)]} : {self.trial_outcome[12 + (current_trial - 14)]}",
+                f"trial {self.trial_list[13 + (current_trial - 14)]} : {self.trial_outcome[13 + (current_trial - 14)]}",
+                f"trial {self.trial_list[14 + (current_trial - 14)]} : {self.trial_outcome[14 + (current_trial - 14)]}"))
 
-        # create a vertical plot
-        # create data to plot
-        lick_times = self.time_at_lick
-        reward_time = self.time_at_reward - self.trial_start_time
-        events_to_plot = np.array([[lick_times], [reward_time]])
-        print(events_to_plot)
+        ax1.set_title('Trial Outcome', fontsize=15)
+        ax1.text(0.05, 0.95, textstr, fontsize=11, verticalalignment='top')
+        ax1.set_xticklabels([])
+        ax1.set_xticks([])
+        ax1.set_yticks([])
+        ax1.set_yticklabels([])
+
+        ########################################################################
+        # create eventplot (vertical)
+        ########################################################################
+        events_to_plot = [self.time_at_lick, [self.time_at_reward]]
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(2)]
         # set different line properties for each set of positions
-        # note that some overlap
-        lineoffsets1 = np.array([-3, 2])
-        linelengths1 = [2, 3]
-        axs[1, 0].eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
+        lineoffsets1 = np.array([6, 3])
+        linelengths1 = [2, 2]
+        ax2.set_title('Events', fontsize=15)
+        ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
+        ax2.set_xlim([0, 7])  # 7s total since the start of initiation until the end of iti
+
+        ########################################################################
+        # create cummulative outcome plots
+        ########################################################################
+
+
 
         # the gamma distribution is only used fo aesthetic purposes
         data2 = np.random.gamma(4, size=[60, 50])
@@ -377,10 +409,10 @@ class ssrt_task(object):
         lineoffsets2 = 1
         linelengths2 = 1
         # create a horizontal plot
-        axs[0, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+        ax3.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
                             linelengths=linelengths2)
         # create a vertical plot
-        axs[1, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+        ax4.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
                             linelengths=linelengths2, orientation='vertical')
 
         # Draw on canvas
@@ -389,21 +421,20 @@ class ssrt_task(object):
         renderer = canvas.get_renderer()
         raw_data = renderer.tostring_rgb()
         pygame.init()
-        window = pygame.display.set_mode((800, 800), DOUBLEBUF)
+        window = pygame.display.set_mode((2000, 1200), DOUBLEBUF)
         screen = pygame.display.get_surface()
         size = canvas.get_width_height()
         surf = pygame.image.fromstring(raw_data, size, "RGB")
         screen.blit(surf, (0, 0))
         pygame.display.flip()
 
-        # Close figure when pygame quit
-        show = True
-        while show:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    # Stop showing when quit
-                    show = False
-            pygame.display.update()
+        # Close figure when transition to standby
+        # show = True
+        # while show:
+        #     if self.state == "standby":
+        #         # Stop showing when transition to standby
+        #         show = False
+        #     pygame.display.update()
 
     ########################################################################
     # methods to start and end the behavioral session

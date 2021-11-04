@@ -11,20 +11,15 @@ current_trial = 1
 trial_list = list(range(0, 300))
 trial_outcome = ["" for o in range(300)]
 
-# Plot the figure
-fig, axs = plt.subplots(2, 2)
-matplotlib.rcParams['font.size'] = 5.0
-# create random data
-data1 = np.random.random([6, 50])
-# set different colors for each set of positions
-colors1 = ['C{}'.format(i) for i in range(6)]
-# set different line properties for each set of positions
-# note that some overlap
-lineoffsets1 = np.array([-15, -3, 1, 1.5, 6, 10])
-linelengths1 = [5, 2, 1, 1, 3, 1.5]
+# Initialize the figure
+fig = plt.figure(figsize=(20, 12))
+ax1 = fig.add_subplot(231)
+ax2 = fig.add_subplot(212)
+ax3 = fig.add_subplot(232)
+ax4 = fig.add_subplot(233)
+
 
 # create an outcome plot
-
 textstr = '\n'.join((
     f"trial {trial_list[0]} : {trial_outcome[0]}",
     f"trial {trial_list[1]} : {trial_outcome[1]}",
@@ -41,11 +36,32 @@ textstr = '\n'.join((
     f"trial {trial_list[12]} : {trial_outcome[12]}",
     f"trial {trial_list[13]} : {trial_outcome[13]}",
     f"trial {trial_list[14]} : {trial_outcome[14]}"))
-axs[0, 0].text(0.05, 0.95, textstr, fontsize=6, verticalalignment='top')
+ax1.set_title('Trial Outcome', fontsize=15)
+ax1.text(0.05, 0.95, textstr, fontsize=12, verticalalignment='top')
+ax1.set_xticklabels([])
+ax1.set_xticks([])
+ax1.set_yticks([])
+ax1.set_yticklabels([])
+ax1.set_xlim([0, 0.5])
 
 # create a vertical plot
-axs[1, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
-                    linelengths=linelengths1)
+# create fake data for eventplot
+a = []
+a = np.append(a, 0.185 - 0.02)
+a = np.append(a, 0.358 - 0.02)
+a = np.append(a, 0.978 - 0.02)
+print(a)
+b = 0.255 - 0.02
+data1 = [a, [b]]
+
+# set different colors for each set of positions
+colors1 = ['C{}'.format(i) for i in range(2)]
+# set different line properties for each set of positions
+lineoffsets1 = np.array([6, 3])
+linelengths1 = [2, 2]
+ax2.set_title('Vertical Plot')
+ax2.eventplot(data1, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
+ax2.set_xlim([0, 1.5])
 # create another set of random data.
 # the gamma distribution is only used fo aesthetic purposes
 data2 = np.random.gamma(4, size=[60, 50])
@@ -56,10 +72,10 @@ colors2 = 'black'
 lineoffsets2 = 1
 linelengths2 = 1
 # create a horizontal plot
-axs[0, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+ax3.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
                     linelengths=linelengths2)
 # create a vertical plot
-axs[1, 1].eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
+ax4.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
                     linelengths=linelengths2, orientation='vertical')
 
 # Draw on canvas
@@ -68,7 +84,7 @@ canvas.draw()
 renderer = canvas.get_renderer()
 raw_data = renderer.tostring_rgb()
 pygame.init()
-window = pygame.display.set_mode((800, 800), DOUBLEBUF)
+window = pygame.display.set_mode((2000, 1200), DOUBLEBUF)
 screen = pygame.display.get_surface()
 size = canvas.get_width_height()
 surf = pygame.image.fromstring(raw_data, size, "RGB")
