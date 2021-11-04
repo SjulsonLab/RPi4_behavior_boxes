@@ -171,7 +171,7 @@ class ssrt_task(object):
 
     def enter_initiation(self):
         self.trial_running = True
-        self.time_at_lick = []
+        self.time_at_lick = np.array([])
         self.trial_start_time = time.time()
         # print("entering initiation")
         logging.info(str(time.time()) + ", entering initiation")
@@ -330,14 +330,14 @@ class ssrt_task(object):
         lick_events = self.time_at_lick
         print(lick_events)
         i, j = self.time_enter_lick_count, self.time_exit_lick_out
-        self.trial_outcome[current_trial] = "Reward but no lick !"
+        self.trial_outcome[current_trial] = "Miss !!! reward but no lick"
 
-        if not lick_events:
+        if lick_events.size == 0:
             self.trial_outcome[current_trial] = "No lick at all !!!"
         else:
             for ele in lick_events:
                 if i < ele < j:
-                    self.trial_outcome[current_trial] = "Lick after reward"
+                    self.trial_outcome[current_trial] = "Hit! lick after reward"
                     break
 
         if current_trial < 15:
