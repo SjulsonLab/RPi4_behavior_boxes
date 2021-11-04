@@ -123,10 +123,11 @@ class KellyTask(object):
 
     def enter_cue(self):
         print("deliver reward")
-        self.box.cueLED4.blink(0.5,0.1,1)
+        self.box.cueLED4.on()
         self.box.sound3.blink(0.5, 0.1, 1)
         # self.pump.reward("left", self.session_info["reward_size"])
         print("start cue")
+        self.box.cueLED4.off()
         # self.box.cueLED1.on()
 
 
