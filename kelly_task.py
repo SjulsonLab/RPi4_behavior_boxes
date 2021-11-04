@@ -124,7 +124,7 @@ class KellyTask(object):
     def enter_cue(self):
         print("deliver reward")
         self.box.sound3.blink(0.5, 0.1, 1)
-        self.pump.reward("left", self.session_info["reward_size"])
+        # self.pump.reward("left", self.session_info["reward_size"])
         print("start cue")
         self.box.cueLED1.on()
 
@@ -153,8 +153,12 @@ class KellyTask(object):
         elif self.state == "reward_available":
             if event_name == "left_IR_entry":
                 # self.box.sound2.blink(0.5,0.1,1)
+                self.pump.reward("left", self.session_info["reward_size"])
                 self.active_poke()  # triggers state transition
-
+            if event_name == "right_IR_entry":
+                self.pump.reward("right", self.session_info["reward_size"])
+                # self.box.sound2.blink(0.5,0.1,1)
+                self.active_poke()  # triggers state transition
         elif self.state == "cue":
             # self.box.sound3.blink(0.5, 0.1, 1)
             pass
