@@ -318,7 +318,7 @@ class ssrt_task(object):
         ########################################################################
         # initialize the figure
         ########################################################################
-        fig = plt.figure(figsize=(20, 12))
+        fig = plt.figure(figsize=(15, 9))
         ax1 = fig.add_subplot(231)  # outcome
         ax2 = fig.add_subplot(212)  # eventplot
         ax3 = fig.add_subplot(232)
@@ -375,8 +375,8 @@ class ssrt_task(object):
                 f"trial {self.trial_list[13 + (current_trial - 14)]} : {self.trial_outcome[13 + (current_trial - 14)]}",
                 f"trial {self.trial_list[14 + (current_trial - 14)]} : {self.trial_outcome[14 + (current_trial - 14)]}"))
 
-        ax1.set_title('Trial Outcome', fontsize=15)
-        ax1.text(0.05, 0.95, textstr, fontsize=11, verticalalignment='top')
+        ax1.set_title('Trial Outcome', fontsize=12)
+        ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
         ax1.set_xticklabels([])
         ax1.set_xticks([])
         ax1.set_yticks([])
@@ -391,7 +391,7 @@ class ssrt_task(object):
         # set different line properties for each set of positions
         lineoffsets1 = np.array([6, 3])
         linelengths1 = [2, 2]
-        ax2.set_title('Events', fontsize=15)
+        ax2.set_title('Events', fontsize=12)
         ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
         ax2.set_xlim([0, 7])  # 7s total since the start of initiation until the end of iti
 
@@ -422,7 +422,7 @@ class ssrt_task(object):
         renderer = canvas.get_renderer()
         raw_data = renderer.tostring_rgb()
         pygame.init()
-        window = pygame.display.set_mode((2000, 1200), DOUBLEBUF)
+        window = pygame.display.set_mode((1500, 900), DOUBLEBUF)
         screen = pygame.display.get_surface()
         size = canvas.get_width_height()
         surf = pygame.image.fromstring(raw_data, size, "RGB")
