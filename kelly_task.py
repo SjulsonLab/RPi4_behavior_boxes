@@ -105,7 +105,7 @@ class KellyTask(object):
     ########################################################################
     def enter_standby(self):
         print("entering standby")
-        self.box.sound2.blink(0.5, 0.1, 1)
+        # self.box.sound2.blink(0.5, 0.1, 1)
         self.trial_running = False
 
     def exit_standby(self):
