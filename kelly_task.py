@@ -144,14 +144,16 @@ class KellyTask(object):
             event_name = ""
 
         if self.state == "standby":
+            self.box.sound1.blink(0.5, 0.1, 1)
             pass
 
         elif self.state == "reward_available":
             if event_name == "left_IR_entry":
-                self.box.sound1.blink(0.5,0.1,1)
+                self.box.sound2.blink(0.5,0.1,1)
                 self.active_poke()  # triggers state transition
 
         elif self.state == "cue":
+            self.box.sound3.blink(0.5, 0.1, 1)
             pass
 
         # look for keystrokes
