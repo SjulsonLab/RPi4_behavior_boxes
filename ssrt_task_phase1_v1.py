@@ -459,7 +459,7 @@ class ssrt_task(object):
         pygame.display.flip()
 
         # Reset self.time_at_reward
-        self.time_at_reward = None
+        self.time_at_reward = -0.5
 
     ########################################################################
     # methods to start and end the behavioral session
