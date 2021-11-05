@@ -18,8 +18,7 @@ import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
 import time
-from matplotlib import pyplot as plt
-import matplotlib.animation as animation
+import timeit
 
 
 # all modules above this line will have logging disabled
@@ -108,7 +107,10 @@ try:
             while task.trial_running:
                 task.run()
 
+            start_t = timeit.timeit()
             task.plot_ssrt(i)
+            end_t = timeit.timeit()
+            print('Elapsed time for plotting = ' + str(end_t - start_t))
 
         raise SystemExit
 

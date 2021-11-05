@@ -322,7 +322,7 @@ class ssrt_task(object):
         ########################################################################
         # initialize the figure
         ########################################################################
-        fig = plt.figure(figsize=(13, 8))
+        fig = plt.figure(figsize=(11, 7))
         ax1 = fig.add_subplot(231)  # outcome
         ax2 = fig.add_subplot(212)  # eventplot
         ax3 = fig.add_subplot(232)
@@ -454,7 +454,7 @@ class ssrt_task(object):
         renderer = canvas.get_renderer()
         raw_data = renderer.tostring_rgb()
         pygame.init()
-        window = pygame.display.set_mode((1300, 800), DOUBLEBUF)
+        window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
         screen = pygame.display.get_surface()
         size = canvas.get_width_height()
         surf = pygame.image.fromstring(raw_data, size, "RGB")
