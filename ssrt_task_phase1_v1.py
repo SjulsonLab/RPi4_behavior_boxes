@@ -439,8 +439,8 @@ class ssrt_task(object):
         outcome_miss_count_yvalue = self.miss_count[0:current_trial+1]
 
         # Plot
-        ax3.plot(outcome_xvalue, outcome_hit_count_yvalue, 'r-', label="Hit")
-        ax3.plot(outcome_xvalue, outcome_miss_count_yvalue, 'b-', label="Miss")
+        ax3.plot(outcome_xvalue, outcome_hit_count_yvalue, 'r-', label='Hit')
+        ax3.plot(outcome_xvalue, outcome_miss_count_yvalue, 'b-', label='Miss')
         ax3.set_title('Cummulative outcome', fontsize=11)
         ax3.set_xlim([0, current_trial+1])
         ax3.set_xlabel('Trial', fontsize=9)
