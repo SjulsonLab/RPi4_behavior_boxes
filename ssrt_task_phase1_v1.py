@@ -449,7 +449,7 @@ class ssrt_task(object):
         ax3.set_xlim([0, current_trial+1])
         ax3.set_xlabel('Trial', fontsize=9)
         ax3.set_ylabel('Number of trials', fontsize=9)
-        ax3.lengend()
+        ax3.legend()
 
         ########################################################################
         # draw on canvas
