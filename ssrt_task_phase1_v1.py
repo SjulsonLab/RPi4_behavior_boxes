@@ -424,7 +424,7 @@ class ssrt_task(object):
         ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
         ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
         ax2.plot(init_plot_data_x, init_plot_data_y)
-        ax2.set_xlim([0, 7])  # 7s total to show (trial duration)
+        ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
         ax2.set_xlabel('Time (s)', fontsize=9)
         ax2.set_ylabel('Events', fontsize=9)
         ax2.set_yticks([])
