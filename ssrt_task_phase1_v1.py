@@ -458,6 +458,9 @@ class ssrt_task(object):
         screen.blit(surf, (0, 0))
         pygame.display.flip()
 
+        # Reset self.time_at_reward
+        self.time_at_reward = None
+
     ########################################################################
     # methods to start and end the behavioral session
     ########################################################################
