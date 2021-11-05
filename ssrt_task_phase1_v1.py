@@ -343,6 +343,10 @@ class ssrt_task(object):
                     self.trial_outcome[current_trial] = "Hit!"
                     break
 
+        self.hit_count[current_trial] = self.trial_outcome.count("Hit!")
+        self.miss_count[current_trial] = self.trial_outcome.count("Miss !!!")
+        hit_percentage = round((self.hit_count[current_trial]/(current_trial+1))*100)
+
         if current_trial < 15:
             textstr = '\n'.join((
                 f"trial {self.trial_list[0]} : {self.trial_outcome[0]}",
@@ -359,7 +363,10 @@ class ssrt_task(object):
                 f"trial {self.trial_list[11]} : {self.trial_outcome[11]}",
                 f"trial {self.trial_list[12]} : {self.trial_outcome[12]}",
                 f"trial {self.trial_list[13]} : {self.trial_outcome[13]}",
-                f"trial {self.trial_list[14]} : {self.trial_outcome[14]}"))
+                f"trial {self.trial_list[14]} : {self.trial_outcome[14]}",
+                f" ",
+                f"Percent Hit outcome = {hit_percentage}%"))
+
         elif current_trial >= 15:
             textstr = '\n'.join((
                 f"trial {self.trial_list[0 + (current_trial - 14)]} : {self.trial_outcome[0 + (current_trial - 14)]}",
@@ -376,7 +383,9 @@ class ssrt_task(object):
                 f"trial {self.trial_list[11 + (current_trial - 14)]} : {self.trial_outcome[11 + (current_trial - 14)]}",
                 f"trial {self.trial_list[12 + (current_trial - 14)]} : {self.trial_outcome[12 + (current_trial - 14)]}",
                 f"trial {self.trial_list[13 + (current_trial - 14)]} : {self.trial_outcome[13 + (current_trial - 14)]}",
-                f"trial {self.trial_list[14 + (current_trial - 14)]} : {self.trial_outcome[14 + (current_trial - 14)]}"))
+                f"trial {self.trial_list[14 + (current_trial - 14)]} : {self.trial_outcome[14 + (current_trial - 14)]}",
+                f" ",
+                f"Percent Hit outcome = {hit_percentage}%"))
 
         ax1.set_title('Trial Outcome', fontsize=11)
         ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
@@ -414,7 +423,7 @@ class ssrt_task(object):
         init_plot_data_y = np.zeros(init_bins) + 4
         range_of_init_on = int(time_init_index_off - time_init_index_on)
         init_plot_data_y[time_init_index_on:time_init_index_off] = np.zeros(range_of_init_on) + 4.8
-        init_plot_data_y[0] = 0  # for asthetic purpose to set init first value to 0
+        init_plot_data_y[0] = 0 + 4  # for asthetic purpose to set init first value to 0
 
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(2)]
@@ -425,8 +434,7 @@ class ssrt_task(object):
         ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
         ax2.plot(init_plot_data_x, init_plot_data_y)
         ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
-        ax2.set_xlabel('Time (s)', fontsize=9)
-        ax2.set_ylabel('Events', fontsize=9)
+        ax2.set_xlabel('Time since trial start (s)', fontsize=9)
         ax2.set_yticks((0.4, 2, 3, 4.4))
         ax2.set_yticklabels(('vstim', 'reward', 'lick', 'init'))
 
@@ -434,8 +442,6 @@ class ssrt_task(object):
         # create cummulative outcome plot
         ########################################################################
         # Get data to plot for current trial
-        self.hit_count[current_trial] = self.trial_outcome.count("Hit!")
-        self.miss_count[current_trial] = self.trial_outcome.count("Miss !!!")
         outcome_xvalue = np.linspace(0, current_trial, num=current_trial+1)
         outcome_hit_count_yvalue = self.hit_count[0:current_trial+1]
         outcome_miss_count_yvalue = self.miss_count[0:current_trial+1]
@@ -469,7 +475,7 @@ class ssrt_task(object):
 
         # Reset self.time_at_reward to be out of range of plotting
         # This prevents the time_at_reward to be carried over to the next trial
-        self.time_at_reward = -0.5
+        self.time_at_reward = -1
 
     ########################################################################
     # methods to start and end the behavioral session
