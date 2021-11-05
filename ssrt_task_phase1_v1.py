@@ -153,9 +153,11 @@ class ssrt_task(object):
         self.box = behavbox_DT.BehavBox(self.session_info)
         self.pump = behavbox_DT.Pump()
 
-        # establish trial_list and trial_outcome
+        # establish parameters for plotting
         self.trial_list = list(range(0, self.session_info["number_of_trials"]))
         self.trial_outcome = ["" for o in range(self.session_info["number_of_trials"])]
+        self.hit_count = [0 for o in range(self.session_info["number_of_trials"])]
+        self.miss_count = [0 for o in range(self.session_info["number_of_trials"])]
 
     ########################################################################
     # functions called when state transitions occur
@@ -334,7 +336,7 @@ class ssrt_task(object):
         self.trial_outcome[current_trial] = "Miss !!!"
 
         if lick_events.size == 0:
-            self.trial_outcome[current_trial] = "Miss !!! No lick at all"
+            self.trial_outcome[current_trial] = "Miss !!!"
         else:
             for ele in lick_events:
                 if i < ele < j:
@@ -422,30 +424,31 @@ class ssrt_task(object):
         ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
         ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
         ax2.plot(init_plot_data_x, init_plot_data_y)
-        ax2.set_xlim([-1, 8])  # 9s total to show
+        ax2.set_xlim([0, 7])  # 7s total to show (trial duration)
         ax2.set_xlabel('Time (s)', fontsize=9)
-        ax2.set_yticklabels('Events')
+        ax2.set_ylabel('Events', fontsize=9)
         ax2.set_yticks([])
 
         ########################################################################
-        # create cummulative outcome plots
+        # create cummulative outcome plot
         ########################################################################
-        # the gamma distribution is only used fo aesthetic purposes
-        # data2 = np.random.gamma(4, size=[60, 50])
-        # # use individual values for the parameters this time
-        # # these values will be used for all data sets (except lineoffsets2, which
-        # # sets the increment between each data set in this usage)
-        # colors2 = 'black'
-        # lineoffsets2 = 1
-        # linelengths2 = 1
-        # # create a horizontal plot
-        # ax3.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
-        #                     linelengths=linelengths2)
-        # # create a vertical plot
-        # ax4.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
-        #                     linelengths=linelengths2, orientation='vertical')
+        # Get data to plot for current trial
+        self.hit_count[current_trial] = self.trial_outcome.count("Hit!")
+        self.miss_count[current_trial] = self.trial_outcome.count("Miss !!!")
+        outcome_xvalue = np.linspace(0, current_trial, num=current_trial+1)
+        outcome_hit_count_yvalue = self.hit_count[0:current_trial+1]
+        outcome_miss_count_yvalue = self.miss_count[0:current_trial+1]
 
-        # Draw on canvas
+        # Plot
+        ax3.plot(outcome_xvalue, outcome_hit_count_yvalue)
+        ax3.plot(outcome_xvalue, outcome_miss_count_yvalue)
+        ax3.set_xlim([0, current_trial+1])
+        ax3.set_xlabel('Trial', fontsize=9)
+        ax3.set_ylabel('Number of trials', fontsize=9)
+
+        ########################################################################
+        # draw on canvas
+        ########################################################################
         canvas = agg.FigureCanvasAgg(fig)
         canvas.draw()
         renderer = canvas.get_renderer()
@@ -458,8 +461,9 @@ class ssrt_task(object):
         screen.blit(surf, (0, 0))
         pygame.display.flip()
 
-        # Reset self.time_at_reward
-        self.time_at_reward = -1.5
+        # Reset self.time_at_reward to be out of range of plotting
+        # This prevents the time_at_reward to be carried over to the next trial
+        self.time_at_reward = -0.5
 
     ########################################################################
     # methods to start and end the behavioral session
