@@ -221,11 +221,13 @@ class ssrt_task(object):
         # print("entering vacuum")
         logging.info(str(time.time()) + ", entering vacuum")
         self.box.vacuum_on()
+        self.time_at_vacON = time.time() - self.trial_start_time
 
     def exit_vacuum(self):
         # print("exiting vacuum")
         logging.info(str(time.time()) + ", exiting vacuum")
         self.box.vacuum_off()
+        self.time_at_vacOFF = time.time() - self.trial_start_time
 
     def enter_iti(self):
         # print("entering ITI")
@@ -413,12 +415,24 @@ class ssrt_task(object):
         range_of_vstim_on = int(time_vstim_index_off - time_vstim_index_on)
         vstim_plot_data_y[time_vstim_index_on:time_vstim_index_off] = np.zeros(range_of_vstim_on) + 0.8
 
-        # create initiation time data
+        # create initiation time data (TODO: use time_init_off instead of counting the duration)
         init_duration = 1  # in seconds
         init_bins = plot_bin_number  # number of bins
         time_init_on = self.time_at_initiation - self.trial_start_time
         time_init_index_on = int(round(time_init_on * init_bins/plot_period))
         time_init_index_off = int(time_init_index_on + round(init_duration * (init_bins/plot_period)))
+        init_plot_data_x = np.linspace(0, plot_period, num=init_bins)
+        init_plot_data_y = np.zeros(init_bins) + 4
+        range_of_init_on = int(time_init_index_off - time_init_index_on)
+        init_plot_data_y[time_init_index_on:time_init_index_off] = np.zeros(range_of_init_on) + 4.8
+        init_plot_data_y[0] = 0 + 4  # for asthetic purpose to set init first value to 0
+
+        # create vacuum time data (TODO: same as above)
+        vac_duration = self.session_info["vacuum_length"]  # in seconds
+        vac_bins = plot_bin_number  # number of bins
+        time_vac_on = self.time_at_vacON
+        time_vac_index_on = int(round(time_vac_on * vac_bins / plot_period))
+        time_vac_index_off = int(time_vac_index_on + round(vac_duration * (init_bins / plot_period)))
         init_plot_data_x = np.linspace(0, plot_period, num=init_bins)
         init_plot_data_y = np.zeros(init_bins) + 4
         range_of_init_on = int(time_init_index_off - time_init_index_on)
@@ -436,7 +450,7 @@ class ssrt_task(object):
         ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
         ax2.set_xlabel('Time since trial start (s)', fontsize=9)
         ax2.set_yticks((0.4, 2, 3, 4.4))
-        ax2.set_yticklabels(('vstim', 'reward', 'lick', 'init'))
+        ax2.set_yticklabels(('vstim', 'reward', 'lick', 'init LED'))
 
         ########################################################################
         # create cummulative outcome plot
@@ -477,6 +491,7 @@ class ssrt_task(object):
         # This prevents the time_at_reward to be carried over to the next trial
         self.time_at_reward = -1
         plt.close(fig)
+
 
     ########################################################################
     # methods to start and end the behavioral session
