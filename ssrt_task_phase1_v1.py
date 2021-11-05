@@ -476,6 +476,7 @@ class ssrt_task(object):
         # Reset self.time_at_reward to be out of range of plotting
         # This prevents the time_at_reward to be carried over to the next trial
         self.time_at_reward = -1
+        plt.close(fig)
 
     ########################################################################
     # methods to start and end the behavioral session
