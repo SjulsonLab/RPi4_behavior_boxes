@@ -420,7 +420,6 @@ class ssrt_task(object):
         # set different line properties for each set of positions
         lineoffsets1 = np.array([3, 2])
         linelengths1 = [0.8, 0.8]
-        ax2.set_title('Events', fontsize=11)
         ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
         ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
         ax2.plot(init_plot_data_x, init_plot_data_y)
@@ -440,8 +439,9 @@ class ssrt_task(object):
         outcome_miss_count_yvalue = self.miss_count[0:current_trial+1]
 
         # Plot
-        ax3.plot(outcome_xvalue, outcome_hit_count_yvalue)
-        ax3.plot(outcome_xvalue, outcome_miss_count_yvalue)
+        ax3.plot(outcome_xvalue, outcome_hit_count_yvalue, 'r-')
+        ax3.plot(outcome_xvalue, outcome_miss_count_yvalue, 'b-')
+        ax3.set_title('Cummulative outcome', fontsize=11)
         ax3.set_xlim([0, current_trial+1])
         ax3.set_xlabel('Trial', fontsize=9)
         ax3.set_ylabel('Number of trials', fontsize=9)
