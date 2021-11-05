@@ -427,7 +427,8 @@ class ssrt_task(object):
         ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
         ax2.set_xlabel('Time (s)', fontsize=9)
         ax2.set_ylabel('Events', fontsize=9)
-        ax2.set_yticks([0.4, 2, 3, 4.4], ["vstim", "reward", "lick", "init"])
+        ax2.set_yticks((0.4, 2, 3, 4.4))
+        ax2.set_yticklabels(('vstim', 'reward', 'lick', 'init'))
 
         ########################################################################
         # create cummulative outcome plot
