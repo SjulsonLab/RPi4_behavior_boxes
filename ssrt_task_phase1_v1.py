@@ -176,6 +176,7 @@ class ssrt_task(object):
         # print("entering initiation")
         logging.info(str(time.time()) + ", entering initiation")
         self.box.cueLED1.on()
+        self.time_at_initiation = time.time()
         print("LED ON!")
 
     def exit_initiation(self):
@@ -387,26 +388,40 @@ class ssrt_task(object):
         ########################################################################
         # create a 2D array for eventplot
         events_to_plot = [self.time_at_lick, [self.time_at_reward]]
+        plot_bin_number = 700  # bin number for plotting vstim, init, and astim
+        plot_period = 7  # in seconds, plot for _s since the start of trial
 
         # create vstim time data
         vstim_duration = 3  # in seconds
-        vstim_bins = 700  # number of bins
+        vstim_bins = plot_bin_number  # number of bins
         time_vstim_on = self.time_at_vstim_on - self.trial_start_time
-        time_vstim_index_on = int(round(time_vstim_on * vstim_bins/7))
-        time_vstim_index_off = int(time_vstim_index_on + round(vstim_duration*(vstim_bins/7)))
-        vstim_plot_data_x = np.linspace(0, 7, num=vstim_bins)
+        time_vstim_index_on = int(round(time_vstim_on * vstim_bins/plot_period))
+        time_vstim_index_off = int(time_vstim_index_on + round(vstim_duration*(vstim_bins/plot_period)))
+        vstim_plot_data_x = np.linspace(0, plot_period, num=vstim_bins)
         vstim_plot_data_y = np.zeros(vstim_bins)
         range_of_vstim_on = int(time_vstim_index_off - time_vstim_index_on)
-        vstim_plot_data_y[time_vstim_index_on:time_vstim_index_off] = np.zeros(range_of_vstim_on) + 2
+        vstim_plot_data_y[time_vstim_index_on:time_vstim_index_off] = np.zeros(range_of_vstim_on) + 0.8
+
+        # create initiation time data
+        init_duration = 1  # in seconds
+        init_bins = plot_bin_number  # number of bins
+        time_init_on = self.time_at_initiation - self.trial_start_time
+        time_init_index_on = int(round(time_init_on * init_bins/plot_period))
+        time_init_index_off = int(time_init_index_on + round(init_duration * (init_bins/plot_period)))
+        init_plot_data_x = np.linspace(0, plot_period, num=init_bins)
+        init_plot_data_y = np.zeros(init_bins) + 4
+        range_of_init_on = int(time_init_index_off - time_init_index_on)
+        init_plot_data_y[time_init_index_on:time_init_index_off] = np.zeros(range_of_init_on) + 4.8
 
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(2)]
         # set different line properties for each set of positions
-        lineoffsets1 = np.array([4, 3])
+        lineoffsets1 = np.array([3, 2])
         linelengths1 = [0.8, 0.8]
         ax2.set_title('Events', fontsize=11)
         ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
         ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
+        ax2.plot(init_plot_data_x, init_plot_data_y)
         ax2.set_xlim([0, 7])  # 7s total since the start of initiation until the end of iti
         ax2.set_xlabel('Time (s)', fontsize=9)
         ax2.set_yticklabels('Events')
