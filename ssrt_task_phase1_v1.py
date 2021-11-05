@@ -403,7 +403,7 @@ class ssrt_task(object):
         colors1 = ['C{}'.format(i) for i in range(2)]
         # set different line properties for each set of positions
         lineoffsets1 = np.array([4, 3])
-        linelengths1 = [1, 1]
+        linelengths1 = [0.8, 0.8]
         ax2.set_title('Events', fontsize=11)
         ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
         ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
