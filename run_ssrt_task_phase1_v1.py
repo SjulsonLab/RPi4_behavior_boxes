@@ -107,10 +107,10 @@ try:
             while task.trial_running:
                 task.run()
 
-            start_t = timeit.timeit()
+            start_t = time.time()
             task.plot_ssrt(i)
-            end_t = timeit.timeit()
-            print('Elapsed time for plotting = ' + str(end_t - start_t))
+            end_t = time.time()
+            print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
 
         raise SystemExit
 
