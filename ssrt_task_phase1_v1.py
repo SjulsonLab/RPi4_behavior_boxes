@@ -427,17 +427,17 @@ class ssrt_task(object):
         init_plot_data_y[time_init_index_on:time_init_index_off] = np.zeros(range_of_init_on) + 4.8
         init_plot_data_y[0] = 0 + 4  # for asthetic purpose to set init first value to 0
 
-        # create vacuum time data (TODO: same as above)
-        vac_duration = self.session_info["vacuum_length"]  # in seconds
-        vac_bins = plot_bin_number  # number of bins
-        time_vac_on = self.time_at_vacON
-        time_vac_index_on = int(round(time_vac_on * vac_bins / plot_period))
-        time_vac_index_off = int(time_vac_index_on + round(vac_duration * (init_bins / plot_period)))
-        init_plot_data_x = np.linspace(0, plot_period, num=init_bins)
-        init_plot_data_y = np.zeros(init_bins) + 4
-        range_of_init_on = int(time_init_index_off - time_init_index_on)
-        init_plot_data_y[time_init_index_on:time_init_index_off] = np.zeros(range_of_init_on) + 4.8
-        init_plot_data_y[0] = 0 + 4  # for asthetic purpose to set init first value to 0
+        # # create vacuum time data (TODO: same as above)
+        # vac_duration = self.session_info["vacuum_length"]  # in seconds
+        # vac_bins = plot_bin_number  # number of bins
+        # time_vac_on = self.time_at_vacON
+        # time_vac_index_on = int(round(time_vac_on * vac_bins / plot_period))
+        # time_vac_index_off = int(time_vac_index_on + round(vac_duration * (init_bins / plot_period)))
+        # init_plot_data_x = np.linspace(0, plot_period, num=init_bins)
+        # init_plot_data_y = np.zeros(init_bins) + 4
+        # range_of_init_on = int(time_init_index_off - time_init_index_on)
+        # init_plot_data_y[time_init_index_on:time_init_index_off] = np.zeros(range_of_init_on) + 4.8
+        # init_plot_data_y[0] = 0 + 4  # for asthetic purpose to set init first value to 0
 
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(2)]
