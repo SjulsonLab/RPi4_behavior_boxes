@@ -437,7 +437,7 @@ class ssrt_task(object):
         vac_plot_data_x = np.linspace(0, plot_period, num=vac_bins)
         vac_plot_data_y = np.zeros(vac_bins) - 1
         range_of_vac_on = int(time_vac_index_off - time_vac_index_on)
-        vac_plot_data_y[time_vac_index_on:time_vac_index_off] = np.zeros(range_of_vac_on) - 1.8
+        vac_plot_data_y[time_vac_index_on:time_vac_index_off] = np.zeros(range_of_vac_on) - 0.2
 
         # set different colors for each set of positions
         colors1 = ['C{}'.format(i) for i in range(2)]
