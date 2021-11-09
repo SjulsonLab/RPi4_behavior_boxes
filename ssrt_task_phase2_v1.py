@@ -77,6 +77,14 @@ class ssrt_task(object):
                 on_enter=["enter_initiation"],
                 on_exit=["exit_initiation"],
                 timeout=self.session_info["init_length"],
+                on_timeout=["start_stop_signal"],
+            ),
+            # stop signal state
+            Timeout(
+                name="stop_signal",
+                on_enter=["enter_stop_signal"],
+                on_exit=["exit_stop_signal"],
+                timeout=self.session_info["stop_signal_length"],
                 on_timeout=["start_vstim"],
             ),
             # vstim state: start vstim display (automatic once start, can move on to the next state)
@@ -129,7 +137,8 @@ class ssrt_task(object):
         ########################################################################
         self.transitions = [
             ["trial_start", "standby", "initiation"],
-            ["start_vstim", "initiation", "vstim"],
+            ["start_stop_signal", "initiation", "stop_signal"],
+            ["start_vstim", "stop_signal", "vstim"],
             ["start_reward", "vstim", "reward_available"],
             ["start_lick_count", "reward_available", "lick_count"],
             ["start_vacuum_from_reward_available", "reward_available", "vacuum"],

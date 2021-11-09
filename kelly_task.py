@@ -99,6 +99,8 @@ class KellyTask(object):
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
         self.pump = behavbox.Pump()
+        self.box.sound1.on()
+        self.box.sound1.off()
 
     ########################################################################
     # functions called when state transitions occur
