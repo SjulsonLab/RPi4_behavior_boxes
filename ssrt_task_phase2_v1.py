@@ -76,8 +76,8 @@ class ssrt_task(object):
                 name="initiation",
                 on_enter=["enter_initiation"],
                 on_exit=["exit_initiation"],
-                timeout=self.session_info["init_length"],
-                on_timeout=["start_stop_signal"],
+                # timeout=self.session_info["init_length"],
+                # on_timeout=["start_stop_signal"],
             ),
             # stop signal state
             Timeout(
@@ -85,7 +85,7 @@ class ssrt_task(object):
                 on_enter=["enter_stop_signal"],
                 on_exit=["exit_stop_signal"],
                 timeout=self.session_info["stop_signal_length"],
-                on_timeout=["start_vstim"],
+                on_timeout=["start_vstim_from_stop_signal"],
             ),
             # vstim state: start vstim display (automatic once start, can move on to the next state)
             # visual stim is initiated at the exit of initation state, vstim state is actually lockout state (200ms)
@@ -138,7 +138,8 @@ class ssrt_task(object):
         self.transitions = [
             ["trial_start", "standby", "initiation"],
             ["start_stop_signal", "initiation", "stop_signal"],
-            ["start_vstim", "stop_signal", "vstim"],
+            ["start_vstim_from_init", "initiation", "vstim"],
+            ["start_vstim_from_stop_signal", "stop_signal", "vstim"],
             ["start_reward", "vstim", "reward_available"],
             ["start_lick_count", "reward_available", "lick_count"],
             ["start_vacuum_from_reward_available", "reward_available", "vacuum"],
@@ -196,6 +197,15 @@ class ssrt_task(object):
         self.time_exit_init = time.time() - self.trial_start_time
         print("LED OFF!")
 
+    def enter_stop_signal(self):
+        logging.info(str(time.time()) + ", entering stop_signal")
+        self.box.sound1.on()
+        print("Stop Signal ON!")
+        self.time_enter_stop_signal = time.time() - self.trial_start_time
+
+    def exit_stop_signal(self):
+        logging.info(str(time.time()) + ", exiting stop_signal")
+
     def enter_vstim(self):
         # print("displaying vstim")
         logging.info(str(time.time()) + ", entering vstim")
@@ -224,7 +234,9 @@ class ssrt_task(object):
 
     def exit_lick_count(self):
         # print("exiting lick_count")
+        self.box.sound1.off()
         self.time_exit_lick_out = time.time() - self.trial_start_time
+        self.time_stop_signal_end = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting lick_count")
 
     def enter_vacuum(self):
@@ -268,7 +280,7 @@ class ssrt_task(object):
     # it will process all detected events from the behavior box (e.g.
     # licks, reward delivery, etc.) and trigger the appropriate state transitions
     ########################################################################
-    def run(self):
+    def run_go_trial(self):
 
         # read in name of an event the box has detected
         if self.box.event_list:
@@ -311,17 +323,49 @@ class ssrt_task(object):
         # look for keystrokes
         # self.box.check_keybd()
 
-    ########################################################################
-    # define function called for baiting
-    ########################################################################
-    def bait(self):
 
-        # read for input trigger for reward (1 is the input trigger)
-        self.value = input("Please enter 'r' for reward delivery, 'phase1' to start the task: \n")
-        if self.value == "r":
-            print(f'You entered {self.value}, delivering reward')
-            self.pump.reward("left", self.session_info["reward_size"])
+    def run_stop_signal_trial(self):
 
+        # read in name of an event the box has detected
+        if self.box.event_list:
+            event_name = self.box.event_list.popleft()
+        else:
+            event_name = ""
+
+        if event_name == "left_IR_entry":
+            self.time_at_lick = np.append(self.time_at_lick, time.time() - self.trial_start_time)
+
+        if self.state == "standby":
+            pass
+
+        elif self.state == "initiation":
+            pass
+
+        elif self.state == "stop_signal":
+            pass
+
+        elif self.state == "vstim":
+            pass
+
+        elif self.state == "reward_available":
+            # Deliver reward from left pump if there is a lick detected on the left port
+            if event_name == "left_IR_entry":
+                self.pump.reward("left", self.session_info["reward_size"])
+                self.time_at_reward = time.time() - self.trial_start_time
+                print("delivering reward!!")
+                self.start_lick_count()  # trigger state transition to lick_count
+            else:
+                pass
+
+        elif self.state == "lick_count":
+            if event_name == "vstim 3s countdown is up!":
+                self.start_vacuum_from_lick_count()
+
+        elif self.state == "vacuum":
+            pass
+
+        elif self.state == "iti":
+            pass
     ########################################################################
     # function for plotting
     ########################################################################
@@ -329,7 +373,7 @@ class ssrt_task(object):
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
 
-    def plot_ssrt(self, current_trial):
+    def plot_ssrt_phase2(self, current_trial):
 
         ########################################################################
         # initialize the figure

@@ -19,6 +19,8 @@ import pygame
 from colorama import Fore, Style
 import time
 import timeit
+import numpy as np
+import random
 
 
 # all modules above this line will have logging disabled
@@ -35,7 +37,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import the SSRT task class here
-from ssrt_task_phase1_v1 import ssrt_task
+from ssrt_task_phase2_v1 import ssrt_task
 
 try:
     # load in session_info file, check that dates are correct, put in automatic
@@ -86,20 +88,72 @@ try:
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
     pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
 
+    # Loops over trials for phase 2 training
+    avoid_go = 0
+    avoid_stop_signal = 0
+    go_nums = 0
+    stop_signal_nums = 0
 
-    # Loops over trials for phase 1 training
     for i in range(session_info['number_of_trials']):
+        ident_random = (round(random.uniform(0, 1) * 100)) % 2
+
+        #  Determine trial identity
+        if i < 2:
+            trial_ident = "go_trial"
+            print("go_trial")
+            go_nums = go_nums + 1
+            avoid_go = avoid_go + 1
+        elif avoid_go == 3:
+            trial_ident = "stop_signal_trial"
+            print("stop_signal_trial")
+            stop_signal_nums = stop_signal_nums + 1
+            avoid_go = 0
+            avoid_stop_signal = avoid_stop_signal + 1
+        elif avoid_stop_signal == 3:
+            trial_ident = "go_trial"
+            print("go_trial")
+            go_nums = go_nums + 1
+            avoid_stop_signal = 0
+            avoid_go = avoid_go + 1
+        elif go_nums > stop_signal_nums + 2:
+            trial_ident = "stop_signal_trial"
+            print("stop_signal_trial")
+            stop_signal_nums = stop_signal_nums + 1
+        elif stop_signal_nums > go_nums + 2:
+            trial_ident = "go_trial"
+            print("go_trial")
+            go_nums = go_nums + 1
+        elif ident_random == 1:
+            trial_ident = "go_trial"
+            go_nums = go_nums + 1
+            avoid_go = avoid_go + 1
+            print("go_trial")
+        elif ident_random == 0:
+            trial_ident = "stop_signal_trial"
+            stop_signal_nums = stop_signal_nums + 1
+            avoid_stop_signal = avoid_stop_signal + 1
+            print("stop_signal_trial")
+
+        #  Logging info of trial
         logging.info(str("##############################\n" +
                      str(time.time())) + ", starting_trial, " + str(i) +
                      str("\n##############################"))
         task.trial_start()
 
+        #  Run trial in loop
         while task.trial_running:
-            task.run()
-            start_t = time.time()
-            task.plot_ssrt(i)
-            end_t = time.time()
-            print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
+            if trial_ident == "go_trial":
+                task.run_go_trial()
+                start_t = time.time()
+                task.plot_ssrt_phase2(i)
+                end_t = time.time()
+                print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
+            else:
+                task.run_stop_signal_trial()
+                start_t = time.time()
+                task.plot_ssrt_phase2(i)
+                end_t = time.time()
+                print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
     raise SystemExit
 
 
