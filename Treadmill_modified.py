@@ -13,9 +13,9 @@ def dacval(bus, address):
     block = bus.read_i2c_block_data(address, 1)
     n = struct.unpack("<l", bytes(block[:4]))[0]
     dvl = n / 100
-    # while n != -1:
-    while True:
+    while n != -1:
         time.sleep(0.005)
         print(str(dvl))
         return dvl
-dacval(bus_i2c, address_i2c)
+while True:
+    dacval(bus_i2c, address_i2c)
