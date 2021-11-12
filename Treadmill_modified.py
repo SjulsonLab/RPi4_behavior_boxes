@@ -14,7 +14,7 @@ def dacval(bus, address):
     n = struct.unpack("<l", bytes(block[:4]))[0]
     dvl = n / 100
     # while n != -1:
-    while true:
+    while True:
         time.sleep(0.005)
         print(str(dvl))
         return dvl
