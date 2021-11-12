@@ -33,7 +33,7 @@ float maxDACval = MAXDACVOLTS * MAXDACCNTS / 3.3; // limit dac output to max all
 
 #define encAPin 2
 #define encBPin 3
-// #define dacPin A4
+#define dacPin A14
 //#define idxPin  2  // not used here
 
 // counts per rotation of treadmill encoder wheel
