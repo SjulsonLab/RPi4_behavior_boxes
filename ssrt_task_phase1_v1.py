@@ -174,6 +174,7 @@ class ssrt_task(object):
     def enter_initiation(self):
         self.trial_running = True
         self.time_at_lick = np.array([])
+        self.time_at_reward = -1  # default value of -1 if no reward is delivered
         self.trial_start_time = time.time()
         # print("entering initiation")
         logging.info(str(time.time()) + ", entering initiation")
