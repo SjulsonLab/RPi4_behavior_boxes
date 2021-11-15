@@ -179,6 +179,8 @@ class ssrt_task(object):
         logging.info(str(time.time()) + ", entering initiation")
         self.box.cueLED1.on()
         self.time_enter_init = time.time() - self.trial_start_time
+        self.time_enter_lick_count = np.array([])
+        self.time_exit_lick_count = np.array([])
         print("LED ON!")
 
     def exit_initiation(self):
@@ -215,7 +217,7 @@ class ssrt_task(object):
 
     def exit_lick_count(self):
         # print("exiting lick_count")
-        self.time_exit_lick_out = time.time() - self.trial_start_time
+        self.time_exit_lick_count = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting lick_count")
 
     def enter_vacuum(self):
@@ -335,14 +337,17 @@ class ssrt_task(object):
         # create an outcome plot
         ########################################################################
         lick_events = self.time_at_lick
-        i, j = self.time_enter_lick_count, self.time_exit_lick_out
+        i, j = self.time_enter_lick_count, self.time_exit_lick_count
         self.trial_outcome[current_trial] = "Miss !!!"
 
         if lick_events.size == 0:
             self.trial_outcome[current_trial] = "Miss !!!"
         else:
             for ele in lick_events:
-                if i < ele < j:
+                if i.size == 0:
+                    self.trial_outcome[current_trial] = "Miss !!!"
+                    break
+                elif i < ele < j:
                     self.trial_outcome[current_trial] = "Hit!"
                     break
 
