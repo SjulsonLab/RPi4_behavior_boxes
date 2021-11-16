@@ -20,7 +20,7 @@ signal.signal(signal.SIGINT, signal_handler)
 # base_path = sys.argv[1]
 
 base_path = "/mnt/hd/"
-threadmill_filename = base_path + "_treadmill" + "_output" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
+threadmill_filename = base_path + "treadmill" + "_output" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
 
 bus_i2c = smbus.SMBus(1) # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
 # This is the address we setup in the Arduino Program
