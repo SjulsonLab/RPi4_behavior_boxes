@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 #import the necessary modules
+from gpiozero import Button
 import io
 import time
 import datetime as dt
 from picamera import PiCamera
 from threading import Thread, Event
 from queue import Queue, Empty
-import sys, getopt
-import argparse
+import sys
 import RPi.GPIO as GPIO
 import os
 import signal
@@ -45,26 +45,26 @@ SATURATION = 30
 AWB_MODE = 'off'
 AWB_GAINS = 1.4
 
-#TTL Pulse BounceTme in milliseconds
+#Flipper TTL Pulse BounceTme in milliseconds
 BOUNCETIME=10
 camId = str(0)
 
 #video, timestamps and ttl file name
 VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".h264"
 TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
-TTL_FILE_NAME = base_path + "_cam"+ camId + "_ttl_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
+FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
 
 #set raspberry pi board layout to BCM
 GPIO.setmode(GPIO.BCM)
 
 #pin number to receive TTL input
-pinTTL = 17
+pin_flipper = 4
 
 #set the pin as input pin
-GPIO.setup(pinTTL, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(pin_flipper, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
 #add event detection (both falling edge and rising edge) script to GPIO pin
-GPIO.add_event_detect(pinTTL, GPIO.BOTH, bouncetime=BOUNCETIME)
+GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
 
 #video output thread to save video file
 class VideoOutput(Thread):
@@ -104,23 +104,21 @@ class VideoOutput(Thread):
 
 #timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class TimestampOutput(object):
-    def __init__(self, camera, video_filename, timestamp_filename, ttl_filename):
+    def __init__(self, camera, video_filename, timestamp_filename, flipper_filename):
         self.camera = camera
         self._video = VideoOutput(video_filename)
         self._timestampFile = timestamp_filename
-        self._ttlFile = ttl_filename
+        self._flipper_file = flipper_filename
         self._timestamps = []
-        self._ttlTimestamps = []
+        self._flipper_timestamps = []
 
-    def ttlTimestampsWrite(self, input_pin):
-        inputState = GPIO.input(input_pin)
-        GPIO.remove_event_detect(input_pin)
-        if self.camera.frame.timestamp is not None:
-            self._ttlTimestamps.append((inputState, self.camera.timestamp, self.camera.frame.timestamp, time.time(), time.clock_gettime(time.CLOCK_REALTIME)))
-        else:
-            self._ttlTimestamps.append((inputState, self.camera.timestamp, -1, time.time(), time.clock_gettime(time.CLOCK_REALTIME)))
-        #print(inputStatem, self.camera.timestamp, self.camera.frame.timestamp)
-        GPIO.add_event_detect(pinTTL, GPIO.BOTH, bouncetime=BOUNCETIME)
+    def flipper_timestamps_write(self, pin_flipper):
+        input_state = GPIO.input(pin_flipper)
+        GPIO.remove_event_detect(pin_flipper)
+        self._flipper_timestamps.append((input_state, time.time()))
+        #print(input_state, time.time())
+        print(str(self._flipper_timestamps))
+        GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
 
     def write(self, buf):
         if self.camera.frame.complete and self.camera.frame.timestamp is not None:
@@ -144,15 +142,16 @@ class TimestampOutput(object):
             f.write('GPU Times, time.time(), clock_realtime\n')
             for entry in self._timestamps:
                 f.write('%d,%f,%f\n' % entry)
-        with io.open(self._ttlFile, 'w') as f:
-            f.write('Input State, Timestamp, GPU Times, time.time(), clock_realtime\n')
-            for entry in self._ttlTimestamps:
-                f.write('%f,%f,%f,%f,%f\n' % entry)
+        with io.open(self._flipper_file, 'w') as f:
+            f.write('Input State, Timestamp\n')
+            for entry in self._flipper_timestamps:
+                f.write('%f,%f\n' % entry)
 
     def close(self):
         self._video.close()
 
 with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
+
     camera.brightness = BRIGHTNESS
     camera.contrast = CONTRAST
     camera.sharpness = SHARPNESS
@@ -173,9 +172,9 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
     #switch off the exposure since the camera has been set now
     camera.exposure_mode = 'off'
 
-    output = TimestampOutput(camera, VIDEO_FILE_NAME, TIMESTAMP_FILE_NAME, TTL_FILE_NAME)
+    output = TimestampOutput(camera, VIDEO_FILE_NAME, TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
 
-    GPIO.add_event_callback(pinTTL, output.ttlTimestampsWrite)
+    GPIO.add_event_callback(pin_flipper, output.flipper_timestamps_write)
     try:
         camera.start_preview()
         # Construct an instance of our custom output splitter with a filename  and a connected socket
@@ -195,9 +194,19 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
                     last_frame = frame
 
     except Exception as e:
+        camera.stop_recording()
+        camera.stop_preview()
+        print('Recording Stopped')
         output.close()
+        print('Closing Output File')
         print(e)
+        sys.exit(0)
     finally:
+        camera.stop_recording()
+        camera.stop_preview()
+        print('Recording Stopped')
         output.close()
-        print('Output File Closed')
+        print('Closing Output File')
+        print(e)
         GPIO.cleanup()
+        sys.exit(0)

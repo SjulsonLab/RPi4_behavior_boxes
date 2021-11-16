@@ -1,3 +1,5 @@
+# pump_task
+# a task file for testing the pump object code
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
@@ -19,34 +21,34 @@ logging.config.dictConfig(
 # all modules above this line will have logging disabled
 
 import behavbox
+from behavbox import Pump
 
 # adding timing capability to the state machine
 @add_state_features(Timeout)
 class TimedStateMachine(Machine):
     pass
 
-
-class KellyTask(object):
-    def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
+class PumpTask(object):
+    def __init__(self, **kwargs):
 
         # if no name or session, make fake ones (for testing purposes)
         if kwargs.get("name", None) is None:
             self.name = "name"
             print(
-                Fore.RED
-                + Style.BRIGHT
-                + "Warning: no name supplied; making fake one"
-                + Style.RESET_ALL
+                    Fore.RED
+                    + Style.BRIGHT
+                    + "Warning: no name supplied; making fake one"
+                    + Style.RESET_ALL
             )
         else:
             self.name = kwargs.get("name", None)
 
         if kwargs.get("session_info", None) is None:
             print(
-                Fore.RED
-                + Style.BRIGHT
-                + "Warning: no session_info supplied; making fake one"
-                + Style.RESET_ALL
+                    Fore.RED
+                    + Style.BRIGHT
+                    + "Warning: no session_info supplied; making fake one"
+                    + Style.RESET_ALL
             )
             from fake_session_info import fake_session_info
 
@@ -98,14 +100,13 @@ class KellyTask(object):
 
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
-        self.pump = behavbox.Pump()
+        self.pump = behavbox.Pump(LED)
+        ########################################################################
+        # functions called when state transitions occur
+        ########################################################################
 
-    ########################################################################
-    # functions called when state transitions occur
-    ########################################################################
     def enter_standby(self):
         print("entering standby")
-        # self.box.sound2.blink(0.5, 0.1, 1)
         self.trial_running = False
 
     def exit_standby(self):
@@ -114,8 +115,6 @@ class KellyTask(object):
     def enter_reward_available(self):
         print("entering reward_available")
         print("start white noise")
-        self.box.sound1.blink(0.5, 0.1, 1)
-        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
         self.trial_running = True
 
     def exit_reward_available(self):
@@ -123,24 +122,21 @@ class KellyTask(object):
 
     def enter_cue(self):
         print("deliver reward")
-        self.box.cueLED4.on()
-        self.box.sound3.blink(0.5, 0.1, 1)
-        # self.pump.reward("left", self.session_info["reward_size"])
+        self.pump.reward("left", self.session_info["reward_size"])
         print("start cue")
-        self.box.cueLED4.off()
-        # self.box.cueLED1.on()
-
+        self.box.cueLED1.on()
+        self.box.visualstim.show_grating("first_grating.grat")
 
     def exit_cue(self):
         print("stop cue")
-        # self.box.sound3.blink(0.5, 0.1, 1)
-        # self.box.cueLED1.off()
+        self.box.cueLED1.off()
 
-    ########################################################################
-    # call the run() method repeatedly in a while loop in the main session
-    # script it will process all detected events from the behavior box (e.g.
-    # nosepokes and licks) and trigger the appropriate state transitions
-    ########################################################################
+        ########################################################################
+        # call the run() method repeatedly in a while loop in the main session
+        # script it will process all detected events from the behavior box (e.g.
+        # nosepokes and licks) and trigger the appropriate state transitions
+        ########################################################################
+
     def run(self):
 
         # read in name of an event the box has detected
@@ -153,24 +149,19 @@ class KellyTask(object):
             pass
 
         elif self.state == "reward_available":
-            if event_name == "left_IR_entry":
-                # self.box.sound2.blink(0.5,0.1,1)
-                self.pump.reward("left", self.session_info["reward_size"])
+            if event_name == "left_poke_entry":
                 self.active_poke()  # triggers state transition
-            if event_name == "right_IR_entry":
-                self.pump.reward("right", self.session_info["reward_size"])
-                # self.box.sound2.blink(0.5,0.1,1)
-                self.active_poke()  # triggers state transition
+
         elif self.state == "cue":
-            # self.box.sound3.blink(0.5, 0.1, 1)
             pass
 
         # look for keystrokes
         self.box.check_keybd()
 
-    ########################################################################
-    # methods to start and end the behavioral session
-    ########################################################################
+        ########################################################################
+        # methods to start and end the behavioral session
+        ########################################################################
+
     def start_session(self):
         ic("TODO: start video")
         self.box.video_start()
@@ -178,4 +169,3 @@ class KellyTask(object):
     def end_session(self):
         ic("TODO: stop video")
         self.box.video_stop()
-        self.box.visualstim.myscreen.close()

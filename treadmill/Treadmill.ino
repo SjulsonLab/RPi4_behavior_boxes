@@ -33,7 +33,7 @@ float maxDACval = MAXDACVOLTS * MAXDACCNTS / 3.3; // limit dac output to max all
 
 #define encAPin 2
 #define encBPin 3
-#define dacPin A4
+#define dacPin A14
 //#define idxPin  2  // not used here
 
 // counts per rotation of treadmill encoder wheel
@@ -42,7 +42,7 @@ float maxDACval = MAXDACVOLTS * MAXDACCNTS / 3.3; // limit dac output to max all
 // so - 1.03 * 25.4 * pi / 200 /1000 = microns/cnt
 
 #define MM_PER_COUNT 410950  // actually 1/10^6mm per count since we divide by usecs
-#define DIST_PER_COUNT ((float)MM_PER_COUNT/1000000.0)
+#define DIST_PER_COUNT ((float)MM_PER_COUNT/1000000 .0)
 //(float)0.41095
 
 #define SPEED_TIMEOUT 50000  // if we don't move in this many microseconds assume we are stopped
@@ -109,8 +109,12 @@ void setup()
   Serial.println("distance,speed");
   Serial.println(maxDACval);
 
+  // setup pins for I2C
+  Wire.setSDA(18)
+  Wire.setSCL(19)
+
   Wire.begin(8);                // join i2c bus with address #8
-  //Wire.onRequest(sendData);  // register event
+  Wire.onRequest(sendData);  // register event
 
   lastUsecs = micros();
   attachInterrupt(digitalPinToInterrupt(2), encoderInt, CHANGE); // check encoder every A pin rising edge

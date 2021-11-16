@@ -79,7 +79,7 @@ try:
     # initiate task object\
     task = KellyTask(name="fentanyl_task", session_info=session_info)
 
-    # # you can change various parameters if you want 
+    # # you can change various parameters if you want
     # task.machine.states['cue'].timeout = 2
 
     # start session
@@ -87,8 +87,9 @@ try:
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
     pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
     sleep(10)
+
     # loop over trials
-    for i in range(2):
+    for i in range(1000):
         logging.info(str("##############################\n" +
                          str(time.time())) + ", starting_trial, " + str(i) +
                      str("\n##############################"))

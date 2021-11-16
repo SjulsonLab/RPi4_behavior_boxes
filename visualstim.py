@@ -68,9 +68,9 @@ class VisualStim(object):
 
     # this is the function that is launched by show_grating to run in a different process
     def process_function(self, grating_name):
-        logging.info(grating_name + "_on")
+        logging.info(str(grating_name) + "_on")
         self.myscreen.display_grating(self.gratings[grating_name])
-        logging.info(grating_name + "_off")
+        logging.info(str(grating_name) + "_off")
         self.myscreen.display_greyscale(
             self.session_info["gray_level"]
         )  # reset the screen to neutral gray

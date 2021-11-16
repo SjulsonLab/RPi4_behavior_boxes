@@ -6,11 +6,12 @@ import os
 import socket
 import time
 from collections import deque
-from icecream import ic
+
+# from icecream import ic
 import pygame
 import logging
 from colorama import Fore, Style
-import pysistence, collections
+# import pysistence, collections
 from visualstim import VisualStim
 
 import scipy.io, pickle
@@ -18,43 +19,21 @@ import scipy.io, pickle
 import Treadmill
 import ADS1x15
 
-class BehavBox(object):
 
+from fake_session_info import fake_session_info
+
+# for the flipper
+from FlipperOutput import FlipperOutput
+
+
+class BehavBox(object):
     event_list = (
         deque()
     )  # all detected events are added to this queue to be read out by the behavior class
-
-    # TODO: write this up in a syringe pump class
-    def reward(self, which_pump, reward_size):
-        print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
-        diameter_mm = 12.06  # for 5 mL syringe
-        # diameter_mm = 14.5   # for 10 mL syringe
-        volPerRevolution_uL = (
-            0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
-        )  # thread is 0.8 mm per turn
-        howManyRevolutions = reward_size / volPerRevolution_uL
-        # // determine total steps needed to reach desired revolutions, @200 steps/revolution
-        # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
-        # // round to nearest int
-        totalSteps = round(200 * howManyRevolutions * 4)
-        reward_duration = 1  # delivery reward over 300 ms
-        cycle_length = (
-            reward_duration / totalSteps
-        )  # need to know what the minimum value can be
-
-        if which_pump == "left":
-            self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info("left_reward," + str(reward_size))
-        elif which_pump == "center":
-            self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info("center_reward," + str(reward_size))
-        elif which_pump == "right":
-            logging.info("right_reward," + str(reward_size))
-            self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-
+    
     def __init__(self, session_info):
 
-        logging.info("behavior_box_initialized")
+        logging.info(str(time.time()) + ", behavior_box_initialized")
         self.session_info = session_info
 
         from subprocess import check_output
@@ -67,7 +46,6 @@ class BehavBox(object):
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
         # cue LEDs - setting PWM frequency of 200 Hz
-        # cue LEDs for the animals
         ###############################################################################################
         self.cueLED1 = BoxLED(22, frequency=200)
         self.cueLED2 = BoxLED(18, frequency=200)
@@ -75,26 +53,25 @@ class BehavBox(object):
         self.cueLED4 = BoxLED(14, frequency=200)
 
         ###############################################################################################
-        # digital I/O's - also used for cue LED, cue for animals
+        # digital I/O's - used for cue LED
+        # cue for animals
         # DIO 1 and 2 are reserved for the audio board
         ###############################################################################################
-        self.DIO3 = LED(9)
+        # self.DIO3 = LED(9)  # reserved for vacuum function
         self.DIO4 = LED(10)
         self.DIO5 = LED(11)
         # there is a DIO6, but that is the same pin as the camera strobe
 
         ###############################################################################################
-        # IR detection - noseIR_rxs
+        # IR detection - for nosepoke
         ###############################################################################################
-        self.IR_rx1 = Button(
-            5, None, True
-        )  # None, True inverts the signal so IR_rx=True, no-IR_rx=False
+        self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
         self.IR_rx2 = Button(6, None, True)
         self.IR_rx3 = Button(12, None, True)
-        self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use)
-        self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use)
+        self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
+        self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
 
-        # link noseIR_rx event detections to callbacks
+        # link nosepoke event detections to callbacks
         self.IR_rx1.when_pressed = self.left_IR_entry
         self.IR_rx2.when_pressed = self.center_IR_entry
         self.IR_rx3.when_pressed = self.right_IR_entry
@@ -105,44 +82,21 @@ class BehavBox(object):
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
-        self.sound1 = LED(23) # originally DIO1
-        self.sound2 = LED(24) # originally DIO2
         # pins originally reserved for the lick detection is now used for audio board TTL input signal
-        self.sound3 = LED(26) # originally lick1
-        self.sound4 = LED(27) # originally lick2
-        self.sound5 = LED(15) # originally lick3
+        self.sound1 = LED(26) # originally lick1
+        self.sound2 = LED(27) # originally lick2
+        self.sound3 = LED(15) # originally lick3
 
-        # ###############################################################################################
-        # # lick detectors (original intended usage)
-        # ###############################################################################################
-        # self.lick1 = Button(26)
-        # self.lick2 = Button(27)
-        # self.lick3 = Button(15)
-        #
-        # # link licks to callback functions
-        # self.lick1.when_pressed = self.left_lick_start
-        # self.lick2.when_pressed = self.center_lick_start
-        # self.lick3.when_pressed = self.right_lick_start
-        # self.lick1.when_released = self.left_lick_stop
-        # self.lick2.when_released = self.center_lick_stop
-        # self.lick3.when_released = self.right_lick_stop
+        self.sound4 = LED(23) # originally DIO1
+        self.sound5 = LED(24) # originally DIO2
 
         ###############################################################################################
-        # syringe pumps - will configure these as LEDs for now until new class is written
+        # flipper strobe signal (previously called camera strobe signal)
         ###############################################################################################
-        self.pump1 = LED(19)  # for testing only - the correct pin number is 19
-        # self.pump1   = LED(19)
-        self.pump2 = LED(20)
-        self.pump3 = LED(21)
-        self.pump4 = LED(8)
-        self.pump5 = LED(7)
-        self.pump_en = LED(25)  # pump enable
-
-        ###############################################################################################
-        # camera strobe signal
-        ###############################################################################################
-        self.camera_strobe = Button(4)
-        # TODO: write code so that rising and falling edges are detected and logged in a separate video file
+        # previously: self.camera_strobe = Button(4)
+        # previously: rising and falling edges are detected and logged in a separate video file
+        # initiating flipper object
+        self.flipper = FlipperOutput(self.session_info, pin=4)
 
         ###############################################################################################
         # visual stimuli
@@ -150,58 +104,75 @@ class BehavBox(object):
         try:
             self.visualstim = VisualStim(self.session_info)
         except Exception as error_message:
-            print error_message
+            print("visualstim issue\n")
+            print(str(error_message))
+
         ###############################################################################################
         # TODO: ADC(Adafruit_ADS1x15)
         ###############################################################################################
-        self.ADC = ADS1x15.ADS1015
+        try:
+            self.ADC = ADS1x15.ADS1015
+        except Exception as error_message:
+            print("ADC issue\n")
+            print(str(error_message))
 
         # ###############################################################################################
         # # TODO: treadmill
         # ###############################################################################################
-        self.treadmill = Treadmill.dacval
+        try:
+            self.treadmill = Treadmill.dacval
+        except Exception as error_message:
+            print("treadmill issue\n")
+            print(str(error_message))
 
         ###############################################################################################
         # Keystroke handler
         ###############################################################################################
-        DISPLAYSURF = pygame.display.set_mode((200, 200))
-        pygame.display.set_caption(session_info["box_name"])
-        print(
-            "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
-        )
-        print("must be in the foreground. Keys are as follows:\n")
-        print(
-            Fore.YELLOW
-            + "         1: left IR_rx            2: center IR_rx            3: right IR_rx"
-        )
-        # print(
-        #     "         Q: left lick            W: center lick            E: right lick"
-        # )
-        print(
-            Fore.CYAN
-            + "                       Esc: close key capture window\n"
-            + Style.RESET_ALL
-        )
-        print(
-            Fore.GREEN
-            + Style.BRIGHT
-            + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
-            + Fore.RED
-            + "ONCE\n"
-            + Style.RESET_ALL
-        )
+        try:
+            DISPLAYSURF = pygame.display.set_mode((200, 200))
+            pygame.display.set_caption(session_info["box_name"])
+            print(
+                "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
+            )
+            print("must be in the foreground. Keys are as follows:\n")
+            print(
+                    Fore.YELLOW
+                    + "         1: left poke            2: center poke            3: right poke"
+            )
+            print(
+                "         Q: left lick            W: center lick            E: right lick"
+            )
+            print(
+                    Fore.CYAN
+                    + "                       Esc: close key capture window\n"
+                    + Style.RESET_ALL
+            )
+            print(
+                    Fore.GREEN
+                    + Style.BRIGHT
+                    + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
+                    + Fore.RED
+                    + "ONCE\n"
+                    + Style.RESET_ALL
+            )
 
-        self.keyboard_active = True
+            self.keyboard_active = True
+        except Exception as error_message:
+            print("pygame issue\n")
+            print(str(error_message))
 
     ###############################################################################################
-    # check for key presses - uses pygame window to simulate noseIR_rxs and licks
+    # check for key presses - uses pygame window to simulate nosepokes and licks
+
     ###############################################################################################
 
     def check_keybd(self):
         if self.keyboard_active == True:
             event = pygame.event.poll()
-            KeyDown = 2  # event type numbers
-            KeyUp = 3
+
+            KeyDown = 768  # event type numbers
+            KeyUp = 769
+
             if event:
                 if event.type == KeyDown and event.key == 49:  # 1 key
                     self.left_IR_entry()
@@ -215,18 +186,18 @@ class BehavBox(object):
                     self.right_IR_entry()
                 elif event.type == KeyUp and event.key == 51:
                     self.right_IR_exit()
-                # elif event.type == KeyDown and event.key == 113:  # Q key
-                #     self.left_lick_start()
-                # elif event.type == KeyUp and event.key == 113:
-                #     self.left_lick_stop()
-                # elif event.type == KeyDown and event.key == 119:  # W key
-                #     self.center_lick_start()
-                # elif event.type == KeyUp and event.key == 119:
-                #     self.center_lick_stop()
-                # elif event.type == KeyDown and event.key == 101:  # E key
-                #     self.right_lick_start()
-                # elif event.type == KeyUp and event.key == 101:
-                #     self.right_lick_stop()
+                elif event.type == KeyDown and event.key == 113:  # Q key
+                    self.left_lick_start()
+                elif event.type == KeyUp and event.key == 113:
+                    self.left_lick_stop()
+                elif event.type == KeyDown and event.key == 119:  # W key
+                    self.center_lick_start()
+                elif event.type == KeyUp and event.key == 119:
+                    self.center_lick_stop()
+                elif event.type == KeyDown and event.key == 101:  # E key
+                    self.right_lick_start()
+                elif event.type == KeyUp and event.key == 101:
+                    self.right_lick_stop()
                 elif event.type == KeyDown and event.key == 27:  # escape key
                     pygame.quit()
                     self.keyboard_active = False
@@ -241,6 +212,12 @@ class BehavBox(object):
         basename = self.session_info['basename']
         file_name = dir_name + "/" + basename
         # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
+
+        # create directory on the external storage
+        base_dir = self.session_info['external_storage'] + '/'
+        hd_dir = base_dir + basename
+        os.mkdir(hd_dir)
+
 
         # Preview check per Kelly request
         print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
@@ -264,17 +241,19 @@ class BehavBox(object):
                     + file_name
                     + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
             )
-
+            # start the flipper before the recording start
+            # initiate the flipper
+            try:
+                self.flipper.flip()
+            except:
+                pass
             # start recording
-            print(Fore.BLUE + "\nQuiet on set!")
-            print(Fore.GREEN + "\nStart Recording: ACTION!!!" + Style.RESET_ALL)
+            print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
-            print(Fore.RED + Style.BRIGHT + "Please wait for 10 seconds and check if the preview screen is on!\nIt takes 8 seconds to warm up the camera\n Cancel the session if it's not!" + Style.RESET_ALL)
+            print(
+                        Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
 
-            base_dir = '/mnt/hd/'
-            hd_dir = base_dir + basename
-            os.mkdir(hd_dir)
-
+            # start initiating the dumping of the session information when available
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
             print("dumping session_info")
             pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
@@ -290,14 +269,24 @@ class BehavBox(object):
         IP_address_video = self.IP_address_video
         try:
             # Run the stop_video script in the box video
-            os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
+
+            os.system(
+                "ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
+            time.sleep(2)
+            # now stop the flipper after the video stopped recording
+            try:  # try to stop the flipper
+                self.flipper.close()
+            except:
+                pass
+
             time.sleep(2)
 
             hostname = socket.gethostname()
             print("Moving video files from " + hostname + "video to " + hostname + ":")
 
             # Create a directory for storage on the hard drive mounted on the box behavior
-            base_dir = '/mnt/hd/'
+            base_dir = self.session_info['external_storage'] + '/'
+
             hd_dir = base_dir + basename
 
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
@@ -320,51 +309,54 @@ class BehavBox(object):
 
     def left_IR_entry(self):
         self.event_list.append("left_IR_entry")
-        logging.info("left_IR_entry")
+        self.cueLED1.blink(0.3,0.1,1)
+        logging.info(str(time.time()) + ", left_IR_entry")
 
     def center_IR_entry(self):
         self.event_list.append("center_IR_entry")
-        logging.info("center_IR_entry")
+        self.cueLED2.blink(0.3, 0.1, 1)
+        logging.info(str(time.time()) + ", center_IR_entry")
 
     def right_IR_entry(self):
         self.event_list.append("right_IR_entry")
-        logging.info("right_IR_entry")
+        self.cueLED3.blink(0.3, 0.1, 1)
+        logging.info(str(time.time()) + ", right_IR_entry")
 
     def left_IR_exit(self):
         self.event_list.append("left_IR_exit")
-        logging.info("left_IR_exit")
+        logging.info(str(time.time()) + ", left_IR_exit")
 
     def center_IR_exit(self):
         self.event_list.append("center_IR_exit")
-        logging.info("center_IR_exit")
+        logging.info(str(time.time()) + ", center_IR_exit")
 
     def right_IR_exit(self):
         self.event_list.append("right_IR_exit")
-        logging.info("right_IR_exit")
+        logging.info(str(time.time()) + ", right_IR_exit")
 
-    # def left_lick_start(self):
-    #     self.event_list.append("left_lick_start")
-    #     logging.info("left_lick_start")
-    #
-    # def center_lick_start(self):
-    #     self.event_list.append("center_lick_start")
-    #     logging.info("center_lick_start")
-    #
-    # def right_lick_start(self):
-    #     self.event_list.append("right_lick_start")
-    #     logging.info("right_lick_start")
-    #
-    # def left_lick_stop(self):
-    #     self.event_list.append("left_lick_stop")
-    #     logging.info("left_lick_stop")
-    #
-    # def center_lick_stop(self):
-    #     self.event_list.append("center_lick_stop")
-    #     logging.info("center_lick_stop")
-    #
-    # def right_lick_stop(self):
-    #     self.event_list.append("right_lick_stop")
-    #     logging.info("right_lick_stop")
+    def left_lick_start(self):
+        self.event_list.append("left_lick_start")
+        logging.info(str(time.time()) + ", left_lick_start")
+
+    def center_lick_start(self):
+        self.event_list.append("center_lick_start")
+        logging.info(str(time.time()) + ", center_lick_start")
+
+    def right_lick_start(self):
+        self.event_list.append("right_lick_start")
+        logging.info(str(time.time()) + ", right_lick_start")
+
+    def left_lick_stop(self):
+        self.event_list.append("left_lick_stop")
+        logging.info(str(time.time()) + ", left_lick_stop")
+
+    def center_lick_stop(self):
+        self.event_list.append("center_lick_stop")
+        logging.info(str(time.time()) + ", center_lick_stop")
+
+    def right_lick_stop(self):
+        self.event_list.append("right_lick_stop")
+        logging.info(str(time.time()) + ", right_lick_stop")
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
@@ -374,7 +366,48 @@ class BoxLED(PWMLED):
     set_value = 1  # the intensity value, ranging from 0-1
 
     def on(
-        self,
+            self,
     ):  # unlike PWMLED, here the on() function sets the intensity to set_value,
         # not to full intensity
         self.value = self.set_value
+
+
+class Pump(object):
+    def __init__(self):
+
+        ###############################################################################################
+        # syringe pumps
+        ###############################################################################################
+        self.pump1 = LED(19)  # for testing only - the correct pin number is 19
+        self.pump2 = LED(20)
+        self.pump3 = LED(21)
+        self.pump4 = LED(8)
+        self.pump5 = LED(7)
+        self.pump_en = LED(25)  # pump enable
+
+    def reward(self, which_pump, reward_size):
+        print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
+        diameter_mm = 12.06  # for 5 mL syringe
+        # diameter_mm = 14.5   # for 10 mL syringe
+        volPerRevolution_uL = (
+                0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
+        )  # thread is 0.8 mm per turn
+        howManyRevolutions = reward_size / volPerRevolution_uL
+        # // determine total steps needed to reach desired revolutions, @200 steps/revolution
+        # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
+        # // round to nearest int
+        totalSteps = round(200 * howManyRevolutions * 4)
+        reward_duration = 1  # delivery reward over 300 ms
+        cycle_length = (
+                reward_duration / totalSteps
+        )  # need to know what the minimum value can be
+
+        if which_pump == "left":
+            self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info(str(time.time()) + ", left_reward," + str(reward_size))
+        elif which_pump == "center":
+            self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info(str(time.time()) + ", center_reward," + str(reward_size))
+        elif which_pump == "right":
+            logging.info(str(time.time()) + ", right_reward," + str(reward_size))
+            self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)

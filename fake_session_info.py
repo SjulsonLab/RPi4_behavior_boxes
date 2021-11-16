@@ -1,23 +1,40 @@
-# fake fake_session_info file (used for testing)
+# put all of your mouse and session info in here
 
-import collections, socket
 from datetime import datetime
+import os
+import pysistence, collections
+import socket
 
-fake_session_info                                = collections.OrderedDict()
-fake_session_info['mouse_name']                  = 'fakemouse01'
-fake_session_info['basedir']                     = '/home/pi/fakedata'
-fake_session_info['date']                        = datetime.now().strftime("%Y-%m-%d")
-fake_session_info['time']                        = datetime.now().strftime('%H%M%S')
-fake_session_info['datetime']                    = fake_session_info['date'] + '_' + fake_session_info['time']
-fake_session_info['basename']                    = fake_session_info['mouse_name'] + '_' + fake_session_info['datetime']
-fake_session_info['box_name']                    = socket.gethostname()
-fake_session_info['dir_name']                    = fake_session_info['basedir'] + "/" + fake_session_info['mouse_name'] + "_" + fake_session_info['datetime']
-# fake_session_info['config']                        = 'freely_moving_v1'
-fake_session_info['config']                      = 'head_fixed_v1'
+
+# defining immutable mouse dict (once defined for a mouse, NEVER EDIT IT)
+mouse_info = pysistence.make_dict({'mouse_name': 'test_pump',
+                 'fake_field': 'fake_info',
+                 })
+
+# Information for this session (the user should edit this each session)
+fake_session_info                              	= collections.OrderedDict()
+fake_session_info['mouse_info']					= mouse_info
+fake_session_info['mouse_name']                 	= mouse_info['mouse_name']
+#fake_session_info['trainingPhase']             	= 4
+fake_session_info['basedir']					  	= '/home/pi/buffer'
+fake_session_info['external_storage']            = '/mnt/hd'
+# fake_session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
+# for actual data save to this dir:
+#fake_session_info['basedir']					  	= '/home/pi/video'
+fake_session_info['weight']                	    = 32.18
+fake_session_info['manual_date']					= '2021-09-14'
+fake_session_info['box_name']             		= socket.gethostname()
+
+# fake_session_info['config']						= 'freely_moving_v1'
+fake_session_info['config']						= 'head_fixed_v1'
+
+# behavior parameters
 fake_session_info['timeout_length']              = 5  # in seconds
-fake_session_info['reward_size']                 = 10  # in microliters
+fake_session_info['reward_size']					= 10  # in microliters
 
 # visual stimulus
-fake_session_info['gray_level']                  = 40  # the pixel value from 0-255 for the screen between stimuli
-fake_session_info['vis_gratings']                = ['/home/pi/gratings/first_grating.grat', '/home/pi/gratings/second_grating.grat']
-fake_session_info['vis_raws']                    = []
+fake_session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
+fake_session_info['vis_gratings']				= ['/home/pi/gratings/first_grating.dat',
+											   '/home/pi/gratings/second_grating.dat']
+fake_session_info['vis_raws']					= []
+
