@@ -180,8 +180,6 @@ class ssrt_task(object):
         logging.info(str(time.time()) + ", entering initiation")
         self.box.cueLED1.on()
         self.time_enter_init = time.time() - self.trial_start_time
-        self.time_enter_lick_count = np.array([])
-        self.time_exit_lick_count = np.array([])
         print("LED ON!")
 
     def exit_initiation(self):
@@ -348,8 +346,6 @@ class ssrt_task(object):
                 if i < ele < j:
                     self.trial_outcome[current_trial] = "Hit!"
                     break
-                else:
-                    self.trial_outcome[current_trial] = "Miss !!!"
 
         self.hit_count[current_trial] = self.trial_outcome.count("Hit!")
         self.miss_count[current_trial] = self.trial_outcome.count("Miss !!!")
