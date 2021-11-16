@@ -180,6 +180,8 @@ class ssrt_task(object):
         logging.info(str(time.time()) + ", entering initiation")
         self.box.cueLED1.on()
         self.time_enter_init = time.time() - self.trial_start_time
+        self.time_enter_lick_count = -2  # default
+        self.time_exit_lick_count = -1  # default
         print("LED ON!")
 
     def exit_initiation(self):
@@ -402,7 +404,7 @@ class ssrt_task(object):
         # create eventplot (vertical)
         ########################################################################
         # create a 2D array for eventplot
-        events_to_plot = [self.time_at_lick, [self.time_at_reward]]
+        events_to_plot = [lick_events, [self.time_at_reward]]
         plot_bin_number = 700  # bin number for plotting vstim, init, and astim
         plot_period = 7  # in seconds, plot for _s since the start of trial
 
@@ -498,6 +500,8 @@ class ssrt_task(object):
         # Reset self.time_at_reward to be out of range of plotting
         # This prevents the time_at_reward to be carried over to the next trial
         self.time_at_reward = -1
+        self.time_enter_lick_count = -2
+        self.time_exit_lick_count = -1
         plt.close(fig)
 
 
