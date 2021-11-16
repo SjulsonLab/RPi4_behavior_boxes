@@ -345,12 +345,11 @@ class ssrt_task(object):
             self.trial_outcome[current_trial] = "Miss !!!"
         else:
             for ele in lick_events:
-                if i.size == 0:
-                    self.trial_outcome[current_trial] = "Miss !!!"
-                    break
-                elif i < ele < j:
+                if i < ele < j:
                     self.trial_outcome[current_trial] = "Hit!"
                     break
+                else:
+                    self.trial_outcome[current_trial] = "Miss !!!"
 
         self.hit_count[current_trial] = self.trial_outcome.count("Hit!")
         self.miss_count[current_trial] = self.trial_outcome.count("Miss !!!")
