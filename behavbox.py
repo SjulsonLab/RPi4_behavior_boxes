@@ -94,26 +94,13 @@ class BehavBox(object):
         self.sound4 = LED(23)  # originally DIO1
         self.sound5 = LED(24)  # originally DIO2
 
-        # ###############################################################################################
-        # # lick detectors
-        # ###############################################################################################
-        # self.lick1 = Button(26)
-        # self.lick2 = Button(27)
-        # self.lick3 = Button(15)
-        #
-        # # link licks to callback functions
-        # self.lick1.when_pressed = self.left_lick_start
-        # self.lick2.when_pressed = self.center_lick_start
-        # self.lick3.when_pressed = self.right_lick_start
-        # self.lick1.when_released = self.left_lick_stop
-        # self.lick2.when_released = self.center_lick_stop
-        # self.lick3.when_released = self.right_lick_stop
-
         ###############################################################################################
-        # camera strobe signal
+        # flipper strobe signal (previously called camera strobe signal)
         ###############################################################################################
-        # self.camera_strobe = Button(4)
-        # # TODO: write code so that rising and falling edges are detected and logged in a separate video file
+        # previously: self.camera_strobe = Button(4)
+        # previously: rising and falling edges are detected and logged in a separate video file
+        # initiating flipper object
+        self.flipper = FlipperOutput(self.session_info, pin=4)
 
         ###############################################################################################
         # visual stimuli
