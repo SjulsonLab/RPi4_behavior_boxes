@@ -47,8 +47,8 @@ while True:
     time.sleep(delay)
     treadmill_count = dacval(bus_i2c, address_i2c)
     treadmill_log.append(
-        time.time(),
-        treadmill_count
+        (time.time(),
+        treadmill_count)
     )
 
 
