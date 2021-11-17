@@ -7,7 +7,7 @@ import socket
 
 
 # defining immutable mouse dict (once defined for a mouse, NEVER EDIT IT)
-mouse_info = pysistence.make_dict({'mouse_name': 'test_pump',
+mouse_info = pysistence.make_dict({'mouse_name': 'test',
                  'fake_field': 'fake_info',
                  })
 
@@ -18,11 +18,11 @@ session_info['mouse_name']                 	= mouse_info['mouse_name']
 #session_info['trainingPhase']             	= 4
 session_info['basedir']					  	= '/home/pi/buffer'
 session_info['external_storage']            = '/mnt/hd'
-# session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
+session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
 # for actual data save to this dir:
 #session_info['basedir']					  	= '/home/pi/video'
 session_info['weight']                	    = 32.18
-session_info['manual_date']					= '2021-09-14'
+session_info['manual_date']					= '202x-xx-xx'
 session_info['box_name']             		= socket.gethostname()
 
 # session_info['config']						= 'freely_moving_v1'
@@ -34,7 +34,7 @@ session_info['reward_size']					= 10  # in microliters
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
-session_info['vis_gratings']				= ['/home/pi/gratings/first_grating.dat',
-											   '/home/pi/gratings/second_grating.dat']
+session_info['vis_gratings']				= ['/home/pi/first_grating.dat', 
+											   '/home/pi/second_grating.dat']
 session_info['vis_raws']					= []
 
