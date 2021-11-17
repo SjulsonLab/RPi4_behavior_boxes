@@ -38,9 +38,6 @@ class BehavBox(object):
         storage_path = self.session_info['external_storage'] + '/' + self.session_info['basename']
         self.session_info['flipper_filename'] = storage_path + '/' + self.session_info['basename'] + '_flipper_output'
 
-        # initiating flipper object
-        self.flipper = FlipperOutput(self.session_info, pin=4)
-
         from subprocess import check_output
         IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
         self.IP_address = IP_address
