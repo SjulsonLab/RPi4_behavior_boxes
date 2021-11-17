@@ -238,6 +238,7 @@ class BehavBox(object):
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
+            
             print(
                 Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
 

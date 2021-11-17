@@ -6,6 +6,7 @@ import os
 import socket
 import time
 from collections import deque
+
 # from icecream import ic
 import pygame
 import logging
@@ -18,6 +19,7 @@ import scipy.io, pickle
 import Treadmill
 import ADS1x15
 
+
 from fake_session_info import fake_session_info
 
 # for the flipper
@@ -28,7 +30,7 @@ class BehavBox(object):
     event_list = (
         deque()
     )  # all detected events are added to this queue to be read out by the behavior class
-
+    
     def __init__(self, session_info):
 
         logging.info(str(time.time()) + ", behavior_box_initialized")
@@ -40,6 +42,7 @@ class BehavBox(object):
         IP_address_video_list = list(IP_address)
         IP_address_video_list[-3] = "2"
         self.IP_address_video = "".join(IP_address_video_list)
+
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
         # cue LEDs - setting PWM frequency of 200 Hz
@@ -160,13 +163,16 @@ class BehavBox(object):
 
     ###############################################################################################
     # check for key presses - uses pygame window to simulate nosepokes and licks
+
     ###############################################################################################
 
     def check_keybd(self):
         if self.keyboard_active == True:
             event = pygame.event.poll()
+
             KeyDown = 768  # event type numbers
             KeyUp = 769
+
             if event:
                 if event.type == KeyDown and event.key == 49:  # 1 key
                     self.left_IR_entry()
@@ -211,6 +217,7 @@ class BehavBox(object):
         base_dir = self.session_info['external_storage'] + '/'
         hd_dir = base_dir + basename
         os.mkdir(hd_dir)
+
 
         # Preview check per Kelly request
         print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
@@ -262,6 +269,7 @@ class BehavBox(object):
         IP_address_video = self.IP_address_video
         try:
             # Run the stop_video script in the box video
+
             os.system(
                 "ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
             time.sleep(2)
@@ -270,6 +278,7 @@ class BehavBox(object):
                 self.flipper.close()
             except:
                 pass
+
             time.sleep(2)
 
             hostname = socket.gethostname()
@@ -277,6 +286,7 @@ class BehavBox(object):
 
             # Create a directory for storage on the hard drive mounted on the box behavior
             base_dir = self.session_info['external_storage'] + '/'
+
             hd_dir = base_dir + basename
 
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
