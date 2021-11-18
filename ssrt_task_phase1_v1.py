@@ -323,7 +323,7 @@ class ssrt_task(object):
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
 
-    def plot_ssrt(self, current_trial):
+    def plot_ssrt_phase1(self, current_trial):
 
         ########################################################################
         # initialize the figure

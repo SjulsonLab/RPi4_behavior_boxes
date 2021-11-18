@@ -108,7 +108,7 @@ try:
                 task.run()
 
             start_t = time.time()
-            task.plot_ssrt(i)
+            task.plot_ssrt_phase1(i)
             end_t = time.time()
             print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
 

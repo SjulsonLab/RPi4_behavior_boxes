@@ -183,12 +183,16 @@ class ssrt_task(object):
 
     def enter_initiation(self):
         self.trial_running = True
+        self.countdown_init(1)  # count down the elapsed time since init (1s), used for state transition
         self.time_at_lick = np.array([])
+        self.time_at_reward = -1  # default value of -1 if no reward is delivered
         self.trial_start_time = time.time()
         # print("entering initiation")
         logging.info(str(time.time()) + ", entering initiation")
         self.box.cueLED1.on()
         self.time_enter_init = time.time() - self.trial_start_time
+        self.time_enter_lick_count = -2  # default
+        self.time_exit_lick_count = -1  # default
         print("LED ON!")
 
     def exit_initiation(self):
@@ -200,7 +204,7 @@ class ssrt_task(object):
     def enter_stop_signal(self):
         logging.info(str(time.time()) + ", entering stop_signal")
         self.box.sound1.on()
-        print("Stop Signal ON!")
+        print("Stop signal ON!")
         self.time_enter_stop_signal = time.time() - self.trial_start_time
 
     def exit_stop_signal(self):
@@ -213,7 +217,7 @@ class ssrt_task(object):
         self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
         self.time_at_vstim_on = time.time() - self.trial_start_time
         # start the countdown of time since display of vstim, this is used as timeup to transition lick_count to vacuum
-        self.countdown(3)
+        self.countdown_vstim(3)
 
     def exit_vstim(self):
         # print("transitioning to reward_available")
@@ -235,7 +239,7 @@ class ssrt_task(object):
     def exit_lick_count(self):
         # print("exiting lick_count")
         self.box.sound1.off()
-        self.time_exit_lick_out = time.time() - self.trial_start_time
+        self.time_exit_lick_count = time.time() - self.trial_start_time
         self.time_stop_signal_end = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting lick_count")
 
@@ -261,19 +265,42 @@ class ssrt_task(object):
         logging.info(str(time.time()) + ", exiting iti")
 
     ########################################################################
-    # countdown function to run when vstim starts to play
-    # t is the length of countdown (in seconds)
+    # countdown functions to run when vstim starts to play, and when stop signal starts to play
+    # t_vstim and t_stop_signal are the lengths of countdown (in seconds)
     ########################################################################
-    def countdown(self, t):
-        while t:
-            mins, secs = divmod(t, 60)
-            timer = '{:02d}:{:02d}'.format(mins, secs)
-            print(timer, end="\r")
+    def countdown_vstim(self, t_vstim):
+        while t_vstim:
+            mins_vstim, secs_vstim = divmod(t_vstim, 60)
+            timer_vstim = '{:02d}:{:02d}'.format(mins_vstim, secs_vstim)
+            print(timer_vstim, end="\r")
             time.sleep(1)
-            t -= 1
+            t_vstim -= 1
 
         print('vstim time up!')
         self.box.event_list.append("vstim 3s countdown is up!")
+
+    def countdown_stop_signal(self, t_stop_signal):
+        while t_stop_signal:
+            mins_stop_signal, secs_stop_signal = divmod(t_stop_signal, 60)
+            timer_stop_signal = '{:02d}:{:02d}'.format(mins_stop_signal, secs_stop_signal)
+            print(timer_stop_signal, end="\r")
+            time.sleep(0.1)
+            t_stop_signal -= 0.1
+
+        print('delay time is up!')
+        self.box.event_list.append("end of delay time!")
+
+    def countdown_init(self, t_init):
+        while t_init:
+            mins_init, secs_init = divmod(t_init, 60)
+            timer_init = '{:02d}:{:02d}'.format(mins_init, secs_init)
+            print(timer_init, end="\r")
+            time.sleep(0.5)
+            t_init -= 0.5
+
+        print('end of init!')
+        self.box.event_list.append("end of init time!")
+
 
     ########################################################################
     # call the run() method repeatedly in a while loop in the run_ssrt_task_phase1_v1.py script
@@ -281,7 +308,6 @@ class ssrt_task(object):
     # licks, reward delivery, etc.) and trigger the appropriate state transitions
     ########################################################################
     def run_go_trial(self):
-
         # read in name of an event the box has detected
         if self.box.event_list:
             event_name = self.box.event_list.popleft()
@@ -295,7 +321,8 @@ class ssrt_task(object):
             pass
 
         elif self.state == "initiation":
-            pass
+            if event_name == "end of init time!":
+                self.start_vstim_from_init()  # trigger state transition to vstim
 
         elif self.state == "vstim":
             pass
@@ -388,7 +415,7 @@ class ssrt_task(object):
         # create an outcome plot
         ########################################################################
         lick_events = self.time_at_lick
-        i, j = self.time_enter_lick_count, self.time_exit_lick_out
+        i, j = self.time_enter_lick_count, self.time_exit_lick_count
         self.trial_outcome[current_trial] = "Miss !!!"
 
         if lick_events.size == 0:
@@ -454,7 +481,7 @@ class ssrt_task(object):
         # create eventplot (vertical)
         ########################################################################
         # create a 2D array for eventplot
-        events_to_plot = [self.time_at_lick, [self.time_at_reward]]
+        events_to_plot = [lick_events, [self.time_at_reward]]
         plot_bin_number = 700  # bin number for plotting vstim, init, and astim
         plot_period = 7  # in seconds, plot for _s since the start of trial
 
@@ -550,6 +577,8 @@ class ssrt_task(object):
         # Reset self.time_at_reward to be out of range of plotting
         # This prevents the time_at_reward to be carried over to the next trial
         self.time_at_reward = -1
+        self.time_enter_lick_count = -2
+        self.time_exit_lick_count = -1
         plt.close(fig)
 
 
