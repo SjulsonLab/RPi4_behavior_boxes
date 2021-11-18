@@ -352,7 +352,6 @@ class ssrt_task(object):
 
 
     def run_stop_signal_trial(self):
-
         # read in name of an event the box has detected
         if self.box.event_list:
             event_name = self.box.event_list.popleft()
@@ -366,7 +365,8 @@ class ssrt_task(object):
             pass
 
         elif self.state == "initiation":
-            pass
+            if event_name == "end of init time!":
+                self.start_stop_signal()  # trigger state transition to vstim
 
         elif self.state == "stop_signal":
             pass
