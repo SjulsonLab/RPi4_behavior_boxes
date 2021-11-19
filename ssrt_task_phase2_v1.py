@@ -132,6 +132,14 @@ class ssrt_task(object):
                 on_enter=["enter_stop_signal_count"],
                 on_exit=["exit_stop_signal_count"],
             ),
+            # transition state: between stop_signal_count and vacuum
+            # If there is lick, go to transition then vaccum
+            # If no licks, go to vacuum
+            Timeout(
+                name="transition_ss",
+                on_enter=["enter_transition_ss"],
+                on_exit=["exit_transition_ss"],
+            ),
             # vacuum state (GO trial): open vacuum for specified amount of time (right before trial ends)
             Timeout(
                 name="vacuum_go_trial",
@@ -183,7 +191,8 @@ class ssrt_task(object):
             ["start_stop_signal_count", "lick_count", "stop_signal_count"],
             ["start_vacuum_from_reward_available", "reward_available", "vacuum_go_trial"],
             ["start_vacuum_from_lick_count", "lick_count", "vacuum_go_trial"],
-            ["start_vacuum_punishment", "stop_signal_count", "vacuum_stop_signal_trial"],
+            ["start_transition_ss", "stop_signal_count", "transition_ss"],
+            ["start_vacuum_punishment", "transition_ss", "vacuum_stop_signal_trial"],
             ["start_vacuum_no_punishment", "stop_signal_count", "vacuum_go_trial"],
             ["start_iti_go_trial", "vacuum_go_trial", "iti_go_trial"],
             ["start_iti_stop_signal_trial", "vacuum_stop_signal_trial", "iti_stop_signal_trial"],
@@ -330,6 +339,12 @@ class ssrt_task(object):
     def exit_stop_signal_count(self):
         self.time_exit_stop_signal_count = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting stop_signal_count")
+
+    def enter_transition_ss(self):
+        logging.info(str(time.time()) + ", entering transition_ss")
+
+    def exit_transition_ss(self):
+        logging.info(str(time.time()) + ", exiting transition_ss")
 
     def enter_vacuum_go_trial(self):
         # print("entering vacuum")
@@ -482,16 +497,14 @@ class ssrt_task(object):
 
         elif self.state == "stop_signal_count":
             if event_name == "left_IR_entry":
-                self.punishment = True
-            else:
-                self.punishment = False
+                self.start_transition_ss()
+            elif event_name == "vstim 3s countdown is up!":
+                self.start_vacuum_no_punishment()
 
+        elif self.state == "transition_ss":
             if event_name == "vstim 3s countdown is up!":
-                if self.punishment == True:
-                    self.start_vacuum_punishment()
-                elif self.punishment == False:
-                    self.start_vacuum_no_punishment()
-
+                self.start_vacuum_punishment()
+            
         elif self.state == "vacuum_go_trial":
             pass
 
