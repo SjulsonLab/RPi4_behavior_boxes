@@ -400,6 +400,7 @@ class ssrt_task(object):
             time.sleep(1)
             t_vstim -= 1
             if timer_vstim == 2:
+                print("vstim has 1s left!")
                 self.box.event_list.append("vstim has 1s left!")
 
         print('vstim time up!')
