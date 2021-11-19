@@ -267,6 +267,8 @@ class ssrt_task(object):
     def enter_stop_signal(self):
         logging.info(str(time.time()) + ", entering stop_signal")
         self.box.sound1.on()
+        time.sleep(0.01)
+        self.box.sound1.off()
         print("Stop signal ON!")
         self.time_stop_signal_ON = time.time() - self.trial_start_time
 
@@ -315,7 +317,6 @@ class ssrt_task(object):
 
     def exit_lick_count(self):
         # print("exiting lick_count")
-        self.box.sound1.off()
         self.time_exit_lick_count = time.time() - self.trial_start_time
         self.time_stop_signal_OFF = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting lick_count")
