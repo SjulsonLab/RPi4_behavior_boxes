@@ -138,7 +138,10 @@ try:
         logging.info(str("##############################\n" +
                      str(time.time())) + ", starting_trial, " + str(i) +
                      str("\n##############################"))
-        task.trial_start()
+        if trial_ident == "go_trial":
+            task.go_trial_start()
+        else:
+            task.stop_signal_trial_start()
 
         #  Run trial in loop
         while task.trial_running:
