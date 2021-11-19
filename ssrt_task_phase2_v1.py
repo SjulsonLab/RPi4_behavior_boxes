@@ -605,13 +605,17 @@ class ssrt_task(object):
         # create stop signal time data
         ss_duration = 4  # in seconds
         ss_bins = plot_bin_number
-        time_ss_on = self.time_stop_signal_ON
-        time_ss_index_on = int(round(time_ss_on * ss_bins/plot_period))
-        time_ss_index_off = int(time_ss_index_on + round(ss_duration*(ss_bins/plot_period)))
         ss_plot_data_x = np.linspace(0, plot_period, num=ss_bins)
-        ss_plot_data_y = np.zeros(ss_bins) + 4
-        range_of_ss_on = int(time_ss_index_off - time_ss_index_on)
-        ss_plot_data_y[time_ss_index_on:time_ss_index_off] = np.zeros(range_of_ss_on) + 4.8
+
+        if trial_ident == "go_trial":
+            ss_plot_data_y = np.zeros(ss_bins) + 4
+        else:
+            time_ss_on = self.time_stop_signal_ON
+            time_ss_index_on = int(round(time_ss_on * ss_bins/plot_period))
+            time_ss_index_off = int(time_ss_index_on + round(ss_duration*(ss_bins/plot_period)))
+            ss_plot_data_y = np.zeros(ss_bins) + 4
+            range_of_ss_on = int(time_ss_index_off - time_ss_index_on)
+            ss_plot_data_y[time_ss_index_on:time_ss_index_off] = np.zeros(range_of_ss_on) + 4.8
 
         # create initiation time data
         init_bins = plot_bin_number  # number of bins
