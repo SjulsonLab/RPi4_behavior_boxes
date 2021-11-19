@@ -305,7 +305,6 @@ class ssrt_task(object):
         self.time_at_vstim_on = time.time() - self.trial_start_time
         # start the countdown of time since display of vstim, this is used as timeup to transition lick_count to vacuum
         self.countdown_vstim(3)
-        self.countdown_vstim_ss(2)
 
     def exit_vstim_stop_signal_trial(self):
         # print("transitioning to reward_available")
@@ -400,22 +399,11 @@ class ssrt_task(object):
             print(timer_vstim, end="\r")
             time.sleep(1)
             t_vstim -= 1
+            if timer_vstim == 2:
+                self.box.event_list.append("vstim has 1s left!")
 
         print('vstim time up!')
         self.box.event_list.append("vstim 3s countdown is up!")
-
-    def countdown_vstim_ss(self, t_vstim_ss):
-        #  t_vstim_ss should be 2
-        while t_vstim_ss:
-            mins_vstim_ss, secs_vstim_ss = divmod(t_vstim_ss, 60)
-            timer_vstim_ss = '{:02d}:{:02d}'.format(mins_vstim_ss, secs_vstim_ss)
-            print(timer_vstim_ss, end="\r")
-            time.sleep(1)
-            t_vstim_ss -= 1
-
-        print('vstim has 1s left!')
-        self.box.event_list.append("vstim has 1s left!")
-
 
     ########################################################################
     # call the run() method repeatedly in a while loop in the run_ssrt_task_phase1_v1.py script
