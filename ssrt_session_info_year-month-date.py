@@ -8,7 +8,6 @@ import socket
 
 # defining immutable mouse dict (once defined for a mouse, NEVER EDIT IT)
 mouse_info = pysistence.make_dict({'mouse_name': 'test_pump',
-                 'fake_field': 'fake_info',
                  })
 
 # Information for this session (the user should edit this each session)
