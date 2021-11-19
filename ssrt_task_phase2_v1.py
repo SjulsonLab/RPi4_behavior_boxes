@@ -211,6 +211,8 @@ class ssrt_task(object):
         self.trial_outcome = ["" for o in range(self.session_info["number_of_trials"])]
         self.hit_count = [0 for o in range(self.session_info["number_of_trials"])]
         self.miss_count = [0 for o in range(self.session_info["number_of_trials"])]
+        self.cr_count = [0 for o in range(self.session_info["number_of_trials"])]
+        self.fa_count = [0 for o in range(self.session_info["number_of_trials"])]
 
     ########################################################################
     # functions called when state transitions occur
@@ -321,9 +323,11 @@ class ssrt_task(object):
     def enter_stop_signal_count(self):
         # This state determines if there is any lick,
         # then trigger approprate state transition (normal ITI vs longer ITI)
+        self.time_enter_stop_signal_count = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", entering stop_signal_count")
 
     def exit_stop_signal_count(self):
+        self.time_exit_stop_signal_count = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting stop_signal_count")
 
     def enter_vacuum(self):
@@ -493,7 +497,7 @@ class ssrt_task(object):
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
 
-    def plot_ssrt_phase2(self, current_trial):
+    def plot_ssrt_phase2(self, current_trial, trial_ident):
 
         ########################################################################
         # initialize the figure
@@ -509,19 +513,28 @@ class ssrt_task(object):
         ########################################################################
         lick_events = self.time_at_lick
         i, j = self.time_enter_lick_count, self.time_exit_lick_count
+        k, l = self.time_enter_stop_signal_count, self.time_exit_stop_signal_count
         self.trial_outcome[current_trial] = "Miss !!!"
 
         if lick_events.size == 0:
             self.trial_outcome[current_trial] = "Miss !!!"
         else:
             for ele in lick_events:
-                if i < ele < j:
-                    self.trial_outcome[current_trial] = "Hit!"
-                    break
+                if trial_ident == "go_trial":
+                    if i < ele < j:
+                        self.trial_outcome[current_trial] = "Hit!"
+                        break
+                else:
+                    self.trial_outcome[current_trial] = "CR!"
+                    if k < ele < l:
+                        self.trial_outcome[current_trial] = "FA !!!"
+                        break
 
         self.hit_count[current_trial] = self.trial_outcome.count("Hit!")
         self.miss_count[current_trial] = self.trial_outcome.count("Miss !!!")
-        hit_percentage = round((self.hit_count[current_trial]/(current_trial+1))*100)
+        self.cr_count[current_trial] = self.trial_outcome.count("CR!")
+        self.fa_count[current_trial] = self.trial_outcome.count("FA !!!")
+        # hit_percentage = round((self.hit_count[current_trial]/(current_trial+1))*100)
 
         if current_trial < 15:
             textstr = '\n'.join((
@@ -539,9 +552,9 @@ class ssrt_task(object):
                 f"trial {self.trial_list[11]} : {self.trial_outcome[11]}",
                 f"trial {self.trial_list[12]} : {self.trial_outcome[12]}",
                 f"trial {self.trial_list[13]} : {self.trial_outcome[13]}",
-                f"trial {self.trial_list[14]} : {self.trial_outcome[14]}",
-                f" ",
-                f"Percent Hit outcome = {hit_percentage}%"))
+                f"trial {self.trial_list[14]} : {self.trial_outcome[14]}"))
+                # f" ",
+                # f"Percent Hit outcome = {hit_percentage}%"))
 
         elif current_trial >= 15:
             textstr = '\n'.join((
@@ -559,9 +572,9 @@ class ssrt_task(object):
                 f"trial {self.trial_list[11 + (current_trial - 14)]} : {self.trial_outcome[11 + (current_trial - 14)]}",
                 f"trial {self.trial_list[12 + (current_trial - 14)]} : {self.trial_outcome[12 + (current_trial - 14)]}",
                 f"trial {self.trial_list[13 + (current_trial - 14)]} : {self.trial_outcome[13 + (current_trial - 14)]}",
-                f"trial {self.trial_list[14 + (current_trial - 14)]} : {self.trial_outcome[14 + (current_trial - 14)]}",
-                f" ",
-                f"Percent Hit outcome = {hit_percentage}%"))
+                f"trial {self.trial_list[14 + (current_trial - 14)]} : {self.trial_outcome[14 + (current_trial - 14)]}"))
+                # f" ",
+                # f"Percent Hit outcome = {hit_percentage}%"))
 
         ax1.set_title('Trial Outcome', fontsize=11)
         ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
@@ -589,6 +602,17 @@ class ssrt_task(object):
         range_of_vstim_on = int(time_vstim_index_off - time_vstim_index_on)
         vstim_plot_data_y[time_vstim_index_on:time_vstim_index_off] = np.zeros(range_of_vstim_on) + 0.8
 
+        # create stop signal time data
+        ss_duration = 4  # in seconds
+        ss_bins = plot_bin_number
+        time_ss_on = self.time_stop_signal_ON
+        time_ss_index_on = int(round(time_ss_on * ss_bins/plot_period))
+        time_ss_index_off = int(time_ss_index_on + round(ss_duration*(ss_bins/plot_period)))
+        ss_plot_data_x = np.linspace(0, plot_period, num=ss_bins)
+        ss_plot_data_y = np.zeros(ss_bins) + 4
+        range_of_ss_on = int(time_ss_index_off - time_ss_index_on)
+        ss_plot_data_y[time_ss_index_on:time_ss_index_off] = np.zeros(range_of_ss_on) + 4.8
+
         # create initiation time data
         init_bins = plot_bin_number  # number of bins
         time_init_on = self.time_enter_init
@@ -596,9 +620,9 @@ class ssrt_task(object):
         time_init_index_on = int(round(time_init_on * init_bins/plot_period))
         time_init_index_off = int(time_init_index_on + round((time_init_off - time_init_on) * (init_bins/plot_period)))
         init_plot_data_x = np.linspace(0, plot_period, num=init_bins)
-        init_plot_data_y = np.zeros(init_bins) + 4
+        init_plot_data_y = np.zeros(init_bins) + 5
         range_of_init_on = int(time_init_index_off - time_init_index_on)
-        init_plot_data_y[time_init_index_on:time_init_index_off] = np.zeros(range_of_init_on) + 4.8
+        init_plot_data_y[time_init_index_on:time_init_index_off] = np.zeros(range_of_init_on) + 5.8
         init_plot_data_y[0] = 0 + 4  # for asthetic purpose to set init first value to 0
 
         # create vacuum time data
@@ -633,12 +657,18 @@ class ssrt_task(object):
         outcome_xvalue = np.linspace(0, current_trial, num=current_trial+1)
         outcome_hit_count_yvalue = self.hit_count[0:current_trial+1]
         outcome_miss_count_yvalue = self.miss_count[0:current_trial+1]
+        outcome_cr_count_yvalue = self.cr_count[0:current_trial+1]
+        outcome_fa_count_yvalue = self.fa_count[0:current_trial+1]
 
         # Plot
         ax3.plot(outcome_xvalue, outcome_hit_count_yvalue, 'r-')
         ax3.lines[-1].set_label('Hit')
         ax3.plot(outcome_xvalue, outcome_miss_count_yvalue, 'b-')
         ax3.lines[-1].set_label('Miss')
+        ax3.plot(outcome_xvalue, outcome_cr_count_yvalue, 'c-')
+        ax3.lines[-1].set_label('CR')
+        ax3.plot(outcome_xvalue, outcome_fa_count_yvalue, 'm-')
+        ax3.lines[-1].set_label('FA')
 
         ax3.set_title('Cummulative outcome', fontsize=11)
         ax3.set_xlim([0, current_trial+1])

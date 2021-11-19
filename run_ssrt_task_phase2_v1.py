@@ -148,13 +148,13 @@ try:
             if trial_ident == "go_trial":
                 task.run_go_trial()
                 start_t = time.time()
-                task.plot_ssrt_phase2(i)
+                task.plot_ssrt_phase2(i, trial_ident)
                 end_t = time.time()
                 print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
             else:
                 task.run_stop_signal_trial()
                 start_t = time.time()
-                task.plot_ssrt_phase2(i)
+                task.plot_ssrt_phase2(i, trial_ident)
                 end_t = time.time()
                 print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
     raise SystemExit
