@@ -140,7 +140,7 @@ try:
                      str("\n##############################"))
         if trial_ident == "go_trial":
             task.go_trial_start()
-        else:
+        elif trial_ident == "stop_signal_trial":
             task.stop_signal_trial_start()
 
         #  Run trial in loop

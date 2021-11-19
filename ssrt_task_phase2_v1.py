@@ -331,13 +331,25 @@ class ssrt_task(object):
         self.time_exit_stop_signal_count = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting stop_signal_count")
 
-    def enter_vacuum(self):
+    def enter_vacuum_go_trial(self):
         # print("entering vacuum")
         logging.info(str(time.time()) + ", entering vacuum")
         self.box.vacuum_on()
         self.time_at_vacON = time.time() - self.trial_start_time
 
-    def exit_vacuum(self):
+    def exit_vacuum_go_trial(self):
+        # print("exiting vacuum")
+        logging.info(str(time.time()) + ", exiting vacuum")
+        self.box.vacuum_off()
+        self.time_at_vacOFF = time.time() - self.trial_start_time
+
+    def enter_vacuum_stop_signal_trial(self):
+        # print("entering vacuum")
+        logging.info(str(time.time()) + ", entering vacuum")
+        self.box.vacuum_on()
+        self.time_at_vacON = time.time() - self.trial_start_time
+
+    def exit_vacuum_stop_signal_trial(self):
         # print("exiting vacuum")
         logging.info(str(time.time()) + ", exiting vacuum")
         self.box.vacuum_off()
