@@ -514,7 +514,6 @@ class ssrt_task(object):
         ########################################################################
         lick_events = self.time_at_lick
         i, j = self.time_enter_lick_count, self.time_exit_lick_count
-        k, l = self.time_enter_stop_signal_count, self.time_exit_stop_signal_count
         self.trial_outcome[current_trial] = "Miss !!!"
 
         if lick_events.size == 0:
@@ -527,6 +526,7 @@ class ssrt_task(object):
                         break
                 else:
                     self.trial_outcome[current_trial] = "CR!"
+                    k, l = self.time_enter_stop_signal_count, self.time_exit_stop_signal_count
                     if k < ele < l:
                         self.trial_outcome[current_trial] = "FA !!!"
                         break
