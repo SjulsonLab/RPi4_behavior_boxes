@@ -413,7 +413,7 @@ class ssrt_task(object):
             time.sleep(1)
             t_vstim_ss -= 1
 
-        print('vstim time up!')
+        print('vstim has 1s left!')
         self.box.event_list.append("vstim has 1s left!")
 
 
@@ -504,7 +504,7 @@ class ssrt_task(object):
         elif self.state == "transition_ss":
             if event_name == "vstim 3s countdown is up!":
                 self.start_vacuum_punishment()
-            
+
         elif self.state == "vacuum_go_trial":
             pass
 
