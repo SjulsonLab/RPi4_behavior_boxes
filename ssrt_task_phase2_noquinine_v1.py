@@ -222,6 +222,7 @@ class ssrt_task(object):
         self.miss_count = [0 for o in range(self.session_info["number_of_trials"])]
         self.cr_count = [0 for o in range(self.session_info["number_of_trials"])]
         self.fa_count = [0 for o in range(self.session_info["number_of_trials"])]
+        self.time_astim_ON = -5  # default for plotting when ss trial is not there yet
 
     ########################################################################
     # functions called when state transitions occur
@@ -673,6 +674,7 @@ class ssrt_task(object):
         self.time_at_reward = -1
         self.time_enter_lick_count = -2
         self.time_exit_lick_count = -1
+        self.time_astim_ON = -5
         plt.close(fig)
 
 
