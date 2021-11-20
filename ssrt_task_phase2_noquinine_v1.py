@@ -504,10 +504,6 @@ class ssrt_task(object):
         self.miss_count[current_trial] = self.trial_outcome.count("Miss !!!")
         self.cr_count[current_trial] = self.trial_outcome.count("CR!")
         self.fa_count[current_trial] = self.trial_outcome.count("FA !!!")
-        try:
-            cr_percentage = round((self.cr_count[current_trial]/(self.cr_count[current_trial] + self.fa_count[current_trial]))*100)
-        except Exception as error_message:
-            cr_percentage = 0
 
         if current_trial < 15:
             textstr = '\n'.join((
@@ -526,10 +522,10 @@ class ssrt_task(object):
                 f"trial {self.trial_list[12]} : {self.trial_outcome[12]}",
                 f"trial {self.trial_list[13]} : {self.trial_outcome[13]}",
                 f"trial {self.trial_list[14]} : {self.trial_outcome[14]}",
-                f" ",
-                f"Correctly withold licking = {cr_percentage}%"))
+                f" "))
 
         elif current_trial >= 15:
+            cr_percentage = round((self.cr_count[current_trial]/(self.cr_count[current_trial] + self.fa_count[current_trial]))*100)
             textstr = '\n'.join((
                 f"trial {self.trial_list[0 + (current_trial - 14)]} : {self.trial_outcome[0 + (current_trial - 14)]}",
                 f"trial {self.trial_list[1 + (current_trial - 14)]} : {self.trial_outcome[1 + (current_trial - 14)]}",
