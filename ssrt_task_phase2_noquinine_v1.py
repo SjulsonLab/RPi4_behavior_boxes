@@ -104,6 +104,12 @@ class ssrt_task(object):
                 timeout=self.session_info["delay_time"],
                 on_timeout=["start_vstim_astim"],
             ),
+            # neutral state #3
+            Timeout(
+                name="neutral3",
+                on_enter=["enter_neutral3"],
+                on_exit=["exit_neutral3"],
+            ),
             # reward_available state: if there is a lick, deliver water then transition to the next state
             Timeout(
                 name="reward_available",
@@ -111,12 +117,6 @@ class ssrt_task(object):
                 on_exit=["exit_reward_available"],
                 timeout=self.session_info["reward_available_length"],
                 on_timeout=["start_vacuum_from_reward_available"],
-            ),
-            # neutral state #3
-            Timeout(
-                name="neutral3",
-                on_enter=["enter_neutral3"],
-                on_exit=["exit_neutral3"],
             ),
             # lick_count state: licks are logged
             Timeout(
