@@ -92,8 +92,6 @@ class ssrt_task(object):
                 name="vstim",
                 on_enter=["enter_vstim"],
                 on_exit=["exit_vstim"],
-                timeout=self.session_info["lockout_length"],
-                on_timeout=["start_neutral3"],
             ),
             # astim state: serves as a stop signal, ON 1s before vstim, but right after init LED
             # lasts until end of vstim
@@ -103,12 +101,6 @@ class ssrt_task(object):
                 on_exit=["exit_astim"],
                 timeout=self.session_info["delay_time"],
                 on_timeout=["start_vstim_astim"],
-            ),
-            # neutral state #3
-            Timeout(
-                name="neutral3",
-                on_enter=["enter_neutral3"],
-                on_exit=["exit_neutral3"],
             ),
             # reward_available state: if there is a lick, deliver water then transition to the next state
             Timeout(
@@ -172,8 +164,7 @@ class ssrt_task(object):
             ["trial_start", "standby", "initiation"],
             ["start_neutral1", "initiation", "neutral1"],
             ["start_vstim_neutral1", "neutral1", "vstim"],
-            ["start_neutral3", "vstim", "neutral3"],
-            ["start_reward_neutral3", "neutral3", "reward_available"],
+            ["start_reward", "vstim", "reward_available"],
             ["start_lick_count", "reward_available", "lick_count"],
             ["start_vacuum_from_reward_available", "reward_available", "vacuum"],
             ["start_vacuum_from_lick_count", "lick_count", "vacuum"],
@@ -187,8 +178,7 @@ class ssrt_task(object):
             # ["start_neutral1", "initiation", "neutral1"],
             ["start_astim_neutral1", "neutral1", "astim"],
             ["start_vstim_astim", "astim", "vstim"],
-            # ["start_neutral3", "vstim", "neutral3"],
-            ["start_lick_count_neutral3", "neutral3", "lick_count"],
+            ["start_lick_count_vstim", "vstim", "lick_count"],
             ["start_neutral4", "lick_count", "neutral4"],
             ["start_vacuum_neutral4", "neutral4", "vacuum"],
             ["start_vacuum_from_lick_count", "lick_count", "vacuum"],
@@ -281,12 +271,6 @@ class ssrt_task(object):
     def exit_vstim(self):
         logging.info(str(time.time()) + ", exiting vstim")
 
-    def enter_neutral3(self):
-        logging.info(str(time.time()) + ", entering neutral3")
-
-    def exit_neutral3(self):
-        logging.info(str(time.time()) + ", exiting neutral3")
-
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
 
@@ -378,10 +362,7 @@ class ssrt_task(object):
             self.start_vstim_neutral1()
 
         elif self.state == "vstim":
-            pass
-
-        elif self.state == "neutral3":
-            self.start_reward_neutral3()
+            self.start_reward()
 
         elif self.state == "reward_available":
             # Deliver reward from left pump if there is a lick detected on the left port
@@ -434,10 +415,7 @@ class ssrt_task(object):
             pass
 
         elif self.state == "vstim":
-            pass
-
-        elif self.state == "neutral3":
-            self.start_lick_count_neutral3()
+            self.start_lick_count_vstim()
 
         elif self.state == "lick_count":
             if event_name == "left_IR_entry":
