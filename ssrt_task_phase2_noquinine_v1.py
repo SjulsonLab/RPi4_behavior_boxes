@@ -109,8 +109,6 @@ class ssrt_task(object):
                 name="neutral3",
                 on_enter=["enter_neutral3"],
                 on_exit=["exit_neutral3"],
-                timeout=self.session_info["neutral3_timeout"],
-                on_timeout=["start_reward_neutral3"],
             ),
             # reward_available state: if there is a lick, deliver water then transition to the next state
             Timeout(
