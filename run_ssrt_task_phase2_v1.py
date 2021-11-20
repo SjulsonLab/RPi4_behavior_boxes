@@ -37,7 +37,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import the SSRT task class here
-from ssrt_task_phase2_v1 import ssrt_task
+from ssrt_task_phase2_noquinine_v1 import ssrt_task
 
 try:
     # load in session_info file, check that dates are correct, put in automatic
@@ -138,17 +138,14 @@ try:
         logging.info(str("##############################\n" +
                      str(time.time())) + ", starting_trial, " + str(i) +
                      str("\n##############################"))
-        if trial_ident == "go_trial":
-            task.go_trial_start()
-        elif trial_ident == "stop_signal_trial":
-            task.stop_signal_trial_start()
+        task.trial_start()
 
         #  Run trial in loop
         while task.trial_running:
             if trial_ident == "go_trial":
                 task.run_go_trial()
-            else:
-                task.run_stop_signal_trial()
+            elif trial_ident == "stop_signal_trial":
+                task.run_ss_trial()
 
         start_t = time.time()
         task.plot_ssrt_phase2(i, trial_ident)
