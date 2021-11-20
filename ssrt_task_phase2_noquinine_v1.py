@@ -222,7 +222,6 @@ class ssrt_task(object):
         self.miss_count = [0 for o in range(self.session_info["number_of_trials"])]
         self.cr_count = [0 for o in range(self.session_info["number_of_trials"])]
         self.fa_count = [0 for o in range(self.session_info["number_of_trials"])]
-        self.time_astim_ON = -5  # default for plotting when ss trial is not there yet
 
     ########################################################################
     # functions called when state transitions occur
@@ -558,8 +557,8 @@ class ssrt_task(object):
         ########################################################################
         # create a 2D array for eventplot
         events_to_plot = [lick_events, [self.time_at_reward]]
-        plot_bin_number = 700  # bin number for plotting vstim, init, and astim
-        plot_period = 7  # in seconds, plot for _s since the start of trial
+        plot_bin_number = 800  # bin number for plotting vstim, init, and astim
+        plot_period = 8  # in seconds, plot for _s since the start of trial
 
         # create vstim time data
         vstim_duration = 3  # in seconds, pre-generated
@@ -575,13 +574,17 @@ class ssrt_task(object):
         # create astim time data
         astim_duration = 4  # in seconds, pre-generated
         astim_bins = plot_bin_number  # number of bins
-        time_astim_on = self.time_astim_ON
-        time_astim_index_on = int(round(time_astim_on * astim_bins / plot_period))
-        time_astim_index_off = int(time_astim_index_on + round(astim_duration * (astim_bins / plot_period)))
-        astim_plot_data_x = np.linspace(0, plot_period, num=astim_bins)
-        astim_plot_data_y = np.zeros(astim_bins)
-        range_of_astim_on = int(time_astim_index_off - time_astim_index_on)
-        astim_plot_data_y[time_astim_index_on:time_astim_index_off] = np.zeros(range_of_astim_on) + 0.8
+        if trial_ident == "go_trial":
+            astim_plot_data_x = np.linspace(0, plot_period, num=astim_bins)
+            astim_plot_data_y = np.zeros(astim_bins)
+        elif trial_ident == "stop_signal_trial":
+            time_astim_on = self.time_astim_ON
+            time_astim_index_on = int(round(time_astim_on * astim_bins / plot_period))
+            time_astim_index_off = int(time_astim_index_on + round(astim_duration * (astim_bins / plot_period)))
+            astim_plot_data_x = np.linspace(0, plot_period, num=astim_bins)
+            astim_plot_data_y = np.zeros(astim_bins)
+            range_of_astim_on = int(time_astim_index_off - time_astim_index_on)
+            astim_plot_data_y[time_astim_index_on:time_astim_index_off] = np.zeros(range_of_astim_on) + 0.8
 
 
         # create initiation time data
@@ -617,10 +620,10 @@ class ssrt_task(object):
         ax2.plot(init_plot_data_x, init_plot_data_y)
         ax2.plot(vac_plot_data_x, vac_plot_data_y)
         ax2.plot(astim_plot_data_x, astim_plot_data_y)
-        ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
+        ax2.set_xlim([-0.5, 8.5])  # 8s total to show (trial duration)
         ax2.set_xlabel('Time since trial start (s)', fontsize=9)
-        ax2.set_yticks((-1, 0.4, 2, 3, 4.4))
-        ax2.set_yticklabels(('vac', 'vstim', 'reward', 'lick', 'init LED'))
+        ax2.set_yticks((-2, -1, 0.4, 2, 3, 4.4))
+        ax2.set_yticklabels(('vac', 'vstim', 'astim', 'reward', 'lick', 'init LED'))
 
         ########################################################################
         # create cummulative outcome plot
@@ -674,7 +677,6 @@ class ssrt_task(object):
         self.time_at_reward = -1
         self.time_enter_lick_count = -2
         self.time_exit_lick_count = -1
-        self.time_astim_ON = -5
         plt.close(fig)
 
 
