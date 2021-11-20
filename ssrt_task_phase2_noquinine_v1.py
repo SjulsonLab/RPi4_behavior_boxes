@@ -380,6 +380,9 @@ class ssrt_task(object):
         elif self.state == "vstim":
             pass
 
+        elif self.state == "neutral3":
+            self.start_reward_neutral3()
+
         elif self.state == "reward_available":
             # Deliver reward from left pump if there is a lick detected on the left port
             if event_name == "left_IR_entry":
