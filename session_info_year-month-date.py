@@ -22,7 +22,7 @@ session_info['external_storage']            = '/mnt/hd'
 # for actual data save to this dir:
 #session_info['basedir']					  	= '/home/pi/video'
 session_info['weight']                	    = 32.18
-session_info['manual_date']					= '2021-09-14'
+session_info['manual_date']					= '2021-11-20'
 session_info['box_name']             		= socket.gethostname()
 
 # session_info['config']						= 'freely_moving_v1'

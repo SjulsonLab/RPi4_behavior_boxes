@@ -21,13 +21,14 @@ session_info['external_storage']            = '/mnt/hd'
 # for actual data save to this dir:
 #session_info['basedir']					  	= '/home/pi/video'
 session_info['weight']                	    = 32.18
-session_info['manual_date']					= '2021-09-14'
+session_info['manual_date']					= '2021-11-20'
 session_info['box_name']             		= socket.gethostname()
 
 # session_info['config']						= 'freely_moving_v1'
 session_info['config']						= 'head_fixed_v1'
 
 # behavior parameters
+session_info['neutral3_timeout']                  = 0.010  # delay time between astim and vstim (in s)
 session_info['delay_time']                  = 1  # delay time between astim and vstim (in s)
 session_info['number_of_trials']            = 300  # total number of trials
 session_info['ratio_go_stop_signal']        = 0.5  # the ratio between go and stop_signal trials
