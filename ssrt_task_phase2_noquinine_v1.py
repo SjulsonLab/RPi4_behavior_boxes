@@ -504,7 +504,10 @@ class ssrt_task(object):
         self.miss_count[current_trial] = self.trial_outcome.count("Miss !!!")
         self.cr_count[current_trial] = self.trial_outcome.count("CR!")
         self.fa_count[current_trial] = self.trial_outcome.count("FA !!!")
-        cr_percentage = round((self.cr_count[current_trial]/(self.cr_count[current_trial] + self.fa_count[current_trial]))*100)
+        try:
+            cr_percentage = round((self.cr_count[current_trial]/(self.cr_count[current_trial] + self.fa_count[current_trial]))*100)
+        except Exception as error_message:
+            cr_percentage = 0
 
         if current_trial < 15:
             textstr = '\n'.join((
