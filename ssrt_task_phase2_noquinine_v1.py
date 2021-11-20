@@ -488,6 +488,7 @@ class ssrt_task(object):
         ########################################################################
         if trial_ident == "stop_signal_trial":
             self.trial_outcome[current_trial] = self.temp_outcome
+            lick_events = self.time_at_lick
         elif trial_ident == "go_trial":
             lick_events = self.time_at_lick
             i, j = self.time_enter_lick_count, self.time_exit_lick_count
