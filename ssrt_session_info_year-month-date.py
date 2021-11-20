@@ -28,7 +28,7 @@ session_info['box_name']             		= socket.gethostname()
 session_info['config']						= 'head_fixed_v1'
 
 # behavior parameters
-session_info["stop_signal_preceed"]         = 1  # delay time between stop signal and vstim (in seconds)
+session_info['delay_time']                  = 1  # delay time between astim and vstim (in s)
 session_info['number_of_trials']            = 300  # total number of trials
 session_info['ratio_go_stop_signal']        = 0.5  # the ratio between go and stop_signal trials
 session_info['trial_length']                = 3  # in seconds
@@ -36,11 +36,11 @@ session_info['init_length']                 = 1  # in seconds
 session_info['lockout_length']              = 0.2  # in seconds
 session_info['vacuum_length']               = 0.1  # in seconds
 session_info['reward_available_length']     = session_info['trial_length'] - session_info['lockout_length']
-# session_info['lick_count_length']           = 3  # in seconds (default is 3, but will be changed during task)
 session_info['reward_size']					= 10  # in microliters
 session_info['iti_length']                  = 2.5 - session_info['vacuum_length']  # in seconds
-session_info["iti_length_go"]               = 2.5 - session_info['vacuum_length']  # in seconds
-session_info["iti_length_stop_signal"]      = 5.5 - session_info['vacuum_length']  # in seconds
+#  2.5s for ITI because plotting takes 0.8s-1s
+session_info['normal_iti_length']               = 2.5 - session_info['vacuum_length']  # in seconds
+session_info['punishment_iti_length']               = 6 - session_info['vacuum_length']  # in seconds
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
