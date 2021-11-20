@@ -1,7 +1,6 @@
 
-import behavbox_DT
+import behavbox_DT as box
 pump = box.Pump()
-box = behavbox_DT
 
 test_running = True
 while test_running:
