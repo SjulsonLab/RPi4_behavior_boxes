@@ -139,19 +139,21 @@ try:
                      str(time.time())) + ", starting_trial, " + str(i) +
                      str("\n##############################"))
 
-        task.trial_start()
-
-        #  Run trial in loop
-        while task.trial_running:
-            if trial_ident == "go_trial":
+        if trial_ident == "go_trial":
+            task.trial_start_go()
+            #  Run trial in loop
+            while task.trial_running:
                 task.run_go_trial()
-            elif trial_ident == "stop_signal_trial":
+        elif trial_ident == "stop_signal_trial":
+            task.trial_start_ss()
+            while task.trial_running:
                 task.run_ss_trial()
 
         start_t = time.time()
         task.plot_ssrt_phase2(i, trial_ident)
         end_t = time.time()
         print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
+
 
     raise SystemExit
 
