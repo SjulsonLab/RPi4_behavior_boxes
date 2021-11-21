@@ -485,6 +485,14 @@ class ssrt_task(object):
         ########################################################################
         # draw on canvas
         ########################################################################
+
+        # Set position for pygame to display
+        pos_x = 0
+        pos_y = 0
+        os.environ['SDL_VIDEO_WINDOW_POS'] = '%d,%d' % (pos_x, pos_y)
+        # os.environ['SDL_VIDEO_CENTERED'] = '0'
+
+        # Draw on canvas of the figure
         canvas = agg.FigureCanvasAgg(fig)
         canvas.draw()
         renderer = canvas.get_renderer()

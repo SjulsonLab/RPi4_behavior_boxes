@@ -52,6 +52,11 @@ try:
     session_info = tempmod.session_info
     mouse_info = tempmod.mouse_info
 
+    animal_ID = input("Enter animal ID (ex DT001_phase1):\n")
+    session_info['mouse_name'] = animal_ID
+    animal_weight = input("Enter animal weight (ex 19.5):\n")
+    session_info['weight'] = animal_weight
+
     session_info['date'] = datestr
     session_info['time'] = timestr
     session_info['datetime'] = session_info['date'] + '_' + session_info['time']
@@ -153,7 +158,6 @@ try:
         task.plot_ssrt_phase2(i, trial_ident)
         end_t = time.time()
         print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
-
 
     raise SystemExit
 
