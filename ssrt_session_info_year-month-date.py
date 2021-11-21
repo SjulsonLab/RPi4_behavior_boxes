@@ -28,11 +28,8 @@ session_info['box_name']             		= socket.gethostname()
 session_info['config']						= 'head_fixed_v1'
 
 # behavior parameters
-session_info['neutral3_timeout']                  = 0.010  # delay time between astim and vstim (in s)
 session_info['delay_time']                  = 1  # delay time between astim and vstim (in s)
 session_info['number_of_trials']            = 300  # total number of trials
-session_info['ratio_go_stop_signal']        = 0.5  # the ratio between go and stop_signal trials
-session_info['trial_length']                = 3  # in seconds
 session_info['init_length']                 = 1  # in seconds
 session_info['lockout_length']              = 0.2  # in seconds
 session_info['vacuum_length']               = 0.1  # in seconds

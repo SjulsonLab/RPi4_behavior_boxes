@@ -138,6 +138,7 @@ try:
         logging.info(str("##############################\n" +
                      str(time.time())) + ", starting_trial, " + str(i) +
                      str("\n##############################"))
+
         task.trial_start()
 
         #  Run trial in loop

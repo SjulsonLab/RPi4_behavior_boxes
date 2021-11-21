@@ -72,27 +72,23 @@ class ssrt_task(object):
         ########################################################################
         self.states = [
             State(name="standby", on_enter=["enter_standby"], on_exit=["exit_standby"]),
+
             # initiation state: LED light is turned ON for 1s
             Timeout(
-                name="initiation",
-                on_enter=["enter_initiation"],
-                on_exit=["exit_initiation"],
+                name="initiation_go",
+                on_enter=["enter_initiation_go"],
+                on_exit=["exit_initiation_go"],
                 timeout=self.session_info["init_length"],
-                on_timeout=["start_neutral1"],
+                on_timeout=["start_vstim"],
             ),
-            # neutral state #1
             Timeout(
-                name="neutral1",
-                on_enter=["enter_neutral1"],
-                on_exit=["exit_neutral1"],
+                name="initiation_ss",
+                on_enter=["enter_initiation_ss"],
+                on_exit=["exit_initiation_ss"],
+                timeout=self.session_info["init_length"],
+                on_timeout=["start_astim"],
             ),
-            # vstim state: start vstim display (automatic once start, can move on to the next state)
-            # visual stim is initiated at the exit of initation state, vstim state is actually lockout state (200ms)
-            Timeout(
-                name="vstim",
-                on_enter=["enter_vstim"],
-                on_exit=["exit_vstim"],
-            ),
+
             # astim state: serves as a stop signal, ON 1s before vstim, but right after init LED
             # lasts until end of vstim
             Timeout(
@@ -102,6 +98,17 @@ class ssrt_task(object):
                 timeout=self.session_info["delay_time"],
                 on_timeout=["start_vstim_astim"],
             ),
+
+            # vstim state: start vstim display (automatic once start, can move on to the next state)
+            # visual stim is initiated at the exit of initation state, vstim state is actually lockout state (200ms)
+            Timeout(
+                name="vstim",
+                on_enter=["enter_vstim"],
+                on_exit=["exit_vstim"],
+                timeout=self.session_info["lockout_length"],
+                on_timeout=["start_reward_available"],
+            ),
+
             # reward_available state: if there is a lick, deliver water then transition to the next state
             Timeout(
                 name="reward_available",
@@ -116,26 +123,23 @@ class ssrt_task(object):
                 on_enter=["enter_lick_count"],
                 on_exit=["exit_lick_count"],
             ),
-            # neutral state #4
-            Timeout(
-                name="neutral4",
-                on_enter=["enter_neutral4"],
-                on_exit=["exit_neutral4"],
-            ),
+
             # vacuum state: open vacuum for specified amount of time (right before trial ends)
             Timeout(
                 name="vacuum",
                 on_enter=["enter_vacuum"],
                 on_exit=["exit_vacuum"],
                 timeout=self.session_info["vacuum_length"],
-                on_timeout=["start_neutral2"],
+                on_timeout=["start_assessment"],
             ),
-            # neutral state #2: transition between vacuum and iti
+
+            # assessment state: assess trial outcomes
             Timeout(
-                name="neutral2",
-                on_enter=["enter_neutral2"],
-                on_exit=["exit_neutral2"],
+                name="assessment",
+                on_enter=["enter_assessment"],
+                on_exit=["exit_assessment"],
             ),
+
             # normal iti state
             Timeout(
                 name="normal_iti",
@@ -152,6 +156,7 @@ class ssrt_task(object):
                 timeout=self.session_info["punishment_iti_length"],
                 on_timeout=["return_to_standby_punishment_iti"],
             ),
+
         ]
         # can set later with task.machine.states['cue'].timeout etc.
 
@@ -160,32 +165,20 @@ class ssrt_task(object):
         # format is: [event_name, source_state, destination_state]
         ########################################################################
         self.transitions = [
-            # possible transitions for go trial #
-            ["trial_start", "standby", "initiation"],
-            ["start_neutral1", "initiation", "neutral1"],
-            ["start_vstim_neutral1", "neutral1", "vstim"],
-            ["start_reward", "vstim", "reward_available"],
+            # possible transitions
+            ["trial_start_go", "standby", "initiation_go"],
+            ["trial_start_ss", "standby", "initiation_ss"],
+            ["start_vstim", "initiation_go", "vstim"],
+            ["start_astim", "initiation_ss", "astim"],
+            ["start_vstim_astim", "astim", "vstim"],
+            ["start_reward_available", "vstim", "reward_available"],
             ["start_lick_count", "reward_available", "lick_count"],
             ["start_vacuum_from_reward_available", "reward_available", "vacuum"],
             ["start_vacuum_from_lick_count", "lick_count", "vacuum"],
-            ["start_neutral2", "vacuum", "neutral2"],
-            ["start_normal_iti_neutral2", "neutral2", "normal_iti"],
+            ["start_assessment", "vacuum", "assessment"],
+            ["start_normal_iti", "assessment", "normal_iti"],
+            ["start_punishment_iti", "assessment", "punishment_iti"],
             ["return_to_standby_normal_iti", "normal_iti", "standby"],
-
-            # possible transitions for stop signal trial #
-            # whatever state is the same as the go trial is commented out (for organization purpose)
-            # ["trial_start", "standby", "initiation"],
-            # ["start_neutral1", "initiation", "neutral1"],
-            ["start_astim_neutral1", "neutral1", "astim"],
-            ["start_vstim_astim", "astim", "vstim"],
-            ["start_lick_count_vstim", "vstim", "lick_count"],
-            ["start_neutral4", "lick_count", "neutral4"],
-            ["start_vacuum_neutral4", "neutral4", "vacuum"],
-            ["start_vacuum_from_lick_count", "lick_count", "vacuum"],
-            ["start_neutral2", "vacuum", "neutral2"],
-            # ["start_normal_iti_neutral2", "neutral2", "normal_iti"],
-            ["start_punishment_iti_neutral2", "neutral2", "punishment_iti"],
-            # ["return_to_standby_normal_iti", "normal_iti", "standby"],
             ["return_to_standby_punishment_iti", "punishment_iti", "standby"],
         ]
 
@@ -243,12 +236,6 @@ class ssrt_task(object):
         self.time_exit_init = time.time() - self.trial_start_time
         print("LED OFF!")
 
-    def enter_neutral1(self):
-        logging.info(str(time.time()) + ", entering neutral1")
-
-    def exit_neutral1(self):
-        logging.info(str(time.time()) + ", exiting neutral1")
-
     def enter_astim(self):
         logging.info(str(time.time()) + ", entering astim")
         self.box.sound1.on()
@@ -285,12 +272,6 @@ class ssrt_task(object):
         self.time_exit_lick_count = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting lick_count")
 
-    def enter_neutral4(self):
-        logging.info(str(time.time()) + ", entering neutral4")
-
-    def exit_neutral4(self):
-        logging.info(str(time.time()) + ", exiting neutral4")
-
     def enter_vacuum(self):
         logging.info(str(time.time()) + ", entering vacuum")
         self.box.vacuum_on()
@@ -301,11 +282,11 @@ class ssrt_task(object):
         self.box.vacuum_off()
         self.time_at_vacOFF = time.time() - self.trial_start_time
 
-    def enter_neutral2(self):
-        logging.info(str(time.time()) + ", entering neutral2")
+    def enter_assessment(self):
+        logging.info(str(time.time()) + ", entering assessment")
 
-    def exit_neutral2(self):
-        logging.info(str(time.time()) + ", exiting neutral2")
+    def exit_assessment(self):
+        logging.info(str(time.time()) + ", exiting assessment")
 
     def enter_normal_iti(self):
         logging.info(str(time.time()) + ", entering normal_iti")
@@ -333,7 +314,7 @@ class ssrt_task(object):
             time.sleep(1)
             t -= 1
 
-        print('vstim time up!')
+        print('vstim 3s countdown is up!')
         self.box.event_list.append("vstim 3s countdown is up!")
 
     ########################################################################
@@ -355,14 +336,11 @@ class ssrt_task(object):
         if self.state == "standby":
             pass
 
-        elif self.state == "initiation":
+        elif self.state == "initiation_go":
             pass
 
-        elif self.state == "neutral1":
-            self.start_vstim_neutral1()
-
         elif self.state == "vstim":
-            self.start_reward()
+            pass
 
         elif self.state == "reward_available":
             # Deliver reward from left pump if there is a lick detected on the left port
@@ -381,8 +359,8 @@ class ssrt_task(object):
         elif self.state == "vacuum":
             pass
 
-        elif self.state == "neutral2":
-            self.start_normal_iti_neutral2()
+        elif self.state == "assessment":
+            self.start_normal_iti()
 
         elif self.state == "normal_iti":
             pass
@@ -405,38 +383,35 @@ class ssrt_task(object):
         if self.state == "standby":
             pass
 
-        elif self.state == "initiation":
+        elif self.state == "initiation_ss":
             pass
-
-        elif self.state == "neutral1":
-            self.start_astim_neutral1()
 
         elif self.state == "astim":
             pass
 
         elif self.state == "vstim":
-            self.start_lick_count_vstim()
+            pass
 
-        elif self.state == "lick_count":
+        elif self.state == "reward_available":
             if event_name == "left_IR_entry":
                 self.temp_outcome = "FA !!!"
-                self.start_neutral4()
-            elif event_name == "vstim 3s countdown is up!":
+                self.start_lick_count()
+            else:
                 self.temp_outcome = "CR!"
-                self.start_vacuum_from_lick_count()
+                pass
 
-        elif self.state == "neutral4":
+        elif self.state == "lick_count":
             if event_name == "vstim 3s countdown is up!":
-                self.start_vacuum_neutral4()
+                self.start_vacuum_from_lick_count()
 
         elif self.state == "vacuum":
             pass
 
-        elif self.state == "neutral2":
-            if self.temp_outcome == "CR!":
-                self.start_normal_iti_neutral2()
-            elif self.temp_outcome == "FA !!!":
-                self.start_punishment_iti_neutral2()
+        elif self.state == "assessment":
+            if self.temp_outcome == "FA !!!":
+                self.start_punishment_iti()
+            elif self.temp_outcome == "CR!":
+                self.start_normal_iti()
 
         elif self.state == "normal_iti":
             pass
