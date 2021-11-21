@@ -498,7 +498,7 @@ class ssrt_task(object):
                 f" "))
 
         elif current_trial >= 15:
-            cr_percentage = round((self.cr_count[current_trial]/(self.cr_count[current_trial] + self.fa_count[current_trial]))*100)
+            # cr_percentage = round((self.cr_count[current_trial]/(self.cr_count[current_trial] + self.fa_count[current_trial]))*100)
             textstr = '\n'.join((
                 f"trial {self.trial_list[0 + (current_trial - 14)]} : {self.trial_outcome[0 + (current_trial - 14)]}",
                 f"trial {self.trial_list[1 + (current_trial - 14)]} : {self.trial_outcome[1 + (current_trial - 14)]}",
@@ -515,8 +515,8 @@ class ssrt_task(object):
                 f"trial {self.trial_list[12 + (current_trial - 14)]} : {self.trial_outcome[12 + (current_trial - 14)]}",
                 f"trial {self.trial_list[13 + (current_trial - 14)]} : {self.trial_outcome[13 + (current_trial - 14)]}",
                 f"trial {self.trial_list[14 + (current_trial - 14)]} : {self.trial_outcome[14 + (current_trial - 14)]}",
-                f" ",
-                f"Correctly withold licking = {cr_percentage}%"))
+                f" "))
+                # f"Correctly withold licking = {cr_percentage}%"))
 
         ax1.set_title('Trial Outcome', fontsize=11)
         ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
