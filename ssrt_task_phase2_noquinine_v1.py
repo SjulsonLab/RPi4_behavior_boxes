@@ -217,7 +217,7 @@ class ssrt_task(object):
     def exit_standby(self):
         logging.info(str(time.time()) + ", exiting standby")
 
-    def enter_initiation(self):
+    def enter_initiation_go(self):
         self.trial_running = True
         self.time_at_lick = np.array([])
         self.time_at_reward = -1  # default value of -1 if no reward is delivered
@@ -230,7 +230,26 @@ class ssrt_task(object):
         self.time_exit_lick_count = -1  # default
         print("LED ON!")
 
-    def exit_initiation(self):
+    def exit_initiation_go(self):
+        logging.info(str(time.time()) + ", exiting initiation")
+        self.box.cueLED1.off()
+        self.time_exit_init = time.time() - self.trial_start_time
+        print("LED OFF!")
+
+    def enter_initiation_ss(self):
+        self.trial_running = True
+        self.time_at_lick = np.array([])
+        self.time_at_reward = -1  # default value of -1 if no reward is delivered
+        self.trial_start_time = time.time()
+
+        logging.info(str(time.time()) + ", entering initiation")
+        self.box.cueLED1.on()
+        self.time_enter_init = time.time() - self.trial_start_time
+        self.time_enter_lick_count = -2  # default
+        self.time_exit_lick_count = -1  # default
+        print("LED ON!")
+
+    def exit_initiation_ss(self):
         logging.info(str(time.time()) + ", exiting initiation")
         self.box.cueLED1.off()
         self.time_exit_init = time.time() - self.trial_start_time
