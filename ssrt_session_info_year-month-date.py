@@ -34,12 +34,13 @@ session_info['init_length']                 = 1  # in seconds
 session_info['lockout_length']              = 0.2  # in seconds
 session_info['vacuum_length']               = 0.1  # in seconds
 session_info['trial_length']                = 3  # length of trial after vstim starts
+session_info['time_for_plotting']           = 0.8  # based on the readout when running the task
 session_info['reward_available_length']     = session_info['trial_length'] - session_info['lockout_length']
 session_info['reward_size']					= 10  # in microliters
-session_info['iti_length']                  = 2.5 - session_info['vacuum_length']  # in seconds
+session_info['iti_length']                  = 3 - session_info['vacuum_length'] - session_info['time_for_plotting']
 #  2.5s for ITI because plotting takes 0.8s-1s
-session_info['normal_iti_length']               = 2.5 - session_info['vacuum_length']  # in seconds
-session_info['punishment_iti_length']               = 6 - session_info['vacuum_length']  # in seconds
+session_info['normal_iti_length']           = 3 - session_info['vacuum_length'] - session_info['time_for_plotting']
+session_info['punishment_iti_length']       = 6.5 - session_info['vacuum_length'] - session_info['time_for_plotting']
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
