@@ -50,6 +50,8 @@ try:
     session_info = tempmod.session_info
     mouse_info = tempmod.mouse_info
 
+    training_date_time = input("Enter date (ex 2021-11-22):\n")
+    session_info['manual_date'] = training_date_time
     animal_ID = input("Enter animal ID (ex DT001_phase1):\n")
     session_info['mouse_name'] = animal_ID
     animal_weight = input("Enter animal weight (ex 19.5):\n")
