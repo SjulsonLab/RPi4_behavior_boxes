@@ -629,6 +629,10 @@ class ssrt_task(object):
         ########################################################################
         # draw on canvas
         ########################################################################
+        pos_x = 0
+        pos_y = 0
+        os.environ['SDL_VIDEO_WINDOW_POS'] = '%i,%i' % (pos_x, pos_y)  # Set pygame window location
+
         canvas = agg.FigureCanvasAgg(fig)
         canvas.draw()
         renderer = canvas.get_renderer()
@@ -647,7 +651,6 @@ class ssrt_task(object):
         self.time_enter_lick_count = -2
         self.time_exit_lick_count = -1
         plt.close(fig)
-
 
     ########################################################################
     # methods to start and end the behavioral session
