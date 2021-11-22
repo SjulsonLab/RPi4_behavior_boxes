@@ -210,7 +210,6 @@ class ssrt_task(object):
     ########################################################################
     def enter_standby(self):
         logging.info(str(time.time()) + ", entering standby")
-        self.temp_outcome = "unknown!"
         self.trial_running = False
 
     def exit_standby(self):
