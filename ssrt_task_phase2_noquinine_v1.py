@@ -1,25 +1,21 @@
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
-import pysistence, collections
 from icecream import ic
 import logging
-import datetime as dt
 import os
-from gpiozero import PWMLED, LED, Button
 from colorama import Fore, Style
 import logging.config
 import time
-import numpy as np
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.backends.backend_agg as agg
 import matplotlib.pyplot as plt
-
 import pygame
 from pygame.locals import *
 import numpy as np
+import multiprocessing
 
 logging.config.dictConfig(
     {
@@ -441,6 +437,8 @@ class ssrt_task(object):
 
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
+
+    # call this method to launch plotting in a separate process
 
     def plot_ssrt_phase2(self, current_trial, trial_ident):
 

@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import pygame
 from pygame.locals import *
 import numpy as np
+from multiprocessing import Process
 
 logging.config.dictConfig(
     {
@@ -322,6 +323,13 @@ class ssrt_task(object):
 
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
+
+    # call this method to plot in a separate process
+    def plot_phase1_parpro(self, current_trial):
+        logging.info("Begin making process for plotting!")
+        plot_process = Process(target=self.plot_ssrt_phase1, args=(current_trial,))
+        logging.info("starting plotting process !!")
+        plot_process.start()
 
     def plot_ssrt_phase1(self, current_trial):
 
