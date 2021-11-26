@@ -332,7 +332,6 @@ class ssrt_task(object):
         plot_process.start()
         running = True
         while running:
-            pygame.display.update()
             time.sleep(4)
             running = False
 
