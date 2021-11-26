@@ -332,9 +332,9 @@ class ssrt_task(object):
         plot_process.start()
         running = True
         while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
+            pygame.display.update()
+            time.sleep(4)
+            running = False
 
     def plot_ssrt_phase1(self, current_trial):
 
