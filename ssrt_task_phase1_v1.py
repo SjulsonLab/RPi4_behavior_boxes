@@ -330,7 +330,11 @@ class ssrt_task(object):
         plot_process = Process(target=self.plot_ssrt_phase1, args=(current_trial,))
         logging.info("starting plotting process !!")
         plot_process.start()
-        plot_process.join()
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
 
     def plot_ssrt_phase1(self, current_trial):
 
