@@ -330,6 +330,7 @@ class ssrt_task(object):
         plot_process = Process(target=self.plot_ssrt_phase1, args=(current_trial,))
         logging.info("starting plotting process !!")
         plot_process.start()
+        time.sleep(6)
 
     def plot_ssrt_phase1(self, current_trial):
 
