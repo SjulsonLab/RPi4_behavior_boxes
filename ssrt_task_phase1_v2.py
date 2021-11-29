@@ -189,10 +189,10 @@ class ssrt_task(object):
         raw_data = renderer.tostring_rgb()
         pygame.init()
         window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
-        screen = pygame.display.get_surface()
-        size = canvas.get_width_height()
-        surf = pygame.image.fromstring(raw_data, size, "RGB")
-        screen.blit(surf, (0, 0))
+        self.screen = pygame.display.get_surface()
+        self.size = canvas.get_width_height()
+        self.surf = pygame.image.fromstring(raw_data, self.size, "RGB")
+        self.screen.blit(self.surf, (0, 0))
         pygame.display.flip()
 
     ########################################################################
@@ -512,6 +512,7 @@ class ssrt_task(object):
         ########################################################################
         # update pygame at the end of the trial
         ########################################################################
+        self.screen.blit(self.surf, (0, 0))
         pygame.display.flip()
 
         # Reset self.time_at_reward to be out of range of plotting
