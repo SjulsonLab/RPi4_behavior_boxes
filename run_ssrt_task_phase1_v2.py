@@ -1,25 +1,16 @@
+
 debug_enable = False
 
-from transitions import Machine
-from transitions import State
-from transitions.extensions.states import add_state_features, Timeout
 from icecream import ic
-import logging
 from datetime import datetime
+
 import os
-from gpiozero import PWMLED, LED, Button
 import logging.config
-import pysistence, collections
-import socket
 import importlib
-import colorama
-import warnings
 import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
 import time
-import timeit
-
 
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
@@ -104,6 +95,7 @@ try:
             break
 
     if what_to_run == "phase1":
+
         # Loops over trials for phase 1 training
         for i in range(session_info['number_of_trials']):
             logging.info(str("##############################\n" +

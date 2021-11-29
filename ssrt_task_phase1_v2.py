@@ -159,6 +159,17 @@ class ssrt_task(object):
         self.hit_count = [0 for o in range(self.session_info["number_of_trials"])]
         self.miss_count = [0 for o in range(self.session_info["number_of_trials"])]
 
+        ########################################################################
+        # initialize the figure
+        ########################################################################
+        self.fig = plt.figure(figsize=(11, 7))
+        self.ax1 = self.fig.add_subplot(231)  # outcome
+        self.ax2 = self.fig.add_subplot(212)  # eventplot
+        self.ax3 = self.fig.add_subplot(232)
+        self.ax4 = self.fig.add_subplot(233)
+
+
+
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
@@ -325,14 +336,14 @@ class ssrt_task(object):
 
     def plot_ssrt_phase1(self, current_trial):
 
-        ########################################################################
-        # initialize the figure
-        ########################################################################
-        fig = plt.figure(figsize=(11, 7))
-        ax1 = fig.add_subplot(231)  # outcome
-        ax2 = fig.add_subplot(212)  # eventplot
-        ax3 = fig.add_subplot(232)
-        ax4 = fig.add_subplot(233)
+        # ########################################################################
+        # # initialize the figure
+        # ########################################################################
+        # fig = plt.figure(figsize=(11, 7))
+        # ax1 = fig.add_subplot(231)  # outcome
+        # ax2 = fig.add_subplot(212)  # eventplot
+        # ax3 = fig.add_subplot(232)
+        # ax4 = fig.add_subplot(233)
 
         ########################################################################
         # create an outcome plot
@@ -393,12 +404,12 @@ class ssrt_task(object):
                 f" ",
                 f"Percent Hit outcome = {hit_percentage}%"))
 
-        ax1.set_title('Trial Outcome', fontsize=11)
-        ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
-        ax1.set_xticklabels([])
-        ax1.set_xticks([])
-        ax1.set_yticks([])
-        ax1.set_yticklabels([])
+        self.ax1.set_title('Trial Outcome', fontsize=11)
+        self.ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
+        self.ax1.set_xticklabels([])
+        self.ax1.set_xticks([])
+        self.ax1.set_yticks([])
+        self.ax1.set_yticklabels([])
 
         ########################################################################
         # create eventplot (vertical)
