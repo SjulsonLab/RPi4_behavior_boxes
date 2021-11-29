@@ -175,6 +175,11 @@ class ssrt_task(object):
         self.ax1.set_yticks([])
         self.ax1.set_yticklabels([])
 
+        self.ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
+        self.ax2.set_xlabel('Time since trial start (s)', fontsize=9)
+        self.ax2.set_yticks((-1, 0.4, 2, 3, 4.4))
+        self.ax2.set_yticklabels(('vac', 'vstim', 'reward', 'lick', 'init LED'))
+
         ########################################################################
         # draw on canvas
         ########################################################################
@@ -477,10 +482,6 @@ class ssrt_task(object):
         self.ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
         self.ax2.plot(init_plot_data_x, init_plot_data_y)
         self.ax2.plot(vac_plot_data_x, vac_plot_data_y)
-        self.ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
-        self.ax2.set_xlabel('Time since trial start (s)', fontsize=9)
-        self.ax2.set_yticks((-1, 0.4, 2, 3, 4.4))
-        self.ax2.set_yticklabels(('vac', 'vstim', 'reward', 'lick', 'init LED'))
 
         ########################################################################
         # create cummulative outcome plot
