@@ -66,6 +66,7 @@ try:
     os.makedirs(session_info['dir_name'])
     os.chdir(session_info['dir_name'])
     session_info['file_basename'] = session_info['external_storage'] + '/' + session_info['mouse_name'] + "_" + \
+                                    session_info['datetime'] + '/' + session_info['mouse_name'] + "_" + \
                                     session_info['datetime']
 
     # session_info['file_basename'] = session_info['mouse_name'] + "_" + session_info['datetime']

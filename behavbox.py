@@ -40,7 +40,7 @@ class BehavBox(object):
             # make data directory and initialize logfile
             os.makedirs(session_info['dir_name'])
             os.chdir(session_info['dir_name'])
-            session_info['file_basename'] = session_info['external_storage'] + '/' + session_info['mouse_name'] + "_" + session_info['datetime']
+            # session_info['file_basename'] = session_info['external_storage'] + '/' + session_info['mouse_name'] + "_" + session_info['datetime']
             logging.basicConfig(
                 level=logging.INFO,
                 format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
