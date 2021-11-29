@@ -96,6 +96,7 @@ try:
 
     if what_to_run == "phase1":
 
+        plotting = True
         # Loops over trials for phase 1 training
         for i in range(session_info['number_of_trials']):
             logging.info(str("##############################\n" +
@@ -111,6 +112,7 @@ try:
             end_t = time.time()
             print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
 
+        plotting = False
         raise SystemExit
 
 

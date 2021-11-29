@@ -21,6 +21,8 @@ import pygame
 from pygame.locals import *
 import numpy as np
 
+from multiprocessing import Process
+
 logging.config.dictConfig(
     {
         "version": 1,
@@ -158,42 +160,6 @@ class ssrt_task(object):
         self.trial_outcome = ["" for o in range(self.session_info["number_of_trials"])]
         self.hit_count = [0 for o in range(self.session_info["number_of_trials"])]
         self.miss_count = [0 for o in range(self.session_info["number_of_trials"])]
-
-        ########################################################################
-        # Initialize figure for plotting with pygame, then pygame will be updated every trial
-        ########################################################################
-        self.fig = plt.figure(figsize=(11, 7))
-        self.ax1 = self.fig.add_subplot(231)  # outcome
-        self.ax2 = self.fig.add_subplot(212)  # eventplot
-        self.ax3 = self.fig.add_subplot(232)
-        self.ax4 = self.fig.add_subplot(233)
-
-        # specify ax1 parameters
-        self.ax1.set_title('Trial Outcome', fontsize=11)
-        self.ax1.set_xticklabels([])
-        self.ax1.set_xticks([])
-        self.ax1.set_yticks([])
-        self.ax1.set_yticklabels([])
-
-        self.ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
-        self.ax2.set_xlabel('Time since trial start (s)', fontsize=9)
-        self.ax2.set_yticks((-1, 0.4, 2, 3, 4.4))
-        self.ax2.set_yticklabels(('vac', 'vstim', 'reward', 'lick', 'init LED'))
-
-        ########################################################################
-        # draw on canvas
-        ########################################################################
-        canvas = agg.FigureCanvasAgg(self.fig)
-        canvas.draw()
-        renderer = canvas.get_renderer()
-        raw_data = renderer.tostring_rgb()
-        pygame.init()
-        window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
-        self.screen = pygame.display.get_surface()
-        self.size = canvas.get_width_height()
-        self.surf = pygame.image.fromstring(raw_data, self.size, "RGB")
-        self.screen.blit(self.surf, (0, 0))
-        pygame.display.flip()
 
     ########################################################################
     # functions called when state transitions occur
@@ -356,19 +322,25 @@ class ssrt_task(object):
     # function for plotting
     ########################################################################
 
+    # def plot_ssrt_phase1_process(self, current_trial):
+    #     logging.info("Ready to make plotting process")
+    #     plot_process = Process(target=self.plot_ssrt_phase1, args=(current_trial,))
+    #     logging.info("Starting plotting process")
+    #     plot_process.start()
+
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
 
     def plot_ssrt_phase1(self, current_trial):
 
-        # ########################################################################
-        # # initialize the figure
-        # ########################################################################
-        # fig = plt.figure(figsize=(11, 7))
-        # ax1 = fig.add_subplot(231)  # outcome
-        # ax2 = fig.add_subplot(212)  # eventplot
-        # ax3 = fig.add_subplot(232)
-        # ax4 = fig.add_subplot(233)
+        ########################################################################
+        # initialize the figure
+        ########################################################################
+        fig = plt.figure(figsize=(11, 7))
+        ax1 = fig.add_subplot(231)  # outcome
+        ax2 = fig.add_subplot(212)  # eventplot
+        ax3 = fig.add_subplot(232)
+        ax4 = fig.add_subplot(233)
 
         ########################################################################
         # create an outcome plot
@@ -429,7 +401,12 @@ class ssrt_task(object):
                 f" ",
                 f"Percent Hit outcome = {hit_percentage}%"))
 
-        self.ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
+        ax1.set_title('Trial Outcome', fontsize=11)
+        ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
+        ax1.set_xticklabels([])
+        ax1.set_xticks([])
+        ax1.set_yticks([])
+        ax1.set_yticklabels([])
 
         ########################################################################
         # create eventplot (vertical)
@@ -478,10 +455,14 @@ class ssrt_task(object):
         # set different line properties for each set of positions
         lineoffsets1 = np.array([3, 2])
         linelengths1 = [0.8, 0.8]
-        self.ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
-        self.ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
-        self.ax2.plot(init_plot_data_x, init_plot_data_y)
-        self.ax2.plot(vac_plot_data_x, vac_plot_data_y)
+        ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
+        ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
+        ax2.plot(init_plot_data_x, init_plot_data_y)
+        ax2.plot(vac_plot_data_x, vac_plot_data_y)
+        ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
+        ax2.set_xlabel('Time since trial start (s)', fontsize=9)
+        ax2.set_yticks((-1, 0.4, 2, 3, 4.4))
+        ax2.set_yticklabels(('vac', 'vstim', 'reward', 'lick', 'init LED'))
 
         ########################################################################
         # create cummulative outcome plot
@@ -492,16 +473,16 @@ class ssrt_task(object):
         outcome_miss_count_yvalue = self.miss_count[0:current_trial+1]
 
         # Plot
-        self.ax3.plot(outcome_xvalue, outcome_hit_count_yvalue, 'r-')
-        self.ax3.lines[-1].set_label('Hit')
-        self.ax3.plot(outcome_xvalue, outcome_miss_count_yvalue, 'b-')
-        self.ax3.lines[-1].set_label('Miss')
+        ax3.plot(outcome_xvalue, outcome_hit_count_yvalue, 'r-')
+        ax3.lines[-1].set_label('Hit')
+        ax3.plot(outcome_xvalue, outcome_miss_count_yvalue, 'b-')
+        ax3.lines[-1].set_label('Miss')
 
-        self.ax3.set_title('Cummulative outcome', fontsize=11)
-        self.ax3.set_xlim([0, current_trial+1])
-        self.ax3.set_xlabel('Trial', fontsize=9)
-        self.ax3.set_ylabel('Number of trials', fontsize=9)
-        self.ax3.legend()
+        ax3.set_title('Cummulative outcome', fontsize=11)
+        ax3.set_xlim([0, current_trial+1])
+        ax3.set_xlabel('Trial', fontsize=9)
+        ax3.set_ylabel('Number of trials', fontsize=9)
+        ax3.legend()
 
         ########################################################################
         # create the fourth figure
@@ -509,18 +490,27 @@ class ssrt_task(object):
 
 
 
-        ########################################################################
-        # update pygame at the end of the trial
-        ########################################################################
-        self.screen.blit(self.surf, (0, 0))
-        pygame.display.flip()
+        # ########################################################################
+        # # draw on canvas
+        # ########################################################################
+        # canvas = agg.FigureCanvasAgg(fig)
+        # canvas.draw()
+        # renderer = canvas.get_renderer()
+        # raw_data = renderer.tostring_rgb()
+        # pygame.init()
+        # window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
+        # screen = pygame.display.get_surface()
+        # size = canvas.get_width_height()
+        # surf = pygame.image.fromstring(raw_data, size, "RGB")
+        # screen.blit(surf, (0, 0))
+        # pygame.display.flip()
 
         # Reset self.time_at_reward to be out of range of plotting
         # This prevents the time_at_reward to be carried over to the next trial
         self.time_at_reward = -1
         self.time_enter_lick_count = -2
         self.time_exit_lick_count = -1
-        plt.close(self.fig)
+        plt.close(fig)
 
 
     ########################################################################
