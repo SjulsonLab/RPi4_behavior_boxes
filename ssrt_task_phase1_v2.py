@@ -512,7 +512,7 @@ class ssrt_task(object):
         ########################################################################
         # update pygame at the end of the trial
         ########################################################################
-        pygame.display.update()
+        pygame.display.flip()
 
         # Reset self.time_at_reward to be out of range of plotting
         # This prevents the time_at_reward to be carried over to the next trial
