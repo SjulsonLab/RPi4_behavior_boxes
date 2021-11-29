@@ -160,13 +160,20 @@ class ssrt_task(object):
         self.miss_count = [0 for o in range(self.session_info["number_of_trials"])]
 
         ########################################################################
-        # initialize the figure
+        # Initialize figure for plotting with pygame, then pygame will be updated every trial
         ########################################################################
         self.fig = plt.figure(figsize=(11, 7))
         self.ax1 = self.fig.add_subplot(231)  # outcome
         self.ax2 = self.fig.add_subplot(212)  # eventplot
         self.ax3 = self.fig.add_subplot(232)
         self.ax4 = self.fig.add_subplot(233)
+
+        # specify ax1 parameters
+        self.ax1.set_title('Trial Outcome', fontsize=11)
+        self.ax1.set_xticklabels([])
+        self.ax1.set_xticks([])
+        self.ax1.set_yticks([])
+        self.ax1.set_yticklabels([])
 
 
 
@@ -404,12 +411,7 @@ class ssrt_task(object):
                 f" ",
                 f"Percent Hit outcome = {hit_percentage}%"))
 
-        self.ax1.set_title('Trial Outcome', fontsize=11)
         self.ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
-        self.ax1.set_xticklabels([])
-        self.ax1.set_xticks([])
-        self.ax1.set_yticks([])
-        self.ax1.set_yticklabels([])
 
         ########################################################################
         # create eventplot (vertical)

@@ -26,7 +26,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import the SSRT task class here
-from ssrt_task_phase1_v1 import ssrt_task
+from ssrt_task_phase1_v2 import ssrt_task
 
 try:
     # load in session_info file, check that dates are correct, put in automatic
