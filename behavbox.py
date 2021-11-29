@@ -302,6 +302,11 @@ class BehavBox(object):
                 "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":~/video/*.log "
                 + hd_dir
             )
+
+            os.system(
+                "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/* "
+                + hd_dir
+            )
             print("rsync finished!")
 
         except Exception as e:
