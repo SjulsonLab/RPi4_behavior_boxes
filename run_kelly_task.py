@@ -55,7 +55,7 @@ try:
     session_info['time'] = timestr
     session_info['datetime'] = session_info['date'] + '_' + session_info['time']
     session_info['basename'] = session_info['mouse_name'] + '_' + session_info['datetime']
-    session_info['dir_name'] = session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info['datetime']
+    session_info['dir_name'] = session_info['basedir'] + "/" + session_info['basename']
 
     if session_info['manual_date'] != session_info['date']:  # check if file is updated
         print('wrong date!!')
@@ -63,9 +63,11 @@ try:
 
 
     # make data directory and initialize logfile
-    os.makedirs( session_info['dir_name'] )
-    os.chdir( session_info['dir_name'] )
-    session_info['file_basename'] = session_info['mouse_name'] + "_" + session_info['datetime']
+    os.makedirs(session_info['dir_name'])
+    os.chdir(session_info['dir_name'])
+    session_info['file_basename'] = session_info['dir_name'] + '/' + session_info['basename']
+
+    # session_info['file_basename'] = session_info['mouse_name'] + "_" + session_info['datetime']
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",

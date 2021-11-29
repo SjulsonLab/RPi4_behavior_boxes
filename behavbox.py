@@ -30,13 +30,29 @@ class BehavBox(object):
     )  # all detected events are added to this queue to be read out by the behavior class
 
     def __init__(self, session_info):
+        try:
+            # set up the external hard drive path for the flipper output
+            self.session_info = session_info
+            storage_path = self.session_info['external_storage'] + '/' + self.session_info['basename']
+            self.session_info['flipper_filename'] = storage_path + '/' + self.session_info[
+                'basename'] + '_flipper_output'
 
-        logging.info(str(time.time()) + ", behavior_box_initialized")
-
-        # set up the external hard drive path for the flipper output
-        self.session_info = session_info
-        storage_path = self.session_info['external_storage'] + '/' + self.session_info['basename']
-        self.session_info['flipper_filename'] = storage_path + '/' + self.session_info['basename'] + '_flipper_output'
+            # make data directory and initialize logfile
+            os.makedirs(session_info['dir_name'])
+            os.chdir(session_info['dir_name'])
+            # session_info['file_basename'] = session_info['external_storage'] + '/' + session_info['mouse_name'] + "_" + session_info['datetime']
+            logging.basicConfig(
+                level=logging.INFO,
+                format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
+                datefmt=('%H:%M:%S'),
+                handlers=[
+                    logging.FileHandler(session_info['file_basename'] + '.log'),
+                    logging.StreamHandler()  # sends copy of log output to screen
+                ]
+            )
+            logging.info(str(time.time()) + ", behavior_box_initialized")
+        except:
+            print("Logging error")
 
         from subprocess import check_output
         IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
@@ -137,24 +153,24 @@ class BehavBox(object):
             )
             print("must be in the foreground. Keys are as follows:\n")
             print(
-                    Fore.YELLOW
-                    + "         1: left poke            2: center poke            3: right poke"
+                Fore.YELLOW
+                + "         1: left poke            2: center poke            3: right poke"
             )
             print(
                 "         Q: left lick            W: center lick            E: right lick"
             )
             print(
-                    Fore.CYAN
-                    + "                       Esc: close key capture window\n"
-                    + Style.RESET_ALL
+                Fore.CYAN
+                + "                       Esc: close key capture window\n"
+                + Style.RESET_ALL
             )
             print(
-                    Fore.GREEN
-                    + Style.BRIGHT
-                    + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
-                    + Fore.RED
-                    + "ONCE\n"
-                    + Style.RESET_ALL
+                Fore.GREEN
+                + Style.BRIGHT
+                + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
+                + Fore.RED
+                + "ONCE\n"
+                + Style.RESET_ALL
             )
 
             self.keyboard_active = True
@@ -188,6 +204,7 @@ class BehavBox(object):
                     pygame.quit()
                     self.keyboard_active = False
                 # print(event) # for debug purpose
+
     ###############################################################################################
     # methods to start and stop video
     # These work with fake video files but haven't been tested with real ones
@@ -235,7 +252,7 @@ class BehavBox(object):
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
-            
+
             print(
                 Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
 
@@ -283,6 +300,11 @@ class BehavBox(object):
             )
             os.system(
                 "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":~/video/*.log "
+                + hd_dir
+            )
+
+            os.system(
+                "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/* "
                 + hd_dir
             )
             print("rsync finished!")
