@@ -175,7 +175,20 @@ class ssrt_task(object):
         self.ax1.set_yticks([])
         self.ax1.set_yticklabels([])
 
-
+        ########################################################################
+        # draw on canvas
+        ########################################################################
+        canvas = agg.FigureCanvasAgg(self.fig)
+        canvas.draw()
+        renderer = canvas.get_renderer()
+        raw_data = renderer.tostring_rgb()
+        pygame.init()
+        window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
+        screen = pygame.display.get_surface()
+        size = canvas.get_width_height()
+        surf = pygame.image.fromstring(raw_data, size, "RGB")
+        screen.blit(surf, (0, 0))
+        pygame.display.flip()
 
     ########################################################################
     # functions called when state transitions occur
@@ -460,14 +473,14 @@ class ssrt_task(object):
         # set different line properties for each set of positions
         lineoffsets1 = np.array([3, 2])
         linelengths1 = [0.8, 0.8]
-        ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
-        ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
-        ax2.plot(init_plot_data_x, init_plot_data_y)
-        ax2.plot(vac_plot_data_x, vac_plot_data_y)
-        ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
-        ax2.set_xlabel('Time since trial start (s)', fontsize=9)
-        ax2.set_yticks((-1, 0.4, 2, 3, 4.4))
-        ax2.set_yticklabels(('vac', 'vstim', 'reward', 'lick', 'init LED'))
+        self.ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
+        self.ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
+        self.ax2.plot(init_plot_data_x, init_plot_data_y)
+        self.ax2.plot(vac_plot_data_x, vac_plot_data_y)
+        self.ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
+        self.ax2.set_xlabel('Time since trial start (s)', fontsize=9)
+        self.ax2.set_yticks((-1, 0.4, 2, 3, 4.4))
+        self.ax2.set_yticklabels(('vac', 'vstim', 'reward', 'lick', 'init LED'))
 
         ########################################################################
         # create cummulative outcome plot
@@ -478,16 +491,16 @@ class ssrt_task(object):
         outcome_miss_count_yvalue = self.miss_count[0:current_trial+1]
 
         # Plot
-        ax3.plot(outcome_xvalue, outcome_hit_count_yvalue, 'r-')
-        ax3.lines[-1].set_label('Hit')
-        ax3.plot(outcome_xvalue, outcome_miss_count_yvalue, 'b-')
-        ax3.lines[-1].set_label('Miss')
+        self.ax3.plot(outcome_xvalue, outcome_hit_count_yvalue, 'r-')
+        self.ax3.lines[-1].set_label('Hit')
+        self.ax3.plot(outcome_xvalue, outcome_miss_count_yvalue, 'b-')
+        self.ax3.lines[-1].set_label('Miss')
 
-        ax3.set_title('Cummulative outcome', fontsize=11)
-        ax3.set_xlim([0, current_trial+1])
-        ax3.set_xlabel('Trial', fontsize=9)
-        ax3.set_ylabel('Number of trials', fontsize=9)
-        ax3.legend()
+        self.ax3.set_title('Cummulative outcome', fontsize=11)
+        self.ax3.set_xlim([0, current_trial+1])
+        self.ax3.set_xlabel('Trial', fontsize=9)
+        self.ax3.set_ylabel('Number of trials', fontsize=9)
+        self.ax3.legend()
 
         ########################################################################
         # create the fourth figure
@@ -496,26 +509,16 @@ class ssrt_task(object):
 
 
         ########################################################################
-        # draw on canvas
+        # update pygame at the end of the trial
         ########################################################################
-        canvas = agg.FigureCanvasAgg(fig)
-        canvas.draw()
-        renderer = canvas.get_renderer()
-        raw_data = renderer.tostring_rgb()
-        pygame.init()
-        window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
-        screen = pygame.display.get_surface()
-        size = canvas.get_width_height()
-        surf = pygame.image.fromstring(raw_data, size, "RGB")
-        screen.blit(surf, (0, 0))
-        pygame.display.flip()
+        pygame.display.update()
 
         # Reset self.time_at_reward to be out of range of plotting
         # This prevents the time_at_reward to be carried over to the next trial
         self.time_at_reward = -1
         self.time_enter_lick_count = -2
         self.time_exit_lick_count = -1
-        plt.close(fig)
+        plt.close(self.fig)
 
 
     ########################################################################
