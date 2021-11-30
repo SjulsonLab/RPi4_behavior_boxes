@@ -309,12 +309,12 @@ class BehavBox(object):
     # method to start and stop vacuum
     ###############################################################################################
     def vacuum_on(self):
-        self.DIO3.on()
+        self.cueLED2.on()
         self.event_list.append("vacuum_ON")
         logging.info(str(time.time()) + ", vacuum ON!")
 
     def vacuum_off(self):
-        self.DIO3.off()
+        self.cueLED2.off()
         self.event_list.append("vaccum_OFF")
         logging.info(str(time.time()) + ", vacuum OFF!")
 
