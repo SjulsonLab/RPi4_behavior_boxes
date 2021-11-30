@@ -178,17 +178,17 @@ class ssrt_task(object):
         self.trial_start_time = time.time()
         # print("entering initiation")
         logging.info(str(time.time()) + ", entering initiation")
-        self.box.cueLED1.on()
-        self.time_enter_init = time.time() - self.trial_start_time
+        # self.box.cueLED1.on()
+        # self.time_enter_init = time.time() - self.trial_start_time
         self.time_enter_lick_count = -2  # default
         self.time_exit_lick_count = -1  # default
-        print("LED ON!")
+        # print("LED ON!")
 
     def exit_initiation(self):
         logging.info(str(time.time()) + ", exiting initiation")
-        self.box.cueLED1.off()
-        self.time_exit_init = time.time() - self.trial_start_time
-        print("LED OFF!")
+        # self.box.cueLED1.off()
+        # self.time_exit_init = time.time() - self.trial_start_time
+        # print("LED OFF!")
 
     def enter_vstim(self):
         # print("displaying vstim")
