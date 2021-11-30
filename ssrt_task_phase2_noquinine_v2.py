@@ -1,5 +1,3 @@
-#  This version of the task has no LED  #
-
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
@@ -70,6 +68,18 @@ class ssrt_task(object):
         ########################################################################
         self.states = [
             State(name="standby", on_enter=["enter_standby"], on_exit=["exit_standby"]),
+
+            # initiation state: LED light is turned ON for 1s
+            Timeout(
+                name="initiation_go",
+                on_enter=["enter_initiation_go"],
+                on_exit=["exit_initiation_go"],
+            ),
+            Timeout(
+                name="initiation_ss",
+                on_enter=["enter_initiation_ss"],
+                on_exit=["exit_initiation_ss"],
+            ),
 
             # astim state: serves as a stop signal, ON 1s before vstim, but right after init LED
             # lasts until end of vstim
@@ -148,8 +158,10 @@ class ssrt_task(object):
         ########################################################################
         self.transitions = [
             # possible transitions
-            ["trial_start_go", "standby", "vstim"],
-            ["trial_start_ss", "standby", "astim"],
+            ["trial_start_go", "standby", "initiation_go"],
+            ["trial_start_ss", "standby", "initiation_ss"],
+            ["start_vstim", "initiation_go", "vstim"],
+            ["start_astim", "initiation_ss", "astim"],
             ["start_vstim_astim", "astim", "vstim"],
             ["start_reward_available", "vstim", "reward_available"],
             ["start_lick_count", "reward_available", "lick_count"],
@@ -193,13 +205,33 @@ class ssrt_task(object):
         self.trial_running = False
 
     def exit_standby(self):
+        logging.info(str(time.time()) + ", exiting standby")
+
+    def enter_initiation_go(self):
         self.trial_running = True
         self.time_at_lick = np.array([])
         self.time_at_reward = -1  # default value of -1 if no reward is delivered
         self.trial_start_time = time.time()
+
+        logging.info(str(time.time()) + ", entering initiation")
         self.time_enter_lick_count = -2  # default
         self.time_exit_lick_count = -1  # default
-        logging.info(str(time.time()) + ", exiting standby")
+
+    def exit_initiation_go(self):
+        logging.info(str(time.time()) + ", exiting initiation")
+
+    def enter_initiation_ss(self):
+        self.trial_running = True
+        self.time_at_lick = np.array([])
+        self.time_at_reward = -1  # default value of -1 if no reward is delivered
+        self.trial_start_time = time.time()
+
+        logging.info(str(time.time()) + ", entering initiation")
+        self.time_enter_lick_count = -2  # default
+        self.time_exit_lick_count = -1  # default
+
+    def exit_initiation_ss(self):
+        logging.info(str(time.time()) + ", exiting initiation")
 
     def enter_astim(self):
         logging.info(str(time.time()) + ", entering astim")
@@ -301,6 +333,9 @@ class ssrt_task(object):
         if self.state == "standby":
             pass
 
+        elif self.state == "initiation_go":
+            self.start_vstim()
+
         elif self.state == "vstim":
             pass
 
@@ -344,6 +379,9 @@ class ssrt_task(object):
 
         if self.state == "standby":
             pass
+
+        elif self.state == "initiation_ss":
+            self.start_astim()
 
         elif self.state == "astim":
             pass
