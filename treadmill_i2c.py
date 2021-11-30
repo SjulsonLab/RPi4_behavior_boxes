@@ -19,6 +19,7 @@ def get_float(data, index):
 while True:
     try:
         data = get_data()
+        print(get_float(data, 0))
     except:
         continue
     time.sleep(0.3)
