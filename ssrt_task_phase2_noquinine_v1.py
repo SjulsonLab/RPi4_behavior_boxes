@@ -1,3 +1,5 @@
+# Initiation state is 0.01s and no LED #
+
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
