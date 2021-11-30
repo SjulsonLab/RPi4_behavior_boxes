@@ -1,16 +1,25 @@
-
 debug_enable = False
 
+from transitions import Machine
+from transitions import State
+from transitions.extensions.states import add_state_features, Timeout
 from icecream import ic
+import logging
 from datetime import datetime
-
 import os
+from gpiozero import PWMLED, LED, Button
 import logging.config
+import pysistence, collections
+import socket
 import importlib
+import colorama
+import warnings
 import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
 import time
+import timeit
+
 
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
@@ -26,7 +35,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import the SSRT task class here
-from ssrt_task_phase1_v2 import ssrt_task
+from ssrt_task_phase1_v1 import ssrt_task
 
 try:
     # load in session_info file, check that dates are correct, put in automatic
@@ -95,8 +104,6 @@ try:
             break
 
     if what_to_run == "phase1":
-
-        plotting = True
         # Loops over trials for phase 1 training
         for i in range(session_info['number_of_trials']):
             logging.info(str("##############################\n" +
@@ -112,7 +119,6 @@ try:
             end_t = time.time()
             print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
 
-        plotting = False
         raise SystemExit
 
 
@@ -126,3 +132,4 @@ except (KeyboardInterrupt, SystemExit):
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
     pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
     pygame.quit()
+

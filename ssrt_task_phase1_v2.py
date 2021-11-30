@@ -21,8 +21,6 @@ import pygame
 from pygame.locals import *
 import numpy as np
 
-from multiprocessing import Process
-
 logging.config.dictConfig(
     {
         "version": 1,
@@ -160,6 +158,20 @@ class ssrt_task(object):
         self.trial_outcome = ["" for o in range(self.session_info["number_of_trials"])]
         self.hit_count = [0 for o in range(self.session_info["number_of_trials"])]
         self.miss_count = [0 for o in range(self.session_info["number_of_trials"])]
+
+        self.fig = plt.figure(figsize=(11, 7))
+        canvas = agg.FigureCanvasAgg(self.fig)
+        canvas.draw()
+        renderer = canvas.get_renderer()
+        raw_data = renderer.tostring_rgb()
+        pygame.init()
+        window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
+        screen = pygame.display.get_surface()
+        size = canvas.get_width_height()
+        surf = pygame.image.fromstring(raw_data, size, "RGB")
+        screen.blit(surf, (0, 0))
+        pygame.display.flip()
+
 
     ########################################################################
     # functions called when state transitions occur
@@ -322,12 +334,6 @@ class ssrt_task(object):
     # function for plotting
     ########################################################################
 
-    # def plot_ssrt_phase1_process(self, current_trial):
-    #     logging.info("Ready to make plotting process")
-    #     plot_process = Process(target=self.plot_ssrt_phase1, args=(current_trial,))
-    #     logging.info("Starting plotting process")
-    #     plot_process.start()
-
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
 
@@ -336,11 +342,11 @@ class ssrt_task(object):
         ########################################################################
         # initialize the figure
         ########################################################################
-        fig = plt.figure(figsize=(11, 7))
-        ax1 = fig.add_subplot(231)  # outcome
-        ax2 = fig.add_subplot(212)  # eventplot
-        ax3 = fig.add_subplot(232)
-        ax4 = fig.add_subplot(233)
+        self.fig = plt.figure(figsize=(11, 7))
+        ax1 = self.fig.add_subplot(231)  # outcome
+        ax2 = self.fig.add_subplot(212)  # eventplot
+        ax3 = self.fig.add_subplot(232)
+        ax4 = self.fig.add_subplot(233)
 
         ########################################################################
         # create an outcome plot
@@ -489,28 +495,27 @@ class ssrt_task(object):
         ########################################################################
 
 
+        ########################################################################
+        # draw on canvas
+        ########################################################################
+        canvas = agg.FigureCanvasAgg(self.fig)
+        canvas.draw()
+        renderer = canvas.get_renderer()
+        raw_data = renderer.tostring_rgb()
 
-        # ########################################################################
-        # # draw on canvas
-        # ########################################################################
-        # canvas = agg.FigureCanvasAgg(fig)
-        # canvas.draw()
-        # renderer = canvas.get_renderer()
-        # raw_data = renderer.tostring_rgb()
-        # pygame.init()
-        # window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
-        # screen = pygame.display.get_surface()
-        # size = canvas.get_width_height()
-        # surf = pygame.image.fromstring(raw_data, size, "RGB")
-        # screen.blit(surf, (0, 0))
-        # pygame.display.flip()
+        pygame.display.flip()
 
         # Reset self.time_at_reward to be out of range of plotting
         # This prevents the time_at_reward to be carried over to the next trial
         self.time_at_reward = -1
         self.time_enter_lick_count = -2
         self.time_exit_lick_count = -1
-        plt.close(fig)
+        plt.close(self.fig)
+
+    ########################################################################
+    # Start parallel processing for run and plot trial
+    ########################################################################
+
 
 
     ########################################################################
