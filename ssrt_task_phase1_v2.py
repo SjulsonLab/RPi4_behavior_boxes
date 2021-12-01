@@ -324,8 +324,8 @@ class ssrt_task(object):
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
 
-    def plot_thread(self):
-        thread1 = threading.Thread(target=self.plot_ssrt_phase1)
+    def plot_thread(self, current_trial):
+        thread1 = threading.Thread(target=self.plot_ssrt_phase1, args=(current_trial,))
         thread1.start()
 
     def plot_ssrt_phase1(self, current_trial):
