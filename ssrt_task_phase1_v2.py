@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import pygame
 from pygame.locals import *
 import numpy as np
+import threading
 
 logging.config.dictConfig(
     {
@@ -322,6 +323,10 @@ class ssrt_task(object):
 
     # this function plots event_plot using matplotlib and pygame
     # will be updated at the end of each trial during standby period
+
+    def plot_thread(self):
+        thread1 = threading.Thread(target=self.plot_ssrt_phase1)
+        thread1.start()
 
     def plot_ssrt_phase1(self, current_trial):
 
