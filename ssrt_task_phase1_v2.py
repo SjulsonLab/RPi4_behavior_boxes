@@ -393,8 +393,8 @@ class ssrt_task(object):
                 f" ",
                 f"Percent Hit outcome = {hit_percentage}%"))
 
-        ax1.set_title('Trial Outcome', fontsize=11)
-        ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
+        ax1.set_title('Trial Outcome', fontsize=5)
+        ax1.text(0.05, 0.95, textstr, fontsize=4, verticalalignment='top')
         ax1.set_xticklabels([])
         ax1.set_xticks([])
         ax1.set_yticks([])
@@ -457,10 +457,10 @@ class ssrt_task(object):
         ax3.plot(outcome_xvalue, outcome_miss_count_yvalue, 'b-')
         ax3.lines[-1].set_label('Miss')
 
-        ax3.set_title('Cummulative outcome', fontsize=11)
+        ax3.set_title('Cummulative outcome', fontsize=5)
         ax3.set_xlim([0, current_trial+1])
-        ax3.set_xlabel('Trial', fontsize=9)
-        ax3.set_ylabel('Number of trials', fontsize=9)
+        ax3.set_xlabel('Trial', fontsize=4)
+        ax3.set_ylabel('Number of trials', fontsize=4)
         ax3.legend()
 
         ########################################################################
