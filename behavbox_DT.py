@@ -396,7 +396,7 @@ class Pump(object):
         self.pump5 = LED(7)
         self.pump_en = LED(25)  # pump enable
 
-    def reward(self, which_pump, reward_size):
+    def reward(self, which_pump, reward_size, reward_duration):
         print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
         diameter_mm = 12.06  # for 5 mL syringe
         # diameter_mm = 14.5   # for 10 mL syringe
@@ -409,7 +409,6 @@ class Pump(object):
         # // round to nearest int
         totalSteps = round(200 * howManyRevolutions * 4)
         # reward_duration = 1  # delivery reward over 300 ms
-        reward_duration = 0.1
         cycle_length = (
                 reward_duration / totalSteps
         )  # need to know what the minimum value can be

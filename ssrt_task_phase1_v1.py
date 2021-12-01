@@ -285,7 +285,7 @@ class ssrt_task(object):
         elif self.state == "reward_available":
             # Deliver reward from left pump if there is a lick detected on the left port
             if event_name == "left_IR_entry":
-                self.pump.reward("left", self.session_info["reward_size"])
+                self.pump.reward("left", self.session_info["reward_size"], self.session_info["reward_duration"])
                 self.time_at_reward = time.time() - self.trial_start_time
                 print("delivering reward!!")
                 self.start_lick_count()  # trigger state transition to lick_count

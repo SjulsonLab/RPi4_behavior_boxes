@@ -31,6 +31,7 @@ session_info['config']						= 'head_fixed_v1'
 # behavior parameters
 session_info['timeout_length']              = 5  # in seconds
 session_info['reward_size']					= 10  # in microliters
+session_info['reward_duration']             = 1
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
