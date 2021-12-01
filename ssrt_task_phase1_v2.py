@@ -327,6 +327,7 @@ class ssrt_task(object):
     def plot_thread(self, current_trial):
         thread1 = threading.Thread(target=self.plot_ssrt_phase1, args=(current_trial,))
         thread1.start()
+        time.sleep(3)
 
     def plot_ssrt_phase1(self, current_trial):
 
