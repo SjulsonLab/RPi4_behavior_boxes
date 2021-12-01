@@ -166,6 +166,10 @@ class ssrt_task(object):
         # print("entering standby")
         logging.info(str(time.time()) + ", entering standby")
         self.trial_running = False
+        return {'lick_events': self.time_at_lick, 'time_enter_lick_count': self.time_enter_lick_count,
+                'time_exit_lick_count': self.time_exit_lick_count, 'trial_outcome': self.trial_outcome,
+                'time_at_reward': self.time_at_reward, 'time_vstim_on': self.time_at_vstim_on,
+                'time_vac_on': self.time_at_vacON, 'time_vac_off': self.time_at_vacOFF}
 
     def exit_standby(self):
         # print("exiting standby")
@@ -274,10 +278,7 @@ class ssrt_task(object):
             self.time_at_lick = np.append(self.time_at_lick, time.time() - self.trial_start_time)
 
         if self.state == "standby":
-            return {'lick_events': self.time_at_lick, 'time_enter_lick_count': self.time_enter_lick_count,
-                    'time_exit_lick_count': self.time_exit_lick_count, 'trial_outcome': self.trial_outcome,
-                    'time_at_reward': self.time_at_reward, 'time_vstim_on': self.time_at_vstim_on,
-                    'time_vac_on': self.time_at_vacON, 'time_vac_off': self.time_at_vacOFF}
+            pass
 
         elif self.state == "initiation":
             pass
