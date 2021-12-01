@@ -274,10 +274,7 @@ class ssrt_task(object):
             self.time_at_lick = np.append(self.time_at_lick, time.time() - self.trial_start_time)
 
         if self.state == "standby":
-            return {'lick_events': self.time_at_lick, 'time_enter_lick_count': self.time_enter_lick_count,
-                    'time_exit_lick_count': self.time_exit_lick_count, 'trial_outcome': self.trial_outcome,
-                    'time_at_reward': self.time_at_reward, 'time_vstim_on': self.time_at_vstim_on,
-                    'time_vac_on': self.time_at_vacON, 'time_vac_off': self.time_at_vacOFF}
+            pass
 
         elif self.state == "initiation":
             pass
@@ -331,7 +328,7 @@ class ssrt_task(object):
         ########################################################################
         # initialize the figure
         ########################################################################
-        fig = plt.figure(figsize=(11, 7))
+        fig = plt.figure(figsize=(6, 4))
         ax1 = fig.add_subplot(231)  # outcome
         ax2 = fig.add_subplot(212)  # eventplot
         ax3 = fig.add_subplot(232)
@@ -480,7 +477,7 @@ class ssrt_task(object):
         renderer = canvas.get_renderer()
         raw_data = renderer.tostring_rgb()
         pygame.init()
-        window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
+        window = pygame.display.set_mode((600, 400), DOUBLEBUF)
         screen = pygame.display.get_surface()
         size = canvas.get_width_height()
         surf = pygame.image.fromstring(raw_data, size, "RGB")
