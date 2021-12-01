@@ -71,7 +71,7 @@ class ssrt_task(object):
         ########################################################################
         self.states = [
             State(name="standby", on_enter=["enter_standby"], on_exit=["exit_standby"]),
-            # initiation state: LED light is turned ON for 1s
+            # initiation state: only lasts for 10ms and does not turn LED on!
             Timeout(
                 name="initiation",
                 on_enter=["enter_initiation"],
@@ -153,25 +153,11 @@ class ssrt_task(object):
         self.box = behavbox_DT.BehavBox(self.session_info)
         self.pump = behavbox_DT.Pump()
 
-        # establish parameters for plotting
+        # establish shared data for multiprocessing
         self.trial_list = list(range(0, self.session_info["number_of_trials"]))
         self.trial_outcome = ["" for o in range(self.session_info["number_of_trials"])]
         self.hit_count = [0 for o in range(self.session_info["number_of_trials"])]
         self.miss_count = [0 for o in range(self.session_info["number_of_trials"])]
-
-        self.fig = plt.figure(figsize=(11, 7))
-        canvas = agg.FigureCanvasAgg(self.fig)
-        canvas.draw()
-        renderer = canvas.get_renderer()
-        raw_data = renderer.tostring_rgb()
-        pygame.init()
-        window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
-        screen = pygame.display.get_surface()
-        size = canvas.get_width_height()
-        surf = pygame.image.fromstring(raw_data, size, "RGB")
-        screen.blit(surf, (0, 0))
-        pygame.display.flip()
-
 
     ########################################################################
     # functions called when state transitions occur
@@ -192,17 +178,17 @@ class ssrt_task(object):
         self.trial_start_time = time.time()
         # print("entering initiation")
         logging.info(str(time.time()) + ", entering initiation")
-        self.box.cueLED1.on()
-        self.time_enter_init = time.time() - self.trial_start_time
+        # self.box.cueLED1.on()
+        # self.time_enter_init = time.time() - self.trial_start_time
         self.time_enter_lick_count = -2  # default
         self.time_exit_lick_count = -1  # default
-        print("LED ON!")
+        # print("LED ON!")
 
     def exit_initiation(self):
         logging.info(str(time.time()) + ", exiting initiation")
-        self.box.cueLED1.off()
-        self.time_exit_init = time.time() - self.trial_start_time
-        print("LED OFF!")
+        # self.box.cueLED1.off()
+        # self.time_exit_init = time.time() - self.trial_start_time
+        # print("LED OFF!")
 
     def enter_vstim(self):
         # print("displaying vstim")
@@ -288,7 +274,10 @@ class ssrt_task(object):
             self.time_at_lick = np.append(self.time_at_lick, time.time() - self.trial_start_time)
 
         if self.state == "standby":
-            pass
+            return {'lick_events': self.time_at_lick, 'time_enter_lick_count': self.time_enter_lick_count,
+                    'time_exit_lick_count': self.time_exit_lick_count, 'trial_outcome': self.trial_outcome,
+                    'time_at_reward': self.time_at_reward, 'time_vstim_on': self.time_at_vstim_on,
+                    'time_vac_on': self.time_at_vacON, 'time_vac_off': self.time_at_vacOFF}
 
         elif self.state == "initiation":
             pass
@@ -342,11 +331,11 @@ class ssrt_task(object):
         ########################################################################
         # initialize the figure
         ########################################################################
-        self.fig = plt.figure(figsize=(11, 7))
-        ax1 = self.fig.add_subplot(231)  # outcome
-        ax2 = self.fig.add_subplot(212)  # eventplot
-        ax3 = self.fig.add_subplot(232)
-        ax4 = self.fig.add_subplot(233)
+        fig = plt.figure(figsize=(11, 7))
+        ax1 = fig.add_subplot(231)  # outcome
+        ax2 = fig.add_subplot(212)  # eventplot
+        ax3 = fig.add_subplot(232)
+        ax4 = fig.add_subplot(233)
 
         ########################################################################
         # create an outcome plot
@@ -433,18 +422,6 @@ class ssrt_task(object):
         range_of_vstim_on = int(time_vstim_index_off - time_vstim_index_on)
         vstim_plot_data_y[time_vstim_index_on:time_vstim_index_off] = np.zeros(range_of_vstim_on) + 0.8
 
-        # create initiation time data
-        init_bins = plot_bin_number  # number of bins
-        time_init_on = self.time_enter_init
-        time_init_off = self.time_exit_init
-        time_init_index_on = int(round(time_init_on * init_bins/plot_period))
-        time_init_index_off = int(time_init_index_on + round((time_init_off - time_init_on) * (init_bins/plot_period)))
-        init_plot_data_x = np.linspace(0, plot_period, num=init_bins)
-        init_plot_data_y = np.zeros(init_bins) + 4
-        range_of_init_on = int(time_init_index_off - time_init_index_on)
-        init_plot_data_y[time_init_index_on:time_init_index_off] = np.zeros(range_of_init_on) + 4.8
-        init_plot_data_y[0] = 0 + 4  # for asthetic purpose to set init first value to 0
-
         # create vacuum time data
         vac_bins = plot_bin_number  # number of bins
         time_vac_on = self.time_at_vacON
@@ -463,12 +440,11 @@ class ssrt_task(object):
         linelengths1 = [0.8, 0.8]
         ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
         ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
-        ax2.plot(init_plot_data_x, init_plot_data_y)
         ax2.plot(vac_plot_data_x, vac_plot_data_y)
         ax2.set_xlim([-0.5, 7.5])  # 7s total to show (trial duration)
         ax2.set_xlabel('Time since trial start (s)', fontsize=9)
-        ax2.set_yticks((-1, 0.4, 2, 3, 4.4))
-        ax2.set_yticklabels(('vac', 'vstim', 'reward', 'lick', 'init LED'))
+        ax2.set_yticks((-1, 0.4, 2, 3))
+        ax2.set_yticklabels(('vac', 'vstim', 'reward', 'lick'))
 
         ########################################################################
         # create cummulative outcome plot
@@ -495,14 +471,20 @@ class ssrt_task(object):
         ########################################################################
 
 
+
         ########################################################################
         # draw on canvas
         ########################################################################
-        canvas = agg.FigureCanvasAgg(self.fig)
+        canvas = agg.FigureCanvasAgg(fig)
         canvas.draw()
         renderer = canvas.get_renderer()
         raw_data = renderer.tostring_rgb()
-
+        pygame.init()
+        window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
+        screen = pygame.display.get_surface()
+        size = canvas.get_width_height()
+        surf = pygame.image.fromstring(raw_data, size, "RGB")
+        screen.blit(surf, (0, 0))
         pygame.display.flip()
 
         # Reset self.time_at_reward to be out of range of plotting
@@ -510,12 +492,7 @@ class ssrt_task(object):
         self.time_at_reward = -1
         self.time_enter_lick_count = -2
         self.time_exit_lick_count = -1
-        plt.close(self.fig)
-
-    ########################################################################
-    # Start parallel processing for run and plot trial
-    ########################################################################
-
+        plt.close(fig)
 
 
     ########################################################################
