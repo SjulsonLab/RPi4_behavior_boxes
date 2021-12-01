@@ -112,8 +112,7 @@ try:
             task.trial_start()
 
             while task.trial_running:
-                time_at_lick, time_enter_lick_count, time_exit_lick_count, trial_outcome, time_at_reward, time_at_vacON, time_at_vacOFF = task.run()
-                print(time_at_lick, time_enter_lick_count, time_exit_lick_count, trial_outcome, time_at_reward, time_at_vacON, time_at_vacOFF)
+                task.run()
 
             # start_t = time.time()
             # task.plot_ssrt_phase1(i)
