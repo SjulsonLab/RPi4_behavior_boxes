@@ -36,7 +36,7 @@ session_info['vacuum_length']               = 0.5  # in seconds
 session_info['trial_length']                = 3  # length of trial after vstim starts
 session_info['time_for_plotting']           = 0  # based on the readout when running the task
 session_info['reward_available_length']     = session_info['trial_length'] - session_info['lockout_length']
-session_info['reward_size']					= 13  # in microliters
+session_info['reward_size']					= 11  # in microliters
 session_info['reward_duration']             = 0.01
 session_info['iti_length']                  = 3 - session_info['vacuum_length'] - session_info['time_for_plotting']
 #  2.5s for ITI because plotting takes 0.8s-1.2s
