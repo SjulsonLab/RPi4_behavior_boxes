@@ -38,7 +38,7 @@ def dacval(bus, address):
     # return data
     # print(str(block) + '/n')
     # print(str(bytes(block)) + '/n')
-    # print("Running speed: " + str(running_speed)) # for debug purpose
+    print("Running speed: " + str(running_speed)) # for debug purpose
     return running_speed
 
 # save the element list
@@ -56,7 +56,7 @@ while True:
     running_speed = dacval(bus_i2c, address_i2c)
     treadmill_log.append(
         (time.time(),
-        treadmill_count)
+        running_speed)
     )
 
 
