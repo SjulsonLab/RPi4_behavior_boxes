@@ -95,7 +95,7 @@ try:
 
         #  Determine trial identity
         # The first 15 trials are go_trials
-        if i < 15:
+        if i < 3:
             trial_ident = "go_trial"
             print("go_trial")
             go_nums = go_nums + 1
