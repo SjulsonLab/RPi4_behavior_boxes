@@ -28,15 +28,23 @@ address_i2c = 0x08
 
 
 def dacval(bus, address):
+    time.sleep(0.3)
     block = bus.read_i2c_block_data(address, 1)
-    n = struct.unpack("<f", bytes(block[:4]))[0]
-    # print(str(n))
-    return n
+    running_speed = struct.unpack("<f", bytes(block[:4]))[0]
+    # velocity = struct.unpack("<l", bytes(block[:4]))[0]
+    # distance = struct.unpack("<l", bytes(block[4:]))[0]
+    # data = (velocity, distance)
+    # print(str(data))
+    # return data
+    # print(str(block) + '/n')
+    # print(str(bytes(block)) + '/n')
+    # print("Running speed: " + str(running_speed)) # for debug purpose
+    return running_speed
 
 # save the element list
 def flush(filename, list):
     with io.open(filename, 'w') as f:
-        f.write('time.time(), treadmill_count\n')
+        f.write('time.time(), running_speed\n')
         for entry in list:
             f.write('%f, %f\n' % entry)
 
@@ -45,7 +53,7 @@ delay = 0.3
 
 while True:
     time.sleep(delay)
-    treadmill_count = dacval(bus_i2c, address_i2c)
+    running_speed = dacval(bus_i2c, address_i2c)
     treadmill_log.append(
         (time.time(),
         treadmill_count)
