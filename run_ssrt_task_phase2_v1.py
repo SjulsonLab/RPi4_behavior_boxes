@@ -90,7 +90,7 @@ try:
     go_nums = 0
     stop_signal_nums = 0
 
-    buffer_trials = 14
+    buffer_trials = 10
     for k in range(buffer_trials):
         task.trial_start_go()
         #  Run trial in loop
