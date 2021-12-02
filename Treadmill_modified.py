@@ -11,7 +11,7 @@ address_i2c = 0x08
 def dacval(bus, address):
     time.sleep(0.3)
     block = bus.read_i2c_block_data(address, 1)
-    n = struct.unpack("<l", bytes(block[:4]))[0]
+    n = struct.unpack("<f", bytes(block[:4]))[0]
     # velocity = struct.unpack("<l", bytes(block[:4]))[0]
     # distance = struct.unpack("<l", bytes(block[4:]))[0]
     # data = (velocity, distance)
