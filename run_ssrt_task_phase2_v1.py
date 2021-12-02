@@ -94,7 +94,8 @@ try:
         ident_random = (round(random.uniform(0, 1) * 100)) % 2
 
         #  Determine trial identity
-        if i < 2:
+        # The first 15 trials are go_trials
+        if i < 15:
             trial_ident = "go_trial"
             print("go_trial")
             go_nums = go_nums + 1
