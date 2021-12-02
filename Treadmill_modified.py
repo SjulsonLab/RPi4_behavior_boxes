@@ -12,11 +12,12 @@ def dacval(bus, address):
     time.sleep(0.3)
     block = bus.read_i2c_block_data(address, 1)
     # n = struct.unpack("<l", bytes(block[:4]))[0]
-    distance = struct.unpack("<l", bytes(block[:4]))[0]
-    velocity = struct.unpack("<l", bytes(block[4:]))[0]
-    data = (distance, velocity)
+    velocity = struct.unpack("<l", bytes(block[:4]))[0]
+    distance = struct.unpack("<l", bytes(block[4:]))[0]
+    data = (velocity, distance)
     print(str(data))
     return data
 
+print("velocity, distance\n")
 while True:
     data = dacval(bus_i2c, address_i2c)
