@@ -309,7 +309,7 @@ class BehavBox(object):
             )
 
             os.system(
-                "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/* "
+                "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/ "
                 + hd_dir
             )
             print("rsync finished!")
