@@ -40,7 +40,7 @@ class BehavBox(object):
             # make data directory and initialize logfile
             os.makedirs(session_info['dir_name'])
             os.chdir(session_info['dir_name'])
-            # session_info['file_basename'] = session_info['external_storage'] + '/' + session_info['mouse_name'] + "_" + session_info['datetime']
+            session_info['file_basename'] = session_info['dir_name'] + '/' + session_info['mouse_name'] + "_" + session_info['datetime']
             logging.basicConfig(
                 level=logging.INFO,
                 format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
@@ -51,8 +51,9 @@ class BehavBox(object):
                 ]
             )
             logging.info(str(time.time()) + ", behavior_box_initialized")
-        except:
+        except Exception as error_message:
             print("Logging error")
+            print(str(error_message))
 
         from subprocess import check_output
         IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
@@ -113,7 +114,11 @@ class BehavBox(object):
         # previously: self.camera_strobe = Button(4)
         # previously: rising and falling edges are detected and logged in a separate video file
         # initiating flipper object
-        self.flipper = FlipperOutput(self.session_info, pin=4)
+        try:
+            self.flipper = FlipperOutput(self.session_info, pin=4)
+        except Exception as error_message:
+            print("flipper issue\n")
+            print(str(error_message))
 
         ###############################################################################################
         # visual stimuli
@@ -304,7 +309,7 @@ class BehavBox(object):
             )
 
             os.system(
-                "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/* "
+                "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/ "
                 + hd_dir
             )
             print("rsync finished!")
