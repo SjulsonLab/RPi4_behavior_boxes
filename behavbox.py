@@ -113,7 +113,11 @@ class BehavBox(object):
         # previously: self.camera_strobe = Button(4)
         # previously: rising and falling edges are detected and logged in a separate video file
         # initiating flipper object
-        self.flipper = FlipperOutput(self.session_info, pin=4)
+        try:
+            self.flipper = FlipperOutput(self.session_info, pin=4)
+        except Exception as error_message:
+            print("flipper issue\n")
+            print(str(error_message))
 
         ###############################################################################################
         # visual stimuli
