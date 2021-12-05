@@ -51,8 +51,9 @@ class BehavBox(object):
                 ]
             )
             logging.info(str(time.time()) + ", behavior_box_initialized")
-        except:
+        except Exception as error_message:
             print("Logging error")
+            print(str(error_message))
 
         from subprocess import check_output
         IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
