@@ -383,7 +383,6 @@ class ssrt_task(object):
         # look for keystrokes
         # self.box.check_keybd()
 
-
     def run_ss_trial(self):
 
         # read in name of an event the box has detected

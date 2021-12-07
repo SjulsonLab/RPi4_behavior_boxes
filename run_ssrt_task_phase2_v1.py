@@ -92,6 +92,12 @@ try:
 
     buffer_trials = 10
     for k in range(buffer_trials):
+
+        logging.info(str(time.time()) + ", ##############################")
+        logging.info(str(time.time()) + ", starting buffer trial " + str(k))
+        logging.info(str(time.time()) + ", go_trial")
+        logging.info(str(time.time()) + ", ##############################")
+
         task.trial_start_go()
         #  Run trial in loop
         while task.trial_running:
@@ -139,9 +145,10 @@ try:
             print("stop_signal_trial")
 
         #  Logging info of trial
-        logging.info(str("##############################\n" +
-                     str(time.time())) + ", starting_trial, " + str(i) +
-                     str("\n##############################"))
+        logging.info(str(time.time()) + ", ##############################")
+        logging.info(str(time.time()) + ", starting trial " + str(i))
+        logging.info(str(time.time()) + ", " + trial_ident)
+        logging.info(str(time.time()) + ", ##############################")
 
         if trial_ident == "go_trial":
             task.trial_start_go()
