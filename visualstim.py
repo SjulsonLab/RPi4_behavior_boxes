@@ -23,27 +23,27 @@ class VisualStim(object):
         self.gratings = OrderedDict()
         self.myscreen = rpg.Screen()
         self.myscreen.display_greyscale(self.session_info["gray_level"])
-        logging.info("screen_opened")
+        logging.info(str(time.time()) + ", screen_opened")
         self.load_session_gratings()
 
     def load_grating_file(
         self, grating_file
     ):  # best if grating_file is an absolute path
         fname = os.path.split(grating_file)
-        logging.info("loading grating file")
+        logging.info(str(time.time()) + ", loading grating file")
         self.gratings.update({fname[1]: self.myscreen.load_grating(grating_file)})
         print(fname[1] + " loaded")
-        logging.info(fname[1] + " loaded")
+        logging.info(str(time.time()) + ", " + fname[1] + " loaded")
 
     def load_grating_dir(self, grating_directory):
-        logging.info("loading all gratings in directory")
+        logging.info(str(time.time()) + ", loading all gratings in directory")
         current_dir = os.getcwd()
         os.chdir(grating_directory)
         self.grating_list = os.listdir()
         self.grating_list.sort()
         for fname in self.grating_list:
             self.gratings.update({fname: self.myscreen.load_grating(fname)})
-            logging.info(fname + " loaded")
+            logging.info(str(time.time()) + ", " + fname + " loaded")
             print(fname + " loaded")
         os.chdir(current_dir)
 
@@ -61,20 +61,20 @@ class VisualStim(object):
     # call this method to display the grating. It will launch it in a separate process
     # to run on a separate core
     def show_grating(self, grating_name):
-        logging.info("ready to make process")
+        logging.info(str(time.time()) + ", ready to make vstim process")
         x = Process(target=self.process_function, args=(grating_name,))
-        logging.info("starting process")
+        logging.info(str(time.time()) + ", starting vstim process")
         x.start()
 
     # this is the function that is launched by show_grating to run in a different process
     def process_function(self, grating_name):
-        logging.info(str(grating_name) + "_on")
+        logging.info(str(time.time()) + ", " + str(grating_name) + " ON")
         self.myscreen.display_grating(self.gratings[grating_name])
-        logging.info(str(grating_name) + "_off")
+        logging.info(str(time.time()) + ", " + str(grating_name) + " OFF")
         self.myscreen.display_greyscale(
             self.session_info["gray_level"]
         )  # reset the screen to neutral gray
-        logging.info("grayscale_on")
+        logging.info(str(time.time()) + ", vstim grayscale ON")
 
     def __del__(self):
         self.myscreen.close()
