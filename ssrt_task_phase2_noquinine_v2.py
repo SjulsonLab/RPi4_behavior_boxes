@@ -1,3 +1,5 @@
+# Initiation state is 0.01s and no LED #
+
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
@@ -74,11 +76,15 @@ class ssrt_task(object):
                 name="initiation_go",
                 on_enter=["enter_initiation_go"],
                 on_exit=["exit_initiation_go"],
+                timeout=self.session_info["init_length"],
+                on_timeout=["start_vstim"],
             ),
             Timeout(
                 name="initiation_ss",
                 on_enter=["enter_initiation_ss"],
                 on_exit=["exit_initiation_ss"],
+                timeout=self.session_info["init_length"],
+                on_timeout=["start_astim"],
             ),
 
             # astim state: serves as a stop signal, ON 1s before vstim, but right after init LED
@@ -214,11 +220,17 @@ class ssrt_task(object):
         self.trial_start_time = time.time()
 
         logging.info(str(time.time()) + ", entering initiation")
+        # self.box.cueLED1.on()
+        # self.time_enter_init = time.time() - self.trial_start_time
         self.time_enter_lick_count = -2  # default
         self.time_exit_lick_count = -1  # default
+        # print("LED ON!")
 
     def exit_initiation_go(self):
         logging.info(str(time.time()) + ", exiting initiation")
+        # self.box.cueLED1.off()
+        # self.time_exit_init = time.time() - self.trial_start_time
+        # print("LED OFF!")
 
     def enter_initiation_ss(self):
         self.trial_running = True
@@ -227,11 +239,17 @@ class ssrt_task(object):
         self.trial_start_time = time.time()
 
         logging.info(str(time.time()) + ", entering initiation")
+        # self.box.cueLED1.on()
+        # self.time_enter_init = time.time() - self.trial_start_time
         self.time_enter_lick_count = -2  # default
         self.time_exit_lick_count = -1  # default
+        # print("LED ON!")
 
     def exit_initiation_ss(self):
         logging.info(str(time.time()) + ", exiting initiation")
+        # self.box.cueLED1.off()
+        # self.time_exit_init = time.time() - self.trial_start_time
+        # print("LED OFF!")
 
     def enter_astim(self):
         logging.info(str(time.time()) + ", entering astim")
@@ -334,7 +352,7 @@ class ssrt_task(object):
             pass
 
         elif self.state == "initiation_go":
-            self.start_vstim()
+            pass
 
         elif self.state == "vstim":
             pass
@@ -342,7 +360,7 @@ class ssrt_task(object):
         elif self.state == "reward_available":
             # Deliver reward from left pump if there is a lick detected on the left port
             if event_name == "left_IR_entry":
-                self.pump.reward("left", self.session_info["reward_size"])
+                self.pump.reward("left", self.session_info["reward_size"], self.session_info['reward_duration'])
                 self.time_at_reward = time.time() - self.trial_start_time
                 print("delivering reward!!")
                 self.start_lick_count()  # trigger state transition to lick_count
@@ -365,7 +383,6 @@ class ssrt_task(object):
         # look for keystrokes
         # self.box.check_keybd()
 
-
     def run_ss_trial(self):
 
         # read in name of an event the box has detected
@@ -381,7 +398,7 @@ class ssrt_task(object):
             pass
 
         elif self.state == "initiation_ss":
-            self.start_astim()
+            pass
 
         elif self.state == "astim":
             pass
@@ -537,6 +554,19 @@ class ssrt_task(object):
             range_of_astim_on = int(time_astim_index_off - time_astim_index_on)
             astim_plot_data_y[time_astim_index_on:time_astim_index_off] = np.zeros(range_of_astim_on) + 0.8
 
+
+        # create initiation time data
+        init_bins = plot_bin_number  # number of bins
+        time_init_on = self.time_enter_init
+        time_init_off = self.time_exit_init
+        time_init_index_on = int(round(time_init_on * init_bins/plot_period))
+        time_init_index_off = int(time_init_index_on + round((time_init_off - time_init_on) * (init_bins/plot_period)))
+        init_plot_data_x = np.linspace(0, plot_period, num=init_bins)
+        init_plot_data_y = np.zeros(init_bins) + 4
+        range_of_init_on = int(time_init_index_off - time_init_index_on)
+        init_plot_data_y[time_init_index_on:time_init_index_off] = np.zeros(range_of_init_on) + 4.8
+        init_plot_data_y[0] = 0 + 4  # for asthetic purpose to set init first value to 0
+
         # create vacuum time data
         vac_bins = plot_bin_number  # number of bins
         time_vac_on = self.time_at_vacON
@@ -555,12 +585,13 @@ class ssrt_task(object):
         linelengths1 = [0.8, 0.8]
         ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
         ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
+        ax2.plot(init_plot_data_x, init_plot_data_y)
         ax2.plot(vac_plot_data_x, vac_plot_data_y)
         ax2.plot(astim_plot_data_x, astim_plot_data_y)
         ax2.set_xlim([-0.5, 8.5])  # 8s total to show (trial duration)
         ax2.set_xlabel('Time since trial start (s)', fontsize=9)
-        ax2.set_yticks((-2, -1, 0.4, 2, 3))
-        ax2.set_yticklabels(('vac', 'vstim', 'astim', 'reward', 'lick'))
+        ax2.set_yticks((-2, -1, 0.4, 2, 3, 4.4))
+        ax2.set_yticklabels(('vac', 'vstim', 'astim', 'reward', 'lick', 'init LED'))
 
         ########################################################################
         # create cummulative outcome plot
