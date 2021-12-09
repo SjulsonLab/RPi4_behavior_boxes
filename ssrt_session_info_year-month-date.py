@@ -29,7 +29,7 @@ session_info['config']						= 'head_fixed_v1'
 
 # behavior parameters
 session_info['delay_time']                  = 1  # delay time between astim and vstim (in s)
-session_info['number_of_trials']            = 300  # total number of trials
+session_info['number_of_trials']            = 400  # total number of trials
 session_info['init_length']                 = 0.01  # in seconds
 session_info['lockout_length']              = 0.1  # in seconds
 session_info['vacuum_length']               = 0.5  # in seconds
