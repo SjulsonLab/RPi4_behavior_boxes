@@ -85,7 +85,7 @@ class Treadmill():
                 running_speed)
             )
 
-    def dacval(bus, address):
+    def dacval(self, bus, address):
         # time.sleep(0.3)
         block = bus.read_i2c_block_data(address, 1)
         running_speed = struct.unpack("<f", bytes(block[:4]))[0]
