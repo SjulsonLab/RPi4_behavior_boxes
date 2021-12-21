@@ -29,6 +29,7 @@ import struct
 
 class Treadmill():
     def __init__(self, session_info):
+        super(Treadmill, self).__init__()
         try:
             self.session_info = session_info
         except:
@@ -48,7 +49,7 @@ class Treadmill():
         self.delay = 0.3
 
     def start(self, background=True):
-        self._stop_dacval()
+        # self._stop_dacval()
         self._dacval_thread = Thread(target=self.run)
         self._dacval_thread.stopping = Event()
         self._dacval_thread.start()
