@@ -79,7 +79,7 @@ class Treadmill():
     def run(self):
         while True:
             time.sleep(self.delay)
-            running_speed = self.dacval(self.bus_i2c, self.address_i2c)
+            running_speed = self.dacval(self.bus, self.address)
             self.treadmill_log.append(
                 (time.time(),
                 running_speed)
