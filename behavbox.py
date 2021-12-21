@@ -142,7 +142,7 @@ class BehavBox(object):
         # # TODO: treadmill
         # ###############################################################################################
         try:
-            self.treadmill = Treadmill.dacval
+            self.treadmill = Treadmill.Treadmill(self.session_info)
         except Exception as error_message:
             print("treadmill issue\n")
             print(str(error_message))
@@ -254,6 +254,13 @@ class BehavBox(object):
                 self.flipper.flip()
             except:
                 pass
+
+            # Treadmill initiation
+            try:
+                self.treadmill.run()
+            except:
+                print("treadmill can't run")
+                
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
