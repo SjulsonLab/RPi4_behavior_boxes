@@ -257,7 +257,7 @@ class BehavBox(object):
 
             # Treadmill initiation
             try:
-                self.treadmill.run()
+                self.treadmill.start()
             except Exception as error_message:
                 print("treadmill can't run\n")
                 print(str(error_message))
