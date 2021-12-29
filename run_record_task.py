@@ -22,6 +22,7 @@ logging.config.dictConfig({
 if debug_enable:
     # enabling debugger
     from IPython import get_ipython
+
     ipython = get_ipython()
     ipython.magic("pdb on")
     ipython.magic("xmode Verbose")
@@ -38,6 +39,7 @@ try:
     timestr = datetime.now().strftime('%H%M%S')
     full_module_name = 'session_info_' + datestr
     import sys
+
     task_info_path = '/home/pi/experiment_info/record_task/session_info'
     sys.path.insert(0, task_info_path)
     tempmod = importlib.import_module(full_module_name)
@@ -49,8 +51,8 @@ try:
     session_info['datetime'] = session_info['date'] + '_' + session_info['time']
     session_info['basename'] = session_info['mouse_name'] + '_' + session_info['datetime']
 
-
-    session_info['dir_name'] = session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info['datetime']
+    session_info['dir_name'] = session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info[
+        'datetime']
 
     if session_info['manual_date'] != session_info['date']:  # check if file is updated
         print('wrong date!!')
@@ -61,7 +63,7 @@ try:
 
     # start session
     print("start_session")
-    duration_buffer = 10 # it takes 8 seconds for the camera and the video_start function to be set up
+    duration_buffer = 10  # it takes 8 seconds for the camera and the video_start function to be set up
     duration = int(input("Enter the time in seconds: ")) + duration_buffer
     task.start_session()
     sleep(duration)
