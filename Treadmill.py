@@ -79,9 +79,9 @@ class Treadmill(object):
 
     def _stop_dacval(self):
         print("Entered _stop_dacval")
-        if getattr(self, '_stop_dacval', None):
-            print("enter _stop_dacval.stop()")
-            self._dacval_thread.stop()
+        # if getattr(self, '_stop_dacval', None):
+        #     print("enter _stop_dacval.stop()")
+        #     self._dacval_thread.stop()
         self._dacval_thread = None
 
     def run(self):
