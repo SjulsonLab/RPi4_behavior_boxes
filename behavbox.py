@@ -296,6 +296,10 @@ class BehavBox(object):
                 pass
             time.sleep(2)
 
+            try:  # try to stop recording the treadmill
+                self.treadmill.close()
+            except:
+                pass
             hostname = socket.gethostname()
             print("Moving video files from " + hostname + "video to " + hostname + ":")
 
