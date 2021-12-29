@@ -27,6 +27,14 @@ import smbus
 import time
 import struct
 
+
+def dacval(bus, address):
+    # time.sleep(0.3)
+    block = bus.read_i2c_block_data(address, 1)
+    running_speed = struct.unpack("<f", bytes(block[:4]))[0]
+    return running_speed
+
+
 class Treadmill(object):
     def __init__(self, session_info):
         try:
@@ -48,7 +56,7 @@ class Treadmill(object):
         self.delay = 0.3
 
     def start(self, background=True):
-        # self._stop_dacval()
+        self._stop_dacval()
         self._dacval_thread = Thread(target=self.run)
         self._dacval_thread.stopping = Event()
         self._dacval_thread.start()
@@ -79,17 +87,11 @@ class Treadmill(object):
     def run(self):
         while True:
             time.sleep(self.delay)
-            running_speed = self.dacval(self.bus, self.address)
+            running_speed = dacval(self.bus, self.address)
             self.treadmill_log.append(
                 (time.time(),
-                running_speed)
+                 running_speed)
             )
-
-    def dacval(self, bus, address):
-        # time.sleep(0.3)
-        block = bus.read_i2c_block_data(address, 1)
-        running_speed = struct.unpack("<f", bytes(block[:4]))[0]
-        return running_speed
 
     # save the element list
     def treadmill_flush(self):
@@ -97,11 +99,6 @@ class Treadmill(object):
             f.write('time.time(), running_speed\n')
             for entry in self.treadmill_log:
                 f.write('%f, %f\n' % entry)
-
-
-
-
-
 
 
 """
