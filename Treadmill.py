@@ -47,9 +47,9 @@ class Treadmill(object):
         # This is the address we setup in the Arduino Program
         self.address = 0x08
         base_path = self.session_info['basedir']
-        self.threadmill_filename = base_path + "/treadmill" + "_output" + str(
+        self.treadmill_filename = base_path + "/treadmill" + "_output" + str(
             dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
-
+        print(self.treadmill_filename)
         self._dacval_thread = None
 
         self.treadmill_log = []
@@ -95,7 +95,7 @@ class Treadmill(object):
 
     # save the element list
     def treadmill_flush(self):
-        with io.open(self.threadmill_filename, 'w') as f:
+        with io.open(self.treadmill_filename, 'w') as f:
             f.write('time.time(), running_speed\n')
             for entry in self.treadmill_log:
                 f.write('%f, %f\n' % entry)
