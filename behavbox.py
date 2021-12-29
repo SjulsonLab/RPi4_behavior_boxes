@@ -252,8 +252,9 @@ class BehavBox(object):
             # initiate the flipper
             try:
                 self.flipper.flip()
-            except:
-                pass
+            except Exception as error_message:
+                print("flipper can't run\n")
+                print(str(error_message))
 
             # Treadmill initiation
             try:
