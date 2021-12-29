@@ -46,8 +46,7 @@ class Treadmill(object):
         self.bus = smbus.SMBus(1)  # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
         # This is the address we setup in the Arduino Program
         self.address = 0x08
-        self.treadmill_filename = self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
-                                  "treadmill_output_" + self.session_info['basename'] + ".csv "
+        self.treadmill_filename = self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info['basename'] + "_treadmill_output_" + ".csv "
         print(self.treadmill_filename)
         self._dacval_thread = None
 
