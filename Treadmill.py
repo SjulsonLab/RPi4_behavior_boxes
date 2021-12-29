@@ -47,7 +47,7 @@ class Treadmill(object):
         # This is the address we setup in the Arduino Program
         self.address = 0x08
         self.treadmill_filename = self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
-                                  "treadmill_output" + self.session_info['basename'] + ".csv "
+                                  "treadmill_output_" + self.session_info['basename'] + ".csv "
         print(self.treadmill_filename)
         self._dacval_thread = None
 
@@ -80,6 +80,7 @@ class Treadmill(object):
     def _stop_dacval(self):
         print("Entered _stop_dacval")
         if getattr(self, '_stop_dacval', None):
+            print("enter _stop_dacval.stop()")
             self._dacval_thread.stop()
         self._dacval_thread = None
 

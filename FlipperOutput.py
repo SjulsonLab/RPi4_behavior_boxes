@@ -45,6 +45,7 @@ class FlipperOutput(DigitalOutputDevice):
     def _stop_flip(self):
         print("Entered _stop_flip")
         if getattr(self, '_flip_thread', None):
+            print("enter _flip_thread.stop()")
             self._flip_thread.stop()
         self._flip_thread = None
 
