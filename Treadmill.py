@@ -95,6 +95,7 @@ class Treadmill(object):
 
     # save the element list
     def treadmill_flush(self):
+        print("Flushing: " + self.treadmill_filename)
         with io.open(self.treadmill_filename, 'w') as f:
             f.write('time.time(), running_speed\n')
             for entry in self.treadmill_log:
