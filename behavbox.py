@@ -326,7 +326,7 @@ class BehavBox(object):
                 + hd_dir
             )
             print("rsync finished!")
-            print("Control-C to quit (ignore the error for now)")
+            # print("Control-C to quit (ignore the error for now)")
         except Exception as e:
             print(e)
 

@@ -48,9 +48,10 @@ class Treadmill(object):
         self.address = 0x08
         self.treadmill_filename = self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info['basename'] + "_treadmill_output" + ".csv"
         print(self.treadmill_filename)
-        self._dacval_thread = None
 
+        self._dacval_thread = None
         self._running = False
+
         self.treadmill_log = []
         self.delay = 0.3
 

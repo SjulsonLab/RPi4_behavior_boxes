@@ -15,11 +15,14 @@ class FlipperOutput(DigitalOutputDevice):
             raise
         # Additional properties and methods
         self._flip_thread = None
+        self._running = False
+
         self._flipper_file = self.session_info['flipper_filename'] + '.csv'
         self._flipper_timestamp = []
 
     def flip(self, time_min=0.5, time_max=2, n=None, background=True):
         self._stop_flip()
+        self._running = True
         self._flip_thread = Thread(
             target=self._flip_device, args=(time_min, time_max, n)
         )
@@ -44,13 +47,14 @@ class FlipperOutput(DigitalOutputDevice):
 
     def _stop_flip(self):
         print("Entered _stop_flip")
+        self._running = False
         # if getattr(self, '_flip_thread', None):
         #     # print("enter _flip_thread.stop()")
         #     self._flip_thread.stop()
         self._flip_thread = None
 
     def _flip_device(self, time_min, time_max, n):
-        while True:
+        while self._running == True:
             on_time = round(random.uniform(time_min, time_max), 3)
             off_time = round(random.uniform(time_min, time_max), 3)
 
