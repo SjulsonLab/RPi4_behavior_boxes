@@ -19,7 +19,7 @@ def dacval():
         return dvl
 """
 
-import datetime as dt
+# import datetime as dt
 import io
 from threading import Thread, Event
 
@@ -50,11 +50,13 @@ class Treadmill(object):
         print(self.treadmill_filename)
         self._dacval_thread = None
 
+        self._running = False
         self.treadmill_log = []
         self.delay = 0.3
 
     def start(self, background=True):
         self._stop_dacval()
+        self._running = True
         self._dacval_thread = Thread(target=self.run)
         self._dacval_thread.stopping = Event()
         self._dacval_thread.start()
@@ -70,21 +72,21 @@ class Treadmill(object):
             self._dacval_thread.join(5)
             self._dacval_thread = None
             self._stop_dacval()
-            # self.off()
             self.treadmill_flush()
-            # super().close()
         except:
             pass
 
     def _stop_dacval(self):
         print("Entered _stop_dacval")
+        self._running = False
         # if getattr(self, '_stop_dacval', None):
         #     print("enter _stop_dacval.stop()")
         #     self._dacval_thread.stop()
-        self._dacval_thread = None
+        # self._dacval_thread = None
+
 
     def run(self):
-        while True:
+        while self._running == True:
             time.sleep(self.delay)
             running_speed = dacval(self.bus, self.address)
             self.treadmill_log.append(
