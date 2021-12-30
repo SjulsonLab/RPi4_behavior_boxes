@@ -142,7 +142,7 @@ class BehavBox(object):
         # # TODO: treadmill
         # ###############################################################################################
         try:
-            self.treadmill = Treadmill.dacval
+            self.treadmill = Treadmill.Treadmill(self.session_info)
         except Exception as error_message:
             print("treadmill issue\n")
             print(str(error_message))
@@ -252,8 +252,17 @@ class BehavBox(object):
             # initiate the flipper
             try:
                 self.flipper.flip()
-            except:
-                pass
+            except Exception as error_message:
+                print("flipper can't run\n")
+                print(str(error_message))
+
+            # Treadmill initiation
+            try:
+                self.treadmill.start()
+            except Exception as error_message:
+                print("treadmill can't run\n")
+                print(str(error_message))
+
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
@@ -287,6 +296,10 @@ class BehavBox(object):
                 pass
             time.sleep(2)
 
+            try:  # try to stop recording the treadmill
+                self.treadmill.close()
+            except:
+                pass
             hostname = socket.gethostname()
             print("Moving video files from " + hostname + "video to " + hostname + ":")
 
@@ -313,7 +326,7 @@ class BehavBox(object):
                 + hd_dir
             )
             print("rsync finished!")
-
+            # print("Control-C to quit (ignore the error for now)")
         except Exception as e:
             print(e)
 
