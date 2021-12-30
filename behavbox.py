@@ -145,6 +145,7 @@ class BehavBox(object):
             self.treadmill = Treadmill.Treadmill(self.session_info)
         except Exception as error_message:
             print("treadmill issue\n")
+            print("Ignore following erro if no treadmill is connected: ")
             print(str(error_message))
 
         ###############################################################################################
