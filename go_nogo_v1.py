@@ -1,5 +1,9 @@
-# Initiation state is 0.01s and no LED #
+########################################## go/nogo task ##################################################
+# This code create the task object which can be used in the run_go_nogo code
+# Sjulson lab 01/21/2022
+# Duy Tran
 
+# import packages for the task
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
@@ -10,6 +14,8 @@ from colorama import Fore, Style
 import logging.config
 import time
 
+# import packages for starting a new process and plotting trial progress in real time
+# RPi4 does not have a graphical interface, we use pygame with backends for plotting
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.backends.backend_agg as agg
@@ -66,63 +72,51 @@ class ssrt_task(object):
 
         ########################################################################
         # Task has many possible states
-        # Insert neutral states whenever is needed to transition between 2 possible types of trials
+        # stanby is the initial state, then trigger appropriate transitions depending on the type of trial
+        # temp# are temporary states (used as a "place holder" for transitions to other states)
+        # the go/nogo task has 2 possible types of trials
+        # go trials: 45 degree drifting gratings presentation for 3s and reward is available after the 2nd second
+        # normal ITI length of 3s
+        # nogo trials: 135 degree drifting gratings presentation for 3s and no reward is available, if any lick is
+        # detected after the 2nd second, it will consider it as False Alarm trial with longer ITI of 6.5s
+        # all timeout lengths can be edited in the session_info file
         ########################################################################
         self.states = [
             State(name="standby", on_enter=["enter_standby"], on_exit=["exit_standby"]),
 
-            # initiation state: LED light is turned ON for 1s
+            ###################################### states for go trials #############################################
+            # vstim_go state: initiate 45 degree drifting gratings stimulus for 3s, no need for timeout because we will
+            # trigger state transition to the next state right after entering vstim_go state
+            # after initiation, it will stay in this state for 2s (lockout period), then transition to reward_available
+            # vstim drifting needs to be made in advance with visualstim.py code and saved to home folder of the RPi4
+            # then select the vstim to display in the method enter_vstim_go
             Timeout(
-                name="initiation_go",
-                on_enter=["enter_initiation_go"],
-                on_exit=["exit_initiation_go"],
-                timeout=self.session_info["init_length"],
-                on_timeout=["start_vstim"],
-            ),
-            Timeout(
-                name="initiation_ss",
-                on_enter=["enter_initiation_ss"],
-                on_exit=["exit_initiation_ss"],
-                timeout=self.session_info["init_length"],
-                on_timeout=["start_astim"],
-            ),
-
-            # astim state: serves as a stop signal, ON 1s before vstim, but right after init LED
-            # lasts until end of vstim
-            Timeout(
-                name="astim",
-                on_enter=["enter_astim"],
-                on_exit=["exit_astim"],
-                timeout=self.session_info["delay_time"],
-                on_timeout=["start_vstim_astim"],
-            ),
-
-            # vstim state: start vstim display (automatic once start, can move on to the next state)
-            # visual stim is initiated at the exit of initation state, vstim state is actually lockout state (200ms)
-            Timeout(
-                name="vstim",
-                on_enter=["enter_vstim"],
-                on_exit=["exit_vstim"],
+                name="vstim_go",
+                on_enter=["enter_vstim_go"],
+                on_exit=["exit_vstim_go"],
                 timeout=self.session_info["lockout_length"],
                 on_timeout=["start_reward_available"],
             ),
 
-            # reward_available state: if there is a lick, deliver water then transition to the next state
+            # reward_available state: if there is a lick, deliver reward then transition to temp1 state
+            # if no lick is detected, transition to vacuum state after 1s
             Timeout(
                 name="reward_available",
                 on_enter=["enter_reward_available"],
                 on_exit=["exit_reward_available"],
                 timeout=self.session_info["reward_available_length"],
-                on_timeout=["start_vacuum_from_reward_available"],
-            ),
-            # lick_count state: licks are logged
-            Timeout(
-                name="lick_count",
-                on_enter=["enter_lick_count"],
-                on_exit=["exit_lick_count"],
+                on_timeout=["start_vacuum_reward_available"],
             ),
 
-            # vacuum state: open vacuum for specified amount of time (right before trial ends)
+            # temp1 state: temporary state to wait until vstim ends then transition to vacuum state
+            # no timeout because transition will be made when vstim 3s countdown is up!
+            Timeout(
+                name="temp1",
+                on_enter=["enter_temp1"],
+                on_exit=["exit_temp1"],
+            ),
+
+            # vacuum state: open vacuum for specified amount of time, then transition to assessment state
             Timeout(
                 name="vacuum",
                 on_enter=["enter_vacuum"],
@@ -131,7 +125,8 @@ class ssrt_task(object):
                 on_timeout=["start_assessment"],
             ),
 
-            # assessment state: assess trial outcomes
+            # assessment state: assess trial outcomes to trigger appropriate ITI transition
+            # go trials always have normal ITI
             Timeout(
                 name="assessment",
                 on_enter=["enter_assessment"],
@@ -146,7 +141,41 @@ class ssrt_task(object):
                 timeout=self.session_info["normal_iti_length"],
                 on_timeout=["return_to_standby_normal_iti"],
             ),
-            # punishment iti state
+            ###################################### end of states for go trials ########################################
+            ###########################################################################################################
+
+
+            ###################################### states for nogo trials #############################################
+            # same as go trial states
+            # exceptions: different vstim, no reward_available state, punishment_iti
+
+            # vstim_nogo state: does not transition to reward_available state, instead to lick_count
+            Timeout(
+                name="vstim_nogo",
+                on_enter=["enter_vstim_nogo"],
+                on_exit=["exit_vstim_nogo"],
+                timeout=self.session_info["lockout_length"],
+                on_timeout=["start_lick_count"],
+            ),
+
+            # lick_count state: if there is lick, transition to temp2 state
+            # otherwise will transition to vacuum state after 1s
+            Timeout(
+                name="lick_count",
+                on_enter=["enter_lick_count"],
+                on_exit=["exit_lick_count"],
+                timeout=self.session_info["lick_count_length"],
+                on_timeout=["start_vacuum_lick_count"],
+            ),
+
+            # temp2 state: temporary state to wait until vstim ends and transition to vacuum state
+            Timeout(
+                name="temp2",
+                on_enter=["enter_temp2"],
+                on_exit=["exit_temp2"],
+            ),
+
+            # punishment iti state: only when trial outcome is False Alarm!
             Timeout(
                 name="punishment_iti",
                 on_enter=["enter_punishment_iti"],
@@ -154,34 +183,43 @@ class ssrt_task(object):
                 timeout=self.session_info["punishment_iti_length"],
                 on_timeout=["return_to_standby_punishment_iti"],
             ),
-
+            ###################################### end of states for nogo trials ######################################
+            ###########################################################################################################
         ]
-        # can set later with task.machine.states['cue'].timeout etc.
 
         ########################################################################
         # list of possible transitions between states
         # format is: [event_name, source_state, destination_state]
         ########################################################################
         self.transitions = [
-            # possible transitions
-            ["trial_start_go", "standby", "initiation_go"],
-            ["trial_start_ss", "standby", "initiation_ss"],
-            ["start_vstim", "initiation_go", "vstim"],
-            ["start_astim", "initiation_ss", "astim"],
-            ["start_vstim_astim", "astim", "vstim"],
-            ["start_reward_available", "vstim", "reward_available"],
-            ["start_lick_count", "reward_available", "lick_count"],
-            ["start_vacuum_from_reward_available", "reward_available", "vacuum"],
-            ["start_vacuum_from_lick_count", "lick_count", "vacuum"],
+            # transitions for go trials
+            # to trigger this transition pathway, put 'go_trial_start' in the run_go_nogo code
+            ["go_trial_start", "standby", "vstim_go"],
+            ["start_reward_available", "vstim_go", "reward_available"],
+            ["start_vacuum_reward_available", "reward_available", "vacuum"],
+            ["start_temp1", "reward_available", "temp1"],
+            ["start_vacuum_temp1", "temp1", "vacuum"],
             ["start_assessment", "vacuum", "assessment"],
             ["start_normal_iti", "assessment", "normal_iti"],
-            ["start_punishment_iti", "assessment", "punishment_iti"],
             ["return_to_standby_normal_iti", "normal_iti", "standby"],
+
+            # transitions for nogo trials
+            # to trigger this transition pathway, put 'nogo_trial_start' in the run_go_nogo code
+            # transitions that are already in go pathway will not be repeated here
+            ["nogo_trial_start", "standby", "vstim_nogo"],
+            ["start_lick_count", "vstim_nogo", "lick_count"],
+            ["start_vacuum_lick_count", "lick_count", "vacuum"],
+            ["start_temp2", "lick_count", "temp2"],
+            ["start_vacuum_temp2", "temp2", "vacuum"],
+            # ["start_assessment", "vacuum", "assessment"],
+            # ["start_normal_iti", "assessment", "normal_iti"],
+            ["start_punishment_iti", "assessment", "punishment_iti"],
+            # ["return_to_standby_normal_iti", "normal_iti", "standby"],
             ["return_to_standby_punishment_iti", "punishment_iti", "standby"],
         ]
 
         ########################################################################
-        # initialize state machine and behavior box
+        # initialize state machine, behavbox, and parameters for plotting
         ########################################################################
         self.machine = TimedStateMachine(
             model=self,
@@ -189,10 +227,14 @@ class ssrt_task(object):
             transitions=self.transitions,
             initial="standby",
         )
+
+        # default is task not running
         self.trial_running = False
 
         # initialize behavior box
         self.box = behavbox_DT.BehavBox(self.session_info)
+
+        # pump class is for reward delivery
         self.pump = behavbox_DT.Pump()
 
         # establish parameters for plotting
@@ -203,99 +245,90 @@ class ssrt_task(object):
         self.cr_count = [0 for o in range(self.session_info["number_of_trials"])]
         self.fa_count = [0 for o in range(self.session_info["number_of_trials"])]
 
+        self.trial_start_time = 0
+        self.time_at_vstim_ON = 0
+        self.time_at_vstim_OFF = 0
+        self.lick_times = np.array([])
+        self.time_at_reward = -1  # default value of -1 if no reward is delivered
+        self.trial_outcome = "Unknown..."
+
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
     def enter_standby(self):
         logging.info(str(time.time()) + ", entering standby")
         self.trial_running = False
+        # plotting should happen here
 
     def exit_standby(self):
         logging.info(str(time.time()) + ", exiting standby")
-
-    def enter_initiation_go(self):
-        self.trial_running = True
-        self.time_at_lick = np.array([])
-        self.time_at_reward = -1  # default value of -1 if no reward is delivered
+        # set all plotting parameters to default values
         self.trial_start_time = time.time()
+        self.lick_times = np.array([])
+        self.time_at_reward = -1
 
-        logging.info(str(time.time()) + ", entering initiation")
-        # self.box.cueLED1.on()
-        # self.time_enter_init = time.time() - self.trial_start_time
-        self.time_enter_lick_count = -2  # default
-        self.time_exit_lick_count = -1  # default
-        # print("LED ON!")
-
-    def exit_initiation_go(self):
-        logging.info(str(time.time()) + ", exiting initiation")
-        # self.box.cueLED1.off()
-        # self.time_exit_init = time.time() - self.trial_start_time
-        # print("LED OFF!")
-
-    def enter_initiation_ss(self):
+    def enter_vstim_go(self):
         self.trial_running = True
-        self.time_at_lick = np.array([])
-        self.time_at_reward = -1  # default value of -1 if no reward is delivered
-        self.trial_start_time = time.time()
-
-        logging.info(str(time.time()) + ", entering initiation")
-        # self.box.cueLED1.on()
-        # self.time_enter_init = time.time() - self.trial_start_time
-        self.time_enter_lick_count = -2  # default
-        self.time_exit_lick_count = -1  # default
-        # print("LED ON!")
-
-    def exit_initiation_ss(self):
-        logging.info(str(time.time()) + ", exiting initiation")
-        # self.box.cueLED1.off()
-        # self.time_exit_init = time.time() - self.trial_start_time
-        # print("LED OFF!")
-
-    def enter_astim(self):
-        logging.info(str(time.time()) + ", entering astim")
-        self.box.sound1.on()
-        time.sleep(0.01)
-        self.box.sound1.off()
-        self.time_astim_ON = time.time() - self.trial_start_time
-        logging.info(str(time.time()) + ", astim ON")
-        print("Stop signal ON!")
-
-    def exit_astim(self):
-        logging.info(str(time.time()) + ", exiting astim")
-
-    def enter_vstim(self):
-        logging.info(str(time.time()) + ", entering vstim")
+        logging.info(str(time.time()) + ", initializing vstim_go")
         self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
-        self.time_at_vstim_on = time.time() - self.trial_start_time
-        # start the countdown of time since display of vstim, this is used as timeup to transition lick_count to vacuum
+        logging.info(str(time.time()) + ", vstim_go ON!")
+        self.time_at_vstim_ON = time.time() - self.trial_start_time
+        # start the countdown of time since display of vstim (3s), used to determine transition to vacuum
         self.countdown(3)
 
-    def exit_vstim(self):
-        logging.info(str(time.time()) + ", exiting vstim")
+    def exit_vstim_go(self):
+        logging.info(str(time.time()) + ", exiting lockout period")
+
+    def enter_vstim_nogo(self):
+        self.trial_running = True
+        logging.info(str(time.time()) + ", initializing vstim_nogo")
+        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[1])
+        logging.info(str(time.time()) + ", vstim_nogo ON!")
+        self.time_at_vstim_ON = time.time() - self.trial_start_time
+        # start the countdown of time since display of vstim (3s), used to determine transition to vacuum
+        self.countdown(3)
+
+    def exit_vstim_nogo(self):
+        logging.info(str(time.time()) + ", exiting lockout period")
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
+        self.trial_outcome = "Miss!!"
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
 
     def enter_lick_count(self):
-        self.time_enter_lick_count = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", entering lick_count")
+        self.trial_outcome = "CR!"
 
     def exit_lick_count(self):
-        self.time_exit_lick_count = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting lick_count")
+
+    def enter_temp1(self):
+        logging.info(str(time.time()) + ", entering temp1")
+        # entering temp1 means reward was delivered immediately before the transition
+        self.trial_outcome = "Hit!"
+        logging.info(str(time.time()) + ", Hit!")
+
+    def exit_temp1(self):
+        logging.info(str(time.time()) + ", exiting temp1")
+
+    def enter_temp2(self):
+        logging.info(str(time.time()) + ", entering temp2")
+        self.trial_outcome = "FA!!!"
+        logging.info(str(time.time()) + ", FA!!!")
+
+    def exit_temp2(self):
+        logging.info(str(time.time()) + ", exiting temp2")
 
     def enter_vacuum(self):
         logging.info(str(time.time()) + ", entering vacuum")
         self.box.vacuum_on()
-        self.time_at_vacON = time.time() - self.trial_start_time
 
     def exit_vacuum(self):
         logging.info(str(time.time()) + ", exiting vacuum")
         self.box.vacuum_off()
-        self.time_at_vacOFF = time.time() - self.trial_start_time
 
     def enter_assessment(self):
         logging.info(str(time.time()) + ", entering assessment")
@@ -307,37 +340,35 @@ class ssrt_task(object):
         logging.info(str(time.time()) + ", entering normal_iti")
 
     def exit_normal_iti(self):
-        self.trial_end_time = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting normal_iti")
 
     def enter_punishment_iti(self):
         logging.info(str(time.time()) + ", entering punishment_iti")
 
     def exit_punishment_iti(self):
-        self.trial_end_time = time.time() - self.trial_start_time
         logging.info(str(time.time()) + ", exiting punishment_iti")
 
     ########################################################################
-    # countdown function to run when vstim starts to play
+    # countdown methods to run when vstim starts to play, used as timers since vstim starts
     # t is the length of countdown (in seconds)
     ########################################################################
     def countdown(self, t):
         while t:
-            mins, secs = divmod(t, 60)
-            timer = '{:02d}:{:02d}'.format(mins, secs)
-            print(timer, end="\r")
+            # mins, secs = divmod(t, 60)
+            # timer = '{:02d}:{:02d}'.format(mins, secs)
+            # print(timer, end="\r")
             time.sleep(1)
             t -= 1
 
-        print('vstim 3s countdown is up!')
-        self.box.event_list.append("vstim 3s countdown is up!")
+        # print('vstim ends...')
+        self.box.event_list.append("vstim countdown ends...")
 
     ########################################################################
-    # call the run() method repeatedly in a while loop in the run_ssrt_task_phase1_v1.py script
+    # call the run_go() or run_nogo() method repeatedly in a while loop in the run_go_nogo script
     # it will process all detected events from the behavior box (e.g.
     # licks, reward delivery, etc.) and trigger the appropriate state transitions
     ########################################################################
-    def run_go_trial(self):
+    def run_go(self):
 
         # read in name of an event the box has detected
         if self.box.event_list:
@@ -346,30 +377,30 @@ class ssrt_task(object):
             event_name = ""
 
         if event_name == "left_IR_entry":
-            self.time_at_lick = np.append(self.time_at_lick, time.time() - self.trial_start_time)
+            self.lick_times = np.append(self.lick_times, time.time() - self.trial_start_time)
 
         if self.state == "standby":
             pass
 
-        elif self.state == "initiation_go":
-            pass
-
-        elif self.state == "vstim":
+        elif self.state == "vstim_go":
             pass
 
         elif self.state == "reward_available":
-            # Deliver reward from left pump if there is a lick detected on the left port
+            # this task only uses 1 port (left port) and 1 pump (left pump)
+            # deliver reward from left pump if there is a lick detected on the left IR port
+            # if lick is detected, delivery reward then transition to temp1 immediately
+            # otherwise transition to vacuum after 1s
             if event_name == "left_IR_entry":
                 self.pump.reward("left", self.session_info["reward_size"], self.session_info['reward_duration'])
                 self.time_at_reward = time.time() - self.trial_start_time
-                print("delivering reward!!")
-                self.start_lick_count()  # trigger state transition to lick_count
+                self.start_temp1()  # trigger state transition to temp1
             else:
                 pass
 
-        elif self.state == "lick_count":
-            if event_name == "vstim 3s countdown is up!":
-                self.start_vacuum_from_lick_count()
+        elif self.state == "temp1":
+            # transition to vacuum state when vstim 3s countdown ends
+            if event_name == "vstim countdown ends...":
+                self.start_vacuum_temp1()
 
         elif self.state == "vacuum":
             pass
@@ -383,7 +414,7 @@ class ssrt_task(object):
         # look for keystrokes
         # self.box.check_keybd()
 
-    def run_ss_trial(self):
+    def run_nogo(self):
 
         # read in name of an event the box has detected
         if self.box.event_list:
@@ -392,46 +423,39 @@ class ssrt_task(object):
             event_name = ""
 
         if event_name == "left_IR_entry":
-            self.time_at_lick = np.append(self.time_at_lick, time.time() - self.trial_start_time)
+            self.lick_times = np.append(self.lick_times, time.time() - self.trial_start_time)
 
         if self.state == "standby":
             pass
 
-        elif self.state == "initiation_ss":
+        elif self.state == "vstim_nogo":
             pass
-
-        elif self.state == "astim":
-            pass
-
-        elif self.state == "vstim":
-            pass
-
-        elif self.state == "reward_available":
-            if event_name == "left_IR_entry":
-                self.temp_outcome = "FA !!!"
-                self.start_lick_count()
-            else:
-                self.temp_outcome = "CR!"
-                pass
 
         elif self.state == "lick_count":
-            if event_name == "vstim 3s countdown is up!":
-                self.start_vacuum_from_lick_count()
+            # if lick is detected, transition to temp2
+            # otherwise, transition to vacuum after 1s
+            if event_name == "left_IR_entry":
+                self.start_temp2()
+            else:
+                pass
 
         elif self.state == "vacuum":
             pass
 
         elif self.state == "assessment":
-            if self.temp_outcome == "FA !!!":
-                self.start_punishment_iti()
-            elif self.temp_outcome == "CR!":
+            # if trial_outcome is CR!, transition to normal_iti
+            # else transition to punishment_iti
+            if self.trial_outcome == "CR!":
                 self.start_normal_iti()
+            elif self.trial_outcome == "FA!!!":
+                self.start_punishment_iti()
 
         elif self.state == "normal_iti":
             pass
 
         elif self.state == "punishment_iti":
             pass
+
     ########################################################################
     # function for plotting
     ########################################################################

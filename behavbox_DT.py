@@ -415,10 +415,10 @@ class Pump(object):
 
         if which_pump == "left":
             self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(str(time.time()) + ", left_reward " + str(reward_size) + " microL")
+            logging.info(str(time.time()) + ", left_reward ")
         elif which_pump == "center":
             self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(str(time.time()) + ", center_reward " + str(reward_size) + " microL")
+            logging.info(str(time.time()) + ", center_reward ")
         elif which_pump == "right":
-            logging.info(str(time.time()) + ", right_reward " + str(reward_size) + " microL")
+            logging.info(str(time.time()) + ", right_reward ")
             self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
