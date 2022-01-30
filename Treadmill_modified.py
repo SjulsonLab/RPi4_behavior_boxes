@@ -19,9 +19,8 @@ def dacval(bus, address):
     # return data
     # print(str(block) + '/n')
     # print(str(bytes(block)) + '/n')
-    print("Running speed: " + str(n))
+    print("distance: " + str(n))
     return n
 
-# print("velocity, distance\n")
 while True:
     data = dacval(bus_i2c, address_i2c)
