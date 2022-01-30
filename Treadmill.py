@@ -31,8 +31,8 @@ import struct
 def dacval(bus, address):
     # time.sleep(0.3)
     block = bus.read_i2c_block_data(address, 1)
-    running_speed = struct.unpack("<f", bytes(block[:4]))[0]
-    return running_speed
+    distance = struct.unpack("<f", bytes(block[:4]))[0]
+    return distance
 
 
 class Treadmill(object):
@@ -54,6 +54,8 @@ class Treadmill(object):
 
         self.treadmill_log = []
         self.delay = 0.3
+
+        self.distance = None
 
     def start(self, background=True):
         self._stop_dacval()
@@ -89,17 +91,17 @@ class Treadmill(object):
     def run(self):
         while self._running == True:
             time.sleep(self.delay)
-            running_speed = dacval(self.bus, self.address)
+            self.distance = dacval(self.bus, self.address)
             self.treadmill_log.append(
                 (time.time(),
-                 running_speed)
+                 self.distance)
             )
 
     # save the element list
     def treadmill_flush(self):
         print("Flushing: " + self.treadmill_filename)
         with io.open(self.treadmill_filename, 'w') as f:
-            f.write('time.time(), running_speed\n')
+            f.write('time.time(), distance\n')
             for entry in self.treadmill_log:
                 f.write('%f, %f\n' % entry)
 
