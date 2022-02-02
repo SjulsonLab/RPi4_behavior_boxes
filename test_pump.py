@@ -8,7 +8,3 @@ reward_duration = 0.01  # fastest
 
 ##### Call the reward method to deliver the reward
 pump.reward(which_pump, reward_size, reward_duration)
-
-
-
-
