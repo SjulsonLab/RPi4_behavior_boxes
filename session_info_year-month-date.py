@@ -1,5 +1,5 @@
 # put all of your mouse and session info in here
-
+import random
 from datetime import datetime
 import os
 import pysistence, collections
@@ -38,3 +38,18 @@ session_info['vis_gratings']				= ['/home/pi/first_grating.dat',
 											   '/home/pi/second_grating.dat']
 session_info['vis_raws']					= []
 
+# treadmill
+session_info['treadmill']                   = True
+if session_info['treadmill'] == True:
+    session_info['treadmill_task']                        = 'headfixed_reinforcement_learning'
+    session_info['phase_number']                          = 4
+    if session_info['phase_number'] == 4: # 4 is final stage
+        session_info['block_duration'] = 50
+        session_info['initial_state'] = 'sound_long' # sound prompt for long distance => high reward;
+                                                    # short distance => small reward; reverse for cue light
+        if session_info['initial_state'] == False:
+            if random.random() < 0.5:
+                session_info['initial_state'] = 'sound_long'
+            else:
+                session_info['initial_state'] = 'sound_short' # sound prompt for short distance => low reward;
+                                                            # short distance => high reward; reverse for cue light

@@ -141,13 +141,16 @@ class BehavBox(object):
         # ###############################################################################################
         # # TODO: treadmill
         # ###############################################################################################
-        try:
-            self.treadmill = Treadmill.Treadmill(self.session_info)
-        except Exception as error_message:
-            print("treadmill issue\n")
-            print("Ignore following erro if no treadmill is connected: ")
-            print(str(error_message))
-
+        if session_info['treadmill'] == True:
+            try:
+                self.treadmill = Treadmill.Treadmill(self.session_info)
+            except Exception as error_message:
+                print("treadmill issue\n")
+                # print("Ignore following erro if no treadmill is connected: ")
+                print(str(error_message))
+        else:
+            self.treadmill = False
+            print("No treadmill I2C connection detected!")
         ###############################################################################################
         # Keystroke handler
         ###############################################################################################
@@ -258,11 +261,12 @@ class BehavBox(object):
                 print(str(error_message))
 
             # Treadmill initiation
-            try:
-                self.treadmill.start()
-            except Exception as error_message:
-                print("treadmill can't run\n")
-                print(str(error_message))
+            if self.treadmill is not False:
+                try:
+                    self.treadmill.start()
+                except Exception as error_message:
+                    print("treadmill can't run\n")
+                    print(str(error_message))
 
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
@@ -296,11 +300,11 @@ class BehavBox(object):
             except:
                 pass
             time.sleep(2)
-
-            try:  # try to stop recording the treadmill
-                self.treadmill.close()
-            except:
-                pass
+            if self.treadmill is not False:
+                try:  # try to stop recording the treadmill
+                    self.treadmill.close()
+                except:
+                    pass
             hostname = socket.gethostname()
             print("Moving video files from " + hostname + "video to " + hostname + ":")
 
@@ -363,30 +367,6 @@ class BehavBox(object):
         self.event_list.append("right_IR_exit")
         self.cueLED3.off()
         logging.info(str(time.time()) + ", right_IR_exit")
-
-    # def left_lick_start(self):
-    #     self.event_list.append("left_lick_start")
-    #     logging.info(str(time.time()) + ", left_lick_start")
-    #
-    # def center_lick_start(self):
-    #     self.event_list.append("center_lick_start")
-    #     logging.info(str(time.time()) + ", center_lick_start")
-    #
-    # def right_lick_start(self):
-    #     self.event_list.append("right_lick_start")
-    #     logging.info(str(time.time()) + ", right_lick_start")
-    #
-    # def left_lick_stop(self):
-    #     self.event_list.append("left_lick_stop")
-    #     logging.info(str(time.time()) + ", left_lick_stop")
-    #
-    # def center_lick_stop(self):
-    #     self.event_list.append("center_lick_stop")
-    #     logging.info(str(time.time()) + ", center_lick_stop")
-    #
-    # def right_lick_stop(self):
-    #     self.event_list.append("right_lick_stop")
-    #     logging.info(str(time.time()) + ", right_lick_stop")
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
