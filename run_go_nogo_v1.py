@@ -277,7 +277,11 @@ if __name__ == "__main__":
                 elif trial_outcome == 2:
                     phase1_trial_outcome[w] = "Miss !!!"
                 phase1_hit_count[w] = phase1_trial_outcome.count("Hit!")
-                phase1_hit_rate = (phase1_hit_count[w])/w
+
+                if w == 0:
+                    phase1_hit_rate = 0
+                else:
+                    phase1_hit_rate = (phase1_hit_count[w])/w
 
                 if phase1_hit_rate > session_info['hit_criterion']:
                     print("Hit criterion is achieved!!!")
