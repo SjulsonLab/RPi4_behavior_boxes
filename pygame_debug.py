@@ -7,8 +7,8 @@ except Exception as error_message:
 event = pygame.event.poll()
 KeyDown = 768
 KeyUp = 769
-    if event:
-        if event.type == KeyDown:
-            print("KeyDown: " + str(event.key))
-        elif event.type == KeyUp:
-            print("KeyUp: " + str(event.key))
+if event:
+    if event.type == KeyDown:
+        print("KeyDown: " + str(event.key))
+    elif event.type == KeyUp:
+        print("KeyUp: " + str(event.key))
