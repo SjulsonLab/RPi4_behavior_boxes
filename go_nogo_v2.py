@@ -270,7 +270,7 @@ class go_nogo_task(object):
     def enter_vstim_nogo(self):
         self.trial_running = True
         logging.info(str(time.time()) + ", initializing vstim_nogo")
-        self.box.visualstim_nogo.show_grating(list(self.box.visualstim_nogo.gratings)[1])
+        self.box.visualstim_nogo.show_grating(list(self.box.visualstim_nogo.gratings)[0])
         logging.info(str(time.time()) + ", vstim_nogo ON!")
         self.time_at_vstim_ON = time.time() - self.trial_start_time
         # start the countdown of time since display of vstim (3s), used to determine transition to vacuum
