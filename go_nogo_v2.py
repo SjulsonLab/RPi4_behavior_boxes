@@ -405,7 +405,7 @@ class go_nogo_task(object):
             pass
 
         # look for keystrokes
-        self.box.check_keybd()
+        # self.box.check_keybd()
 
     def run_nogo(self):
 
@@ -450,7 +450,7 @@ class go_nogo_task(object):
             pass
 
         # look for keystrokes
-        self.box.check_keybd()
+        # self.box.check_keybd()
 
     ########################################################################
     # methods to start and end the behavioral session
