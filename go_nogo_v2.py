@@ -432,6 +432,11 @@ class go_nogo_task(object):
             else:
                 pass
 
+        elif self.state == "temp2":
+            if event_name == "vstim countdown ends...":
+                self.time_at_vstim_OFF = time.time() - self.trial_start_time
+                self.start_vacuum_temp2()
+
         elif self.state == "vacuum":
             pass
 
