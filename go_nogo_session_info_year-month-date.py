@@ -42,6 +42,6 @@ session_info['punishment_iti_length']       = 6.5 - session_info['vacuum_length'
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
-session_info['vis_gratings']				= ['/home/pi/gratings/first_grating_go.dat', '/home/pi/gratings/first_grating_nogo.dat']
+session_info['vis_gratings']				= ['/home/pi/gratings/first_grating_go.dat']
 session_info['vis_raws']					= []
 
