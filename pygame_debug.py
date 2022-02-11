@@ -10,6 +10,7 @@ KeyUp = 769
 while True:
     # time.sleep(0.3)
     if event:
+        print(event)
         if event.type == KeyDown:
             print("KeyDown: " + str(event.key))
         elif event.type == KeyUp:
