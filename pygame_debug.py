@@ -9,5 +9,5 @@ event = pygame.event.poll()
 # KeyUp = 769
 while True:
     time.sleep(0.3)
-    if event:
+    if event.key:
         print(str(event.key))
