@@ -163,7 +163,7 @@ class BehavBox(object):
                 + "         1: left poke            2: center poke            3: right poke"
             )
             print(
-                "         Q: left lick            W: center lick            E: right lick"
+                "         Q: pump_1            W: pump_2            E: pump_3            R: pump_4"
             )
             print(
                 Fore.CYAN
