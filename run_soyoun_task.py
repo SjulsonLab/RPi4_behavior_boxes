@@ -91,12 +91,12 @@ try:
     pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
     sleep(10)
     # loop over trials
-    for i in range(len(task_information["desk"])):
+    for block_number in task.task_information["block_list"]:
         logging.info(str("##############################\n" +
-                         str(time.time())) + ", starting_trial, " + str(i) +
+                         str(time.time())) + ", starting_trial, block number " + str(block_number) +
                      str("\n##############################"))
 
-        task.trial_start()
+        task.start_trial() # initiate the time state machine, start_trial() is a trigger
 
         while task.trial_running:
             task.run() # run command trigger additional functions outside of the state machine

@@ -24,6 +24,7 @@ logging.config.dictConfig(
 
 import behavbox
 
+
 # adding timing capability to the state machine
 @add_state_features(Timeout)
 class TimedStateMachine(Machine):
@@ -69,36 +70,41 @@ class SoyounTask(object):
         self.error_count_max = self.task_information['error_repeat_max']
 
         # setup condition for the treadmill signal
-        self.distance_initiation = self.task_information['distance_initiation'] #cm
+        self.distance_initiation = self.task_information['distance_initiation']  # cm
         self.distance_short = self.task_information['distance_short']
         self.distance_max = self.task_information['distance_max']
 
         # initialize the state machine
         self.states = [
-            State(name = 'standby',
-                  on_enter = ["enter_standby"],
-                  on_exit = ["exit_standby"]),
-            Timeout(name = "initiate",
-                    on_enter = ["enter_initiate"],
-                    on_exit = ["exit_initiate"],
-                    timeout = self.task_information["initiation_timeout"],
-                    on_timeout = ["start_cue"]),
-            Timeout(name = 'cue_state',
-                    on_enter = ["enter_cue_state"],
-                    on_exit = ["exit_cue_state"],
-                    timeout = self.task_information["cue_timeout"],
-                    on_timeout = ["evaluate_reward"]),
-            Timeout(name = 'reward_available',
-                    on_enter = ["enter_reward_available"],
-                    on_exit = ["exit_reward_available"],
-                    timeout = self.task_information["reward_timeout"],
-                    on_timeout = ["restart"])
+            State(name='standby',
+                  on_enter=["enter_standby"],
+                  on_exit=["exit_standby"]),
+            State(name='draw',
+                  on_enter=["enter_draw"],
+                  on_exit=["exit_draw"]),
+            Timeout(name="initiate",
+                    on_enter=["enter_initiate"],
+                    on_exit=["exit_initiate"],
+                    timeout=self.task_information["initiation_timeout"],
+                    on_timeout=["start_cue"]),
+            Timeout(name='cue_state',
+                    on_enter=["enter_cue_state"],
+                    on_exit=["exit_cue_state"],
+                    timeout=self.task_information["cue_timeout"],
+                    on_timeout=["evaluate_reward"]),
+            Timeout(name='reward_available',
+                    on_enter=["enter_reward_available"],
+                    on_exit=["exit_reward_available"],
+                    timeout=self.task_information["reward_timeout"]  # ,
+                    # on_timeout=["restart"]
+                    )
         ]
         self.transitions = [
-            ['start_trial', 'standby', 'initiate'], # format: ['trigger', 'origin', 'destination']
-            ['start_cue', 'initiate','cue_state'],
+            ['start_trial', 'standby', 'draw'],  # format: ['trigger', 'origin', 'destination']
+            ['play_game', 'draw', 'initiate'],
+            ['start_cue', 'initiate', 'cue_state'],
             ['evaluate_reward', 'cue_state', 'reward_available'],
-            ['restart', ['initiate', 'cue_state', 'reward_available'], 'standby']
+            ['spawn', ['initiate', 'cue_state', 'reward_available'], 'standby']
         ]
 
         self.machine = TimedStateMachine(
@@ -121,6 +127,7 @@ class SoyounTask(object):
         self.treadmill = self.box.treadmill
         self.distance_initiation = task_information['treadmill_setup']['distance_initiation']
         self.distance_short = task_information['treadmill_setup']['distance_short']
+        self.distance_buffer = None
 
     ########################################################################
     # functions called when state transitions occur
@@ -135,11 +142,15 @@ class SoyounTask(object):
             # first detect the lick signal:
             side_choice = self.task_information['choice'][self.current_card[1]]
             # question: do we want entry mark as lick?
-            if event_name == "left_IR_entry": side_correct = 'left'
-            elif event_name == "right_IR_entry": side_correct = 'right'
+            if event_name == "left_IR_entry":
+                side_correct = 'left'
+            elif event_name == "right_IR_entry":
+                side_correct = 'right'
             if side_choice == side_correct:
                 self.pump.reward(side_correct, self.task_information["reward_size"])
-
+            else:
+                self.error_count += 1
+                self.restart_flag = True
         # look for keystrokes
         self.box.check_keybd()
 
@@ -151,11 +162,10 @@ class SoyounTask(object):
         logging.info(str(time.time()) + ", exiting standby")
         pass
 
-    def enter_initiate(self):
-        # check error_repeat
-        logging.info(str(time.time()) + ", entering initiate")
+    def enter_draw(self):
+        logging.info(str(time.time()) + ", entering draw")
         if self.card_count > self.task_information["total_block_length"]:
-            self.trial_running = False # terminate the state machine, end the session
+            self.trial_running = False  # terminate the state machine, end the session
         elif self.error_repeat and (self.error_count_max < self.error_count_max):
             self.restart_flag = True
             self.trial_running = True
@@ -163,47 +173,68 @@ class SoyounTask(object):
             self.restart_flag = False
             self.trial_running = True
 
-    def exit_initiate(self):
-        # check the flag to see whether to shuffle or keep the original card
-        logging.info(str(time.time()) + ", exiting initiate")
+    def exit_draw(self):
+        logging.info(str(time.time()) + ", exiting draw")
         if self.restart_flag:
             self.error_count += 1
         else:
             self.current_card = self.deck[self.card_count]
             self.card_count += 1
 
-    def enter_cue_state(self, wait_time):
-        # turn on the cue according to the current card
-        logging.info(str(time.time()) + ", entering cue state")
-        self.check_cue(self.current_card[0])
+    def enter_initiate(self):
+        # check error_repeat
+        logging.info(str(time.time()) + ", entering initiate")
         # wait for treadmill signal and process the treadmill signal
-        distance_start = self.treadmill.distance()
-        logging.info(str(time.time()) + ", treadmill distance t0: " + str(distance_start))
-        sleep(wait_time)
-        distance_end = self.treadmill.distance()
-        logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_end))
-        distance_pass = self.check_distance(distance_end - distance_start, self.distance_initiation)
-        if not distance_pass: self.restart_flag = True
-        else: self.restart_flag = False
+        self.distance_buffer = self.treadmill.distance()
+        logging.info(str(time.time()) + ", treadmill distance t0: " + str(self.distance_buffer))
+        # sleep(wait_time)
+
+    def exit_initiate(self):
+        # check the flag to see whether to shuffle or keep the original card
+        logging.info(str(time.time()) + ", exiting initiate")
+        pass
+
+    def enter_cue_state(self):
+        logging.info(str(time.time()) + ", entering cue state")
+        # turn on the cue according to the current card
+        distance_now = self.treadmill.distance()
+        logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
+        distance_pass = self.check_distance(distance_now - self.distance_buffer, self.distance_initiation)
+        if not distance_pass:
+            self.restart_flag = True
+        else:
+            # pass the initial check and now officially entering the cue state step
+            self.check_cue(self.current_card[0])
+            # wait for treadmill signal and process the treadmill signal
+            self.distance_buffer = self.treadmill.distance()
+            logging.info(str(time.time()) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_cue_state(self):
         logging.info(str(time.time()) + ", exiting cue state")
         if self.restart_flag:
             self.error_count += 1
-            self.restart()
-
+            self.spawn()
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward available")
+        distance_now = self.treadmill.distance()
+        logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
+        distance_pass = self.check_distance(
+            distance_now - self.distance_buffer, self.task_information["state"][self.current_card[1]])
+        if not distance_pass:
+            logging.info(str(time.time()) + ", treadmill state distance did not pass: " + str(distance_now))
+            self.restart_flag = True
+        else:
+            self.restart_flag = False
         pass
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward available")
-        self.restart()
+        pass
 
     def check_cue(self, cue):
         if cue == 'sound':
-            self.sound1.on() # could be modify according to specific sound cue
+            self.sound1.on()  # could be modify according to specific sound cue
             logging.info(str(time.time()) + ", cue sound1 on")
         elif cue == 'LED':
             self.cueLED1.on()
@@ -408,7 +439,6 @@ State machine transition:
             enter_standby
     
 """
-
 
 """
 # within the run_file

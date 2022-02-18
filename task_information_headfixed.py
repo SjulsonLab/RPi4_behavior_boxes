@@ -1,6 +1,7 @@
 # Python3: task_information_2022_02_14.py
+import collections
+import itertools
 import random
-import pysistence, collections
 
 task_information = collections.OrderedDict()
 task_information['experiment_setup'] = 'headfixed'
@@ -25,7 +26,7 @@ task_information['reward'] = ['small', 'large']  # reward size
 task_information['reward_size'] = {'small': 10, 'large': 20}
 
 # define timeout during each condition
-task_information['initiation_timeout'] = 3 #s
+task_information['initiation_timeout'] = 3  # s
 task_information['cue_timeout'] = 3
 task_information['reward_timeout'] = 3
 
@@ -55,32 +56,56 @@ task_information['block'][2] = [
     (2, 1, 0, 1),  # means both cues are on
     (2, 1, 0, 0)]  # each row is a combination of the condition parameter for block 1
 
+# define block_duration and initial block to start the session
+block_duration = 10  # each block has this amount of repetition
+block_variety = 2
+if block_variety > 1:
+    initial_block = 1
+
 # now shuffle and make a deck for this session
 # shuffle requirement
 
-# allowing user defined initial_block and initial setup for conditions?
-task_information["initial_block"] = 1
-
+# # allowing user defined initial_block and initial setup for conditions?
+# task_information["initial_block"] = 1
+#
 # allowing consecutive repeated trial?
 consecutive_control = True
 if consecutive_control:
     consecutive_max = 3
 
-block_length_list = {
-    1: 10,
-    2: 10
-}
-task_information['block_name_list'] = [block_length_list.keys()]
 
-def generate_deck(duration, consecutive_control, consecutive_max):
+def generate_block_sequence(number_block, sequence_length, initial_character):
+    if not initial_character:
+        initial_character = random.randint(1, 2)
+    if number_block == 1:
+        sequence = [initial_character]
+    else:
+        if initial_character - 1:
+            sequence = [initial_character, initial_character - 1]
+        else:
+            sequence = [initial_character, initial_character + 1]
+    sequence = sequence * sequence_length
+    return sequence
+
+
+# the block list is used for 1) generate a shuffled deck; 2) a list for keeping track of what block is the
+# current card is located
+block_list = generate_block_sequence(block_variety, block_duration, initial_block)
+
+
+task_information["block_list"] = list(
+    itertools.chain.from_iterable(itertools.repeat(iterate, block_duration) for iterate in block_list))
+
+
+def generate_deck(duration, consecutive_permit, repetition_max):
     consecutive_count = 0
     row_buffer = -1
     deck_list = []
     for iteration in range(duration):
         row_index = random.randrange(0, 8)
         while True:
-            if row_index == row_buffer and consecutive_control:
-                if consecutive_count >= consecutive_max:
+            if row_index == row_buffer and consecutive_permit:
+                if consecutive_count >= repetition_max:
                     row_index = random.randrange(0, 8)
                 else:
                     break
@@ -90,21 +115,11 @@ def generate_deck(duration, consecutive_control, consecutive_max):
         deck_list.append(row_index)
     return deck_list
 
-block_length = 10
-block_list = []
-initial_block = 1  # False if no initial block
 
-
-def shuffle(block_length, block_list, initial_block):
-    if initial_block:
-        block_list.append(initial_block)
-        block_list.extend([random.randrange(1, 3) for i in range(block_length - 1)])
-    else:
-        block_list = [random.randrange(1, 3) for i in range(block_length)]
-
+def shuffle(block_sequence, duration_block):
     deck = []
-    for block in block_list:
-        deck_list_buffer = generate_deck(block_length_list[1], consecutive_control, consecutive_max)
+    for block in block_sequence:
+        deck_list_buffer = generate_deck(duration_block, consecutive_control, consecutive_max)
         current_deck = []
         block_map = task_information['block'][block]
         for row_index in deck_list_buffer:
@@ -113,4 +128,4 @@ def shuffle(block_length, block_list, initial_block):
     return deck
 
 
-task_information["deck"] = shuffle(block_length, block_list, initial_block)
+task_information["deck"] = shuffle(block_list, block_duration)
