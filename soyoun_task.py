@@ -5,6 +5,7 @@ from transitions.extensions.states import add_state_features, Timeout
 import pysistence, collections
 from icecream import ic
 import logging
+import time
 from datetime import datetime
 import os
 from gpiozero import PWMLED, LED, Button
@@ -142,19 +143,29 @@ class SoyounTask(object):
         # look for keystrokes
         self.box.check_keybd()
 
-
     def enter_standby(self):
+        logging.info(str(time.time()) + ", entering standby")
+        self.trial_running = False
+
+    def exit_standby(self):
+        logging.info(str(time.time()) + ", exiting standby")
+        pass
+
+    def enter_initiate(self):
         # check error_repeat
+        logging.info(str(time.time()) + ", entering initiate")
         if self.card_count > self.task_information["total_block_length"]:
             self.trial_running = False # terminate the state machine, end the session
         elif self.error_repeat and (self.error_count_max < self.error_count_max):
             self.restart_flag = True
+            self.trial_running = True
         else:
             self.restart_flag = False
-            pass
+            self.trial_running = True
 
-    def exit_standby(self):
+    def exit_initiate(self):
         # check the flag to see whether to shuffle or keep the original card
+        logging.info(str(time.time()) + ", exiting initiate")
         if self.restart_flag:
             self.error_count += 1
         else:
@@ -163,32 +174,40 @@ class SoyounTask(object):
 
     def enter_cue_state(self, wait_time):
         # turn on the cue according to the current card
+        logging.info(str(time.time()) + ", entering cue state")
         self.check_cue(self.current_card[0])
         # wait for treadmill signal and process the treadmill signal
         distance_start = self.treadmill.distance()
+        logging.info(str(time.time()) + ", treadmill distance t0: " + str(distance_start))
         sleep(wait_time)
         distance_end = self.treadmill.distance()
+        logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_end))
         distance_pass = self.check_distance(distance_end - distance_start, self.distance_initiation)
         if not distance_pass: self.restart_flag = True
         else: self.restart_flag = False
 
     def exit_cue_state(self):
+        logging.info(str(time.time()) + ", exiting cue state")
         if self.restart_flag:
             self.error_count += 1
             self.restart()
 
 
     def enter_reward_available(self):
+        logging.info(str(time.time()) + ", entering reward available")
         pass
 
     def exit_reward_available(self):
+        logging.info(str(time.time()) + ", exiting reward available")
         self.restart()
 
     def check_cue(self, cue):
         if cue == 'sound':
             self.sound1.on() # could be modify according to specific sound cue
+            logging.info(str(time.time()) + ", cue sound1 on")
         elif cue == 'LED':
             self.cueLED1.on()
+            logging.info(str(time.time()) + ", cueLED1 on")
         else:
             print("Not valid cue: " + cue)
 
