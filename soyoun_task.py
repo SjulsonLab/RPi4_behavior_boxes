@@ -20,7 +20,7 @@ logging.config.dictConfig(
     }
 )
 # all modules above this line will have logging disabled
-from task_information_headfixed import task_information
+
 import behavbox
 
 # adding timing capability to the state machine
@@ -31,8 +31,8 @@ class TimedStateMachine(Machine):
 
 class SoyounTask(object):
     # Define states. States where the animals is waited to make their decision
-    # session_info = fake_session_info # temporary fill-in
-    def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
+
+    def __init__(self, **kwargs):  # name and task_information should be provided as kwargs
 
         # if no name or session, make fake ones (for testing purposes)
         if kwargs.get("name", None) is None:
@@ -46,22 +46,24 @@ class SoyounTask(object):
         else:
             self.name = kwargs.get("name", None)
 
-        if kwargs.get("session_info", None) is None:
+        if kwargs.get("task_session_info", None) is None:
             print(
                 Fore.RED
                 + Style.BRIGHT
-                + "Warning: no session_info supplied; making fake one"
+                + "Warning: no task_session_info supplied; making fake one"
                 + Style.RESET_ALL
             )
-            from fake_session_info import fake_session_info
+            from task_information_headfixed import task_information
 
-            self.session_info = fake_session_info
+            self.task_information = task_information
         else:
-            self.session_info = kwargs.get("session_info", None)
-        ic(self.session_info)
+            self.task_information = kwargs.get("task_information", None)
+        ic(self.task_information)
 
         # import task information for the condition setup
-        self.task_information = task_information # when initiated, task_information generates a shuffled deck
+        # from task_information_headfixed import task_information
+
+        # self.task_information = task_information # when initiated, task_information generates a shuffled deck
         self.error_repeat = self.task_information['error_repeat']
         self.error_count_max = self.task_information['error_repeat_max']
 
@@ -123,7 +125,6 @@ class SoyounTask(object):
     # functions called when state transitions occur
     ########################################################################
     def run(self):
-
         if self.box.event_list:
             event_name = self.box.event_list.popleft()
         else:
@@ -197,6 +198,18 @@ class SoyounTask(object):
         else:
             return False
         return True
+
+    ########################################################################
+    # methods to start and end the behavioral session
+    ########################################################################
+    def start_session(self):
+        ic("TODO: start video")
+        self.box.video_start()
+
+    def end_session(self):
+        ic("TODO: stop video")
+        self.box.video_stop()
+        self.box.visualstim.myscreen.close()
 
     # def check_lick(self, side_index):
     #     # first detect the lick signal:
