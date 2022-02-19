@@ -8,9 +8,9 @@ task_information['experiment_setup'] = 'headfixed'
 task_information['treadmill_setup'] = {'present': True}
 
 if task_information['treadmill_setup']['present']:
-    task_information['treadmill_setup']['distance_initiation'] = 3  # cm
-    task_information['treadmill_setup']['distance_short'] = 5  # cm
-    task_information['treadmill_setup']['distance_max'] = None
+    task_information['treadmill_setup']['distance_initiation'] = 5  # cm
+    task_information['treadmill_setup']['distance_short'] = 7  # cm
+    task_information['treadmill_setup']['distance_long'] = 30 # cm
 else:
     task_information['treadmill_setup'] = None
 
@@ -23,7 +23,7 @@ task_information['cue'] = ['sound', 'LED']
 task_information['state'] = ['distance_short', 'distance_long']  # treadmill distance
 task_information['choice'] = ['right', 'left']  # lick port
 task_information['reward'] = ['small', 'large']  # reward size
-task_information['reward_size'] = {'small': 10, 'large': 20}
+task_information['reward_size'] = {'small': 5, 'large': 10}
 
 # define timeout during each condition
 task_information['initiation_timeout'] = 3  # s
