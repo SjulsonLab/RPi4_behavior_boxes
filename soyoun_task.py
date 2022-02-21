@@ -208,7 +208,7 @@ class SoyounTask(object):
         # turn on the cue according to the current card
         distance_now = self.treadmill.distance_cm
         logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
-        distance_pass = self.check_distance(distance_now - self.distance_buffer, self.distance_initiation)
+        distance_pass = self.check_distance(distance_now, self.distance_buffer, self.distance_initiation)
         if not distance_pass:
             self.restart_flag = True
         else:
