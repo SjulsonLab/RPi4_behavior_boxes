@@ -192,7 +192,7 @@ class SoyounTask(object):
         # check error_repeat
         logging.info(str(time.time()) + ", entering initiate")
         # wait for treadmill signal and process the treadmill signal
-        self.distance_buffer = self.treadmill.distance_buffer
+        self.distance_buffer = self.treadmill.distance_cm
         logging.info(str(time.time()) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_initiate(self):
@@ -203,7 +203,7 @@ class SoyounTask(object):
     def enter_cue_state(self):
         logging.info(str(time.time()) + ", entering cue state")
         # turn on the cue according to the current card
-        distance_now = self.treadmill.distance()
+        distance_now = self.treadmill.distance_cm
         logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
         distance_pass = self.check_distance(distance_now - self.distance_buffer, self.distance_initiation)
         if not distance_pass:
@@ -212,7 +212,7 @@ class SoyounTask(object):
             # pass the initial check and now officially entering the cue state step
             self.check_cue(self.task_information['cue'][self.current_card[0]])
             # wait for treadmill signal and process the treadmill signal
-            self.distance_buffer = self.treadmill.distance_buffer
+            self.distance_buffer = self.treadmill.distance_cm
             logging.info(str(time.time()) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_cue_state(self):
@@ -227,7 +227,7 @@ class SoyounTask(object):
         distance_now = self.treadmill.self.distance_cm
         logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
         distance_required = self.task_information['treadmill_setup'][self.task_information["state"][self.current_card[1]]]
-        distance_pass = self.check_distance(distance_now - self.distance_buffer, distance_required)
+        distance_pass = self.check_distance(distance_now, self.distance_buffer, distance_required)
         if not distance_pass:
             logging.info(str(time.time()) + ", treadmill state distance did not pass: " + str(distance_now))
             self.restart_flag = True
@@ -263,8 +263,15 @@ class SoyounTask(object):
             self.cueLED1.off()
             logging.info(str(time.time()) + "sound1 + cueLED1 off (free choice)")
 
-    def check_distance(self, distance_now, distance_required):
-        if distance_now >= distance_required:
+    def check_distance(self, distance_t1, distance_t0, distance_required):
+        bit_low = 100; bit_high = 200
+        distance_low = bit_low/self.treadmill.treadmill_calibrate
+        distance_high = bit_high/self.treadmill.treadmill_calibrate
+        if distance_t1 <= distance_low & distance_t0 >= distance_high:
+            distance_diff = (distance_t1 + 255) - distance_t0
+        else:
+            distance_diff = distance_t1 - distance_t0
+        if distance_diff >= distance_required:
             pass
         else:
             return False
