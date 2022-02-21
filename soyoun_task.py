@@ -144,9 +144,14 @@ class SoyounTask(object):
                 side_correct = 'left'
             elif event_name == "right_IR_entry":
                 side_correct = 'right'
-            if side_choice == side_correct:
-                self.pump.reward(side_correct, self.task_information["reward_size"])
+            if side_correct:
+                if side_choice == side_correct:
+                    self.pump.reward(side_correct, self.task_information["reward_size"])
+                else:
+                    self.error_count += 1
+                    self.restart_flag = True
             else:
+                print("no lick detected")
                 self.error_count += 1
                 self.restart_flag = True
         # look for keystrokes
