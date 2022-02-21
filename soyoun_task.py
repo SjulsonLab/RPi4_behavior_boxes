@@ -101,8 +101,7 @@ class SoyounTask(object):
             ['play_game', 'draw', 'initiate'],
             ['start_cue', 'initiate', 'cue_state'],
             ['evaluate_reward', 'cue_state', 'reward_available'],
-            ['spawn', 'reward_available', 'standby'],
-            ['restart', 'cue_state', 'standby']
+            ['spawn', ['initiate', 'cue_state', 'reward_available'], 'standby']
         ]
 
         self.machine = TimedStateMachine(
@@ -223,9 +222,10 @@ class SoyounTask(object):
     def exit_cue_state(self):
         logging.info(str(time.time()) + ", exiting cue state")
         self.cue_off(self.task_information['cue'][self.current_card[0]])
+        print("done so")
         if self.restart_flag:
             self.error_count += 1
-            self.restart()
+            self.spawn()
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward available")
