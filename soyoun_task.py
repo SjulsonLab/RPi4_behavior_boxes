@@ -115,7 +115,7 @@ class SoyounTask(object):
         self.restart_flag = False
 
         self.error_count = 0
-        self.card_count = 0
+        self.card_count = -1
         self.deck = self.task_information["deck"]
         self.current_card = None
 
@@ -172,25 +172,25 @@ class SoyounTask(object):
             self.trial_running = True
 
     def exit_draw(self):
-        print("exiting draw")
         logging.info(str(time.time()) + ", exiting draw")
         if self.restart_flag:
             self.error_count += 1
         else:
-            self.current_card = self.deck[self.card_count]
-            print(str(self.current_card))
-            card_cue = self.task_information['cue'][self.current_card[0]]
-            card_state = self.task_information['state'][self.current_card[1]]
-            card_choice = self.task_information['choice'][self.current_card[2]]
-            card_reward = self.task_information['reward'][self.current_card[3]]
-            print("****************************\n" +
-                  "Current card condition: \n" +
-                  "****************************\n" +
-                  "*Cue: " + str(card_cue) + "\n" +
-                  "*State: " + str(card_state) + "\n" +
-                  "*Choice: " + str(card_choice) + "\n" +
-                  "*Reward: " + str(card_reward) + "\n")
             self.card_count += 1
+        print(str(self.card_count))
+        self.current_card = self.deck[self.card_count]
+        print(str(self.current_card))
+        card_cue = self.task_information['cue'][self.current_card[0]]
+        card_state = self.task_information['state'][self.current_card[1]]
+        card_choice = self.task_information['choice'][self.current_card[2]]
+        card_reward = self.task_information['reward'][self.current_card[3]]
+        print("****************************\n" +
+              "Current card condition: \n" +
+              "****************************\n" +
+              "*Cue: " + str(card_cue) + "\n" +
+              "*State: " + str(card_state) + "\n" +
+              "*Choice: " + str(card_choice) + "\n" +
+              "*Reward: " + str(card_reward) + "\n")
 
     def enter_initiate(self):
         # check error_repeat
