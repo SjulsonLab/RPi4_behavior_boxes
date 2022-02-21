@@ -224,8 +224,10 @@ class SoyounTask(object):
         # self.cue_off(self.task_information['cue'][self.current_card[0]])
         print("done so")
         if self.restart_flag:
+            print("restart_flag")
             self.error_count += 1
             self.spawn()
+            print("spawn")
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward available")
