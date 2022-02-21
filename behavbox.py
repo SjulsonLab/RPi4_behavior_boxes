@@ -188,46 +188,67 @@ class BehavBox(object):
     # check for key presses - uses pygame window to simulate nosepokes and licks
     ###############################################################################################
 
+    # def check_keybd(self):
+    #     reward_size = self.session_info['reward_size']
+    #     if self.keyboard_active:
+    #         event = pygame.event.get()
+    #         # KeyDown = 768  # event type numbers
+    #         # KeyUp = 769
+    #         if event:
+    #             if event.type == pygame.KEYDOWN:
+    #                 if event.key == pygame.K_ESCAPE:
+    #                     self.keyboard_active = False
+    #                 elif event.key == pygame.K_1:
+    #                     self.left_IR_entry()
+    #                 elif event.key == pygame.K_2:
+    #                     self.center_IR_entry()
+    #                 elif event.key == pygame.K_3:
+    #                     self.right_IR_entry()
+    #                 elif event.key == pygame.K_q:
+    #                     # print("Q down: syringe pump 1 moves")
+    #                     logging.info(str(time.time()) + ", key_pressed_q")
+    #                     Pump.reward("1", reward_size)
+    #                 elif event.key == pygame.K_w:
+    #                     # print("W down: syringe pump 2 moves")
+    #                     logging.info(str(time.time()) + ", key_pressed_w")
+    #                     Pump.reward("2", reward_size)
+    #                 elif event.key == pygame.K_e:
+    #                     # print("E down: syringe pump 3 moves")
+    #                     logging.info(str(time.time()) + ", key_pressed_e")
+    #                     Pump.reward("3", reward_size)
+    #                 elif event.key == pygame.K_r:
+    #                     # print("R down: syringe pump 4 moves")
+    #                     logging.info(str(time.time()) + ", key_pressed_r")
+    #                     Pump.reward("4", reward_size)
+    #             elif event.type == pygame.KEYUP:
+    #                 if event.key == pygame.K_1:
+    #                     self.left_IR_exit()
+    #                 elif event.key == pygame.K_2:
+    #                     self.center_IR_exit()
+    #                 elif event.key == pygame.K_3:
+    #                     self.right_IR_exit()
     def check_keybd(self):
-        reward_size = self.session_info['reward_size']
         if self.keyboard_active == True:
-            event = pygame.event.get()
-            # KeyDown = 768  # event type numbers
-            # KeyUp = 769
+            event = pygame.event.poll()
+            KeyDown = 768  # event type numbers
+            KeyUp = 769
             if event:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        self.keyboard_active = False
-                    elif event.key == pygame.K_1:
-                        self.left_IR_entry()
-                    elif event.key == pygame.K_2:
-                        self.center_IR_entry()
-                    elif event.key == pygame.K_3:
-                        self.right_IR_entry()
-                    elif event.key == pygame.K_q:
-                        # print("Q down: syringe pump 1 moves")
-                        logging.info(str(time.time()) + ", key_pressed_q")
-                        Pump.reward("1", reward_size)
-                    elif event.key == pygame.K_w:
-                        # print("W down: syringe pump 2 moves")
-                        logging.info(str(time.time()) + ", key_pressed_w")
-                        Pump.reward("2", reward_size)
-                    elif event.key == pygame.K_e:
-                        # print("E down: syringe pump 3 moves")
-                        logging.info(str(time.time()) + ", key_pressed_e")
-                        Pump.reward("3", reward_size)
-                    elif event.key == pygame.K_r:
-                        # print("R down: syringe pump 4 moves")
-                        logging.info(str(time.time()) + ", key_pressed_r")
-                        Pump.reward("4", reward_size)
-                elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_1:
-                        self.left_IR_exit()
-                    elif event.key == pygame.K_2:
-                        self.center_IR_exit()
-                    elif event.key == pygame.K_3:
-                        self.right_IR_exit()
-
+                if event.type == KeyDown and event.key == 49:  # 1 key
+                    self.left_IR_entry()
+                elif event.type == KeyUp and event.key == 49:
+                    self.left_IR_exit()
+                elif event.type == KeyDown and event.key == 50:  # 2 key
+                    self.center_IR_entry()
+                elif event.type == KeyUp and event.key == 50:
+                    self.center_IR_exit()
+                elif event.type == KeyDown and event.key == 51:  # 3 key
+                    self.right_IR_entry()
+                elif event.type == KeyUp and event.key == 51:
+                    self.right_IR_exit()
+                elif event.type == KeyDown and event.key == 27:  # escape key
+                    pygame.quit()
+                    self.keyboard_active = False
+                # print(event) # for debug purpose
     ###############################################################################################
     # methods to start and stop video
     # These work with fake video files but haven't been tested with real ones
