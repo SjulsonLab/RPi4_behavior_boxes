@@ -56,7 +56,8 @@ class Treadmill(object):
         self.treadmill_log = []
         self.delay = 0.3
 
-        self.distance = None
+        self.distance_bit = None
+        self.distance_cm = None
 
     def start(self, background=True):
         self._stop_dacval()
@@ -95,7 +96,7 @@ class Treadmill(object):
             self.distance_cm = self.distance_bit / self.treadmill_calibrate
             self.treadmill_log.append(
                 (time.time(),
-                 self.distance,
+                 self.distance_bit,
                  self.distance_cm)
             )
 

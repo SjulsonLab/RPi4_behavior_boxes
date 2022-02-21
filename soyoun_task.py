@@ -192,7 +192,7 @@ class SoyounTask(object):
         # check error_repeat
         logging.info(str(time.time()) + ", entering initiate")
         # wait for treadmill signal and process the treadmill signal
-        self.distance_buffer = self.treadmill.distance()
+        self.distance_buffer = self.treadmill.distance_buffer
         logging.info(str(time.time()) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_initiate(self):
@@ -212,7 +212,7 @@ class SoyounTask(object):
             # pass the initial check and now officially entering the cue state step
             self.check_cue(self.task_information['cue'][self.current_card[0]])
             # wait for treadmill signal and process the treadmill signal
-            self.distance_buffer = self.treadmill.distance()
+            self.distance_buffer = self.treadmill.distance_buffer
             logging.info(str(time.time()) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_cue_state(self):
@@ -224,7 +224,7 @@ class SoyounTask(object):
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward available")
-        distance_now = self.treadmill.distance()
+        distance_now = self.treadmill.self.distance_cm
         logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
         distance_required = self.task_information['treadmill_setup'][self.task_information["state"][self.current_card[1]]]
         distance_pass = self.check_distance(distance_now - self.distance_buffer, distance_required)
