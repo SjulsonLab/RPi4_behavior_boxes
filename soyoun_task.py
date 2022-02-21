@@ -140,6 +140,7 @@ class SoyounTask(object):
             # first detect the lick signal:
             side_choice = self.task_information['choice'][self.current_card[1]]
             # question: do we want entry mark as lick?
+            side_correct = None
             if event_name == "left_IR_entry":
                 side_correct = 'left'
             elif event_name == "right_IR_entry":
