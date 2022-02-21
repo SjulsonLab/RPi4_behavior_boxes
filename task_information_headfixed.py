@@ -19,7 +19,7 @@ if task_information['error_repeat']:
     task_information['error_repeat_max'] = 3
 
 # condition setup
-task_information['cue'] = ['sound', 'LED']
+task_information['cue'] = ['sound', 'LED', 'sound+LED']
 task_information['state'] = ['distance_short', 'distance_long']  # treadmill distance
 task_information['choice'] = ['right', 'left']  # lick port
 task_information['reward'] = ['small', 'large']  # reward size
