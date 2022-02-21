@@ -26,9 +26,9 @@ task_information['reward'] = ['small', 'large']  # reward size
 task_information['reward_size'] = {'small': 5, 'large': 10}
 
 # define timeout during each condition
-task_information['initiation_timeout'] = 3  # s
-task_information['cue_timeout'] = 3
-task_information['reward_timeout'] = 3
+task_information['initiation_timeout'] = 5  # s
+task_information['cue_timeout'] = 5
+task_information['reward_timeout'] = 5
 
 # block setup
 task_information['block'] = {}
@@ -57,7 +57,7 @@ task_information['block'][2] = [
     (2, 1, 0, 0)]  # each row is a combination of the condition parameter for block 1
 
 # define block_duration and initial block to start the session
-block_duration = 10  # each block has this amount of repetition
+block_duration = 2  # each block has this amount of repetition
 block_variety = 2
 if block_variety > 1:
     initial_block = 1
