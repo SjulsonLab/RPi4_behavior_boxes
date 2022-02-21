@@ -79,7 +79,7 @@ try:
 
     # initiate task object\
     from task_information_headfixed import task_information
-    task = SoyounTask(name="headfixed_task", task_information=task_information)
+    task = SoyounTask(name="headfixed_task", session_info=session_info)
 
     # # you can change various parameters if you want
     # task.machine.states['cue'].timeout = 2
