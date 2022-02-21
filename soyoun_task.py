@@ -178,6 +178,7 @@ class SoyounTask(object):
             self.error_count += 1
         else:
             self.current_card = self.deck[self.card_count]
+            print(str(self.current_card))
             card_cue = self.task_information['cue'][self.current_card[0]]
             card_state = self.task_information['state'][self.current_card[1]]
             card_choice = self.task_information['choice'][self.current_card[2]]
