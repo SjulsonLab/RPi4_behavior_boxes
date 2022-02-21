@@ -264,13 +264,13 @@ class SoyounTask(object):
             logging.info(str(time.time()) + "sound1 + cueLED1 off (free choice)")
 
     def check_distance(self, distance_t1, distance_t0, distance_required):
-        bit_low = 100; bit_high = 200
-        distance_low = bit_low/self.treadmill.treadmill_calibrate
-        distance_high = bit_high/self.treadmill.treadmill_calibrate
-        if distance_t1 <= distance_low & distance_t0 >= distance_high:
-            distance_diff = (distance_t1 + 255) - distance_t0
-        else:
-            distance_diff = distance_t1 - distance_t0
+        # bit_low = 100; bit_high = 200
+        # distance_low = bit_low/self.treadmill.treadmill_calibrate
+        # distance_high = bit_high/self.treadmill.treadmill_calibrate
+        # if distance_t1 <= distance_low & distance_t0 >= distance_high:
+        #     distance_diff = (distance_t1 + 255) - distance_t0
+        # else:
+        distance_diff = distance_t1 - distance_t0
         if distance_diff >= distance_required:
             pass
         else:
