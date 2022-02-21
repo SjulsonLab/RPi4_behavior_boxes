@@ -45,8 +45,8 @@ try:
     timestr = datetime.now().strftime('%H%M%S')
     full_module_name = 'session_info_' + datestr
     import sys
-    task_info_path = '/home/pi/task_info/soyoun_task/task_info'
-    sys.path.insert(0, task_info_path)
+    session_info_path = '/home/pi/task_info/headfixed_task/session_info'
+    sys.path.insert(0, session_info_path)
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
     mouse_info = tempmod.mouse_info
@@ -60,7 +60,6 @@ try:
     if session_info['manual_date'] != session_info['date']:  # check if file is updated
         print('wrong date!!')
         raise RuntimeError('manual_date field in session_info file is not updated')
-
 
     # make data directory and initialize logfile
     os.makedirs(session_info['dir_name'])
