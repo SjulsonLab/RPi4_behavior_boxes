@@ -244,26 +244,26 @@ class SoyounTask(object):
 
     def check_cue(self, cue):
         if cue == 'sound':
-            self.sound1.on()  # could be modify according to specific sound cue
+            self.box.sound1.on()  # could be modify according to specific sound cue
             logging.info(str(time.time()) + ", cue sound1 on")
         elif cue == 'LED':
-            self.cueLED1.on()
+            self.box.cueLED1.on()
             logging.info(str(time.time()) + ", cueLED1 on")
         else:
-            self.sound1.on()
-            self.cueLED1.on()
+            self.box.sound1.on()
+            self.box.cueLED1.on()
             logging.info(str(time.time()) + "sound1 + cueLED1 on (free choice)")
 
     def cue_off(self, cue):
         if cue == 'sound':
-            self.sound1.off()  # could be modify according to specific sound cue
+            self.box.sound1.off()  # could be modify according to specific sound cue
             logging.info(str(time.time()) + ", cue sound1 off")
         elif cue == 'LED':
-            self.cueLED1.off()
+            self.box.cueLED1.off()
             logging.info(str(time.time()) + ", cueLED1 off")
         else:
-            self.sound1.off()
-            self.cueLED1.off()
+            self.box.sound1.off()
+            self.box.cueLED1.off()
             logging.info(str(time.time()) + "sound1 + cueLED1 off (free choice)")
 
     def check_distance(self, distance_t1, distance_t0, distance_required):
