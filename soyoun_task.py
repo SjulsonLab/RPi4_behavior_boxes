@@ -48,19 +48,22 @@ class SoyounTask(object):
         else:
             self.name = kwargs.get("name", None)
 
-        if kwargs.get("task_session_info", None) is None:
+        if kwargs.get("session_info", None) is None:
             print(
                 Fore.RED
                 + Style.BRIGHT
-                + "Warning: no task_session_info supplied; making fake one"
+                + "Warning: no session_info supplied; making fake one"
                 + Style.RESET_ALL
             )
-            from task_information_headfixed import task_information
+            from fake_session_info import fake_session_info
 
-            self.task_information = task_information
+            self.session_info = fake_session_info
         else:
-            self.task_information = kwargs.get("task_information", None)
-        ic(self.task_information)
+            self.session_info = kwargs.get("session_info", None)
+        ic(self.session_info)
+
+        from task_information_headfixed import task_information
+        self.task_information = task_information
 
         self.error_repeat = self.task_information['error_repeat']
         self.error_count_max = self.task_information['error_repeat_max']
