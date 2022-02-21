@@ -169,6 +169,7 @@ class SoyounTask(object):
             self.trial_running = True
 
     def exit_draw(self):
+        print("exiting draw")
         logging.info(str(time.time()) + ", exiting draw")
         if self.restart_flag:
             self.error_count += 1
@@ -178,11 +179,13 @@ class SoyounTask(object):
             card_state = self.task_information['state'][self.current_card[1]]
             card_choice = self.task_information['choice'][self.current_card[2]]
             card_reward = self.task_information['reward'][self.current_card[3]]
-            print("Current card condition: \n" +
-                  "Cue: " + str(card_cue) + "\n" +
-                  "State: " + str(card_state) + "\n" +
-                  "Choice: " + str(card_choice) + "\n" +
-                  "Reward: " + str(card_reward) + "\n")
+            print("****************************\n" +
+                  "Current card condition: \n" +
+                  "****************************\n" +
+                  "*Cue: " + str(card_cue) + "\n" +
+                  "*State: " + str(card_state) + "\n" +
+                  "*Choice: " + str(card_choice) + "\n" +
+                  "*Reward: " + str(card_reward) + "\n")
             self.card_count += 1
 
     def enter_initiate(self):
@@ -214,6 +217,7 @@ class SoyounTask(object):
 
     def exit_cue_state(self):
         logging.info(str(time.time()) + ", exiting cue state")
+        self.cue_off(self.task_information['cue'][self.current_card[0]])
         if self.restart_flag:
             self.error_count += 1
             self.spawn()
@@ -243,7 +247,21 @@ class SoyounTask(object):
             self.cueLED1.on()
             logging.info(str(time.time()) + ", cueLED1 on")
         else:
-            print("Free choice cue: " + str(cue))
+            self.sound1.on()
+            self.cueLED1.on()
+            logging.info(str(time.time()) + "sound1 + cueLED1 on (free choice)")
+
+    def cue_off(self, cue):
+        if cue == 'sound':
+            self.sound1.off()  # could be modify according to specific sound cue
+            logging.info(str(time.time()) + ", cue sound1 off")
+        elif cue == 'LED':
+            self.cueLED1.off()
+            logging.info(str(time.time()) + ", cueLED1 off")
+        else:
+            self.sound1.off()
+            self.cueLED1.off()
+            logging.info(str(time.time()) + "sound1 + cueLED1 off (free choice)")
 
     def check_distance(self, distance_now, distance_required):
         if distance_now >= distance_required:
