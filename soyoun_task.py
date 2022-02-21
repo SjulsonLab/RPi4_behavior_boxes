@@ -228,7 +228,7 @@ class SoyounTask(object):
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward available")
-        distance_now = self.treadmill.self.distance_cm
+        distance_now = self.treadmill.distance_cm
         logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
         distance_required = self.task_information['treadmill_setup'][self.task_information["state"][self.current_card[1]]]
         distance_pass = self.check_distance(distance_now, self.distance_buffer, distance_required)
