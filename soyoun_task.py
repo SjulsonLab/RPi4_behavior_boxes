@@ -221,7 +221,7 @@ class SoyounTask(object):
 
     def exit_cue_state(self):
         logging.info(str(time.time()) + ", exiting cue state")
-        self.cue_off(self.task_information['cue'][self.current_card[0]])
+        # self.cue_off(self.task_information['cue'][self.current_card[0]])
         print("done so")
         if self.restart_flag:
             self.error_count += 1
@@ -246,14 +246,14 @@ class SoyounTask(object):
 
     def check_cue(self, cue):
         if cue == 'sound':
-            self.box.sound1.on()  # could be modify according to specific sound cue
+            # self.box.sound1.on()  # could be modify according to specific sound cue
             logging.info(str(time.time()) + ", cue sound1 on")
         elif cue == 'LED':
-            self.box.cueLED1.on()
+            # self.box.cueLED1.on()
             logging.info(str(time.time()) + ", cueLED1 on")
         else:
-            self.box.sound1.on()
-            self.box.cueLED1.on()
+            # self.box.sound1.on()
+            # self.box.cueLED1.on()
             logging.info(str(time.time()) + "sound1 + cueLED1 on (free choice)")
 
     def cue_off(self, cue):
