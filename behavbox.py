@@ -190,7 +190,7 @@ class BehavBox(object):
 
     def check_keybd(self):
         reward_size = self.session_info['reward_size']
-        pump = Pump()
+        # pump = Pump()
         if self.keyboard_active:
             # event = pygame.event.get()
             for event in pygame.event.get():
