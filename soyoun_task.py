@@ -113,7 +113,7 @@ class SoyounTask(object):
         self.session_length = len(self.task_information["block_list"])
         self.trial_running = False
         self.restart_flag = False
-        self.restart_flag_inter = False
+        # self.restart_flag_inter = False
 
         self.error_count = 0
         self.card_count = -1
@@ -139,14 +139,14 @@ class SoyounTask(object):
             pass
         elif self.state == "draw":
             self.play_game()
-        # elif self.restart_flag:
-        #     self.restart()
-        elif self.state == "initiate":
-            if self.restart_flag:
-                self.restart()
-        elif self.state == "cue_state":
-            if self.restart_flag:
-                self.restart()
+        elif self.restart_flag:
+            self.restart()
+        # elif self.state == "initiate":
+        #     if self.restart_flag:
+        #         self.restart()
+        # elif self.state == "cue_state":
+        #     if self.restart_flag:
+        #         self.restart()
         elif self.state == "reward_available":
             # first detect the lick signal:
             side_choice = self.task_information['choice'][self.current_card[1]]
@@ -172,7 +172,7 @@ class SoyounTask(object):
     def enter_standby(self):
         logging.info(str(time.time()) + ", entering standby")
         self.trial_running = False
-        self.restart_flag_inter = False
+        # self.restart_flag_inter = False
 
     def exit_standby(self):
         logging.info(str(time.time()) + ", exiting standby")
@@ -233,7 +233,7 @@ class SoyounTask(object):
         if not distance_pass:
             logging.info(str(time.time()) + ", initiation distance: not satisfied, restart now.")
             self.error_count += 1
-            self.restart_flag_inter = True
+            self.restart_flag = True
         else:
             # pass the initial check and now officially entering the cue state step
             self.check_cue(self.task_information['cue'][self.current_card[0]])
@@ -242,10 +242,11 @@ class SoyounTask(object):
             logging.info(str(time.time()) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_cue_state(self):
-        if self.restart_flag_inter:
-            self.restart_flag_inter = False
-            self.restart_flag = True
-        else:
+        logging.info(str(time.time()) + ", exiting cue state")
+        # if self.restart_flag_inter:
+            # self.restart_flag_inter = False
+            # self.restart_flag = True
+        if not self.restart_flag:
             logging.info(str(time.time()) + ", exiting cue state: turning off the cue now.")
             self.cue_off(self.task_information['cue'][self.current_card[0]])
             # if self.restart_flag:
@@ -253,13 +254,14 @@ class SoyounTask(object):
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward available")
-        distance_now = self.treadmill.distance_cm
-        logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
-        distance_required = self.task_information['treadmill_setup'][self.task_information["state"][self.current_card[1]]]
-        distance_pass = self.check_distance(distance_now, self.distance_buffer, distance_required)
-        if not distance_pass:
-            logging.info(str(time.time()) + ", treadmill state distance did not pass: " + str(distance_now))
-            self.error_count += 1
+        if not self.restart_flag:
+            distance_now = self.treadmill.distance_cm
+            logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
+            distance_required = self.task_information['treadmill_setup'][self.task_information["state"][self.current_card[1]]]
+            distance_pass = self.check_distance(distance_now, self.distance_buffer, distance_required)
+            if not distance_pass:
+                logging.info(str(time.time()) + ", treadmill state distance did not pass: " + str(distance_now))
+                self.error_count += 1
             # self.restart_flag = True
         # else:
         #     self.restart_flag = False
