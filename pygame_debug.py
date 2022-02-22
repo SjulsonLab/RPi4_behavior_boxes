@@ -17,8 +17,6 @@ run = True
 while run:
     # time.sleep(0.3)
     for event in pygame.event.get():
-        # if event.type != 32774:
-        # print(str(event))
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             run = False
         if event.type == pygame.KEYDOWN:
