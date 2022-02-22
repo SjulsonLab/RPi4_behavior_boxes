@@ -149,7 +149,7 @@ class SoyounTask(object):
         #         self.restart()
         elif self.state == "reward_available":
             # first detect the lick signal:
-            side_choice = self.task_information['choice'][self.current_card[1]]
+            side_choice = self.task_information['choice'][self.current_card[2]]
             # question: do we want entry mark as lick?
             side_mice = None
             if event_name == "left_IR_entry":
@@ -158,7 +158,8 @@ class SoyounTask(object):
                 side_mice = 'right'
             if side_mice:
                 if side_choice == side_mice:
-                    self.pump.reward(side_mice, self.task_information["reward_size"])
+                    reward_size = self.task_information['reward'][self.current_card[3]]
+                    self.pump.reward(side_choice, self.task_information["reward_size"][reward_size])
                 else:
                     self.error_count += 1
                     # self.restart_flag = True
