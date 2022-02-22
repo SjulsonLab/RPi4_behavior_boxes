@@ -141,10 +141,10 @@ class SoyounTask(object):
             self.play_game()
         elif self.restart_flag:
             self.restart()
-        elif self.state == "initiate":
-            pass
-        elif self.state == "cue_state":
-            pass
+        # elif self.state == "initiate":
+        #     pass
+        # elif self.state == "cue_state":
+        #     pass
         elif self.state == "reward_available":
             # first detect the lick signal:
             side_choice = self.task_information['choice'][self.current_card[1]]
@@ -159,11 +159,11 @@ class SoyounTask(object):
                     self.pump.reward(side_correct, self.task_information["reward_size"])
                 else:
                     self.error_count += 1
-                    self.restart_flag = True
+                    # self.restart_flag = True
             else:
                 # print("no lick detected")
                 self.error_count += 1
-                self.restart_flag = True
+                # self.restart_flag = True
         # look for keystrokes
         self.box.check_keybd()
 
@@ -181,7 +181,7 @@ class SoyounTask(object):
         if self.card_count >= self.session_length:
             self.trial_running = False  # terminate the state machine, end the session
         elif self.error_repeat and (self.error_count_max < self.error_count_max):
-            self.restart_flag = True
+            # self.restart_flag = True
             self.trial_running = True
         else:
             self.restart_flag = False
@@ -190,7 +190,7 @@ class SoyounTask(object):
     def exit_draw(self):
         logging.info(str(time.time()) + ", exiting draw")
         if self.restart_flag:
-            self.error_count += 1
+            # self.error_count += 1
             self.restart_flag = False
         else:
             self.card_count += 1
@@ -258,9 +258,9 @@ class SoyounTask(object):
         if not distance_pass:
             logging.info(str(time.time()) + ", treadmill state distance did not pass: " + str(distance_now))
             self.error_count += 1
-            self.restart_flag = True
-        else:
-            self.restart_flag = False
+            # self.restart_flag = True
+        # else:
+        #     self.restart_flag = False
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward available")
@@ -276,7 +276,7 @@ class SoyounTask(object):
         else:
             # self.box.sound1.on()
             # self.box.cueLED1.on()
-            logging.info(str(time.time()) + "sound1 + cueLED1 on (free choice)")
+            logging.info(str(time.time()) + ", sound1 + cueLED1 on (free choice)")
 
     def cue_off(self, cue):
         if cue == 'sound':
@@ -288,7 +288,7 @@ class SoyounTask(object):
         else:
             self.box.sound1.off()
             self.box.cueLED1.off()
-            logging.info(str(time.time()) + "sound1 + cueLED1 off (free choice)")
+            logging.info(str(time.time()) + ", sound1 + cueLED1 off (free choice)")
 
     def check_distance(self, distance_t1, distance_t0, distance_required):
         # bit_low = 100; bit_high = 200
