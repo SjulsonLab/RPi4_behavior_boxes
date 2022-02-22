@@ -441,14 +441,12 @@ class BoxLED(PWMLED):
 
 class Pump(object):
     def __init__(self):
-        self.pump = {
-            "1": LED(19),
-            "2": LED(20),
-            "3": LED(21),
-            "4": LED(8),
-            "5": LED(7),
-            "en": LED(25)
-        }
+        self.pump1 = LED(19)
+        self.pump2 = LED(20)
+        self.pump3 = LED(21)
+        self.pump4 = LED(8)
+        self.pump5 = LED(7)
+
         ###############################################################################################
         # syringe pumps
         ###############################################################################################
@@ -475,14 +473,20 @@ class Pump(object):
         cycle_length = (
                 reward_duration / totalSteps
         )  # need to know what the minimum value can be
-        self.pump[which_pump].blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-        logging.info(str(time.time()) + ", reward_side_" + which_pump + "," + str(reward_size))
-        # if which_pump == "left":
-        #     self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-        #     logging.info(str(time.time()) + ", left_reward," + str(reward_size))
-        # elif which_pump == "center":
-        #     self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-        #     logging.info(str(time.time()) + ", center_reward," + str(reward_size))
-        # elif which_pump == "right":
-        #     logging.info(str(time.time()) + ", right_reward," + str(reward_size))
-        #     self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+        # self.pump[which_pump].blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+        # logging.info(str(time.time()) + ", reward_side_" + which_pump + "," + str(reward_size))
+        if which_pump == "1":
+            self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info(str(time.time()) + ", pump1 reward," + str(reward_size))
+        elif which_pump == "2":
+            self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info(str(time.time()) + ", pump2 reward," + str(reward_size))
+        elif which_pump == "3":
+            self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info(str(time.time()) + ", pump3 reward," + str(reward_size))
+        elif which_pump == "4":
+            self.pump4.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info(str(time.time()) + ", pump4 reward," + str(reward_size))
+        elif which_pump == "5":
+            self.pump5.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info(str(time.time()) + ", pump5 reward," + str(reward_size))
