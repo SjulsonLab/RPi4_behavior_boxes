@@ -240,7 +240,7 @@ class SoyounTask(object):
             logging.info(str(time.time()) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_cue_state(self):
-        if self.self.restart_flag_inter:
+        if self.restart_flag_inter:
             self.restart_flag_inter = False
             self.restart_flag = True
         else:
