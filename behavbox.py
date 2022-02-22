@@ -190,6 +190,7 @@ class BehavBox(object):
 
     def check_keybd(self):
         reward_size = self.session_info['reward_size']
+        pump = Pump()
         if self.keyboard_active:
             # event = pygame.event.get()
             for event in pygame.event.get():
@@ -205,19 +206,19 @@ class BehavBox(object):
                     elif event.key == pygame.K_q:
                         # print("Q down: syringe pump 1 moves")
                         logging.info(str(time.time()) + ", key_pressed_q")
-                        Pump.reward("1", reward_size)
+                        pump.reward("1", reward_size)
                     elif event.key == pygame.K_w:
                         # print("W down: syringe pump 2 moves")
                         logging.info(str(time.time()) + ", key_pressed_w")
-                        Pump.reward("2", reward_size)
+                        pump.reward("2", reward_size)
                     elif event.key == pygame.K_e:
                         # print("E down: syringe pump 3 moves")
                         logging.info(str(time.time()) + ", key_pressed_e")
-                        Pump.reward("3", reward_size)
+                        pump.reward("3", reward_size)
                     elif event.key == pygame.K_r:
                         # print("R down: syringe pump 4 moves")
                         logging.info(str(time.time()) + ", key_pressed_r")
-                        Pump.reward("4", reward_size)
+                        pump.reward("4", reward_size)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:
                         self.left_IR_exit()
