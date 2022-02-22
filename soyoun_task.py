@@ -139,12 +139,14 @@ class SoyounTask(object):
             pass
         elif self.state == "draw":
             self.play_game()
-        elif self.restart_flag:
-            self.restart()
-        # elif self.state == "initiate":
-        #     pass
-        # elif self.state == "cue_state":
-        #     pass
+        # elif self.restart_flag:
+        #     self.restart()
+        elif self.state == "initiate":
+            if self.restart_flag:
+                self.restart()
+        elif self.state == "cue_state":
+            if self.restart_flag:
+                self.restart()
         elif self.state == "reward_available":
             # first detect the lick signal:
             side_choice = self.task_information['choice'][self.current_card[1]]
