@@ -169,7 +169,7 @@ class SoyounTask(object):
     def enter_standby(self):
         logging.info(str(time.time()) + ", entering standby")
         self.trial_running = False
-        self.restart_flag = False
+        # self.restart_flag = False
 
     def exit_standby(self):
         logging.info(str(time.time()) + ", exiting standby")
@@ -190,10 +190,12 @@ class SoyounTask(object):
         logging.info(str(time.time()) + ", exiting draw")
         if self.restart_flag:
             self.error_count += 1
+            self.restart_flag = False
         else:
             self.card_count += 1
         print(str(self.card_count))
         self.current_card = self.deck[self.card_count]
+
         print(str(self.current_card))
         card_cue = self.task_information['cue'][self.current_card[0]]
         card_state = self.task_information['state'][self.current_card[1]]
