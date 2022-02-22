@@ -113,6 +113,7 @@ class SoyounTask(object):
         self.session_length = len(self.task_information["block_list"])
         self.trial_running = False
         self.restart_flag = False
+        self.restart_flag_inter = False
 
         self.error_count = 0
         self.card_count = -1
@@ -169,7 +170,7 @@ class SoyounTask(object):
     def enter_standby(self):
         logging.info(str(time.time()) + ", entering standby")
         self.trial_running = False
-        # self.restart_flag = False
+        self.restart_flag_inter = False
 
     def exit_standby(self):
         logging.info(str(time.time()) + ", exiting standby")
@@ -230,8 +231,7 @@ class SoyounTask(object):
         if not distance_pass:
             logging.info(str(time.time()) + ", initiation distance: not satisfied, restart now.")
             self.error_count += 1
-            self.restart_flag = True
-            self.error_count += 1
+            self.restart_flag_inter = True
         else:
             # pass the initial check and now officially entering the cue state step
             self.check_cue(self.task_information['cue'][self.current_card[0]])
@@ -240,13 +240,14 @@ class SoyounTask(object):
             logging.info(str(time.time()) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_cue_state(self):
-        if not self.restart_flag:
+        if self.self.restart_flag_inter:
+            self.restart_flag_inter = False
+            self.restart_flag = True
+        else:
             logging.info(str(time.time()) + ", exiting cue state: turning off the cue now.")
             self.cue_off(self.task_information['cue'][self.current_card[0]])
             # if self.restart_flag:
             #     self.error_count += 1
-        else:
-            pass
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward available")
