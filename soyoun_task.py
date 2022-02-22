@@ -264,6 +264,8 @@ class SoyounTask(object):
             if not distance_pass:
                 logging.info(str(time.time()) + ", treadmill state distance did not pass: " + str(distance_now))
                 self.error_count += 1
+            else:
+                print("Make decision before reward delivery...")
             # self.restart_flag = True
         # else:
         #     self.restart_flag = False
