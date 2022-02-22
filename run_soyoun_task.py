@@ -91,9 +91,9 @@ try:
     sleep(10)
     # loop over trials
     for block_number in task.task_information["block_list"]:
-        logging.info(str("##############################\n" +
+        logging.info(str("############################################################\n" +
                          str(time.time())) + ", starting_trial, block number " + str(block_number) +
-                     str("\n##############################"))
+                     str("\n############################################################"))
 
         task.start_trial() # initiate the time state machine, start_trial() is a trigger
 
