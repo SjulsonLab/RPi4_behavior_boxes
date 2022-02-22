@@ -191,8 +191,8 @@ class BehavBox(object):
     def check_keybd(self):
         reward_size = self.session_info['reward_size']
         if self.keyboard_active:
-            event = pygame.event.get()
-            if event:
+            # event = pygame.event.get()
+            for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.keyboard_active = False
