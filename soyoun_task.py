@@ -93,7 +93,7 @@ class SoyounTask(object):
                     on_enter=["enter_reward_available"],
                     on_exit=["exit_reward_available"],
                     timeout=self.task_information["reward_timeout"],
-                    on_timeout=["spawn"]
+                    on_timeout=["restart"]
                     )
         ]
         self.transitions = [
@@ -101,7 +101,7 @@ class SoyounTask(object):
             ['play_game', 'draw', 'initiate'],
             ['start_cue', 'initiate', 'cue_state'],
             ['evaluate_reward', 'cue_state', 'reward_available'],
-            ['spawn', ['initiate', 'cue_state', 'reward_available'], 'standby']
+            ['restart', ['initiate', 'cue_state', 'reward_available'], 'standby']
         ]
 
         self.machine = TimedStateMachine(
@@ -134,8 +134,16 @@ class SoyounTask(object):
             event_name = self.box.event_list.popleft()
         else:
             event_name = ""
-        if self.state == "draw":
+        if self.state == "standby":
+            pass
+        elif self.state == "draw":
             self.play_game()
+        elif self.restart_flag:
+            self.restart()
+        elif self.state == "initiate":
+            pass
+        elif self.state == "cue_state":
+            pass
         elif self.state == "reward_available":
             # first detect the lick signal:
             side_choice = self.task_information['choice'][self.current_card[1]]
@@ -152,7 +160,7 @@ class SoyounTask(object):
                     self.error_count += 1
                     self.restart_flag = True
             else:
-                print("no lick detected")
+                # print("no lick detected")
                 self.error_count += 1
                 self.restart_flag = True
         # look for keystrokes
@@ -161,6 +169,7 @@ class SoyounTask(object):
     def enter_standby(self):
         logging.info(str(time.time()) + ", entering standby")
         self.trial_running = False
+        self.restart_flag = False
 
     def exit_standby(self):
         logging.info(str(time.time()) + ", exiting standby")
@@ -227,13 +236,9 @@ class SoyounTask(object):
 
     def exit_cue_state(self):
         logging.info(str(time.time()) + ", exiting cue state")
-        # self.cue_off(self.task_information['cue'][self.current_card[0]])
-        print("done so")
-        # if self.restart_flag:
-        #     print("restart_flag")
-        #     self.error_count += 1
-        #     print("error_count")
-        #     self.spawn()
+        self.cue_off(self.task_information['cue'][self.current_card[0]])
+        if self.restart_flag:
+            self.error_count += 1
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward available")
@@ -246,7 +251,6 @@ class SoyounTask(object):
             self.restart_flag = True
         else:
             self.restart_flag = False
-        pass
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward available")
