@@ -160,6 +160,7 @@ class SoyounTask(object):
                 if side_choice == side_mice:
                     reward_size = self.task_information['reward'][self.current_card[3]]
                     self.pump.reward(side_choice, self.task_information["reward_size"][reward_size])
+                    self.restart()
                 else:
                     self.error_count += 1
                     # self.restart_flag = True
