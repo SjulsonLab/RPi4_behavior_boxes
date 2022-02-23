@@ -196,8 +196,8 @@ class SoyounTask(object):
         logging.info(str(time.time()) + ", entering standby")
         self.trial_running = False
         if self.restart_flag:
-            # time.sleep(self.task_information["punishment_timeout"])
-            pass
+            time.sleep(self.task_information["punishment_timeout"])
+            # pass
         else:
             time.sleep(self.task_information["reward_wait"])
 
