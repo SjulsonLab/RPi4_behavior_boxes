@@ -100,9 +100,12 @@ class SoyounTask(object):
                     on_exit=["exit_cue_state"],
                     timeout=self.task_information["cue_timeout"],
                     on_timeout=["evaluate_reward"]),
-            State(name='reward_available',
-                  on_enter=["enter_reward_available"],
-                  on_exit=["exit_reward_available"])
+            Timeout(name='reward_available',
+                    on_enter=["enter_reward_available"],
+                    on_exit=["exit_reward_available"],
+                    timeout=self.task_information["reward_timeout"] +
+                    self.task_information["reward_wait"],
+                    on_timeout=["restart"])
         ]
         self.transitions = [
             ['start_trial', 'standby', 'draw'],  # format: ['trigger', 'origin', 'destination']
@@ -149,6 +152,12 @@ class SoyounTask(object):
             self.play_game()
         elif self.restart_flag:
             self.restart()
+        # elif self.state == "initiate":
+        #     if self.restart_flag:
+        #         self.restart()
+        # elif self.state == "cue_state":
+        #     if self.restart_flag:
+        #         self.restart()
         elif self.state == "reward_available":
             # first detect the lick signal:
             side_choice = self.task_information['choice'][self.current_card[2]]
@@ -165,15 +174,15 @@ class SoyounTask(object):
                     time.sleep(self.task_information["reward_wait"])
                     self.restart()
                 else:
-                    logging.info(str(time.time()) + ", wrong side of lick port")
                     self.error_count += 1
-                    self.restart()
+                    # self.restart()
                     # self.restart_flag = True
             else:
-                logging.info(str(time.time()) + ", no lick detected")
+                # print("no lick detected")
                 self.error_count += 1
-                self.restart()
-
+                # self.restart()
+                # self.restart_flag = True
+            # logging.info(str(time.time()) + ", reward transition restart")
         # look for keystrokes
         self.box.check_keybd()
 
