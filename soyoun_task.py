@@ -270,13 +270,13 @@ class SoyounTask(object):
 
     def exit_cue_state(self):
         logging.info(str(time.time()) + ", exiting cue state")
-        if not self.restart_flag:
-            logging.info(str(time.time()) + ", exiting cue state: turning off the cue now.")
-            self.cue_off(self.task_information['cue'][self.current_card[0]])
+        # if not self.restart_flag:
+        #     logging.info(str(time.time()) + ", exiting cue state: turning off the cue now.")
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward available")
         if not self.restart_flag:
+            self.cue_off(self.task_information['cue'][self.current_card[0]])
             distance_now = self.treadmill.distance_cm
             logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
             distance_required = self.task_information['treadmill_setup'][self.task_information["state"][self.current_card[1]]]
