@@ -135,7 +135,7 @@ class SoyounTask(object):
         self.box = behavbox.BehavBox(self.session_info)
         self.pump = behavbox.Pump()
         self.treadmill = self.box.treadmill
-        self.distance_initiation = task_information['treadmill_setup']['distance_initiation']
+        self.distance_initiation = self.task_information['treadmill_setup']['distance_initiation']
         self.distance_buffer = None
 
     ########################################################################
