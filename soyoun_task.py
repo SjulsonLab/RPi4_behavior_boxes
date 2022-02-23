@@ -160,7 +160,7 @@ class SoyounTask(object):
         #         self.restart()
         elif self.state == "reward_available":
             # first detect the lick signal:
-            cue_state = self.task_information['choice'][self.current_card[0]]
+            cue_state = self.current_card[0]
             side_choice = self.task_information['choice'][self.current_card[2]]
             # question: do we want entry mark as lick?
             side_mice = None
