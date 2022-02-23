@@ -102,8 +102,7 @@ class SoyounTask(object):
                     on_timeout=["evaluate_reward"]),
             State(name='reward_available',
                   on_enter=["enter_reward_available"],
-                  on_exit=["exit_reward_available"]
-                    )
+                  on_exit=["exit_reward_available"])
         ]
         self.transitions = [
             ['start_trial', 'standby', 'draw'],  # format: ['trigger', 'origin', 'destination']
@@ -170,7 +169,7 @@ class SoyounTask(object):
                     reward_size = self.task_information['reward'][self.current_card[3]]
                     self.pump.reward(side_choice, self.task_information["reward_size"][reward_size])
                     time.sleep(self.task_information["reward_wait"])
-                    self.restart()
+                    # self.restart()
                 else:
                     self.error_count += 1
                     # self.restart_flag = True
@@ -178,6 +177,8 @@ class SoyounTask(object):
                 # print("no lick detected")
                 self.error_count += 1
                 # self.restart_flag = True
+            logging.info(str(time.time()) + ", reward transition restart")
+            self.restart()
         # look for keystrokes
         self.box.check_keybd()
 
