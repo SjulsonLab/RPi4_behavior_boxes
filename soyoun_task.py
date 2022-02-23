@@ -175,7 +175,7 @@ class SoyounTask(object):
                     self.restart()
                 else:
                     self.error_count += 1
-                    # self.restart()
+                    self.restart()
                     # self.restart_flag = True
             else:
                 # print("no lick detected")
@@ -189,8 +189,11 @@ class SoyounTask(object):
     def enter_standby(self):
         logging.info(str(time.time()) + ", entering standby")
         self.trial_running = False
-        time.sleep(3)
-        # self.restart_flag_inter = False
+        if self.restart_flag:
+            # time.sleep(self.task_information["punishment_timeout"])
+            pass
+        else:
+            time.sleep(self.task_information["reward_wait"])
 
     def exit_standby(self):
         logging.info(str(time.time()) + ", exiting standby")

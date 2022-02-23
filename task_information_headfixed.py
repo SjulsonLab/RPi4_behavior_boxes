@@ -30,6 +30,7 @@ task_information['initiation_timeout'] = 5  # s
 task_information['cue_timeout'] = 5
 task_information['reward_timeout'] = 5
 task_information["reward_wait"] = 5
+task_information["punishment_timeout"] = 1
 
 # block setup
 task_information['block'] = {}
