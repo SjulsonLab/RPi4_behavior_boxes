@@ -100,11 +100,9 @@ class SoyounTask(object):
                     on_exit=["exit_cue_state"],
                     timeout=self.task_information["cue_timeout"],
                     on_timeout=["evaluate_reward"]),
-            Timeout(name='reward_available',
-                    on_enter=["enter_reward_available"],
-                    on_exit=["exit_reward_available"],
-                    timeout=self.task_information["reward_timeout"],
-                    on_timeout=["restart"]
+            State(name='reward_available',
+                  on_enter=["enter_reward_available"],
+                  on_exit=["exit_reward_available"]
                     )
         ]
         self.transitions = [
