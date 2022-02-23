@@ -373,32 +373,27 @@ class BehavBox(object):
     ###############################################################################################
     def left_IR_entry(self):
         self.event_list.append("left_IR_entry")
-        self.cueLED1.on()
         logging.info(str(time.time()) + ", left_IR_entry")
 
     def center_IR_entry(self):
         self.event_list.append("center_IR_entry")
-        self.cueLED2.on()
         logging.info(str(time.time()) + ", center_IR_entry")
 
     def right_IR_entry(self):
         self.event_list.append("right_IR_entry")
-        self.cueLED3.on()
         logging.info(str(time.time()) + ", right_IR_entry")
 
     def left_IR_exit(self):
         self.event_list.append("left_IR_exit")
-        self.cueLED1.off()
         logging.info(str(time.time()) + ", left_IR_exit")
 
     def center_IR_exit(self):
         self.event_list.append("center_IR_exit")
-        self.cueLED2.off()
+        # self.cueLED2.off()
         logging.info(str(time.time()) + ", center_IR_exit")
 
     def right_IR_exit(self):
         self.event_list.append("right_IR_exit")
-        self.cueLED3.off()
         logging.info(str(time.time()) + ", right_IR_exit")
 
     # def left_lick_start(self):
