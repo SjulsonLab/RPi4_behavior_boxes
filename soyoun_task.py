@@ -1,4 +1,5 @@
 # python3: soyoun_task.py
+import importlib
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
@@ -61,9 +62,19 @@ class SoyounTask(object):
         else:
             self.session_info = kwargs.get("session_info", None)
         ic(self.session_info)
-
-        from task_information_headfixed import task_information
-        self.task_information = task_information
+        try:
+            logging.info(str(time.time()) + ", trying to retrieve task_information from the ~/experiment_info/*")
+            full_module_name = 'task_information'
+            import sys
+            task_info_path = '/home/pi/experiment_info/headfixed_task/task_information'
+            sys.path.insert(0, task_info_path)
+            tempmod = importlib.import_module(full_module_name)
+            self.task_information = tempmod.task_information
+        except:
+            logging.info(str(time.time()) + ", failed to retrieve task_information from the default path.\n" +
+                         "Now, try to load the task_information from the local directory ...")
+            from task_information_headfixed import task_information
+            self.task_information = task_information
 
         self.error_repeat = self.task_information['error_repeat']
         self.error_count_max = self.task_information['error_repeat_max']
