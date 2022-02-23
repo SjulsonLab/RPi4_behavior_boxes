@@ -64,7 +64,7 @@ class SoyounTask(object):
         ic(self.session_info)
         try:
             logging.info(str(time.time()) + ", trying to retrieve task_information from the ~/experiment_info/*")
-            full_module_name = 'task_information'
+            full_module_name = 'task_information_headfixed'
             import sys
             task_info_path = '/home/pi/experiment_info/headfixed_task/'
             sys.path.insert(0, task_info_path)
