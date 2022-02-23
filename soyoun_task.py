@@ -172,7 +172,7 @@ class SoyounTask(object):
                     reward_size = self.task_information['reward'][self.current_card[3]]
                     self.pump.reward(side_choice, self.task_information["reward_size"][reward_size])
                     time.sleep(self.task_information["reward_wait"])
-                    self.restart()
+                    # self.restart()
                 else:
                     self.error_count += 1
                     # self.restart()
