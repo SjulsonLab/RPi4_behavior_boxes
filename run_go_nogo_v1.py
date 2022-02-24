@@ -371,6 +371,7 @@ if __name__ == "__main__":
                 trial_outcome = task.trial_outcome
                 print(trial_outcome)
 
+                # Covert number trial_outcome into strings
                 if trial_outcome == 1:
                     combine_trial_outcome[i] = "Hit!"
                 elif trial_outcome == 2:
@@ -381,6 +382,8 @@ if __name__ == "__main__":
                     combine_trial_outcome[i] = "FA !!!"
                 print(combine_trial_outcome[i])
 
+                # Count the number of each trial outcome
+                # Establish other parameters for plotting
                 hit_count[i] = combine_trial_outcome.count("Hit!")
                 miss_count[i] = combine_trial_outcome.count("Miss !!!")
                 cr_count[i] = combine_trial_outcome.count("CR!")
