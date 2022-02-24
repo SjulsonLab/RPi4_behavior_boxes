@@ -6,11 +6,11 @@ import os
 import socket
 import time
 from collections import deque
-# from icecream import ic
-# import pygame
+from icecream import ic
+import pygame
 import logging
 from colorama import Fore, Style
-# import pysistence, collections
+import pysistence, collections
 from visualstim import VisualStim
 from visualstim_go import VisualStim_go
 from visualstim_nogo import VisualStim_nogo
