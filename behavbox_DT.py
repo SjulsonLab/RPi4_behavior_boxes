@@ -150,65 +150,65 @@ class BehavBox(object):
         ###############################################################################################
         # Keystroke handler
         ###############################################################################################
-        try:
-            DISPLAYSURF = pygame.display.set_mode((200, 200))
-            pygame.display.set_caption(session_info["box_name"])
-            print(
-                "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
-            )
-            print("must be in the foreground. Keys are as follows:\n")
-            print(
-                    Fore.YELLOW
-                    + "         1: left poke            2: center poke            3: right poke"
-            )
-            print(
-                "         Q: left lick            W: center lick            E: right lick"
-            )
-            print(
-                    Fore.CYAN
-                    + "                       Esc: close key capture window\n"
-                    + Style.RESET_ALL
-            )
-            print(
-                    Fore.GREEN
-                    + Style.BRIGHT
-                    + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
-                    + Fore.RED
-                    + "ONCE\n"
-                    + Style.RESET_ALL
-            )
-
-            self.keyboard_active = True
-        except Exception as error_message:
-            print("pygame issue\n")
-            print(str(error_message))
+        # try:
+        #     DISPLAYSURF = pygame.display.set_mode((200, 200))
+        #     pygame.display.set_caption(session_info["box_name"])
+        #     print(
+        #         "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
+        #     )
+        #     print("must be in the foreground. Keys are as follows:\n")
+        #     print(
+        #             Fore.YELLOW
+        #             + "         1: left poke            2: center poke            3: right poke"
+        #     )
+        #     print(
+        #         "         Q: left lick            W: center lick            E: right lick"
+        #     )
+        #     print(
+        #             Fore.CYAN
+        #             + "                       Esc: close key capture window\n"
+        #             + Style.RESET_ALL
+        #     )
+        #     print(
+        #             Fore.GREEN
+        #             + Style.BRIGHT
+        #             + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
+        #             + Fore.RED
+        #             + "ONCE\n"
+        #             + Style.RESET_ALL
+        #     )
+        #
+        #     self.keyboard_active = True
+        # except Exception as error_message:
+        #     print("pygame issue\n")
+        #     print(str(error_message))
 
     ###############################################################################################
     # check for key presses - uses pygame window to simulate nosepokes and licks
     ###############################################################################################
 
-    def check_keybd(self):
-        if self.keyboard_active == True:
-            event = pygame.event.poll()
-            KeyDown = 768  # event type numbers
-            KeyUp = 769
-            if event:
-                if event.type == KeyDown and event.key == 49:  # 1 key
-                    self.left_IR_entry()
-                elif event.type == KeyUp and event.key == 49:
-                    self.left_IR_exit()
-                elif event.type == KeyDown and event.key == 50:  # 2 key
-                    self.center_IR_entry()
-                elif event.type == KeyUp and event.key == 50:
-                    self.center_IR_exit()
-                elif event.type == KeyDown and event.key == 51:  # 3 key
-                    self.right_IR_entry()
-                elif event.type == KeyUp and event.key == 51:
-                    self.right_IR_exit()
-                elif event.type == KeyDown and event.key == 27:  # escape key
-                    pygame.quit()
-                    self.keyboard_active = False
-                print(event) # for debug purpose
+    # def check_keybd(self):
+    #     if self.keyboard_active == True:
+    #         event = pygame.event.poll()
+    #         KeyDown = 768  # event type numbers
+    #         KeyUp = 769
+    #         if event:
+    #             if event.type == KeyDown and event.key == 49:  # 1 key
+    #                 self.left_IR_entry()
+    #             elif event.type == KeyUp and event.key == 49:
+    #                 self.left_IR_exit()
+    #             elif event.type == KeyDown and event.key == 50:  # 2 key
+    #                 self.center_IR_entry()
+    #             elif event.type == KeyUp and event.key == 50:
+    #                 self.center_IR_exit()
+    #             elif event.type == KeyDown and event.key == 51:  # 3 key
+    #                 self.right_IR_entry()
+    #             elif event.type == KeyUp and event.key == 51:
+    #                 self.right_IR_exit()
+    #             elif event.type == KeyDown and event.key == 27:  # escape key
+    #                 pygame.quit()
+    #                 self.keyboard_active = False
+    #             print(event) # for debug purpose
 
     ###############################################################################################
     # methods to start and stop video
