@@ -236,12 +236,17 @@ if __name__ == "__main__":
         task = go_nogo_task(name="go_nogo_task", session_info=session_info)
         trial_list = list(range(0, session_info["number_of_trials"]))
         combine_trial_outcome = ["" for o in range(session_info["number_of_trials"])]
-        phase1_trial_outcome = ["" for o in range(session_info['number_of_phase1_trials'])]
         hit_count = [0 for o in range(session_info["number_of_trials"])]
-        phase1_hit_count = [0 for o in range(session_info['number_of_phase1_trials'])]
         miss_count = [0 for o in range(session_info["number_of_trials"])]
         cr_count = [0 for o in range(session_info["number_of_trials"])]
         fa_count = [0 for o in range(session_info["number_of_trials"])]
+
+        phase1_trial_list = list(range(0, session_info["number_of_phase1_trials"]))
+        phase1_trial_outcome = ["" for o in range(session_info['number_of_phase1_trials'])]
+        phase1_hit_count = [0 for o in range(session_info['number_of_phase1_trials'])]
+        phase1_miss_count = [0 for o in range(session_info['number_of_phase1_trials'])]
+        phase1_cr_count = [0 for o in range(session_info['number_of_phase1_trials'])]
+        phase1_fa_count = [0 for o in range(session_info['number_of_phase1_trials'])]
 
         # start session
         task.start_session()
@@ -259,7 +264,7 @@ if __name__ == "__main__":
             # print if hit_criterion is achieved
             for w in range(session_info['number_of_phase1_trials']):
                 logging.info(str(time.time()) + ", ##############################")
-                logging.info(str(time.time()) + ", starting all preferred trial " + str(w))
+                logging.info(str(time.time()) + ", starting trial " + str(w))
                 logging.info(str(time.time()) + ", go_trial")
                 logging.info(str(time.time()) + ", ##############################")
 
@@ -269,7 +274,7 @@ if __name__ == "__main__":
                 while task.trial_running:
                     task.run_go()
 
-                # assess and automatically transition to regular task if hit rate reaching certain criterion
+                # assess trial outcome
                 trial_outcome = task.trial_outcome
                 phase1_trial_outcome[w] = trial_outcome
                 if trial_outcome == 1:
@@ -277,16 +282,33 @@ if __name__ == "__main__":
                 elif trial_outcome == 2:
                     phase1_trial_outcome[w] = "Miss !!!"
                 phase1_hit_count[w] = phase1_trial_outcome.count("Hit!")
+                phase1_miss_count[w] = phase1_trial_outcome.count("Miss !!!")
+                phase1_cr_count = 0
+                phase1_fa_count = 0
+                lick_times = task.lick_times
+                reward_time = task.time_at_reward
+                vstimON_time = task.time_at_vstim_ON
 
+                # Starting a new process for plotting
+                plot_process = Process(target=plot_trial_progress, args=(w, phase1_trial_list, phase1_trial_outcome,
+                                                                         phase1_hit_count, phase1_miss_count, phase1_cr_count,
+                                                                         phase1_fa_count, lick_times, vstimON_time,))
+                start_t = time.time()
+                plot_process.start()  # no join because we do not want to wait until the plotting is finished
+                end_t = time.time()
+                print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
+
+                # Determine if Hit criterion is achieved and automatically exit
                 if w == 0:
                     phase1_hit_rate = 0
                 else:
                     phase1_hit_rate = (phase1_hit_count[w])/w
 
-                if phase1_hit_rate > session_info['hit_criterion']:
+                if w > 50 and phase1_hit_rate > session_info['hit_criterion']:
                     print("Hit criterion is achieved!!!")
+                    raise SystemExit
 
-        if training_phase == "phase2":
+        elif training_phase == "phase2":
             for i in range(session_info['number_of_trials']):
                 ident_random = (round(random.uniform(0, 1) * 100)) % 2
 
