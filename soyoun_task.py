@@ -126,6 +126,7 @@ class SoyounTask(object):
         self.restart_flag = False
         # self.restart_flag_inter = False
 
+        self.trial_number = 0
         self.error_count = 0
         self.card_count = -1
         self.deck = self.task_information["deck"]
@@ -193,7 +194,7 @@ class SoyounTask(object):
         self.box.check_keybd()
 
     def enter_standby(self):
-        logging.info(str(time.time()) + ", entering standby")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering standby, prepare to start the trial...")
         self.trial_running = False
         if self.restart_flag:
             time.sleep(self.task_information["punishment_timeout"])
@@ -202,14 +203,15 @@ class SoyounTask(object):
             time.sleep(self.task_information["reward_wait"])
 
     def exit_standby(self):
-        logging.info(str(time.time()) + ", exiting standby")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting standby")
+        self.trial_number += 1
         pass
 
     def enter_draw(self):
-        logging.info(str(time.time()) + ", entering draw")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering draw")
         if self.card_count >= self.session_length:
             self.trial_running = False  # terminate the state machine, end the session
-        elif self.error_repeat and (self.error_count_max < self.error_count_max):
+        elif self.error_repeat and (self.error_count < self.error_count_max):
             # self.restart_flag = True
             self.trial_running = True
         else:
@@ -217,7 +219,7 @@ class SoyounTask(object):
             self.trial_running = True
 
     def exit_draw(self):
-        logging.info(str(time.time()) + ", exiting draw")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting draw")
         if self.restart_flag:
             # self.error_count += 1
             self.restart_flag = False
@@ -241,24 +243,24 @@ class SoyounTask(object):
 
     def enter_initiate(self):
         # check error_repeat
-        logging.info(str(time.time()) + ", entering initiate")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering initiate")
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.treadmill.distance_cm
-        logging.info(str(time.time()) + ", treadmill distance t0: " + str(self.distance_buffer))
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_initiate(self):
         # check the flag to see whether to shuffle or keep the original card
-        logging.info(str(time.time()) + ", exiting initiate")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting initiate")
         pass
 
     def enter_cue_state(self):
-        logging.info(str(time.time()) + ", entering cue state")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering cue state")
         # turn on the cue according to the current card
         distance_now = self.treadmill.distance_cm
-        logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", treadmill distance tend: " + str(distance_now))
         distance_pass = self.check_distance(distance_now, self.distance_buffer, self.distance_initiation)
         if not distance_pass:
-            logging.info(str(time.time()) + ", initiation distance: not satisfied, restart now.")
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", initiation distance: not satisfied, restart now.")
             self.error_count += 1
             self.restart_flag = True
         else:
@@ -266,54 +268,54 @@ class SoyounTask(object):
             self.check_cue(self.task_information['cue'][self.current_card[0]])
             # wait for treadmill signal and process the treadmill signal
             self.distance_buffer = self.treadmill.distance_cm
-            logging.info(str(time.time()) + ", treadmill distance t0: " + str(self.distance_buffer))
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_cue_state(self):
-        logging.info(str(time.time()) + ", exiting cue state")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting cue state")
         # if not self.restart_flag:
         #     logging.info(str(time.time()) + ", exiting cue state: turning off the cue now.")
 
     def enter_reward_available(self):
-        logging.info(str(time.time()) + ", entering reward available")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering reward available")
         if not self.restart_flag:
             self.cue_off(self.task_information['cue'][self.current_card[0]])
             distance_now = self.treadmill.distance_cm
-            logging.info(str(time.time()) + ", treadmill distance tend: " + str(distance_now))
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", treadmill distance tend: " + str(distance_now))
             distance_required = self.task_information['treadmill_setup'][self.task_information["state"][self.current_card[1]]]
             distance_pass = self.check_distance(distance_now, self.distance_buffer, distance_required)
             if not distance_pass:
-                logging.info(str(time.time()) + ", treadmill state distance did not pass: " + str(distance_now))
+                logging.info(str(time.time()) + ", " + str(self.trial_number) + ", treadmill state distance did not pass: " + str(distance_now))
                 self.error_count += 1
             else:
                 print("Make decision before reward delivery...")
 
     def exit_reward_available(self):
-        logging.info(str(time.time()) + ", exiting reward available")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting reward available")
         pass
 
     def check_cue(self, cue):
         if cue == 'sound':
             self.box.sound1.on()  # could be modify according to specific sound cue
-            logging.info(str(time.time()) + ", cue sound1 on")
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 on")
         elif cue == 'LED':
             self.box.cueLED1.on()
-            logging.info(str(time.time()) + ", cueLED1 on")
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 on")
         else:
             self.box.sound1.on()
             self.box.cueLED1.on()
-            logging.info(str(time.time()) + ", sound1 + cueLED1 on (free choice)")
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 on (free choice)")
 
     def cue_off(self, cue):
         if cue == 'sound':
             self.box.sound1.off()  # could be modify according to specific sound cue
-            logging.info(str(time.time()) + ", cue sound1 off")
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 off")
         elif cue == 'LED':
             self.box.cueLED1.off()
-            logging.info(str(time.time()) + ", cueLED1 off")
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 off")
         else:
             self.box.sound1.off()
             self.box.cueLED1.off()
-            logging.info(str(time.time()) + ", sound1 + cueLED1 off (free choice)")
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 off (free choice)")
 
     def check_distance(self, distance_t1, distance_t0, distance_required):
         distance_diff = distance_t1 - distance_t0
