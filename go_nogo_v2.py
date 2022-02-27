@@ -245,7 +245,6 @@ class go_nogo_task(object):
     def enter_standby(self):
         logging.info(str(time.time()) + ", entering standby")
         self.trial_running = False
-        self.trial_plotting = True  # plot during standby
 
     def exit_standby(self):
         logging.info(str(time.time()) + ", exiting standby")
@@ -363,7 +362,6 @@ class go_nogo_task(object):
             # print(timer, end="\r")
             time.sleep(0.1)
             t_iti -= 0.1
-            print(t_iti)
         self.box.event_list.append("iti countdown ends...")
 
     ########################################################################
