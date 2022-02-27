@@ -325,7 +325,7 @@ class go_nogo_task(object):
 
     def enter_normal_iti(self):
         logging.info(str(time.time()) + ", entering normal_iti")
-        self.current_iti_length = self.normal_iti_length + random.uniform(0, 1)
+        self.current_iti_length = round(self.normal_iti_length + random.uniform(0, 1), 1)
         self.countdown_iti(self.current_iti_length)
 
     def exit_normal_iti(self):
@@ -334,7 +334,7 @@ class go_nogo_task(object):
 
     def enter_punishment_iti(self):
         logging.info(str(time.time()) + ", entering punishment_iti")
-        self.current_iti_length = self.punishment_iti_length + random.uniform(0, 1)
+        self.current_iti_length = round(self.punishment_iti_length + random.uniform(0, 1), 1)
         self.countdown_iti(self.current_iti_length)
 
     def exit_punishment_iti(self):
