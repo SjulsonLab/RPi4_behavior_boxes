@@ -98,8 +98,6 @@ class go_nogo_task(object):
                 name="reward_available",
                 on_enter=["enter_reward_available"],
                 on_exit=["exit_reward_available"],
-                timeout=self.session_info["reward_available_length"],
-                on_timeout=["start_vacuum_reward_available"],
             ),
 
             # temp1 state: temporary state to wait until vstim ends then transition to vacuum state
@@ -156,8 +154,6 @@ class go_nogo_task(object):
                 name="lick_count",
                 on_enter=["enter_lick_count"],
                 on_exit=["exit_lick_count"],
-                timeout=self.session_info["lick_count_length"],
-                on_timeout=["start_vacuum_lick_count"],
             ),
 
             # temp2 state: temporary state to wait until vstim ends and transition to vacuum state
@@ -397,8 +393,8 @@ class go_nogo_task(object):
                 self.pump.reward("left", self.session_info["reward_size"], self.session_info['reward_duration'])
                 self.time_at_reward = time.time() - self.trial_start_time
                 self.start_temp1()  # trigger state transition to temp1
-            else:
-                pass
+            elif event_name == "vstim countdown ends...":
+                self.start_vacuum_reward_available()  # trigger transition to vacuum state
 
         elif self.state == "temp1":
             # transition to vacuum state when vstim 3s countdown ends
@@ -441,8 +437,8 @@ class go_nogo_task(object):
             # otherwise, transition to vacuum after 1s
             if event_name == "left_IR_entry":
                 self.start_temp2()
-            else:
-                pass
+            elif event_name == "vstim countdown ends...":
+                self.start_vacuum_lick_count()  # trigger transition to vacuum state
 
         elif self.state == "temp2":
             if event_name == "vstim countdown ends...":
