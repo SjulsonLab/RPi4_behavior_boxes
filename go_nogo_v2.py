@@ -346,7 +346,7 @@ class go_nogo_task(object):
     # t is the length of countdown (in seconds)
     ########################################################################
     def countdown(self, t):
-        while t:
+        while t > 0:
             # mins, secs = divmod(t, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
@@ -357,13 +357,12 @@ class go_nogo_task(object):
         self.box.event_list.append("vstim countdown ends...")
 
     def countdown_iti(self, t_iti):
-        while t_iti:
+        while t_iti > 0:
             # mins, secs = divmod(t_iti, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
             time.sleep(0.1)
             t_iti -= 0.1
-        print("iti countdown ends...")
         self.box.event_list.append("iti countdown ends...")
 
     ########################################################################
