@@ -21,7 +21,6 @@ import pygame
 from pygame.locals import *
 import numpy as np
 from multiprocessing import Process, Value
-from ctypes import c_bool
 
 # all modules above this line will have logging disabled
 logging.config.dictConfig({

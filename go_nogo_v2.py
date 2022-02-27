@@ -358,8 +358,8 @@ class go_nogo_task(object):
 
     def countdown_iti(self, t_iti):
         while t_iti:
-            time.sleep(1)
-            t_iti -= 1
+            time.sleep(0.1)
+            t_iti -= 0.1
         self.box.event_list.append("iti countdown ends...")
 
     ########################################################################
@@ -479,4 +479,4 @@ class go_nogo_task(object):
     def end_session(self):
         ic("TODO: stop video")
         self.box.video_stop()
-        self.box.visualstim.myscreen.close()
+        self.box.visualstim_go.myscreen.close()

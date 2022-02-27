@@ -11,7 +11,7 @@ import pygame
 import logging
 from colorama import Fore, Style
 import pysistence, collections
-from visualstim import VisualStim
+# from visualstim import VisualStim
 from visualstim_go import VisualStim_go
 from visualstim_nogo import VisualStim_nogo
 
@@ -121,7 +121,7 @@ class BehavBox(object):
         # visual stimuli
         ###############################################################################################
         try:
-            self.visualstim = VisualStim(self.session_info)
+            # self.visualstim = VisualStim(self.session_info)
             self.visualstim_go = VisualStim_go(self.session_info)
             self.visualstim_nogo = VisualStim_nogo(self.session_info)
 
