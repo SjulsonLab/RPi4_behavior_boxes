@@ -293,10 +293,7 @@ if __name__ == "__main__":
                 plot_process = Process(target=plot_trial_progress, args=(w, phase1_trial_list, phase1_trial_outcome,
                                                                          phase1_hit_count, phase1_miss_count, phase1_cr_count,
                                                                          phase1_fa_count, lick_times, vstimON_time,))
-                start_t = time.time()
                 plot_process.start()  # no join because we do not want to wait until the plotting is finished
-                end_t = time.time()
-                print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
 
                 # Determine if Hit criterion is achieved and automatically exit
                 if w == 0:
@@ -396,10 +393,7 @@ if __name__ == "__main__":
                 plot_process = Process(target=plot_trial_progress, args=(i, trial_list, combine_trial_outcome,
                                                                          hit_count, miss_count, cr_count, fa_count,
                                                                          lick_times, vstimON_time,))
-                start_t = time.time()
                 plot_process.start()  # no join because we do not want to wait until the plotting is finished
-                end_t = time.time()
-                print('Elapsed time for plotting (in seconds) = ' + str(end_t - start_t))
 
             raise SystemExit
 
