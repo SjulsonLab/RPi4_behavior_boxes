@@ -6,6 +6,8 @@
 # This version has multiprocessing for plotting
 
 # import packages for the task
+import random
+
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
@@ -222,7 +224,8 @@ class go_nogo_task(object):
 
         # default is task not running
         self.trial_running = False
-        self.trial_plotting = False
+        self.normal_iti_length = 3.0  # in seconds
+        self.punishment_iti_length = 6.5  # in seconds
 
         # initialize behavior box
         self.box = behavbox_DT.BehavBox(self.session_info)
@@ -326,6 +329,8 @@ class go_nogo_task(object):
 
     def enter_normal_iti(self):
         logging.info(str(time.time()) + ", entering normal_iti")
+        self.current_iti_length = self.normal_iti_length + random.uniform(0, 1)
+        self.countdown_iti(self.current_iti_length)
 
     def exit_normal_iti(self):
         logging.info(str(time.time()) + ", exiting normal_iti")
@@ -333,6 +338,8 @@ class go_nogo_task(object):
 
     def enter_punishment_iti(self):
         logging.info(str(time.time()) + ", entering punishment_iti")
+        self.current_iti_length = self.punishment_iti_length + random.uniform(0, 1)
+        self.countdown_iti(self.current_iti_length)
 
     def exit_punishment_iti(self):
         logging.info(str(time.time()) + ", exiting punishment_iti")
@@ -352,6 +359,12 @@ class go_nogo_task(object):
 
         # print('vstim ends...')
         self.box.event_list.append("vstim countdown ends...")
+
+    def countdown_iti(self, t_iti):
+        while t_iti:
+            time.sleep(1)
+            t_iti -= 1
+        self.box.event_list.append("iti countdown ends...")
 
     ########################################################################
     # call the run_go() or run_nogo() method repeatedly in a while loop in the run_go_nogo script
@@ -449,10 +462,12 @@ class go_nogo_task(object):
                 self.start_punishment_iti()
 
         elif self.state == "normal_iti":
-            pass
+            if event_name == "iti countdown ends...":
+                self.return_to_standby_normal_iti()
 
         elif self.state == "punishment_iti":
-            pass
+            if event_name == "iti countdown ends...":
+                self.return_to_standby_punishment_iti()
 
         # look for keystrokes
         #self.box.check_keybd()
