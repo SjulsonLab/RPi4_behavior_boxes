@@ -132,8 +132,6 @@ class go_nogo_task(object):
                 name="normal_iti",
                 on_enter=["enter_normal_iti"],
                 on_exit=["exit_normal_iti"],
-                timeout=self.session_info["normal_iti_length"],
-                on_timeout=["return_to_standby_normal_iti"],
             ),
             ###################################### end of states for go trials ########################################
             ###########################################################################################################
@@ -174,8 +172,6 @@ class go_nogo_task(object):
                 name="punishment_iti",
                 on_enter=["enter_punishment_iti"],
                 on_exit=["exit_punishment_iti"],
-                timeout=self.session_info["punishment_iti_length"],
-                on_timeout=["return_to_standby_punishment_iti"],
             ),
             ###################################### end of states for nogo trials ######################################
             ###########################################################################################################
