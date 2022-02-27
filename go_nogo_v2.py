@@ -363,6 +363,7 @@ class go_nogo_task(object):
             # print(timer, end="\r")
             time.sleep(0.1)
             t_iti -= 0.1
+        print("iti countdown ends...")
         self.box.event_list.append("iti countdown ends...")
 
     ########################################################################
