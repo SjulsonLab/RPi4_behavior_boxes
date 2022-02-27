@@ -415,7 +415,8 @@ class go_nogo_task(object):
             self.start_normal_iti()
 
         elif self.state == "normal_iti":
-            pass
+            if event_name == "iti countdown ends...":
+                self.return_to_standby_normal_iti()
 
         # look for keystrokes
         #self.box.check_keybd()
