@@ -347,9 +347,9 @@ class go_nogo_task(object):
     ########################################################################
     def countdown(self, t):
         while t:
-            # mins, secs = divmod(t, 60)
-            # timer = '{:02d}:{:02d}'.format(mins, secs)
-            # print(timer, end="\r")
+            mins, secs = divmod(t, 60)
+            timer = '{:02d}:{:02d}'.format(mins, secs)
+            print(timer, end="\r")
             time.sleep(1)
             t -= 1
 
@@ -358,6 +358,9 @@ class go_nogo_task(object):
 
     def countdown_iti(self, t_iti):
         while t_iti:
+            mins, secs = divmod(t_iti, 60)
+            timer = '{:02d}:{:02d}'.format(mins, secs)
+            print(timer, end="\r")
             time.sleep(0.1)
             t_iti -= 0.1
         self.box.event_list.append("iti countdown ends...")
