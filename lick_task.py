@@ -115,7 +115,7 @@ class LickTask(object):
         print("entering reward_available")
         print("start white noise")
         self.box.sound1.blink(0.5, 0.1, 1)
-        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
+        # self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
         self.trial_running = True
 
     def exit_reward_available(self):
@@ -178,4 +178,4 @@ class LickTask(object):
     def end_session(self):
         ic("TODO: stop video")
         self.box.video_stop()
-        self.box.visualstim.myscreen.close()
+        # self.box.visualstim.myscreen.close()
