@@ -101,7 +101,7 @@ try:
                          str(time.time())) + ", starting_trial" +
                      str("\n############################################################"))
 
-        # task.start_trial()  # initiate the time state machine, start_trial() is a trigger
+        task.start_trial()  # initiate the time state machine, start_trial() is a trigger
 
         while task.trial_running:
             task.run()  # run command trigger additional functions outside of the state machine
