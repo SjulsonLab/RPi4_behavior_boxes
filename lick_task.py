@@ -155,10 +155,10 @@ class LickTask(object):
         elif self.state == "reward_available":
             if event_name == "left_IR_entry":
                 # self.box.sound2.blink(0.5,0.1,1)
-                self.pump.reward("1", self.session_info["reward_size"])
+                self.pump.reward("2", self.session_info["reward_size"])
                 self.active_poke()  # triggers state transition
             if event_name == "right_IR_entry":
-                self.pump.reward("3", self.session_info["reward_size"])
+                self.pump.reward("2", self.session_info["reward_size"])
                 # self.box.sound2.blink(0.5,0.1,1)
                 self.active_poke()  # triggers state transition
             if event_name == "center_IR_entry":
