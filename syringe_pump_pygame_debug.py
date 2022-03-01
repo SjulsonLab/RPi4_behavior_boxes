@@ -10,7 +10,7 @@ except Exception as error_message:
     print(str(error_message))
 
 run = True
-reward_size = 20
+reward_size = 100
 while run:
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
