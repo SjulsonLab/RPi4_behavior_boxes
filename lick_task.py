@@ -78,9 +78,11 @@ class LickTask(object):
 
         # initialize the state machine
         self.states = [
-            State(name='standby',
-                  on_enter=["enter_standby"],
-                  on_exit=["exit_standby"]),
+            Timeout(name='standby',
+                    on_enter=["enter_standby"],
+                    on_exit=["exit_standby"],
+                    timeout=self.task_information['standby_wait'],
+                    on_timeout=["start_trial"]),
             Timeout(name='cue',
                     on_enter=["enter_cue"],
                     on_exit=["exit_cue"],

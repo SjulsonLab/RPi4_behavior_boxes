@@ -27,6 +27,7 @@ task_information['reward_size'] = {'small': 5, 'large': 10}
 
 # define timeout during each condition
 task_information['initiation_timeout'] = 5  # s
+task_information['standby_wait'] = 1
 task_information['cue_timeout'] = 5
 task_information['reward_timeout'] = 5
 task_information["reward_wait"] = 5
