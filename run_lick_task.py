@@ -94,7 +94,7 @@ try:
     t_end = time.time() + 60 * t_minute
     while time.time() < t_end:
         logging.info(str("##############################\n" +
-                         str(time.time())) + ", starting_trial, " + str(i) +
+                         str(time.time())) + ", starting_trial" +
                      str("\n##############################"))
 
         task.trial_start()
