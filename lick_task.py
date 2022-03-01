@@ -114,7 +114,7 @@ class LickTask(object):
     def enter_reward_available(self):
         print("entering reward_available")
         print("start white noise")
-        self.box.sound1.blink(0.5, 0.1, 1)
+        # self.box.sound1.blink(0.5, 0.1, 1)
         # self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
         self.trial_running = True
 
@@ -123,8 +123,8 @@ class LickTask(object):
 
     def enter_cue(self):
         print("deliver reward")
-        self.box.cueLED4.on()
-        self.box.sound3.blink(0.5, 0.1, 1)
+        # self.box.cueLED4.on()
+        # self.box.sound3.blink(0.5, 0.1, 1)
         # self.pump.reward("left", self.session_info["reward_size"])
         print("start cue")
         self.box.cueLED4.off()
