@@ -1,19 +1,14 @@
-# python3: lick_task.py
-import importlib
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
 import pysistence, collections
 from icecream import ic
 import logging
-import time
 from datetime import datetime
 import os
 from gpiozero import PWMLED, LED, Button
 from colorama import Fore, Style
 import logging.config
-from time import sleep
-import random
 
 logging.config.dictConfig(
     {
@@ -25,7 +20,6 @@ logging.config.dictConfig(
 
 import behavbox
 
-
 # adding timing capability to the state machine
 @add_state_features(Timeout)
 class TimedStateMachine(Machine):
@@ -33,9 +27,7 @@ class TimedStateMachine(Machine):
 
 
 class LickTask(object):
-    # Define states. States where the animals is waited to make their decision
-
-    def __init__(self, **kwargs):  # name and task_information should be provided as kwargs
+    def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
 
         # if no name or session, make fake ones (for testing purposes)
         if kwargs.get("name", None) is None:
@@ -62,155 +54,119 @@ class LickTask(object):
         else:
             self.session_info = kwargs.get("session_info", None)
         ic(self.session_info)
-        try:
-            logging.info(str(time.time()) + ", trying to retrieve task_information from the ~/experiment_info/*")
-            full_module_name = 'task_information_lick'
-            import sys
-            task_info_path = '/home/pi/experiment_info/headfixed_task/'
-            sys.path.insert(0, task_info_path)
-            tempmod = importlib.import_module(full_module_name)
-            self.task_information = tempmod.task_information
-        except:
-            logging.info(str(time.time()) + ", failed to retrieve task_information from the default path.\n" +
-                         "Now, try to load the task_information from the local directory ...")
-            from task_information_headfixed import task_information
-            self.task_information = task_information
 
-        # initialize the state machine
+        ########################################################################
+        # Task has three possible states: standby, reward_available, and cue
+        ########################################################################
         self.states = [
-            Timeout(name='standby',
-                    on_enter=["enter_standby"],
-                    on_exit=["exit_standby"],
-                    timeout=self.task_information['standby_wait'],
-                    on_timeout=["start_trial"]),
-            Timeout(name='cue',
-                    on_enter=["enter_cue"],
-                    on_exit=["exit_cue"],
-                    timeout=self.task_information["cue_timeout"],
-                    on_timeout=["evaluate_reward"]),
-            Timeout(name='reward_available',
-                    on_enter=["enter_reward_available"],
-                    on_exit=["exit_reward_available"],
-                    timeout=self.task_information["reward_timeout"],
-                    on_timeout=["restart"])
+            State(name="standby", on_enter=["enter_standby"], on_exit=["exit_standby"]),
+            Timeout(
+                name="reward_available",
+                on_enter=["enter_reward_available"],
+                on_exit=["exit_reward_available"],
+            ),
+            Timeout(
+                name="cue",
+                on_enter=["enter_cue"],
+                on_exit=["exit_cue"],
+                timeout=self.session_info["timeout_length"],
+                on_timeout=["timeup"],
+            ),
         ]
+        # can set later with task.machine.states['cue'].timeout etc.
+
+        ########################################################################
+        # list of possible transitions between states
+        # format is: [event_name, source_state, destination_state]
+        ########################################################################
         self.transitions = [
-            ['start_trial', 'standby', 'cue'],  # format: ['trigger', 'origin', 'destination']
-            ['evaluate_reward', 'cue_state', 'reward_available'],
-            ['restart', 'reward_available', 'standby']
+            ["trial_start", "standby", "reward_available"],
+            ["active_poke", "reward_available", "cue"],
+            ["timeup", "cue", "standby"],
         ]
 
+        ########################################################################
+        # initialize state machine and behavior box
+        ########################################################################
         self.machine = TimedStateMachine(
             model=self,
             states=self.states,
             transitions=self.transitions,
-            initial='standby'
+            initial="standby",
         )
         self.trial_running = False
-        self.trial_number = 0
-        self.restart_flag = False
 
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
         self.pump = behavbox.Pump()
-        self.treadmill = self.box.treadmill
 
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
+    def enter_standby(self):
+        print("entering standby")
+        # self.box.sound2.blink(0.5, 0.1, 1)
+        self.trial_running = False
+
+    def exit_standby(self):
+        pass
+
+    def enter_reward_available(self):
+        print("entering reward_available")
+        print("start white noise")
+        self.box.sound1.blink(0.5, 0.1, 1)
+        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
+        self.trial_running = True
+
+    def exit_reward_available(self):
+        print("stop white noise")
+
+    def enter_cue(self):
+        print("deliver reward")
+        self.box.cueLED4.on()
+        self.box.sound3.blink(0.5, 0.1, 1)
+        # self.pump.reward("left", self.session_info["reward_size"])
+        print("start cue")
+        self.box.cueLED4.off()
+        # self.box.cueLED1.on()
+
+
+    def exit_cue(self):
+        print("stop cue")
+        # self.box.sound3.blink(0.5, 0.1, 1)
+        # self.box.cueLED1.off()
+
+    ########################################################################
+    # call the run() method repeatedly in a while loop in the main session
+    # script it will process all detected events from the behavior box (e.g.
+    # nosepokes and licks) and trigger the appropriate state transitions
+    ########################################################################
     def run(self):
+
+        # read in name of an event the box has detected
         if self.box.event_list:
             event_name = self.box.event_list.popleft()
         else:
             event_name = ""
+
         if self.state == "standby":
             pass
-        elif self.restart_flag:
-            self.restart()
+
         elif self.state == "reward_available":
-            # first detect the lick signal:
-            side_mice = None
             if event_name == "left_IR_entry":
-                side_mice = 'left'
-            elif event_name == "right_IR_entry":
-                side_mice = 'right'
-            if side_mice:
-                reward_size = self.task_information['reward_size']['small']
-                self.pump.reward(side_mice, reward_size)
-                self.restart()
-            else:
-                pass
+                # self.box.sound2.blink(0.5,0.1,1)
+                self.pump.reward("1", self.session_info["reward_size"])
+                self.active_poke()  # triggers state transition
+            if event_name == "right_IR_entry":
+                self.pump.reward("3", self.session_info["reward_size"])
+                # self.box.sound2.blink(0.5,0.1,1)
+                self.active_poke()  # triggers state transition
+        elif self.state == "cue":
+            # self.box.sound3.blink(0.5, 0.1, 1)
+            pass
+
         # look for keystrokes
         self.box.check_keybd()
-
-    def enter_standby(self):
-        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering standby, prepare to start the trial...")
-        self.trial_running = False
-        if self.restart_flag:
-            time.sleep(self.task_information["punishment_timeout"])
-            # pass
-        else:
-            time.sleep(self.task_information["reward_wait"])
-
-    def exit_standby(self):
-        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting standby")
-        self.trial_number += 1
-        pass
-
-    def enter_cue(self):
-        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering cue state")
-        # pass the initial check and now officially entering the cue state step
-        self.check_cue(None)
-
-    def exit_cue(self):
-        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting cue state")
-
-    def enter_reward_available(self):
-        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering reward available")
-        if not self.restart_flag:
-            self.cue_off(None)
-
-    def exit_reward_available(self):
-        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting reward available")
-        pass
-
-    def check_cue(self, cue):
-        if cue == 'sound':
-            self.box.sound1.on()  # could be modify according to specific sound cue
-            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 on")
-        elif cue == 'LED':
-            self.box.cueLED1.on()
-            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 on")
-        elif cue == 'sound+LED':
-            self.box.sound1.on()
-            self.box.cueLED1.on()
-            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 on (free choice)")
-        else:
-            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", silent cue (no cue)")
-            pass
-
-    def cue_off(self, cue):
-        if cue == 'sound':
-            self.box.sound1.off()  # could be modify according to specific sound cue
-            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 off")
-        elif cue == 'LED':
-            self.box.cueLED1.off()
-            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 off")
-        elif cue == 'sound+LED':
-            self.box.sound1.off()
-            self.box.cueLED1.off()
-            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 off (free choice)")
-        else:
-            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", silent cue (no cue) off")
-            pass
-
-    # def check_distance(self, distance_t1, distance_t0, distance_required):
-    #     distance_diff = distance_t1 - distance_t0
-    #     if distance_diff >= distance_required:
-    #         pass
-    #     else:
-    #         return False
-    #     return True
 
     ########################################################################
     # methods to start and end the behavioral session
@@ -222,3 +178,4 @@ class LickTask(object):
     def end_session(self):
         ic("TODO: stop video")
         self.box.video_stop()
+        self.box.visualstim.myscreen.close()

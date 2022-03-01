@@ -21,7 +21,6 @@ import pygame
 from colorama import Fore, Style
 import time
 from time import sleep
-
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
     'version': 1,
@@ -31,7 +30,6 @@ logging.config.dictConfig({
 if debug_enable:
     # enabling debugger
     from IPython import get_ipython
-
     ipython = get_ipython()
     ipython.magic("pdb on")
     ipython.magic("xmode Verbose")
@@ -47,9 +45,8 @@ try:
     timestr = datetime.now().strftime('%H%M%S')
     full_module_name = 'session_info_' + datestr
     import sys
-
-    session_info_path = '/home/pi/experiment_info/headfixed_task/session_info'
-    sys.path.insert(0, session_info_path)
+    task_info_path = '/home/pi/experiment_info/headfixed_task/session_info'
+    sys.path.insert(0, task_info_path)
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
     mouse_info = tempmod.mouse_info
@@ -64,6 +61,7 @@ try:
         print('wrong date!!')
         raise RuntimeError('manual_date field in session_info file is not updated')
 
+
     # make data directory and initialize logfile
     os.makedirs(session_info['dir_name'])
     os.chdir(session_info['dir_name'])
@@ -76,35 +74,33 @@ try:
         datefmt=('%H:%M:%S'),
         handlers=[
             logging.FileHandler(session_info['file_basename'] + '.log'),
-            logging.StreamHandler()  # sends copy of log output to screen
+            logging.StreamHandler() # sends copy of log output to screen
         ]
     )
 
     # initiate task object\
-    from task_information_lick import task_information
-
-    task = LickTask(name="headfixed_task", session_info=session_info)
+    task = LickTask(name="head_fxied_lick", session_info=session_info)
 
     # # you can change various parameters if you want
     # task.machine.states['cue'].timeout = 2
 
     # start session
     task.start_session()
-    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
-    pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
+    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
+    pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
     sleep(10)
     # loop over trials
-    t_length_in_minutes = 20  # minutes
-    t_end = time.time() + 60 * t_length_in_minutes
+    t_minute = 20
+    t_end = time.time() + 60 * t_minute
     while time.time() < t_end:
-        logging.info(str("############################################################\n" +
-                         str(time.time())) + ", starting_trial" +
-                     str("\n############################################################"))
+        logging.info(str("##############################\n" +
+                         str(time.time())) + ", starting_trial, " + str(i) +
+                     str("\n##############################"))
 
-        task.start_trial()  # initiate the time state machine, start_trial() is a trigger
+        task.trial_start()
 
         while task.trial_running:
-            task.run()  # run command trigger additional functions outside of the state machine
+            task.run()
 
     raise SystemExit
 
@@ -115,9 +111,10 @@ except (KeyboardInterrupt, SystemExit):
     task.end_session()
     ic('just called end_session()')
     # save dicts to disk
-    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
-    pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
+    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
+    pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
     pygame.quit()
+
 
 # # exit because of error
 # except (RuntimeError) as ex:
@@ -125,3 +122,7 @@ except (KeyboardInterrupt, SystemExit):
 #     # save dicts to disk
 #     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
 #     pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
+
+
+
+
