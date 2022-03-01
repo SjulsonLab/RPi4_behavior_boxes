@@ -441,6 +441,7 @@ class Pump(object):
         self.pump3 = LED(21)
         self.pump4 = LED(8)
         self.pump5 = LED(7)
+        self.pump_en = LED(25)
 
         ###############################################################################################
         # syringe pumps
