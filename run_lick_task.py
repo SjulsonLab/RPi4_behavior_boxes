@@ -90,7 +90,7 @@ try:
     pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
     sleep(10)
     # loop over trials
-    t_minute = int(input("Enter the time in minutes: ")) + duration_buffer
+    t_minute = int(input("Enter the time in minutes: "))
     # t_minute = 20
     t_end = time.time() + 60 * t_minute
     duration_buffer = 10
