@@ -465,7 +465,7 @@ class Pump(object):
         # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
         # // round to nearest int
         totalSteps = round(200 * howManyRevolutions * 4)
-        reward_duration = 250  # delivery reward over 300 ms
+        reward_duration = 0.25  # delivery reward over 300 ms
         cycle_length = (
                 reward_duration / totalSteps
         )  # need to know what the minimum value can be
