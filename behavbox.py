@@ -199,10 +199,13 @@ class BehavBox(object):
                         self.keyboard_active = False
                     elif event.key == pygame.K_1:
                         self.left_IR_entry()
+                        logging.info(str(time.time()) + ", key_pressed_left_IR_entry()")
                     elif event.key == pygame.K_2:
                         self.center_IR_entry()
+                        logging.info(str(time.time()) + ", key_pressed_center_IR_entry()")
                     elif event.key == pygame.K_3:
                         self.right_IR_entry()
+                        logging.info(str(time.time()) + ", key_pressed_right_IR_entry()")
                     elif event.key == pygame.K_q:
                         # print("Q down: syringe pump 1 moves")
                         logging.info(str(time.time()) + ", key_pressed_q")
