@@ -349,6 +349,7 @@ class go_nogo_task(object):
             t -= 1
 
         # print('vstim ends...')
+        logging.info(str(time.time()) + ", vstim countdown ends...")
         self.box.event_list.append("vstim countdown ends...")
 
     def countdown_iti(self, t_iti):
@@ -358,6 +359,7 @@ class go_nogo_task(object):
             # print(timer, end="\r")
             time.sleep(0.1)
             t_iti -= 0.1
+        logging.info(str(time.time()) + ", iti countdown ends...")
         self.box.event_list.append("iti countdown ends...")
 
     ########################################################################
@@ -390,6 +392,7 @@ class go_nogo_task(object):
             # if lick is detected, delivery reward then transition to temp1 immediately
             # otherwise transition to vacuum after 1s
             if event_name == "left_IR_entry":
+                print('it recognizes left_IR_entry!!')
                 self.pump.reward("left", self.session_info["reward_size"], self.session_info['reward_duration'])
                 self.time_at_reward = time.time() - self.trial_start_time
                 self.start_temp1()  # trigger state transition to temp1
