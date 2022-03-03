@@ -339,16 +339,18 @@ class go_nogo_task(object):
     # t is the length of countdown (in seconds)
     ########################################################################
     def countdown(self, t):
+        logging.info(str(time.time()) + ", 1s countdown starts...")
         while t > 0:
             # mins, secs = divmod(t, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
-            time.sleep(0.2)
-            t -= 0.2
+            time.sleep(0.1)
+            t -= 0.1
         logging.info(str(time.time()) + ", 1s countdown ends...")
         self.box.event_list.append("1s countdown ends...")
 
     def countdown_iti(self, t_iti):
+        logging.info(str(time.time()) + ", iti countdown starts...")
         while t_iti > 0:
             # mins, secs = divmod(t_iti, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
