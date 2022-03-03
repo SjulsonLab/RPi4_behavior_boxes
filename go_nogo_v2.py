@@ -255,8 +255,6 @@ class go_nogo_task(object):
         self.box.visualstim_go.show_grating(list(self.box.visualstim_go.gratings)[0])
         logging.info(str(time.time()) + ", vstim_go ON!")
         self.time_at_vstim_ON = time.time() - self.trial_start_time
-        # start the countdown of time since display of vstim (3s), used to determine transition to vacuum
-        self.countdown(3)
 
     def exit_vstim_go(self):
         logging.info(str(time.time()) + ", exiting lockout period")
@@ -267,8 +265,6 @@ class go_nogo_task(object):
         self.box.visualstim_nogo.show_grating(list(self.box.visualstim_nogo.gratings)[0])
         logging.info(str(time.time()) + ", vstim_nogo ON!")
         self.time_at_vstim_ON = time.time() - self.trial_start_time
-        # start the countdown of time since display of vstim (3s), used to determine transition to vacuum
-        self.countdown(3)
 
     def exit_vstim_nogo(self):
         logging.info(str(time.time()) + ", exiting lockout period")
@@ -276,6 +272,7 @@ class go_nogo_task(object):
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
         self.trial_outcome = 2  # Miss!!
+        self.countdown(1)
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
@@ -283,6 +280,7 @@ class go_nogo_task(object):
     def enter_lick_count(self):
         logging.info(str(time.time()) + ", entering lick_count")
         self.trial_outcome = 3  # CR!
+        self.countdown(1)
 
     def exit_lick_count(self):
         logging.info(str(time.time()) + ", exiting lick_count")
@@ -345,12 +343,10 @@ class go_nogo_task(object):
             # mins, secs = divmod(t, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
-            time.sleep(1)
-            t -= 1
-
-        # print('vstim ends...')
-        logging.info(str(time.time()) + ", vstim countdown ends...")
-        self.box.event_list.append("vstim countdown ends...")
+            time.sleep(0.2)
+            t -= 0.2
+        logging.info(str(time.time()) + ", 1s countdown ends...")
+        self.box.event_list.append("1s countdown ends...")
 
     def countdown_iti(self, t_iti):
         while t_iti > 0:
@@ -392,18 +388,16 @@ class go_nogo_task(object):
             # if lick is detected, delivery reward then transition to temp1 immediately
             # otherwise transition to vacuum after 1s
             if event_name == "left_IR_entry":
-                print('it recognizes left_IR_entry!!')
                 self.pump.reward("left", self.session_info["reward_size"], self.session_info['reward_duration'])
                 self.time_at_reward = time.time() - self.trial_start_time
                 self.start_temp1()  # trigger state transition to temp1
 
-            if event_name == "vstim countdown ends...":
-                print('it recognizes countdown ending!')
+            elif event_name == "1s countdown ends...":
                 self.start_vacuum_reward_available()  # trigger transition to vacuum state
 
         elif self.state == "temp1":
             # transition to vacuum state when vstim 3s countdown ends
-            if event_name == "vstim countdown ends...":
+            if event_name == "1s countdown ends...":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
                 self.start_vacuum_temp1()
 
@@ -442,11 +436,12 @@ class go_nogo_task(object):
             # otherwise, transition to vacuum after 1s
             if event_name == "left_IR_entry":
                 self.start_temp2()
-            elif event_name == "vstim countdown ends...":
+
+            elif event_name == "1s countdown ends...":
                 self.start_vacuum_lick_count()  # trigger transition to vacuum state
 
         elif self.state == "temp2":
-            if event_name == "vstim countdown ends...":
+            if event_name == "1s countdown ends...":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
                 self.start_vacuum_temp2()
 
