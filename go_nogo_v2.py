@@ -396,7 +396,9 @@ class go_nogo_task(object):
                 self.pump.reward("left", self.session_info["reward_size"], self.session_info['reward_duration'])
                 self.time_at_reward = time.time() - self.trial_start_time
                 self.start_temp1()  # trigger state transition to temp1
-            elif event_name == "vstim countdown ends...":
+
+            if event_name == "vstim countdown ends...":
+                print('it recognizes countdown ending!')
                 self.start_vacuum_reward_available()  # trigger transition to vacuum state
 
         elif self.state == "temp1":
