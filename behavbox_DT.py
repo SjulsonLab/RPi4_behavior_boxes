@@ -403,7 +403,6 @@ class Pump(object):
         self.pump_en = LED(25)  # pump enable
 
     def reward(self, which_pump, reward_size, reward_duration):
-        print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
         diameter_mm = 12.06  # for 5 mL syringe
         # diameter_mm = 14.5   # for 10 mL syringe
         volPerRevolution_uL = (
