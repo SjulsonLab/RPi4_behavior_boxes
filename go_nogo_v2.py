@@ -304,11 +304,11 @@ class go_nogo_task(object):
 
     def enter_vacuum(self):
         logging.info(str(time.time()) + ", entering vacuum")
-        self.box.vacuum_on()
+        self.box.cueLED1.on()
 
     def exit_vacuum(self):
         logging.info(str(time.time()) + ", exiting vacuum")
-        self.box.vacuum_off()
+        self.box.cueLED1.off()
 
     def enter_assessment(self):
         logging.info(str(time.time()) + ", entering assessment")
