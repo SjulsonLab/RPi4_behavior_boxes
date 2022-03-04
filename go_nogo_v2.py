@@ -321,7 +321,7 @@ class go_nogo_task(object):
         self.adding_iti_time = round(random.uniform(0, 1), 1)
         self.current_iti_length = self.normal_iti_length + self.adding_iti_time
         logging.info(str(time.time()) + ", " + str(self.adding_iti_time) + " added to iti length")
-        logging.info(str(time.time()) + ", calculated remaining iti time " + str(self.current_iti_length))
+        logging.info(str(time.time()) + ", calculated remaining iti length " + str(self.current_iti_length))
         self.countdown_iti(self.current_iti_length)
 
     def exit_normal_iti(self):
@@ -333,7 +333,7 @@ class go_nogo_task(object):
         self.adding_iti_time = round(random.uniform(0, 1), 1)
         self.current_iti_length = self.normal_iti_length + self.adding_iti_time
         logging.info(str(time.time()) + ", " + str(self.adding_iti_time) + " added to iti length")
-        logging.info(str(time.time()) + ", calculated remaining iti time " + str(self.current_iti_length))
+        logging.info(str(time.time()) + ", calculated remaining iti length " + str(self.current_iti_length))
         self.countdown_iti(self.current_iti_length)
 
     def exit_punishment_iti(self):
