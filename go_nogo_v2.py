@@ -216,8 +216,8 @@ class go_nogo_task(object):
 
         # default is task not running
         self.trial_running = False
-        self.normal_iti_length = 3.0  # in seconds
-        self.punishment_iti_length = 6.5  # in seconds
+        self.normal_iti_length = self.session_info["normal_iti_length"]  # in seconds
+        self.punishment_iti_length = self.session_info['punishment_iti_length']  # in seconds
 
         # initialize behavior box
         self.box = behavbox_DT.BehavBox(self.session_info)
@@ -319,7 +319,7 @@ class go_nogo_task(object):
     def enter_normal_iti(self):
         logging.info(str(time.time()) + ", entering normal_iti")
         self.current_iti_length = round(self.normal_iti_length + random.uniform(0, 1), 1)
-        logging.info(str(time.time()) + ", iti length is " + str(self.current_iti_length))
+        logging.info(str(time.time()) + ", calculated remaining iti time " + str(self.current_iti_length))
         self.countdown_iti(self.current_iti_length)
 
     def exit_normal_iti(self):
@@ -329,7 +329,7 @@ class go_nogo_task(object):
     def enter_punishment_iti(self):
         logging.info(str(time.time()) + ", entering punishment_iti")
         self.current_iti_length = round(self.punishment_iti_length + random.uniform(0, 1), 1)
-        logging.info(str(time.time()) + ", iti length is " + str(self.current_iti_length))
+        logging.info(str(time.time()) + ", calculated remaining iti time " + str(self.current_iti_length))
         self.countdown_iti(self.current_iti_length)
 
     def exit_punishment_iti(self):
