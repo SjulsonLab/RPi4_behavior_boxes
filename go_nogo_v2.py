@@ -272,7 +272,7 @@ class go_nogo_task(object):
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
         self.trial_outcome = 2  # Miss!!
-        self.countdown(0.8)
+        self.countdown(1)
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
@@ -280,7 +280,7 @@ class go_nogo_task(object):
     def enter_lick_count(self):
         logging.info(str(time.time()) + ", entering lick_count")
         self.trial_outcome = 3  # CR!
-        self.countdown(0.8)
+        self.countdown(1)
 
     def exit_lick_count(self):
         logging.info(str(time.time()) + ", exiting lick_count")
@@ -346,8 +346,8 @@ class go_nogo_task(object):
             # mins, secs = divmod(t, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
-            time.sleep(0.1)
-            t -= 0.1
+            time.sleep(1)
+            t -= 1
         logging.info(str(time.time()) + ", 1s countdown ends...")
         self.box.event_list.append("1s countdown ends...")
 
