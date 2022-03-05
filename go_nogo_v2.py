@@ -251,6 +251,7 @@ class go_nogo_task(object):
 
     def enter_vstim_go(self):
         self.trial_running = True
+        self.trial_type = "go"
         logging.info(str(time.time()) + ", initializing vstim_go")
         self.box.visualstim_go.show_grating(list(self.box.visualstim_go.gratings)[0])
         logging.info(str(time.time()) + ", vstim_go ON!")
@@ -261,6 +262,7 @@ class go_nogo_task(object):
 
     def enter_vstim_nogo(self):
         self.trial_running = True
+        self.trial_type = "no_go"
         logging.info(str(time.time()) + ", initializing vstim_nogo")
         self.box.visualstim_nogo.show_grating(list(self.box.visualstim_nogo.gratings)[0])
         logging.info(str(time.time()) + ", vstim_nogo ON!")
@@ -304,7 +306,10 @@ class go_nogo_task(object):
 
     def enter_vacuum(self):
         logging.info(str(time.time()) + ", entering vacuum")
-        self.box.cueLED1.on()
+        if self.trial_type == "go":
+            self.box.cueLED1.on()
+        elif self.trial_type == "no_go":
+            pass
 
     def exit_vacuum(self):
         logging.info(str(time.time()) + ", exiting vacuum")
