@@ -313,7 +313,10 @@ class go_nogo_task(object):
 
     def exit_vacuum(self):
         logging.info(str(time.time()) + ", exiting vacuum")
-        self.box.cueLED1.off()
+        if self.trial_type == "go":
+            self.box.cueLED1.off()
+        elif self.trial_type == "no_go":
+            pass
 
     def enter_assessment(self):
         logging.info(str(time.time()) + ", entering assessment")
