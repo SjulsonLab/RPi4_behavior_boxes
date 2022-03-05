@@ -306,6 +306,7 @@ class go_nogo_task(object):
 
     def enter_vacuum(self):
         logging.info(str(time.time()) + ", entering vacuum")
+        # Only turns on the vacuum if it's a go trial
         if self.trial_type == "go":
             self.box.cueLED1.on()
         elif self.trial_type == "no_go":
@@ -353,6 +354,7 @@ class go_nogo_task(object):
     # t is the length of countdown (in seconds)
     ########################################################################
     def countdown(self, t):
+        # This counts down the length of reward_available or lick_count duration (1s)
         logging.info(str(time.time()) + ", 1s countdown starts...")
         while t > 0:
             # mins, secs = divmod(t, 60)
@@ -364,6 +366,7 @@ class go_nogo_task(object):
         self.box.event_list.append("1s countdown ends...")
 
     def countdown_iti(self, t_iti):
+        # This counts down iti of variable lengths
         logging.info(str(time.time()) + ", iti countdown starts...")
         while t_iti > 0:
             # mins, secs = divmod(t_iti, 60)
