@@ -429,7 +429,7 @@ if __name__ == "__main__":
 
                 else:
                     hitp = (hit_count[i]/(hit_count[i]+miss_count[i]))*100
-                    if i < 2:
+                    if i < 3 and trial_ident == "go_trial":
                         fap = 0
                     else:
                         fap = (fa_count[i]/(fa_count[i]+cr_count[i]))*100
