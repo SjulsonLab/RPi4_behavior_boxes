@@ -10,6 +10,7 @@ import pygame
 from colorama import Fore, Style
 import time
 import random
+from scipy.stats import norm
 
 # import packages for starting a new process and plotting trial progress in real time
 # RPi4 does not have a graphical interface, we use pygame with backends for plotting
@@ -40,7 +41,7 @@ from go_nogo_v2 import go_nogo_task
 
 # define the plotting function here
 def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_count, miss_count,
-                        cr_count, fa_count, lick_times, vstimON_time):
+                        cr_count, fa_count, lick_times, vstimON_time, plot_dprime, dprimebinp):
     ########################################################################
     # initialize the figure
     ########################################################################
@@ -163,6 +164,15 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     # create the d' figure
     ########################################################################
 
+    if plot_dprime == True:
+        ax4_x_values = np.linspace(0, current_trial, num=current_trial + 1)
+        ax4_y_values = dprimebinp[0:current_trial]
+        ax4.plot(ax4_x_values, ax4_y_values, 'r-')
+        ax4.set_title('D-prime', fontsize=11)
+        ax4.set_xlim([0, current_trial + 1])
+        ax4.set_xlabel('Current trial', fontsize=9)
+        ax4.set_ylabel('dprime', fontsize=9)
+        ax4.legend()
 
     ########################################################################
     # draw on canvas to display via pygame
@@ -239,6 +249,7 @@ if __name__ == "__main__":
         miss_count = [0 for o in range(session_info["number_of_trials"])]
         cr_count = [0 for o in range(session_info["number_of_trials"])]
         fa_count = [0 for o in range(session_info["number_of_trials"])]
+        dprimebinp = [0 for o in range(session_info["number_of_trials"])]
 
         phase1_trial_list = list(range(0, session_info["number_of_phase1_trials"]))
         phase1_trial_outcome = ["" for o in range(session_info['number_of_phase1_trials'])]
@@ -289,9 +300,11 @@ if __name__ == "__main__":
                 vstimON_time = task.time_at_vstim_ON
 
                 # Starting a new process for plotting
+                plot_dprime = False
                 plot_process = Process(target=plot_trial_progress, args=(w, phase1_trial_list, phase1_trial_outcome,
                                                                          phase1_hit_count, phase1_miss_count, phase1_cr_count,
-                                                                         phase1_fa_count, lick_times, vstimON_time,))
+                                                                         phase1_fa_count, lick_times, vstimON_time, plot_dprime,
+                                                                         dprimebinp))
                 plot_process.start()  # no join because we do not want to wait until the plotting is finished
 
                 # Determine if Hit criterion is achieved and automatically exit
@@ -388,10 +401,57 @@ if __name__ == "__main__":
                 reward_time = task.time_at_reward
                 vstimON_time = task.time_at_vstim_ON
 
+                # Calculate dprime
+                binsize = 30
+
+                if i > (binsize-1):
+                    hitbin = hit_count[i] - hit_count[i-binsize]
+                    missbin = miss_count[i] - miss_count[i-binsize]
+                    crs = cr_count[i] - cr_count[i-binsize]
+                    fas = fa_count[i] - fa_count[i-binsize]
+                    crsp = (crs/(crs+fas))*100
+                    hitsp = (hitbin/(hitbin+missbin))*100
+                    dhit = hitsp/100
+                    dfa = (100-crsp)/100
+
+                    if dhit == 1:
+                        dhit = 0.99
+                    elif dhit == 0:
+                        dhit = 0.01
+
+                    if dfa == 0:
+                        dfa = 0.01
+                    elif dfa == 1:
+                        dfa = 0.99
+
+                    # get the inverse of the standard normal cumulative distribution function (cdf)
+                    dprimebinp[i] = norm.ppf(dhit) - norm.ppf(dfa)
+
+                else:
+                    hitp = (hit_count[i]/(hit_count[i]+miss_count[i]))*100
+                    fap = (fa_count[i]/(fa_count[i]+cr_count[i]))*100
+                    dhit = hitp/100
+                    dfa = fap/100
+
+                    if dhit == 1:
+                        dhit = 0.99
+                    elif dhit == 0:
+                        dhit = 0.01
+
+                    if dfa == 0:
+                        dfa = 0.01
+                    elif dfa == 1:
+                        dfa = 0.99
+
+                    # get the inverse of the standard normal cumulative distribution function (cdf)
+                    dprimebinp[i] = norm.ppf(dhit) - norm.ppf(dfa)
+
                 # Starting a new process for plotting
+                plot_dprime = True
                 plot_process = Process(target=plot_trial_progress, args=(i, trial_list, combine_trial_outcome,
                                                                          hit_count, miss_count, cr_count, fa_count,
-                                                                         lick_times, vstimON_time,))
+                                                                         lick_times, vstimON_time, plot_dprime,
+                                                                         dprimebinp,))
                 plot_process.start()  # no join because we do not want to wait until the plotting is finished
 
             raise SystemExit
