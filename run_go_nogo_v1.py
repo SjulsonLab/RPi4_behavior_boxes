@@ -171,7 +171,6 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
         ax4.set_title('D-prime', fontsize=11)
         ax4.set_xlim([0, current_trial + 1])
         ax4.set_xlabel('Current trial', fontsize=9)
-        ax4.set_ylabel('dprime', fontsize=9)
         ax4.legend()
 
     ########################################################################
