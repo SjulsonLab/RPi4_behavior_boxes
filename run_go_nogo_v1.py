@@ -429,7 +429,10 @@ if __name__ == "__main__":
 
                 else:
                     hitp = (hit_count[i]/(hit_count[i]+miss_count[i]))*100
-                    fap = (fa_count[i]/(fa_count[i]+cr_count[i]))*100
+                    if i < 2:
+                        fap = 0
+                    else:
+                        fap = (fa_count[i]/(fa_count[i]+cr_count[i]))*100
                     dhit = hitp/100
                     dfa = fap/100
 
