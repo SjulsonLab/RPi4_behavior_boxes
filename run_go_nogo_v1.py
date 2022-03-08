@@ -71,6 +71,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
             f"trial {trial_list[12]} : {combine_trial_outcome[12]}",
             f"trial {trial_list[13]} : {combine_trial_outcome[13]}",
             f"trial {trial_list[14]} : {combine_trial_outcome[14]}",
+            f"percent hit : {(hit_count[current_trial]/(hit_count[current_trial] + miss_count[current_trial]))}",
             f" "))
 
     elif current_trial >= 15:
@@ -90,6 +91,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
             f"trial {trial_list[12 + (current_trial - 14)]} : {combine_trial_outcome[12 + (current_trial - 14)]}",
             f"trial {trial_list[13 + (current_trial - 14)]} : {combine_trial_outcome[13 + (current_trial - 14)]}",
             f"trial {trial_list[14 + (current_trial - 14)]} : {combine_trial_outcome[14 + (current_trial - 14)]}",
+            f"percent hit : {(hit_count[current_trial] / (hit_count[current_trial] + miss_count[current_trial]))}",
             f" "))
 
     ax1.set_title('Trial Outcome', fontsize=11)
@@ -267,7 +269,15 @@ if __name__ == "__main__":
         go_nums = 0
         nogo_nums = 0
 
-        if training_phase == "phase1":
+        if training_phase == "phase0":
+            # phase 0 is the first day of training (after habituation)
+            while training_phase == "phase0":
+                task.bait_phase0()
+                if task.deliver_reward == "p":
+                    training_phase = "phase1"
+                    break
+
+        elif training_phase == "phase1":
             # phase 1 of training is all go trials
             # print if hit_criterion is achieved
             for w in range(session_info['number_of_phase1_trials']):

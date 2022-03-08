@@ -349,6 +349,13 @@ class go_nogo_task(object):
         logging.info(str(time.time()) + ", exiting punishment_iti")
         self.trial_plotting = False  # stop plotting when exiting ITI
 
+    def bait_phase0(self):
+        # This function asks the user to input whether they want reward delivery
+        # If y, deliver reward
+        self.deliver_reward = input("Deliver reward or phase1? (r or p): \n")
+        if self.deliver_reward == "r":
+            self.pump.reward("left", self.session_info["reward_size"], self.session_info['reward_duration'])
+
     ########################################################################
     # countdown methods to run when vstim starts to play, used as timers since vstim starts
     # t is the length of countdown (in seconds)
