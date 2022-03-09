@@ -41,9 +41,9 @@ task_information['block'] = {}
 task_information['block'][1] = [
     # block_1 forced component
     (1, 0, 0, 1),  # forced choice block 1
-    (1, 1, 1, 1),  # 0, 1 index for corresponding condition setup
-    (0, 0, 1, 0),  # column 0 is cue, 1 is state, 2 is choice, 3 is reward_amount
-    (0, 1, 0, 0)#,  # each row is a combination of the condition parameter for block 1
+    (1, 1, 1, 1)#,  # 0, 1 index for corresponding condition setup
+    #(0, 0, 1, 0),  # column 0 is cue, 1 is state, 2 is choice, 3 is reward_amount
+    #(0, 1, 0, 0)#,  # each row is a combination of the condition parameter for block 1
     # # block_1 free component
     # (2, 0, 0, 1),  # free choice block 1
     # (2, 0, 1, 0),  # 0, 1 index for corresponding condition setup, 2 in column 0
@@ -54,9 +54,9 @@ task_information['block'][1] = [
 task_information['block'][2] = [
     # block_2 forced component
     (1, 0, 0, 0),  # forced choice block 2
-    (1, 1, 1, 0),  # 0, 1 index for corresponding condition setup
-    (0, 0, 1, 1),  # column 0 is cue, 1 is state, 2 is choice, 3 is reward_amount
-    (0, 1, 0, 1)#,  # each row is a combination of the condition parameter for block 1
+    (1, 1, 1, 0)#,  # 0, 1 index for corresponding condition setup
+    #(0, 0, 1, 1),  # column 0 is cue, 1 is state, 2 is choice, 3 is reward_amount
+    #(0, 1, 0, 1)#,  # each row is a combination of the condition parameter for block 1
     # # block_2 free component
     # (2, 0, 0, 0),  # free choice block 2
     # (2, 0, 1, 1),  # 0, 1 index for corresponding condition setup, None in column 0
@@ -65,10 +65,11 @@ task_information['block'][2] = [
     ]
 
 # define block_duration and initial block to start the session
-block_duration = 2  # each block has this amount of repetition
-block_variety = 2
-if block_variety > 1:
-    initial_block = 1
+block_duration = 1  # each block has this amount of repetition
+block_variety = 1
+initial_block = 1
+if initial_block is False:
+    initial_block = random.randrange(1, 2)
 
 # now shuffle and make a deck for this session
 # shuffle requirement
@@ -110,12 +111,12 @@ def generate_deck(duration, consecutive_permit, repetition_max):
     row_buffer = -1
     deck_list = []
     for iteration in range(duration):
-        row_index = random.randrange(0, 4) # for forced choice only
+        row_index = random.randrange(0, 2) # for forced choice only
         # row_index = random.randrange(0, 8)
         while True:
             if row_index == row_buffer and consecutive_permit:
                 if consecutive_count >= repetition_max:
-                    row_index = random.randrange(0, 4) # for forced choice only
+                    row_index = random.randrange(0, 2) # for forced choice only
                     # row_index = random.randrange(0, 8)
                 else:
                     break
