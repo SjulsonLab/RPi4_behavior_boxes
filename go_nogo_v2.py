@@ -309,15 +309,13 @@ class go_nogo_task(object):
         # Only turns on the vacuum if it's a go trial
         if self.trial_type == "go":
             self.box.cueLED1.on()
-        elif self.trial_type == "no_go":
-            pass
+            logging.info(str(time.time()) + ", vacuum ON!")
 
     def exit_vacuum(self):
         logging.info(str(time.time()) + ", exiting vacuum")
         if self.trial_type == "go":
             self.box.cueLED1.off()
-        elif self.trial_type == "no_go":
-            pass
+            logging.info(str(time.time()) + ", vacuum OFF")
 
     def enter_assessment(self):
         logging.info(str(time.time()) + ", entering assessment")
