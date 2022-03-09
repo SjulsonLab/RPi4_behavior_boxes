@@ -53,7 +53,7 @@ class BehavBox(object):
         # below are all the pin numbers for Yi's breakout board
         # cue LEDs - setting PWM frequency of 200 Hz
         ###############################################################################################
-        self.cueLED1 = BoxLED(22, frequency=100)
+        self.cueLED1 = BoxLED(22, frequency=200)
         self.cueLED2 = BoxLED(18, frequency=200)
         self.cueLED3 = BoxLED(17, frequency=200)
         self.cueLED4 = BoxLED(14, frequency=200)
