@@ -70,7 +70,6 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
             f"trial {trial_list[11]} : {combine_trial_outcome[11]}",
             f"trial {trial_list[12]} : {combine_trial_outcome[12]}",
             f"trial {trial_list[13]} : {combine_trial_outcome[13]}",
-            f"trial {trial_list[14]} : {combine_trial_outcome[14]}",
             f"percent hit : {(hit_count[current_trial]/(hit_count[current_trial] + miss_count[current_trial]))}",
             f" "))
 
@@ -90,7 +89,6 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
             f"trial {trial_list[11 + (current_trial - 14)]} : {combine_trial_outcome[11 + (current_trial - 14)]}",
             f"trial {trial_list[12 + (current_trial - 14)]} : {combine_trial_outcome[12 + (current_trial - 14)]}",
             f"trial {trial_list[13 + (current_trial - 14)]} : {combine_trial_outcome[13 + (current_trial - 14)]}",
-            f"trial {trial_list[14 + (current_trial - 14)]} : {combine_trial_outcome[14 + (current_trial - 14)]}",
             f"percent hit : {(hit_count[current_trial] / (hit_count[current_trial] + miss_count[current_trial]))}",
             f" "))
 
@@ -208,8 +206,8 @@ if __name__ == "__main__":
         mouse_info = tempmod.mouse_info
 
         # ask user for task parameters
-        training_date_time = input("Enter date (ex 2022-11-22):\n")
-        session_info['manual_date'] = training_date_time
+        # training_date_time = input("Enter date (ex 2022-11-22):\n")
+        # session_info['manual_date'] = training_date_time
         animal_ID = input("Enter animal ID (ex DT000):\n")
         session_info['mouse_name'] = animal_ID
         animal_weight = input("Enter animal weight (ex 19.5):\n")
