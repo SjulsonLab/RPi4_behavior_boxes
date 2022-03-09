@@ -66,7 +66,7 @@ class SoyounTask(object):
             logging.info(str(time.time()) + ", trying to retrieve task_information from the ~/experiment_info/*")
             full_module_name = 'task_information_headfixed'
             import sys
-            task_info_path = '/home/pi/experiment_info/headfixed_task/'
+            task_info_path = '/home/pi/experiment_info/headfixed_task/task_information/'
             sys.path.insert(0, task_info_path)
             tempmod = importlib.import_module(full_module_name)
             self.task_information = tempmod.task_information
