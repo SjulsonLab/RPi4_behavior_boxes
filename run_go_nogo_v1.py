@@ -295,8 +295,8 @@ if __name__ == "__main__":
                             phase1_trial_outcome[w] = "Miss !!!"
                         phase1_hit_count[w] = phase1_trial_outcome.count("Hit!")
                         phase1_miss_count[w] = phase1_trial_outcome.count("Miss !!!")
-                        phase1_cr_count = 0
-                        phase1_fa_count = 0
+                        phase1_cr_count[w] = 0
+                        phase1_fa_count[w] = 0
                         lick_times = task.lick_times
                         reward_time = task.time_at_reward
                         vstimON_time = task.time_at_vstim_ON
@@ -344,8 +344,8 @@ if __name__ == "__main__":
                     phase1_trial_outcome[w] = "Miss !!!"
                 phase1_hit_count[w] = phase1_trial_outcome.count("Hit!")
                 phase1_miss_count[w] = phase1_trial_outcome.count("Miss !!!")
-                phase1_cr_count = 0
-                phase1_fa_count = 0
+                phase1_cr_count[w] = 0
+                phase1_fa_count[w] = 0
                 lick_times = task.lick_times
                 reward_time = task.time_at_reward
                 vstimON_time = task.time_at_vstim_ON

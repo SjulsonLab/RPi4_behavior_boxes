@@ -333,19 +333,17 @@ class go_nogo_task(object):
 
     def exit_normal_iti(self):
         logging.info(str(time.time()) + ", exiting normal_iti")
-        self.trial_plotting = False  # stop plotting when exiting ITI
 
     def enter_punishment_iti(self):
         logging.info(str(time.time()) + ", entering punishment_iti")
         self.adding_iti_time = round(random.uniform(0, 1), 1)
-        self.current_iti_length = self.normal_iti_length + self.adding_iti_time
+        self.current_iti_length = self.punishment_iti_length + self.adding_iti_time
         logging.info(str(time.time()) + ", " + str(self.adding_iti_time) + " added to iti length")
         logging.info(str(time.time()) + ", calculated remaining iti length " + str(self.current_iti_length))
         self.countdown_iti(self.current_iti_length)
 
     def exit_punishment_iti(self):
         logging.info(str(time.time()) + ", exiting punishment_iti")
-        self.trial_plotting = False  # stop plotting when exiting ITI
 
     def bait_phase0(self):
         # This function asks the user to input whether they want reward delivery
