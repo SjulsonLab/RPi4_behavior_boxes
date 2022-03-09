@@ -275,9 +275,10 @@ if __name__ == "__main__":
                 task.bait_phase0()
                 if task.deliver_reward == "p":  # start phase1 of training
                     for w in range(session_info['number_of_phase1_trials']):
+                        trial_ident = "go_trial"
                         logging.info(str(time.time()) + ", ##############################")
                         logging.info(str(time.time()) + ", starting trial " + str(w))
-                        logging.info(str(time.time()) + ", go_trial")
+                        logging.info(str(time.time()) + ", " + trial_ident)
                         logging.info(str(time.time()) + ", ##############################")
 
                         task.go_trial_start()
@@ -324,9 +325,10 @@ if __name__ == "__main__":
             # phase 1 of training is all go trials
             # print if hit_criterion is achieved
             for w in range(session_info['number_of_phase1_trials']):
+                trial_ident = "go_trial"
                 logging.info(str(time.time()) + ", ##############################")
                 logging.info(str(time.time()) + ", starting trial " + str(w))
-                logging.info(str(time.time()) + ", go_trial")
+                logging.info(str(time.time()) + ", " + trial_ident)
                 logging.info(str(time.time()) + ", ##############################")
 
                 task.go_trial_start()
