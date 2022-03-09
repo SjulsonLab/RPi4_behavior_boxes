@@ -45,7 +45,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     ########################################################################
     # initialize the figure
     ########################################################################
-    fig = plt.figure(figsize=(11, 7))
+    fig = plt.figure(figsize=(14, 9))
     ax1 = fig.add_subplot(231)  # outcome
     ax2 = fig.add_subplot(212)  # eventplot
     ax3 = fig.add_subplot(232)
@@ -180,7 +180,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     renderer = canvas.get_renderer()
     raw_data = renderer.tostring_rgb()
     pygame.init()
-    window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
+    window = pygame.display.set_mode((1400, 900), DOUBLEBUF)
     screen = pygame.display.get_surface()
     size = canvas.get_width_height()
     surf = pygame.image.fromstring(raw_data, size, "RGB")
