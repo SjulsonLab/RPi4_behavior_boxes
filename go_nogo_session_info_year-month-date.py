@@ -29,7 +29,7 @@ session_info['config']						= 'head_fixed_v1'
 
 # behavior parameters
 session_info['number_of_trials']            = 500  # total number of phase 2 trials
-session_info['number_of_phase1_trials']     = 100
+session_info['number_of_phase1_trials']     = 50
 session_info['hit_criterion']               = 0.75  # 85% hit rate!
 session_info['lockout_length']              = 2  # in seconds
 session_info['vacuum_length']               = 0.5  # in seconds
