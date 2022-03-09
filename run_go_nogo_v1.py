@@ -273,9 +273,52 @@ if __name__ == "__main__":
             # phase 0 is the first day of training (after habituation)
             while training_phase == "phase0":
                 task.bait_phase0()
-                if task.deliver_reward == "p":
-                    training_phase = "phase1"
-                    break
+                if task.deliver_reward == "p":  # start phase1 of training
+                    for w in range(session_info['number_of_phase1_trials']):
+                        logging.info(str(time.time()) + ", ##############################")
+                        logging.info(str(time.time()) + ", starting trial " + str(w))
+                        logging.info(str(time.time()) + ", go_trial")
+                        logging.info(str(time.time()) + ", ##############################")
+
+                        task.go_trial_start()
+
+                        #  Run trial in loop
+                        while task.trial_running:
+                            task.run_go()
+
+                        # assess trial outcome
+                        trial_outcome = task.trial_outcome
+                        phase1_trial_outcome[w] = trial_outcome
+                        if trial_outcome == 1:
+                            phase1_trial_outcome[w] = "Hit!"
+                        elif trial_outcome == 2:
+                            phase1_trial_outcome[w] = "Miss !!!"
+                        phase1_hit_count[w] = phase1_trial_outcome.count("Hit!")
+                        phase1_miss_count[w] = phase1_trial_outcome.count("Miss !!!")
+                        phase1_cr_count = 0
+                        phase1_fa_count = 0
+                        lick_times = task.lick_times
+                        reward_time = task.time_at_reward
+                        vstimON_time = task.time_at_vstim_ON
+
+                        # Starting a new process for plotting
+                        plot_dprime = False
+                        plot_process = Process(target=plot_trial_progress,
+                                               args=(w, phase1_trial_list, phase1_trial_outcome,
+                                                     phase1_hit_count, phase1_miss_count, phase1_cr_count,
+                                                     phase1_fa_count, lick_times, vstimON_time, plot_dprime,
+                                                     dprimebinp))
+                        plot_process.start()  # no join because we do not want to wait until the plotting is finished
+
+                        # Determine if Hit criterion is achieved and automatically exit
+                        if w == 0:
+                            phase1_hit_rate = 0
+                        else:
+                            phase1_hit_rate = (phase1_hit_count[w]) / w
+
+                        if w > 50 and phase1_hit_rate > session_info['hit_criterion']:
+                            print("Hit criterion is achieved!!!")
+                            raise SystemExit
 
         elif training_phase == "phase1":
             # phase 1 of training is all go trials
