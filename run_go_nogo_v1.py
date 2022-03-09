@@ -107,14 +107,14 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     # create a 2D array for eventplot
     events_to_plot = [lick_times, [reward_time]]
     if combine_trial_outcome[current_trial] == "FA !!!":
-        plot_period = 9.5  # in seconds, how long to plot since the start of trial
-        plot_bin_number = 950
+        plot_period = 11.5  # in seconds, how long to plot since the start of trial
+        plot_bin_number = 1150
     else:
-        plot_period = 6
-        plot_bin_number = 600
+        plot_period = 8
+        plot_bin_number = 800
 
     # create vstim time data
-    vstim_duration = 3  # in seconds, pre-generated
+    vstim_duration = 4  # in seconds, pre-generated
     vstim_bins = plot_bin_number  # number of bins
     time_vstim_on = vstimON_time
     time_vstim_index_on = int(round(time_vstim_on * vstim_bins / plot_period))

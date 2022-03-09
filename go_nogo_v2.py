@@ -274,7 +274,7 @@ class go_nogo_task(object):
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
         self.trial_outcome = 2  # Miss!!
-        self.countdown(1)
+        self.countdown(2)
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
@@ -282,7 +282,7 @@ class go_nogo_task(object):
     def enter_lick_count(self):
         logging.info(str(time.time()) + ", entering lick_count")
         self.trial_outcome = 3  # CR!
-        self.countdown(1)
+        self.countdown(2)
 
     def exit_lick_count(self):
         logging.info(str(time.time()) + ", exiting lick_count")
@@ -358,15 +358,15 @@ class go_nogo_task(object):
     ########################################################################
     def countdown(self, t):
         # This counts down the length of reward_available or lick_count duration (1s)
-        logging.info(str(time.time()) + ", 1s countdown starts...")
+        logging.info(str(time.time()) + ", 2s countdown starts...")
         while t > 0:
             # mins, secs = divmod(t, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
             time.sleep(1)
             t -= 1
-        logging.info(str(time.time()) + ", 1s countdown ends...")
-        self.box.event_list.append("1s countdown ends...")
+        logging.info(str(time.time()) + ", 2s countdown ends...")
+        self.box.event_list.append("2s countdown ends...")
 
     def countdown_iti(self, t_iti):
         # This counts down iti of variable lengths
@@ -414,12 +414,12 @@ class go_nogo_task(object):
                 self.time_at_reward = time.time() - self.trial_start_time
                 self.start_temp1()  # trigger state transition to temp1
 
-            elif event_name == "1s countdown ends...":
+            elif event_name == "2s countdown ends...":
                 self.start_vacuum_reward_available()  # trigger transition to vacuum state
 
         elif self.state == "temp1":
             # transition to vacuum state when vstim 3s countdown ends
-            if event_name == "1s countdown ends...":
+            if event_name == "2s countdown ends...":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
                 self.start_vacuum_temp1()
 
@@ -459,11 +459,11 @@ class go_nogo_task(object):
             if event_name == "left_IR_entry":
                 self.start_temp2()
 
-            elif event_name == "1s countdown ends...":
+            elif event_name == "2s countdown ends...":
                 self.start_vacuum_lick_count()  # trigger transition to vacuum state
 
         elif self.state == "temp2":
-            if event_name == "1s countdown ends...":
+            if event_name == "2s countdown ends...":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
                 self.start_vacuum_temp2()
 
