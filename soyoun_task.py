@@ -152,8 +152,8 @@ class SoyounTask(object):
             pass
         elif self.state == "draw":
             self.play_game()
-        elif self.restart_flag:
-            self.restart()
+        # elif self.restart_flag:
+        #     self.restart()
         elif self.state == "initiate":
             if self.distance_buffer:
                 self.distance_diff = self.treadmill.distance_cm - self.distance_buffer
@@ -175,6 +175,7 @@ class SoyounTask(object):
                     self.evaluate_reward()
                 else:
                     self.error_count += 1
+                    self.restart_flag = True
                     logging.info(str(time.time()) + ", " + str(
                         self.trial_number) + ", treadmill state distance did not pass")
 
@@ -192,26 +193,26 @@ class SoyounTask(object):
                 reward_size = self.task_information['reward'][self.current_card[3]]
                 if cue_state == 2:
                     self.pump.reward(side_mice, self.task_information["reward_size"][reward_size])
-                    # self.restart()
                 elif side_choice == side_mice:
                     # reward_size = self.task_information['reward'][self.current_card[3]]
                     self.pump.reward(side_mice, self.task_information["reward_size"][reward_size])
                 else:
                     self.error_count += 1
+                    self.restart_flag = True
                 self.restart()
             else:
                 self.error_count += 1
+                self.restart_flag = True
         # look for keystrokes
         self.box.check_keybd()
 
     def enter_standby(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering standby, prepare to start the trial...")
         self.trial_running = False
-        if self.restart_flag:
-            time.sleep(self.task_information["punishment_timeout"])
+        # if self.restart_flag:
+        #     time.sleep(self.task_information["punishment_timeout"])
             # pass
-        else:
-            time.sleep(self.task_information["reward_wait"])
+        time.sleep(self.task_information["reward_wait"])
 
     def exit_standby(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting standby")
@@ -223,7 +224,6 @@ class SoyounTask(object):
         if self.card_count >= self.session_length:
             self.trial_running = False  # terminate the state machine, end the session
         elif self.error_repeat and (self.error_count < self.error_count_max):
-            # self.restart_flag = True
             self.trial_running = True
         else:
             self.restart_flag = False
@@ -263,7 +263,7 @@ class SoyounTask(object):
         # check the flag to see whether to shuffle or keep the original card
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting initiate")
         self.distance_buffer = None
-        pass
+        self.restart_flag = True
 
     def enter_cue_state(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering cue state")
