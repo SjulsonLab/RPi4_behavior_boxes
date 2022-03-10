@@ -358,7 +358,6 @@ if __name__ == "__main__":
                 phase1_cr_count[w] = 0
                 phase1_fa_count[w] = 0
                 lick_times = task.lick_times
-                print(lick_times)
                 reward_time = task.time_at_reward
                 vstimON_time = task.time_at_vstim_ON
 
