@@ -90,7 +90,7 @@ try:
     except:
         logging.info(str(time.time()) + ", failed to retrieve task_information from the default path.\n" +
                      "Now, try to load the task_information from the local directory ...")
-        from task_information_headfixed import task_information
+        from task_information_phase_1 import task_information
 
         # self.task_information = task_information
     task = SoyounTask(name="headfixed_task", session_info=session_info, task_information=task_information)
