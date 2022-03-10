@@ -429,7 +429,7 @@ class go_nogo_task(object):
                 self.start_vacuum_reward_available()  # trigger transition to vacuum state
 
         elif self.state == "temp1":
-            # transition to vacuum state when vstim 3s countdown ends
+            # transition to vacuum state when vstim 4s countdown ends
             if event_name == "2s countdown ends...":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
                 self.start_vacuum_temp1()
