@@ -289,6 +289,7 @@ class SoyounTask(object):
 
     def exit_cue_state(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting cue state")
+        self.cue_off(self.task_information['cue'][self.current_card[0]])
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering reward available")
