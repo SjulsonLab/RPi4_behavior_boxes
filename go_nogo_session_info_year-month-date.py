@@ -38,7 +38,7 @@ session_info['vacuum_length']               = 0.2  # in seconds
 session_info['reward_size']					= 12  # in microliters
 session_info['reward_duration']             = 0.01
 session_info['normal_iti_length']           = 3 - session_info['vacuum_length']
-session_info['punishment_iti_length']       = 6.5 - session_info['vacuum_length']
+session_info['punishment_iti_length']       = 6 - session_info['vacuum_length']
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
