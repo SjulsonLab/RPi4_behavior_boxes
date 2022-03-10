@@ -321,14 +321,14 @@ if __name__ == "__main__":
                         plot_process.start()  # no join because we do not want to wait until the plotting is finished
 
                         # Determine if Hit criterion is achieved and automatically exit
-                        if w == 0:
-                            phase1_hit_rate = 0
-                        else:
-                            phase1_hit_rate = (phase1_hit_count[w]) / w
-
-                        if w > 50 and phase1_hit_rate > session_info['hit_criterion']:
-                            print("Hit criterion is achieved!!!")
-                            raise SystemExit
+                        # if w == 0:
+                        #     phase1_hit_rate = 0
+                        # else:
+                        #     phase1_hit_rate = (phase1_hit_count[w]) / w
+                        #
+                        # if w > 50 and phase1_hit_rate > session_info['hit_criterion']:
+                        #     print("Hit criterion is achieved!!!")
+                        #     raise SystemExit
 
         elif training_phase == "phase1":
             # phase 1 of training is all go trials
@@ -371,14 +371,14 @@ if __name__ == "__main__":
                 plot_process.start()  # no join because we do not want to wait until the plotting is finished
 
                 # Determine if Hit criterion is achieved and automatically exit
-                if w == 0:
-                    phase1_hit_rate = 0
-                else:
-                    phase1_hit_rate = (phase1_hit_count[w])/w
-
-                if w > 50 and phase1_hit_rate > session_info['hit_criterion']:
-                    print("Hit criterion is achieved!!!")
-                    raise SystemExit
+                # if w == 0:
+                #     phase1_hit_rate = 0
+                # else:
+                #     phase1_hit_rate = (phase1_hit_count[w])/w
+                #
+                # if w > 50 and phase1_hit_rate > session_info['hit_criterion']:
+                #     print("Hit criterion is achieved!!!")
+                #     raise SystemExit
 
         elif training_phase == "phase2":
             for i in range(session_info['number_of_trials']):
