@@ -62,19 +62,33 @@ class SoyounTask(object):
         else:
             self.session_info = kwargs.get("session_info", None)
         ic(self.session_info)
-        try:
-            logging.info(str(time.time()) + ", trying to retrieve task_information from the ~/experiment_info/*")
-            full_module_name = 'task_information_headfixed'
-            import sys
-            task_info_path = '/home/pi/experiment_info/headfixed_task/task_information/'
-            sys.path.insert(0, task_info_path)
-            tempmod = importlib.import_module(full_module_name)
-            self.task_information = tempmod.task_information
-        except:
-            logging.info(str(time.time()) + ", failed to retrieve task_information from the default path.\n" +
-                         "Now, try to load the task_information from the local directory ...")
+
+        if kwargs.get("task_information", None) is None:
+            print(
+                Fore.RED
+                + Style.BRIGHT
+                + "Warning: no task_information supplied; making fake one"
+                + Style.RESET_ALL
+            )
             from task_information_headfixed import task_information
+
             self.task_information = task_information
+        else:
+            self.task_information = kwargs.get("task_information", None)
+        ic(self.task_information)
+        # try:
+        #     logging.info(str(time.time()) + ", trying to retrieve task_information from the ~/experiment_info/*")
+        #     full_module_name = 'task_information_headfixed'
+        #     import sys
+        #     task_info_path = '/home/pi/experiment_info/headfixed_task/task_information/'
+        #     sys.path.insert(0, task_info_path)
+        #     tempmod = importlib.import_module(full_module_name)
+        #     self.task_information = tempmod.task_information
+        # except:
+        #     logging.info(str(time.time()) + ", failed to retrieve task_information from the default path.\n" +
+        #                  "Now, try to load the task_information from the local directory ...")
+        #     from task_information_headfixed import task_information
+        #     self.task_information = task_information
 
         self.error_repeat = self.task_information['error_repeat']
         self.error_count_max = self.task_information['error_repeat_max']
