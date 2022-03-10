@@ -93,7 +93,7 @@ try:
         from task_information_headfixed import task_information
 
         # self.task_information = task_information
-    task = SoyounTask(name="headfixed_task", session_info=session_info)
+    task = SoyounTask(name="headfixed_task", session_info=session_info, task_information=task_information)
 
     # # you can change various parameters if you want
     # task.machine.states['cue'].timeout = 2

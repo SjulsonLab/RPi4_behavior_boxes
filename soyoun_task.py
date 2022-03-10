@@ -62,19 +62,19 @@ class SoyounTask(object):
         else:
             self.session_info = kwargs.get("session_info", None)
         ic(self.session_info)
-
-        if kwargs.get("task_information", None) is None:
-            print(
-                Fore.RED
-                + Style.BRIGHT
-                + "Warning: no task_information supplied; making fake one"
-                + Style.RESET_ALL
-            )
-            from task_information_headfixed import task_information
-
-            self.task_information = task_information
-        else:
-            self.task_information = kwargs.get("task_information", None)
+        #
+        # if kwargs.get("task_information", None) is None:
+        #     print(
+        #         Fore.RED
+        #         + Style.BRIGHT
+        #         + "Warning: no task_information supplied; making fake one"
+        #         + Style.RESET_ALL
+        #     )
+        #     from task_information_headfixed import task_information
+        #
+        #     self.task_information = task_information
+        # else:
+        self.task_information = kwargs.get("task_information", None)
         ic(self.task_information)
         # try:
         #     logging.info(str(time.time()) + ", trying to retrieve task_information from the ~/experiment_info/*")
