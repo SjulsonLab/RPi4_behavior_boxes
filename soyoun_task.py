@@ -70,9 +70,9 @@ class SoyounTask(object):
                 + "Warning: no task_information supplied; making fake one"
                 + Style.RESET_ALL
             )
-            from task_information_headfixed import task_information
+            from task_information_phase_1 import task_information
 
-            self.task_information_phase_1 = task_information
+            self.task_information = task_information
         else:
             self.task_information = kwargs.get("task_information", None)
         ic(self.task_information)
