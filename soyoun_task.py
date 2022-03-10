@@ -190,8 +190,8 @@ class SoyounTask(object):
                 else:
                     self.error_count += 1
                     self.restart_flag = True
-                    logging.info(str(time.time()) + ", " + str(
-                        self.trial_number) + ", treadmill state distance did not pass")
+                    # logging.info(str(time.time()) + ", " + str(
+                    #     self.trial_number) + ", treadmill state distance did not pass")
 
         elif self.state == "reward_available":
             # first detect the lick signal:
