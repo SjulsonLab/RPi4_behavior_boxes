@@ -293,6 +293,7 @@ class SoyounTask(object):
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering reward available")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied, treadmill: " + str(self.treadmill.distance_cm))
         self.cue_off(self.task_information['cue'][self.current_card[0]])
 
     def exit_reward_available(self):
