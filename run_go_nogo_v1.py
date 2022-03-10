@@ -90,6 +90,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
             f"trial {trial_list[11 + (current_trial - 13)]} : {combine_trial_outcome[11 + (current_trial - 13)]}",
             f"trial {trial_list[12 + (current_trial - 13)]} : {combine_trial_outcome[12 + (current_trial - 13)]}",
             f"trial {trial_list[13 + (current_trial - 13)]} : {combine_trial_outcome[13 + (current_trial - 13)]}",
+            f" ",
             f"percent hit : {(hit_count[current_trial] / (hit_count[current_trial] + miss_count[current_trial]))*100}",
             f" "))
 
@@ -273,6 +274,15 @@ if __name__ == "__main__":
             while training_phase == "phase0":
                 task.bait_phase0()
                 if task.deliver_reward == "p":  # start phase1 of training
+
+                    # reset the variables for plotting if entering phase 1 the second time
+                    phase1_trial_list = list(range(0, session_info["number_of_phase1_trials"]))
+                    phase1_trial_outcome = ["" for o in range(session_info['number_of_phase1_trials'])]
+                    phase1_hit_count = [0 for o in range(session_info['number_of_phase1_trials'])]
+                    phase1_miss_count = [0 for o in range(session_info['number_of_phase1_trials'])]
+                    phase1_cr_count = [0 for o in range(session_info['number_of_phase1_trials'])]
+                    phase1_fa_count = [0 for o in range(session_info['number_of_phase1_trials'])]
+
                     for w in range(session_info['number_of_phase1_trials']):
                         trial_ident = "go_trial"
                         logging.info(str(time.time()) + ", ##############################")

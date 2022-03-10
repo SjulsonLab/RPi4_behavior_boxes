@@ -130,6 +130,8 @@ class go_nogo_task(object):
                 name="normal_iti",
                 on_enter=["enter_normal_iti"],
                 on_exit=["exit_normal_iti"],
+                timeout=self.session_info["normal_iti_length"],
+                on_timeout=["start_extra_iti_normal"],
             ),
             ###################################### end of states for go trials ########################################
             ###########################################################################################################
@@ -168,6 +170,15 @@ class go_nogo_task(object):
                 name="punishment_iti",
                 on_enter=["enter_punishment_iti"],
                 on_exit=["exit_punishment_iti"],
+                timeout=self.session_info["punishment_iti_length"],
+                on_timeout=["start_extra_iti_punishment"],
+            ),
+
+            # extra iti state: account for variable iti duration
+            Timeout(
+                name="extra_iti",
+                on_enter=["enter_extra_iti"],
+                on_exit=["exit_extra_iti"],
             ),
             ###################################### end of states for nogo trials ######################################
             ###########################################################################################################
@@ -187,7 +198,7 @@ class go_nogo_task(object):
             ["start_vacuum_temp1", "temp1", "vacuum"],
             ["start_assessment", "vacuum", "assessment"],
             ["start_normal_iti", "assessment", "normal_iti"],
-            ["return_to_standby_normal_iti", "normal_iti", "standby"],
+            ["start_extra_iti_normal", "normal_iti", "extra_iti"],
 
             # transitions for nogo trials
             # to trigger this transition pathway, put 'nogo_trial_start' in the run_go_nogo code
@@ -200,8 +211,9 @@ class go_nogo_task(object):
             # ["start_assessment", "vacuum", "assessment"],
             # ["start_normal_iti", "assessment", "normal_iti"],
             ["start_punishment_iti", "assessment", "punishment_iti"],
+            ["start_extra_iti_punishment", "punishment_iti", "extra_iti"],
             # ["return_to_standby_normal_iti", "normal_iti", "standby"],
-            ["return_to_standby_punishment_iti", "punishment_iti", "standby"],
+            ["return_to_standby", "extra_iti", "standby"],
         ]
 
         ########################################################################
@@ -325,25 +337,24 @@ class go_nogo_task(object):
 
     def enter_normal_iti(self):
         logging.info(str(time.time()) + ", entering normal_iti")
-        self.adding_iti_time = round(random.uniform(0, 1), 1)
-        self.current_iti_length = self.normal_iti_length + self.adding_iti_time
-        logging.info(str(time.time()) + ", " + str(self.adding_iti_time) + " added to iti length")
-        logging.info(str(time.time()) + ", calculated remaining iti length " + str(self.current_iti_length))
-        self.countdown_iti(self.current_iti_length)
 
     def exit_normal_iti(self):
         logging.info(str(time.time()) + ", exiting normal_iti")
 
     def enter_punishment_iti(self):
         logging.info(str(time.time()) + ", entering punishment_iti")
-        self.adding_iti_time = round(random.uniform(0, 1), 1)
-        self.current_iti_length = self.punishment_iti_length + self.adding_iti_time
-        logging.info(str(time.time()) + ", " + str(self.adding_iti_time) + " added to iti length")
-        logging.info(str(time.time()) + ", calculated remaining iti length " + str(self.current_iti_length))
-        self.countdown_iti(self.current_iti_length)
 
     def exit_punishment_iti(self):
         logging.info(str(time.time()) + ", exiting punishment_iti")
+
+    def enter_extra_iti(self):
+        logging.info(str(time.time()) + ", entering extra_iti")
+        self.adding_iti_time = round(random.uniform(0, 1), 1)
+        logging.info(str(time.time()) + ", " + str(self.adding_iti_time) + " added to iti length")
+        self.countdown_iti(self.adding_iti_time)
+
+    def exit_extra_iti(self):
+        logging.info(str(time.time()) + ", exiting extra_iti")
 
     def bait_phase0(self):
         # This function asks the user to input whether they want reward delivery
