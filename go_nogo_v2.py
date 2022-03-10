@@ -499,7 +499,7 @@ class go_nogo_task(object):
             pass
 
         elif self.state == "extra_iti":
-            if event_name == "iti countdown ends...":
+            if event_name == "extra_iti countdown ends...":
                 self.return_to_standby()
 
         # look for keystrokes
