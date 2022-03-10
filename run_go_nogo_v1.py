@@ -54,7 +54,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     ########################################################################
     # create an outcome plot
     ########################################################################
-    if current_trial < 15:
+    if current_trial < 14:
         textstr = '\n'.join((
             f"trial {trial_list[0]} : {combine_trial_outcome[0]}",
             f"trial {trial_list[1]} : {combine_trial_outcome[1]}",
@@ -70,30 +70,30 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
             f"trial {trial_list[11]} : {combine_trial_outcome[11]}",
             f"trial {trial_list[12]} : {combine_trial_outcome[12]}",
             f"trial {trial_list[13]} : {combine_trial_outcome[13]}",
-            f"percent hit : {(hit_count[current_trial]/(hit_count[current_trial] + miss_count[current_trial]))}",
+            f"percent hit : {(hit_count[current_trial]/(hit_count[current_trial] + miss_count[current_trial]))*100}",
             f" "))
 
-    elif current_trial >= 15:
+    elif current_trial >= 14:
         textstr = '\n'.join((
-            f"trial {trial_list[0 + (current_trial - 14)]} : {combine_trial_outcome[0 + (current_trial - 14)]}",
-            f"trial {trial_list[1 + (current_trial - 14)]} : {combine_trial_outcome[1 + (current_trial - 14)]}",
-            f"trial {trial_list[2 + (current_trial - 14)]} : {combine_trial_outcome[2 + (current_trial - 14)]}",
-            f"trial {trial_list[3 + (current_trial - 14)]} : {combine_trial_outcome[3 + (current_trial - 14)]}",
-            f"trial {trial_list[4 + (current_trial - 14)]} : {combine_trial_outcome[4 + (current_trial - 14)]}",
-            f"trial {trial_list[5 + (current_trial - 14)]} : {combine_trial_outcome[5 + (current_trial - 14)]}",
-            f"trial {trial_list[6 + (current_trial - 14)]} : {combine_trial_outcome[6 + (current_trial - 14)]}",
-            f"trial {trial_list[7 + (current_trial - 14)]} : {combine_trial_outcome[7 + (current_trial - 14)]}",
-            f"trial {trial_list[8 + (current_trial - 14)]} : {combine_trial_outcome[8 + (current_trial - 14)]}",
-            f"trial {trial_list[9 + (current_trial - 14)]} : {combine_trial_outcome[9 + (current_trial - 14)]}",
-            f"trial {trial_list[10 + (current_trial - 14)]} : {combine_trial_outcome[10 + (current_trial - 14)]}",
-            f"trial {trial_list[11 + (current_trial - 14)]} : {combine_trial_outcome[11 + (current_trial - 14)]}",
-            f"trial {trial_list[12 + (current_trial - 14)]} : {combine_trial_outcome[12 + (current_trial - 14)]}",
-            f"trial {trial_list[13 + (current_trial - 14)]} : {combine_trial_outcome[13 + (current_trial - 14)]}",
-            f"percent hit : {(hit_count[current_trial] / (hit_count[current_trial] + miss_count[current_trial]))}",
+            f"trial {trial_list[0 + (current_trial - 13)]} : {combine_trial_outcome[0 + (current_trial - 14)]}",
+            f"trial {trial_list[1 + (current_trial - 13)]} : {combine_trial_outcome[1 + (current_trial - 14)]}",
+            f"trial {trial_list[2 + (current_trial - 13)]} : {combine_trial_outcome[2 + (current_trial - 14)]}",
+            f"trial {trial_list[3 + (current_trial - 13)]} : {combine_trial_outcome[3 + (current_trial - 14)]}",
+            f"trial {trial_list[4 + (current_trial - 13)]} : {combine_trial_outcome[4 + (current_trial - 14)]}",
+            f"trial {trial_list[5 + (current_trial - 13)]} : {combine_trial_outcome[5 + (current_trial - 14)]}",
+            f"trial {trial_list[6 + (current_trial - 13)]} : {combine_trial_outcome[6 + (current_trial - 14)]}",
+            f"trial {trial_list[7 + (current_trial - 13)]} : {combine_trial_outcome[7 + (current_trial - 14)]}",
+            f"trial {trial_list[8 + (current_trial - 13)]} : {combine_trial_outcome[8 + (current_trial - 14)]}",
+            f"trial {trial_list[9 + (current_trial - 13)]} : {combine_trial_outcome[9 + (current_trial - 14)]}",
+            f"trial {trial_list[10 + (current_trial - 13)]} : {combine_trial_outcome[10 + (current_trial - 14)]}",
+            f"trial {trial_list[11 + (current_trial - 13)]} : {combine_trial_outcome[11 + (current_trial - 14)]}",
+            f"trial {trial_list[12 + (current_trial - 13)]} : {combine_trial_outcome[12 + (current_trial - 14)]}",
+            f"trial {trial_list[13 + (current_trial - 13)]} : {combine_trial_outcome[13 + (current_trial - 14)]}",
+            f"percent hit : {(hit_count[current_trial] / (hit_count[current_trial] + miss_count[current_trial]))*100}",
             f" "))
 
     ax1.set_title('Trial Outcome', fontsize=11)
-    ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
+    ax1.text(0.05, 0.95, textstr, fontsize=11, verticalalignment='top')
     ax1.set_xticklabels([])
     ax1.set_xticks([])
     ax1.set_yticks([])
