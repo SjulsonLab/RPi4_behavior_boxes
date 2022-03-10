@@ -72,7 +72,7 @@ class SoyounTask(object):
             )
             from task_information_headfixed import task_information
 
-            self.task_information = task_information
+            self.task_information_phase_1 = task_information
         else:
             self.task_information = kwargs.get("task_information", None)
         ic(self.task_information)
