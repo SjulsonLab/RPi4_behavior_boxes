@@ -19,23 +19,35 @@ task_information['error_repeat'] = True
 if task_information['error_repeat']:
     task_information['error_repeat_max'] = 3
 
-# condition setup
-task_information['cue'] = ['sound', 'LED', 'sound+LED']
-task_information['state'] = ['distance_short', 'distance_long']  # treadmill distance
-task_information['choice'] = ['right', 'left']  # lick port
-task_information['reward'] = ['small', 'large']  # reward size
-task_information['reward_size'] = {'small': 5, 'large': 10}
-
-if task_information['phase'] == 1:
-    task_information['reward_size'] = {'small': 5, 'large': 5}
-
 # define timeout during each condition
 task_information['initiation_timeout'] = 5  # s
 task_information['cue_timeout'] = 5
 task_information['reward_timeout'] = 5
 task_information["reward_wait"] = 5
 task_information["punishment_timeout"] = 1
+# condition setup
+task_information['reward_size'] = {'small': 5, 'large': 10}
 
+# condition parameters
+task_information['cue'] = ['sound', 'LED', 'sound+LED']
+task_information['state'] = ['distance_short', 'distance_long']  # treadmill distance
+task_information['choice'] = ['right', 'left']  # lick port
+task_information['reward'] = ['small', 'large']  # reward size
+
+
+if task_information['phase'] == 1:
+    task_information['reward_size'] = {'small': 5, 'large': 5}
+
+# define block_duration and initial block to start the session
+block_duration = 2  # each block has this amount of repetition
+block_variety = 1
+initial_block = 1
+
+# allowing consecutive repeated trial?
+consecutive_control = True
+consecutive_max = 3
+
+# below is static
 # block setup
 task_information['block'] = {}
 task_information['block'][1] = [
@@ -64,10 +76,6 @@ task_information['block'][2] = [
     # (2, 1, 0, 0)]  # each row is a combination of the condition parameter for block 1
     ]
 
-# define block_duration and initial block to start the session
-block_duration = 1  # each block has this amount of repetition
-block_variety = 1
-initial_block = 1
 if initial_block is False:
     initial_block = random.randrange(1, 2)
 
@@ -77,23 +85,28 @@ if initial_block is False:
 # # allowing user defined initial_block and initial setup for conditions?
 # task_information["initial_block"] = 1
 #
-# allowing consecutive repeated trial?
-consecutive_control = True
-if consecutive_control:
-    consecutive_max = 3
+
+
+# if block_variety == 1:
+#     consecutive_control = False
+#     consecutive_max = 0
+
 
 
 def generate_block_sequence(number_block, sequence_length, initial_character):
-    if not initial_character:
-        initial_character = random.randint(1, 2)
-    if number_block == 1:
-        sequence = [initial_character]
+    # if not initial_character:
+    #     initial_character = random.randint(1, 2)
+    if block_variety == 1:
+        sequence = [initial_character] * sequence_length
     else:
-        if initial_character - 1:
-            sequence = [initial_character, initial_character - 1]
+        if number_block == 1:
+            sequence = [initial_character]
         else:
-            sequence = [initial_character, initial_character + 1]
-    sequence = sequence * sequence_length
+            if initial_character - 1:
+                sequence = [initial_character, initial_character - 1]
+            else:
+                sequence = [initial_character, initial_character + 1]
+        sequence = sequence * sequence_length
     return sequence
 
 
@@ -113,15 +126,17 @@ def generate_deck(duration, consecutive_permit, repetition_max):
     for iteration in range(duration):
         row_index = random.randrange(0, 2) # for forced choice only
         # row_index = random.randrange(0, 8)
-        while True:
-            if row_index == row_buffer and consecutive_permit:
-                if consecutive_count >= repetition_max:
+        # while True:
+        if row_index == row_buffer and consecutive_permit:
+            consecutive_count += 1
+            if consecutive_count > repetition_max:
+                while row_index == row_buffer:
                     row_index = random.randrange(0, 2) # for forced choice only
-                    # row_index = random.randrange(0, 8)
-                else:
-                    break
-            else:
-                break
+                # row_index = random.randrange(0, 8)
+            #     else:
+            #         break
+            # else:
+            #     break
         row_buffer = row_index
         deck_list.append(row_index)
     return deck_list
@@ -140,3 +155,4 @@ def shuffle(block_sequence, duration_block):
 
 
 task_information["deck"] = shuffle(block_list, block_duration)
+print(task_information["deck"])

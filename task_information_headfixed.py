@@ -131,3 +131,4 @@ def shuffle(block_sequence, duration_block):
 
 
 task_information["deck"] = shuffle(block_list, block_duration)
+print(task_information["deck"])
