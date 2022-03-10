@@ -107,7 +107,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     # create a 2D array for eventplot
     events_to_plot = [lick_times, [reward_time]]
     if combine_trial_outcome[current_trial] == "FA !!!":
-        plot_period = 11.5  # in seconds, how long to plot since the start of trial
+        plot_period = 11  # in seconds, how long to plot since the start of trial
         plot_bin_number = 1150
     else:
         plot_period = 8
