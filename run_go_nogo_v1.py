@@ -71,7 +71,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
             f"trial {trial_list[12]} : {combine_trial_outcome[12]}",
             f"trial {trial_list[13]} : {combine_trial_outcome[13]}",
             f" ",
-            f"percent hit : {round((hit_count[current_trial]/(hit_count[current_trial] + miss_count[current_trial]))*100)}%",
+            f"percent hit : {round((hit_count[current_trial]/(hit_count[current_trial] + miss_count[current_trial]))*100), 1}%",
             f" "))
 
     elif current_trial >= 14:
@@ -91,7 +91,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
             f"trial {trial_list[12 + (current_trial - 13)]} : {combine_trial_outcome[12 + (current_trial - 13)]}",
             f"trial {trial_list[13 + (current_trial - 13)]} : {combine_trial_outcome[13 + (current_trial - 13)]}",
             f" ",
-            f"percent hit : {round((hit_count[current_trial] / (hit_count[current_trial] + miss_count[current_trial]))*100)}%",
+            f"percent hit : {round((hit_count[current_trial] / (hit_count[current_trial] + miss_count[current_trial]))*100, 1)}%",
             f" "))
 
     ax1.set_title('Trial Outcome', fontsize=11)
