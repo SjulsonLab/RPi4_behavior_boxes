@@ -381,15 +381,15 @@ class go_nogo_task(object):
 
     def countdown_iti(self, t_iti):
         # This counts down iti of variable lengths
-        logging.info(str(time.time()) + ", iti countdown starts...")
+        logging.info(str(time.time()) + ", extra_iti countdown starts...")
         while t_iti > 0:
             # mins, secs = divmod(t_iti, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
             time.sleep(0.1)
             t_iti -= 0.1
-        logging.info(str(time.time()) + ", iti countdown ends...")
-        self.box.event_list.append("iti countdown ends...")
+        logging.info(str(time.time()) + ", extra_iti countdown ends...")
+        self.box.event_list.append("extra_iti countdown ends...")
 
     ########################################################################
     # call the run_go() or run_nogo() method repeatedly in a while loop in the run_go_nogo script
@@ -441,8 +441,11 @@ class go_nogo_task(object):
             self.start_normal_iti()
 
         elif self.state == "normal_iti":
-            if event_name == "iti countdown ends...":
-                self.return_to_standby_normal_iti()
+            pass
+
+        elif self.state == "extra_iti":
+            if event_name == "extra_iti countdown ends...":
+                self.return_to_standby()
 
         # look for keystrokes
         #self.box.check_keybd()
@@ -490,12 +493,14 @@ class go_nogo_task(object):
                 self.start_punishment_iti()
 
         elif self.state == "normal_iti":
-            if event_name == "iti countdown ends...":
-                self.return_to_standby_normal_iti()
+            pass
 
         elif self.state == "punishment_iti":
+            pass
+
+        elif self.state == "extra_iti":
             if event_name == "iti countdown ends...":
-                self.return_to_standby_punishment_iti()
+                self.return_to_standby()
 
         # look for keystrokes
         #self.box.check_keybd()
