@@ -131,7 +131,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     linelengths1 = [0.8, 0.8]
     ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
     ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
-    ax2.set_xlim([-0.5, 8.5])  # 8s total to show (trial duration)
+    ax2.set_xlim([-0.5, 11.5])  # 8s total to show (trial duration)
     ax2.set_xlabel('Time since trial start (s)', fontsize=9)
     ax2.set_yticks((-1, 2, 3))
     ax2.set_yticklabels(('vstim', 'reward', 'lick'))
@@ -189,7 +189,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     screen.blit(surf, (0, 0))
     pygame.display.flip()
     plt.close(fig)
-    time.sleep(3)  # sleep for 3 seconds for pygame to remain displayed
+    time.sleep(4)  # sleep for 3 seconds for pygame to remain displayed
     pygame.quit()
 
 
