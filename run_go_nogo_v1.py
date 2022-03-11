@@ -380,6 +380,47 @@ if __name__ == "__main__":
                 #     raise SystemExit
 
         elif training_phase == "phase2":
+
+            # First run some buffer trials
+            num_buffer_trial = 5
+            for bt in range(num_buffer_trial):
+                trial_ident = "go_trial"
+                logging.info(str(time.time()) + ", ##############################")
+                logging.info(str(time.time()) + ", starting buffer trial " + str(bt))
+                logging.info(str(time.time()) + ", " + trial_ident)
+                logging.info(str(time.time()) + ", ##############################")
+
+                task.go_trial_start()
+
+                #  Run trial in loop
+                while task.trial_running:
+                    task.run_go()
+
+                # assess trial outcome
+                trial_outcome = task.trial_outcome
+                phase1_trial_outcome[bt] = trial_outcome
+                if trial_outcome == 1:
+                    phase1_trial_outcome[bt] = "Hit!"
+                elif trial_outcome == 2:
+                    phase1_trial_outcome[bt] = "Miss !!!"
+                phase1_hit_count[bt] = phase1_trial_outcome.count("Hit!")
+                phase1_miss_count[bt] = phase1_trial_outcome.count("Miss !!!")
+                phase1_cr_count[bt] = 0
+                phase1_fa_count[bt] = 0
+                lick_times = task.lick_times
+                reward_time = task.time_at_reward
+                vstimON_time = task.time_at_vstim_ON
+
+                # Starting a new process for plotting
+                plot_dprime = False
+                plot_process = Process(target=plot_trial_progress,
+                                       args=(bt, phase1_trial_list, phase1_trial_outcome,
+                                             phase1_hit_count, phase1_miss_count, phase1_cr_count,
+                                             phase1_fa_count, lick_times, vstimON_time, plot_dprime,
+                                             dprimebinp))
+                plot_process.start()
+
+            # The real phase 2 task is below
             for i in range(session_info['number_of_trials']):
                 ident_random = (round(random.uniform(0, 1) * 100)) % 2
 
