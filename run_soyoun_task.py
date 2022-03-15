@@ -5,6 +5,9 @@ debug_enable = False
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
+import threading
+import sys
+import time
 from icecream import ic
 import logging
 from datetime import datetime
@@ -19,8 +22,9 @@ import warnings
 import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
-import time
+
 from time import sleep
+
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
     'version': 1,
@@ -30,12 +34,19 @@ logging.config.dictConfig({
 if debug_enable:
     # enabling debugger
     from IPython import get_ipython
+
     ipython = get_ipython()
     ipython.magic("pdb on")
     ipython.magic("xmode Verbose")
 
 # import your task class here
 from soyoun_task import SoyounTask
+
+
+def _terminate():
+    print('terminating the session')
+    sys.exit()
+
 
 try:
     # load in session_info file, check that dates are correct, put in automatic
@@ -44,7 +55,6 @@ try:
     datestr = datetime.now().strftime("%Y-%m-%d")
     timestr = datetime.now().strftime('%H%M%S')
     full_module_name = 'session_info_' + datestr
-    import sys
     session_info_path = '/home/pi/experiment_info/headfixed_task/session_info'
     sys.path.insert(0, session_info_path)
     tempmod = importlib.import_module(full_module_name)
@@ -73,7 +83,7 @@ try:
         datefmt=('%H:%M:%S'),
         handlers=[
             logging.FileHandler(session_info['file_basename'] + '.log'),
-            logging.StreamHandler() # sends copy of log output to screen
+            logging.StreamHandler()  # sends copy of log output to screen
         ]
     )
 
@@ -94,26 +104,17 @@ try:
 
         # self.task_information = task_information
     task = SoyounTask(name="headfixed_task", session_info=session_info, task_information=task_information)
-    # task = SoyounTask(name="headfixed_task", session_info=session_info)
 
-    # # you can change various parameters if you want
-    # task.machine.states['cue'].timeout = 2
+    # def run_soyoun_task():
+    session_length = int(input("Enter the duration of session (in seconds): "))
+    terminate_timer = threading.Timer(session_length, _terminate)
+    while True:
+        terminate_timer.start()
+        task.start_session()
+        scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
+        pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
 
-    # start session
-    task.start_session()
-    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
-    pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
-    sleep(10)
-    # loop over trials
-    for block_number in task.task_information["block_list"]:
-        logging.info(str("############################################################\n" +
-                         str(time.time())) + ", starting_trial, block number " + str(block_number) +
-                     str("\n############################################################"))
-
-        task.start_trial() # initiate the time state machine, start_trial() is a trigger
-
-        while task.trial_running:
-            task.run() # run command trigger additional functions outside of the state machine
+        block_deck = task.generate_deck(current_block, block_duration, consecutive control)
 
     raise SystemExit
 
@@ -124,10 +125,9 @@ except (KeyboardInterrupt, SystemExit):
     task.end_session()
     ic('just called end_session()')
     # save dicts to disk
-    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
-    pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
+    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
+    pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
     pygame.quit()
-
 
 # # exit because of error
 # except (RuntimeError) as ex:
@@ -135,7 +135,3 @@ except (KeyboardInterrupt, SystemExit):
 #     # save dicts to disk
 #     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
 #     pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
-
-
-
-

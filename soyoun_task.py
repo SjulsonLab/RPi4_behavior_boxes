@@ -62,7 +62,6 @@ class SoyounTask(object):
         else:
             self.session_info = kwargs.get("session_info", None)
         ic(self.session_info)
-
         if kwargs.get("task_information", None) is None:
             print(
                 Fore.RED
@@ -76,19 +75,6 @@ class SoyounTask(object):
         else:
             self.task_information = kwargs.get("task_information", None)
         ic(self.task_information)
-        # try:
-        #     logging.info(str(time.time()) + ", trying to retrieve task_information from the ~/experiment_info/*")
-        #     full_module_name = 'task_information_headfixed'
-        #     import sys
-        #     task_info_path = '/home/pi/experiment_info/headfixed_task/task_information/'
-        #     sys.path.insert(0, task_info_path)
-        #     tempmod = importlib.import_module(full_module_name)
-        #     self.task_information = tempmod.task_information
-        # except:
-        #     logging.info(str(time.time()) + ", failed to retrieve task_information from the default path.\n" +
-        #                  "Now, try to load the task_information from the local directory ...")
-        #     from task_information_headfixed import task_information
-        #     self.task_information = task_information
 
         self.error_repeat = self.task_information['error_repeat']
         self.error_count_max = self.task_information['error_repeat_max']
@@ -245,13 +231,13 @@ class SoyounTask(object):
 
     def exit_draw(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting draw")
-        if self.restart_flag:
-            # self.error_count += 1
-            self.restart_flag = False
-        else:
-            self.card_count += 1
-        # print(str(self.card_count))
-        self.current_card = self.deck[self.card_count]
+        # if self.restart_flag:
+        #     # self.error_count += 1
+        #     self.restart_flag = False
+        # else:
+        #     self.card_count += 1
+        # # print(str(self.card_count))
+        # self.current_card = self.deck[self.card_count]
 
         print(str(self.current_card))
         card_cue = self.task_information['cue'][self.current_card[0]]
@@ -324,13 +310,6 @@ class SoyounTask(object):
             self.box.cueLED1.off()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 off (free choice)")
 
-    # def check_distance(self, distance_t1, distance_t0, distance_required):
-    #     distance_diff = distance_t1 - distance_t0
-    #     if distance_diff >= distance_required:
-    #         pass
-    #     else:
-    #         return False
-    #     return True
 
     ########################################################################
     # methods to start and end the behavioral session
