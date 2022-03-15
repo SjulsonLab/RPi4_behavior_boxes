@@ -200,16 +200,20 @@ class SoyounTask(object):
             # question: do we want entry mark as lick?
             side_mice = None
             if event_name == "left_IR_entry":
-                side_mice = '1'
+                side_mice = 'left'
             elif event_name == "right_IR_entry":
-                side_mice = '2'
+                side_mice = 'right'
             if side_mice:
                 reward_size = self.task_information['reward'][self.current_card[3]]
                 if cue_state == 2:
                     self.pump.reward(side_mice, self.task_information["reward_size"][reward_size])
                 elif side_choice == side_mice:
+                    if side_mice == 'left':
+                        reward_side = '1'
+                    elif side_mice == 'right':
+                        reward_side = '2'
                     # reward_size = self.task_information['reward'][self.current_card[3]]
-                    self.pump.reward(side_mice, self.task_information["reward_size"][reward_size])
+                    self.pump.reward(reward_side, self.task_information["reward_size"][reward_size])
                 else:
                     self.error_count += 1
                     self.restart_flag = True
