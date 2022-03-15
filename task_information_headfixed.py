@@ -6,11 +6,12 @@ import random
 task_information = collections.OrderedDict()
 task_information['experiment_setup'] = 'headfixed'
 task_information['treadmill_setup'] = {'present': True}
+task_information['phase'] = 1
 
 if task_information['treadmill_setup']['present']:
-    task_information['treadmill_setup']['distance_initiation'] = 5  # cm
-    task_information['treadmill_setup']['distance_short'] = 7  # cm
-    task_information['treadmill_setup']['distance_long'] = 30 # cm
+    task_information['treadmill_setup']['distance_initiation'] = 1  # cm
+    task_information['treadmill_setup']['distance_short'] = 3  # cm
+    task_information['treadmill_setup']['distance_long'] = 5 # cm
 else:
     task_information['treadmill_setup'] = None
 
@@ -24,6 +25,9 @@ task_information['state'] = ['distance_short', 'distance_long']  # treadmill dis
 task_information['choice'] = ['right', 'left']  # lick port
 task_information['reward'] = ['small', 'large']  # reward size
 task_information['reward_size'] = {'small': 5, 'large': 10}
+
+if task_information['phase'] == 1:
+    task_information['reward_size'] = {'small': 100, 'large': 100}
 
 # define timeout during each condition
 task_information['initiation_timeout'] = 5  # s
@@ -99,16 +103,20 @@ task_information["block_list"] = list(
     itertools.chain.from_iterable(itertools.repeat(iterate, block_duration) for iterate in block_list))
 
 
-def generate_deck(duration, consecutive_permit, repetition_max):
+def generate_deck(duration, consecutive_permit, repetition_max, phase=None):
     consecutive_count = 0
     row_buffer = -1
     deck_list = []
+    if phase == 1:
+        range_end = 2
+    else:
+        range_end = 8
     for iteration in range(duration):
-        row_index = random.randrange(0, 8)
+        row_index = random.randrange(0, range_end)
         while True:
             if row_index == row_buffer and consecutive_permit:
                 if consecutive_count >= repetition_max:
-                    row_index = random.randrange(0, 8)
+                    row_index = random.randrange(0, range_end)
                 else:
                     break
             else:
@@ -118,10 +126,10 @@ def generate_deck(duration, consecutive_permit, repetition_max):
     return deck_list
 
 
-def shuffle(block_sequence, duration_block):
+def shuffle(block_sequence, duration_block, phase=None):
     deck = []
     for block in block_sequence:
-        deck_list_buffer = generate_deck(duration_block, consecutive_control, consecutive_max)
+        deck_list_buffer = generate_deck(duration_block, consecutive_control, consecutive_max, phase)
         current_deck = []
         block_map = task_information['block'][block]
         for row_index in deck_list_buffer:
@@ -130,5 +138,5 @@ def shuffle(block_sequence, duration_block):
     return deck
 
 
-task_information["deck"] = shuffle(block_list, block_duration)
+task_information["deck"] = shuffle(block_list, block_duration, task_information['phase'])
 print(task_information["deck"])
