@@ -151,8 +151,8 @@ class SoyounTask(object):
         self.pump = behavbox.Pump()
         self.treadmill = self.box.treadmill
         self.distance_initiation = self.task_information['treadmill_setup']['distance_initiation']
-        self.distance_buffer = None
-        self.distance_diff = None
+        self.distance_buffer = self.treadmill.distance_cm
+        self.distance_diff = 0
 
     ########################################################################
     # functions called when state transitions occur
@@ -172,8 +172,8 @@ class SoyounTask(object):
             if self.distance_buffer:
                 self.distance_diff = self.treadmill.distance_cm - self.distance_buffer
                 if self.distance_diff >= self.distance_initiation:
-                    self.distance_buffer = None
-                    self.distance_diff = None
+                    self.distance_buffer = self.treadmill.distance_cm
+                    self.distance_diff = 0
                     self.start_cue()
                 else:
                     self.error_count += 1
@@ -184,8 +184,8 @@ class SoyounTask(object):
                 distance_required = self.task_information['treadmill_setup'][
                     self.task_information["state"][self.current_card[1]]]
                 if self.distance_diff >= distance_required:
-                    self.distance_buffer = None
-                    self.distance_diff = None
+                    self.distance_buffer = self.treadmill.distance_cm
+                    self.distance_diff = 0
                     self.evaluate_reward()
                 else:
                     self.error_count += 1
@@ -276,7 +276,7 @@ class SoyounTask(object):
     def exit_initiate(self):
         # check the flag to see whether to shuffle or keep the original card
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting initiate")
-        self.distance_buffer = None
+        self.distance_buffer = self.treadmill.distance_cm
         self.restart_flag = True
 
     def enter_cue_state(self):
