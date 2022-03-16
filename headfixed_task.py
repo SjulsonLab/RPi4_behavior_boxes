@@ -99,7 +99,7 @@ class HeadfixedTask(object):
             initial='standby'
         )
         self.trial_running = False
-
+        self.trial_number = 0
         self.error_count = 0
         self.current_card = None
 
