@@ -114,11 +114,11 @@ try:
                 print("****************************\n" +
                       "Current card condition: \n" +
                       "****************************\n" +
-                      "*Cue: " + task.current_card[0] + "\n" +
-                      "*State: " + task.current_card[1] + "\n" +
-                      "*Choice: " + task.current_card[2] + "\n" +
-                      "*Reward: " + task.current_card[3] + "\n")
-                logging.info(str(time.time()) + ", " + str(task.trial_number) + ", current_card: " + task.current_card)
+                      "*Cue: " + str(task.current_card[0]) + "\n" +
+                      "*State: " + str(task.current_card[1]) + "\n" +
+                      "*Choice: " + str(task.current_card[2]) + "\n" +
+                      "*Reward: " + str(task.current_card[3]) + "\n")
+                logging.info(str(time.time()) + ", " + str(task.trial_number) + ", current_card: " + str(task.current_card))
                 logging.info(str(time.time()) + ", " + str(task.trial_number) + ", start_trial()")
                 task.start_trial()  # initiate the time state machine, start_trial() is a trigger
 
