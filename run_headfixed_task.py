@@ -102,7 +102,7 @@ try:
         block_number = random.randint(1, session_info["block_variety"])
         for block in range(session_info["block_duration"]):
             # logging.info(str("############################################################\n" +
-            #                  str(time.time())) + ", " + str(task.trial_number) + ", starting_trial, block "
+            #                  str(time.time())) + ", " + str(task.trial_number()) + ", starting_trial, block "
             #                                                                               "number: " + str(
             #     block_number) +
             #              str("\n############################################################"))
@@ -118,8 +118,8 @@ try:
                       "*State: " + task.current_card[1] + "\n" +
                       "*Choice: " + task.current_card[2] + "\n" +
                       "*Reward: " + task.current_card[3] + "\n")
-                logging.info(str(time.time()) + ", " + str(task.trial_number) + ", current_card: " + task.current_card)
-                logging.info(str(time.time()) + ", " + str(task.trial_number) + ", start_trial()")
+                logging.info(str(time.time()) + ", " + str(task.trial_number()) + ", current_card: " + task.current_card)
+                logging.info(str(time.time()) + ", " + str(task.trial_number()) + ", start_trial()")
                 task.start_trial()  # initiate the time state machine, start_trial() is a trigger
 
                 while task.trial_running:
