@@ -40,7 +40,7 @@ class TaskInformation(object):
         if phase == 1:
             row_end = 2
         else:
-            row_end = 4
+            row_end = 8
         block_map = self.block[block_key]
         row_index = random.randint(1, row_end)
         card = block_map[row_index]
