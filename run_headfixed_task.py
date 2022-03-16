@@ -110,7 +110,7 @@ try:
             task.error_count = 0
             while first_card or (session_info["error_repeat"] and task.error_count < session_info["error_max"]):
                 first_card = False
-                task.current_card = task_information.draw_card(block, session_info['phase'])
+                task.current_card = task_information.draw_card(block_number, session_info['phase'])
                 print("****************************\n" +
                       "Current card condition: \n" +
                       "****************************\n" +
