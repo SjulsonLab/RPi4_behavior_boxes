@@ -47,8 +47,8 @@ session_info['phase']             	= 1
 
 if session_info['treadmill_setup']['present']:
     session_info['treadmill_setup']['distance_initiation'] = 1  # cm
-    session_info['treadmill_setup']['short'] = 3  # cm
-    session_info['treadmill_setup']['long'] = 5 # cm
+    session_info['treadmill_setup']['distance_short'] = 3  # cm
+    session_info['treadmill_setup']['distance_long'] = 5 # cm
 else:
     session_info['treadmill_setup'] = None
 
