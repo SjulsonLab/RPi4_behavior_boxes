@@ -54,7 +54,7 @@ else:
 
 session_info['error_repeat'] = True
 if session_info['error_repeat']:
-    session_info['error_repeat_max'] = 3
+    session_info['error_max'] = 3
 
 # condition setup
 session_info['cue'] = ['sound', 'LED', 'sound+LED']
