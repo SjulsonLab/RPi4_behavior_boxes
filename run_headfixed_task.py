@@ -99,7 +99,7 @@ try:
     t_end = time.time() + 60 * t_minute
 
     while time.time() < t_end:
-        block_number = random.randint(1, session_info["block_diversity"])
+        block_number = random.randint(1, session_info["block_variety"])
         for block in range(session_info["block_duration"]):
             # logging.info(str("############################################################\n" +
             #                  str(time.time())) + ", " + str(task.trial_number) + ", starting_trial, block "
