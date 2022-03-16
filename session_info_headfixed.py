@@ -43,7 +43,7 @@ session_info['vis_raws']					= []
 
 session_info['config']	                    = 'headfixed_soyoun'
 session_info['treadmill_setup']['present']             = True
-session_info['trainingPhase']             	= 1
+session_info['phase']             	= 1
 
 if session_info['treadmill_setup']['present']:
     session_info['treadmill_setup']['distance_initiation'] = 1  # cm
