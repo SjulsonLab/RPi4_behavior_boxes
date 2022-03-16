@@ -46,3 +46,4 @@ class TaskInformation(object):
         card = block_map[row_index]
 
         return card
+# print(TaskInformation().draw_card(1,1))
