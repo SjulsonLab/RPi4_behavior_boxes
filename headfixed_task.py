@@ -120,14 +120,14 @@ class HeadfixedTask(object):
         self.distance_buffer = self.treadmill.distance_cm
         self.distance_diff = 0
         self.sound_on = False
-        threading.Timer(0.1, self.play_sound).start()
+        # threading.Timer(0.1, self.play_sound).start()
 
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
     def run(self):
-        # if self.sound_on:
-        #     self.box.sound1.blink(0.01, 1, 2)
+        if self.sound_on:
+            self.box.sound1.blink(0.1, 0.9, 1)
         if self.box.event_list:
             event_name = self.box.event_list.popleft()
         else:
@@ -224,12 +224,14 @@ class HeadfixedTask(object):
     def check_cue(self, cue):
         if cue == 'sound':
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 on")
+            self.box.sound1.blink(0.1, 0.9, 1)
             self.sound_on = True
         elif cue == 'LED':
             self.box.cueLED1.on()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 on")
         else:
             self.box.cueLED1.on()
+            self.box.sound1.blink(0.1, 0.9, 1)
             self.sound_on = True
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 on (free choice)")
 
@@ -246,9 +248,9 @@ class HeadfixedTask(object):
             self.box.cueLED1.off()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 off (free choice)")
 
-    def play_sound(self):
-        if self.sound_on:
-            self.box.sound1.blink(0.1, 0.9, 1)
+    # def play_sound(self):
+    #     if self.sound_on:
+    #         self.box.sound1.blink(0.1, 0.9, 1)
     ########################################################################
     # methods to start and end the behavioral session
     ########################################################################
