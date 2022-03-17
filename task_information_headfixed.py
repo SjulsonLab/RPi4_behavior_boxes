@@ -36,14 +36,19 @@ class TaskInformation(object):
                 ('sound+LED', 'distance_long', 'right', 'small')]}
 
     def draw_card(self, block_key, phase):
+        row_start = 0
+        row_end = 7
         if phase == 1:
             row_end = 3
+        elif phase == 'free_choice':
+            row_start = 4
+            row_end = 7
         else:
-            row_end = 8
+            pass
         block_map = self.block[block_key]
-        row_index = random.randint(0, row_end)
-        # print(str(row_index))
+        row_index = random.randint(row_start, row_end)
+        print(str(row_index))
         card = block_map[row_index]
 
         return card
-# print(TaskInformation().draw_card(1,1))
+# print(TaskInformation().draw_card(2,'free_choice'))

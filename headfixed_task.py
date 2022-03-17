@@ -90,8 +90,7 @@ class HeadfixedTask(object):
             Timeout(name='reward_available',
                     on_enter=["enter_reward_available"],
                     on_exit=["exit_reward_available"],
-                    timeout=self.session_info["reward_timeout"] +
-                    self.session_info["reward_wait"],
+                    timeout=self.session_info["reward_timeout"],
                     on_timeout=["restart"])
         ]
         self.transitions = [
@@ -137,6 +136,7 @@ class HeadfixedTask(object):
             else:
                 self.error_count += 1
         elif self.state == "cue_state":
+            self.box.sound1.blink(0.01, 1, 1)
             self.distance_diff = self.treadmill.distance_cm - self.distance_buffer
             distance_condition = self.current_card[1]
             distance_required = self.session_info['treadmill_setup'][distance_condition]
@@ -158,7 +158,11 @@ class HeadfixedTask(object):
             if side_mice:
                 reward_size = self.current_card[3]
                 if cue_state == 'sound+LED':
-                    self.pump.reward(side_mice, self.session_info["reward_size"][reward_size])
+                    if side_mice == 'left':
+                        pump_num = '1'
+                    elif side_mice == 'right':
+                        pump_num = '2'
+                    self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
                 elif side_choice == side_mice:
                     if side_mice == 'left':
                         self.pump.reward('1', self.session_info["reward_size"][reward_size])
@@ -166,6 +170,7 @@ class HeadfixedTask(object):
                         self.pump.reward('2', self.session_info["reward_size"][reward_size])
                 else:
                     self.error_count += 1
+                self.restart()
             else:
                 self.error_count += 1
         # look for keystrokes
