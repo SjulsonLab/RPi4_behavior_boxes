@@ -136,7 +136,7 @@ class HeadfixedTask(object):
             else:
                 self.error_count += 1
         elif self.state == "cue_state":
-            if self.current_card[0] == 'sound':
+            if self.current_card[0] == 'sound' or 'sound+LED':
                 self.box.sound1.blink(0.01, 1, 2)
             self.distance_diff = self.treadmill.distance_cm - self.distance_buffer
             distance_condition = self.current_card[1]
@@ -226,8 +226,8 @@ class HeadfixedTask(object):
             self.box.cueLED1.on()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 on")
         else:
-            self.box.sound1.on()
             self.box.cueLED1.on()
+            self.box.sound1.blink(0.1, 0.1, 5)
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 on (free choice)")
 
     def cue_off(self, cue):
@@ -239,7 +239,7 @@ class HeadfixedTask(object):
             self.box.cueLED1.off()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 off")
         else:
-            self.box.sound1.off()
+            # self.box.sound1.off()
             self.box.cueLED1.off()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 off (free choice)")
 
