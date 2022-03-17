@@ -1,5 +1,14 @@
 #!/usr/bin/env -S ipython3 -i
-# run_model_task.py
+# run_headfixed_task.py
+"""
+author: tian qiu
+date: 2022-03-16
+name: run_headfixed_task.py
+goal: model_based reinforcement learning behavioral training run task file
+description:
+    an updated test version of run_soyoun_task.py
+
+"""
 import random
 
 debug_enable = False

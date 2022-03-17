@@ -1,4 +1,13 @@
 # python3: headfixed_task.py
+"""
+author: tian qiu
+date: 2022-03-16
+name: headfixed_task.py
+goal: model_based reinforcement learning behavioral training task structure
+description:
+    an updated test version of soyoun_task.py
+
+"""
 import importlib
 from transitions import Machine
 from transitions import State
