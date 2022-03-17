@@ -219,11 +219,10 @@ class HeadfixedTask(object):
         pass
 
     def check_cue(self, cue):
-        # if cue == 'sound':
-        #     self.box.sound1.on()  # could be modify according to specific sound cue
-        #     logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 on")
-        # el
-        if cue == 'LED':
+        if cue == 'sound':
+            self.box.sound1.blink(0.1,0.1,5)  # could be modify according to specific sound cue
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 on")
+        elif cue == 'LED':
             self.box.cueLED1.on()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 on")
         else:
