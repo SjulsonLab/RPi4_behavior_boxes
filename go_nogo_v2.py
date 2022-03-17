@@ -369,15 +369,15 @@ class go_nogo_task(object):
     ########################################################################
     def countdown(self, t):
         # This counts down the length of reward_available or lick_count duration (1s)
-        logging.info(str(time.time()) + ", 2s countdown starts...")
+        logging.info(str(time.time()) + ", 1.5s countdown starts...")
         while t > 0:
             # mins, secs = divmod(t, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
             time.sleep(0.5)
             t -= 0.5
-        logging.info(str(time.time()) + ", 2s countdown ends...")
-        self.box.event_list.append("2s countdown ends...")
+        logging.info(str(time.time()) + ", 1.5s countdown ends...")
+        self.box.event_list.append("1.5s countdown ends...")
 
     def countdown_iti(self, t_iti):
         # This counts down iti of variable lengths
@@ -425,12 +425,12 @@ class go_nogo_task(object):
                 self.time_at_reward = time.time() - self.trial_start_time
                 self.start_temp1()  # trigger state transition to temp1
 
-            elif event_name == "2s countdown ends...":
+            elif event_name == "1.5s countdown ends...":
                 self.start_vacuum_reward_available()  # trigger transition to vacuum state
 
         elif self.state == "temp1":
             # transition to vacuum state when vstim 4s countdown ends
-            if event_name == "2s countdown ends...":
+            if event_name == "1.5s countdown ends...":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
                 self.start_vacuum_temp1()
 
@@ -473,11 +473,11 @@ class go_nogo_task(object):
             if event_name == "left_IR_entry":
                 self.start_temp2()
 
-            elif event_name == "2s countdown ends...":
+            elif event_name == "1.5s countdown ends...":
                 self.start_vacuum_lick_count()  # trigger transition to vacuum state
 
         elif self.state == "temp2":
-            if event_name == "2s countdown ends...":
+            if event_name == "1.5s countdown ends...":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
                 self.start_vacuum_temp2()
 
