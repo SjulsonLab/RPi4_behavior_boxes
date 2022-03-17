@@ -231,11 +231,11 @@ class HeadfixedTask(object):
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 on (free choice)")
 
     def cue_off(self, cue):
-        # if cue == 'sound':
-        #     self.box.sound1.off()  # could be modify according to specific sound cue
-        #     logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 off")
-        # el
-        if cue == 'LED':
+        if cue == 'sound':
+            # self.box.sound1.off()  # could be modify according to specific sound cue
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 off")
+            pass
+        elif cue == 'LED':
             self.box.cueLED1.off()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 off")
         else:
