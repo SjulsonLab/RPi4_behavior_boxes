@@ -136,7 +136,8 @@ class HeadfixedTask(object):
             else:
                 self.error_count += 1
         elif self.state == "cue_state":
-            self.box.sound1.blink(0.01, 1, 1)
+            if self.current_card[0] == 'sound':
+                self.box.sound1.blink(0.01, 1, 2)
             self.distance_diff = self.treadmill.distance_cm - self.distance_buffer
             distance_condition = self.current_card[1]
             distance_required = self.session_info['treadmill_setup'][distance_condition]
@@ -218,10 +219,11 @@ class HeadfixedTask(object):
         pass
 
     def check_cue(self, cue):
-        if cue == 'sound':
-            self.box.sound1.on()  # could be modify according to specific sound cue
-            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 on")
-        elif cue == 'LED':
+        # if cue == 'sound':
+        #     self.box.sound1.on()  # could be modify according to specific sound cue
+        #     logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 on")
+        # el
+        if cue == 'LED':
             self.box.cueLED1.on()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 on")
         else:
@@ -230,10 +232,11 @@ class HeadfixedTask(object):
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 on (free choice)")
 
     def cue_off(self, cue):
-        if cue == 'sound':
-            self.box.sound1.off()  # could be modify according to specific sound cue
-            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 off")
-        elif cue == 'LED':
+        # if cue == 'sound':
+        #     self.box.sound1.off()  # could be modify according to specific sound cue
+        #     logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 off")
+        # el
+        if cue == 'LED':
             self.box.cueLED1.off()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 off")
         else:
