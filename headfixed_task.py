@@ -126,7 +126,9 @@ class HeadfixedTask(object):
     # functions called when state transitions occur
     ########################################################################
     def run(self):
+        self.box.sound1.off()
         if self.sound_on:
+
             self.box.sound1.blink(0.1, 0.9, 1)
         if self.box.event_list:
             event_name = self.box.event_list.popleft()
@@ -224,7 +226,7 @@ class HeadfixedTask(object):
     def check_cue(self, cue):
         if cue == 'sound':
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 on")
-            self.box.sound1.blink(0.1, 0.9, 1)
+            self.box.sound1.on()
             self.sound_on = True
         elif cue == 'LED':
             self.box.cueLED1.on()
