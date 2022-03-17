@@ -42,6 +42,7 @@ session_info['vis_raws']					= []
 # task related information
 
 session_info['config']	                    = 'headfixed_soyoun'
+session_info['treadmill_setup'] = {}
 session_info['treadmill_setup']['present']             = True
 session_info['phase']             	= 1
 
@@ -64,17 +65,16 @@ session_info['reward'] = ['small', 'large']  # reward size
 session_info['reward_size'] = {'small': 5, 'large': 10}
 
 if session_info['phase'] == 1:
-    session_info['reward_size'] = {'small': 50, 'large': 50}
+    session_info['reward_size'] = {'small': 20, 'large': 20}
 
 # define timeout during each condition
-session_info['initiation_timeout'] = 5  # s
-session_info['cue_timeout'] = 5
-session_info['reward_timeout'] = 5
-session_info["reward_wait"] = 5
+session_info['initiation_timeout'] = 120  # s
+session_info['cue_timeout'] = 120
+session_info['reward_timeout'] = 60
 session_info["punishment_timeout"] = 1
 
 # define block_duration and initial block to start the session
-session_info['block_duration'] = 2  # each block has this amount of repetition
+session_info['block_duration'] = 5  # each block has this amount of repetition
 session_info['block_variety'] = 2
 if session_info['block_variety'] > 1:
     session_info['initial_block'] = 1
@@ -85,4 +85,4 @@ if session_info['block_variety'] > 1:
 # allowing consecutive repeated trial?
 session_info['consecutive_control'] = True
 if session_info['consecutive_control']:
-    session_info['consecutive_control']['consecutive_max'] = 3
+    session_info['consecutive_max'] = 3

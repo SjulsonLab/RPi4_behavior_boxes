@@ -1,5 +1,14 @@
 #!/usr/bin/env -S ipython3 -i
-# run_model_task.py
+# run_headfixed_task.py
+"""
+author: tian qiu
+date: 2022-03-16
+name: run_headfixed_task.py
+goal: model_based reinforcement learning behavioral training run task file
+description:
+    an updated test version of run_soyoun_task.py
+
+"""
 import random
 
 debug_enable = False
@@ -111,11 +120,12 @@ try:
             while first_card or (session_info["error_repeat"] and task.error_count < session_info["error_max"]):
                 task.trial_number += 1
                 first_card = False
+                print("*******************************\n")
                 task.current_card = task_information.draw_card(block_number, session_info['phase'])
                 logging.info(str(time.time()) + ", " + str(task.trial_number) + ", current_card: " + str(task.current_card))
-                print("****************************\n" + "Block " + str(block_number) +
-                      "Current card condition: \n" +
-                      "****************************\n" +
+                print("Block " + str(block_number) +
+                      " - Current card condition: \n" +
+                      "*******************************\n" +
                       "*Cue: " + str(task.current_card[0]) + "\n" +
                       "*State: " + str(task.current_card[1]) + "\n" +
                       "*Choice: " + str(task.current_card[2]) + "\n" +

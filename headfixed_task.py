@@ -1,4 +1,13 @@
 # python3: headfixed_task.py
+"""
+author: tian qiu
+date: 2022-03-16
+name: headfixed_task.py
+goal: model_based reinforcement learning behavioral training task structure
+description:
+    an updated test version of soyoun_task.py
+
+"""
 import importlib
 from transitions import Machine
 from transitions import State
@@ -14,6 +23,7 @@ from colorama import Fore, Style
 import logging.config
 from time import sleep
 import random
+import threading
 
 logging.config.dictConfig(
     {
@@ -81,8 +91,7 @@ class HeadfixedTask(object):
             Timeout(name='reward_available',
                     on_enter=["enter_reward_available"],
                     on_exit=["exit_reward_available"],
-                    timeout=self.session_info["reward_timeout"] +
-                    self.session_info["reward_wait"],
+                    timeout=self.session_info["reward_timeout"],
                     on_timeout=["restart"])
         ]
         self.transitions = [
@@ -110,11 +119,17 @@ class HeadfixedTask(object):
         self.distance_initiation = self.session_info['treadmill_setup']['distance_initiation']
         self.distance_buffer = self.treadmill.distance_cm
         self.distance_diff = 0
+        self.sound_on = False
+        # threading.Timer(0.1, self.play_sound).start()
 
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
     def run(self):
+        self.box.sound1.off()
+        if self.sound_on:
+
+            self.box.sound1.blink(0.1, 0.9, 1)
         if self.box.event_list:
             event_name = self.box.event_list.popleft()
         else:
@@ -149,7 +164,11 @@ class HeadfixedTask(object):
             if side_mice:
                 reward_size = self.current_card[3]
                 if cue_state == 'sound+LED':
-                    self.pump.reward(side_mice, self.session_info["reward_size"][reward_size])
+                    if side_mice == 'left':
+                        pump_num = '1'
+                    elif side_mice == 'right':
+                        pump_num = '2'
+                    self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
                 elif side_choice == side_mice:
                     if side_mice == 'left':
                         self.pump.reward('1', self.session_info["reward_size"][reward_size])
@@ -157,6 +176,7 @@ class HeadfixedTask(object):
                         self.pump.reward('2', self.session_info["reward_size"][reward_size])
                 else:
                     self.error_count += 1
+                self.restart()
             else:
                 self.error_count += 1
         # look for keystrokes
@@ -205,28 +225,34 @@ class HeadfixedTask(object):
 
     def check_cue(self, cue):
         if cue == 'sound':
-            self.box.sound1.on()  # could be modify according to specific sound cue
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 on")
+            self.box.sound1.on()
+            self.sound_on = True
         elif cue == 'LED':
             self.box.cueLED1.on()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 on")
         else:
-            self.box.sound1.on()
             self.box.cueLED1.on()
+            self.box.sound1.blink(0.1, 0.9, 1)
+            self.sound_on = True
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 on (free choice)")
 
     def cue_off(self, cue):
         if cue == 'sound':
-            self.box.sound1.off()  # could be modify according to specific sound cue
+            self.sound_on = False
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue sound1 off")
+            pass
         elif cue == 'LED':
             self.box.cueLED1.off()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cueLED1 off")
         else:
-            self.box.sound1.off()
+            self.sound_on = False
             self.box.cueLED1.off()
             logging.info(str(time.time()) + ", " + str(self.trial_number) + ", sound1 + cueLED1 off (free choice)")
 
+    # def play_sound(self):
+    #     if self.sound_on:
+    #         self.box.sound1.blink(0.1, 0.9, 1)
     ########################################################################
     # methods to start and end the behavioral session
     ########################################################################
