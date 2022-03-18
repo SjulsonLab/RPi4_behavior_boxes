@@ -129,6 +129,8 @@ class HeadfixedTask(object):
             print("No lick_threshold defined in session_info. Therefore, default defined as 2 \n")
             self.lick_threshold = 2
 
+        # session_statistics
+        self.total_reward = 0
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
@@ -176,6 +178,7 @@ class HeadfixedTask(object):
                     elif side_mice == 'right':
                         pump_num = '2'
                     self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
+                    self.total_reward += 1
                 elif side_choice == side_mice:
                     print("Number of lick detected: " + str(self.lick_count))
                     if self.lick_count >= self.lick_threshold: # at least 2 lick needs to be detected in order to get reward
@@ -185,6 +188,7 @@ class HeadfixedTask(object):
                         elif side_mice == 'right':
                             self.pump.reward('2', self.session_info["reward_size"][reward_size])
                             # self.lick_count = 0
+                        self.total_reward += 1
                         self.restart()
                     else:
                         self.lick_count += 1
@@ -202,6 +206,7 @@ class HeadfixedTask(object):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering standby")
         self.trial_running = False
         self.lick_count = 0
+        print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
 
     def exit_standby(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting standby")
