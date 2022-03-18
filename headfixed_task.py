@@ -120,7 +120,9 @@ class HeadfixedTask(object):
         self.distance_buffer = self.treadmill.distance_cm
         self.distance_diff = 0
         self.sound_on = False
-        # threading.Timer(0.1, self.play_sound).start()
+
+        # for refining the lick detection
+        self.lick_count = 0
 
     ########################################################################
     # functions called when state transitions occur
@@ -170,15 +172,20 @@ class HeadfixedTask(object):
                         pump_num = '2'
                     self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
                 elif side_choice == side_mice:
-                    if side_mice == 'left':
-                        self.pump.reward('1', self.session_info["reward_size"][reward_size])
-                    elif side_mice == 'right':
-                        self.pump.reward('2', self.session_info["reward_size"][reward_size])
+                    self.lick_count += 1
+                    if self.lick_count >= 1:
+                        self.lick_count = 0
+                        if side_mice == 'left':
+                            self.pump.reward('1', self.session_info["reward_size"][reward_size])
+                        elif side_mice == 'right':
+                            self.pump.reward('2', self.session_info["reward_size"][reward_size])
                 else:
                     self.error_count += 1
+                    self.lick_count = 0
                 self.restart()
             else:
                 self.error_count += 1
+                self.lick_count = 0
         # look for keystrokes
         self.box.check_keybd()
 
