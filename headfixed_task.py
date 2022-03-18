@@ -176,26 +176,27 @@ class HeadfixedTask(object):
                     if self.lick_count >= 2:
                         if side_mice == 'left':
                             self.pump.reward('1', self.session_info["reward_size"][reward_size])
-                            self.lick_count = 0
+                            # self.lick_count = 0
                         elif side_mice == 'right':
                             self.pump.reward('2', self.session_info["reward_size"][reward_size])
-                            self.lick_count = 0
+                            # self.lick_count = 0
                         self.restart()
                     else:
                         self.lick_count += 1
                 else:
                     self.error_count += 1
-                    self.lick_count = 0
+                    # self.lick_count = 0
                     self.restart()
             else:
                 self.error_count += 1
-                self.lick_count = 0
+                # self.lick_count = 0
         # look for keystrokes
         self.box.check_keybd()
 
     def enter_standby(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering standby")
         self.trial_running = False
+        self.lick_count = 0
 
     def exit_standby(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting standby")
