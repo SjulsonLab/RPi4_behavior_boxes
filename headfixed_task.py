@@ -179,12 +179,13 @@ class HeadfixedTask(object):
                         elif side_mice == 'right':
                             self.pump.reward('2', self.session_info["reward_size"][reward_size])
                             self.lick_count = 0
+                        self.restart()
                     else:
                         self.lick_count += 1
                 else:
                     self.error_count += 1
                     self.lick_count = 0
-                self.restart()
+                    self.restart()
             else:
                 self.error_count += 1
                 self.lick_count = 0
