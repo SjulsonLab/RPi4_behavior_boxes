@@ -172,12 +172,13 @@ class HeadfixedTask(object):
                         pump_num = '2'
                     self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
                 elif side_choice == side_mice:
-                    if self.lick_count >= 1:
-                        self.lick_count = 0
+                    if self.lick_count >= 2:
                         if side_mice == 'left':
                             self.pump.reward('1', self.session_info["reward_size"][reward_size])
+                            self.lick_count = 0
                         elif side_mice == 'right':
                             self.pump.reward('2', self.session_info["reward_size"][reward_size])
+                            self.lick_count = 0
                     else:
                         self.lick_count += 1
                 else:
