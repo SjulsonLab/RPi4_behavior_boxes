@@ -164,7 +164,6 @@ class HeadfixedTask(object):
             # first detect the lick signal:
             cue_state = self.current_card[0]
             side_choice = self.current_card[2]
-            # question: do we want entry mark as lick?
             side_mice = None
             if event_name == "left_IR_entry":
                 side_mice = 'left'
@@ -172,33 +171,23 @@ class HeadfixedTask(object):
                 side_mice = 'right'
             if side_mice:
                 reward_size = self.current_card[3]
-                if cue_state == 'sound+LED':
-                    if side_mice == 'left':
-                        pump_num = '1'
-                    elif side_mice == 'right':
-                        pump_num = '2'
-                    self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
-                    self.total_reward += 1
-                elif side_choice == side_mice:
+                if cue_state == 'sound+LED' or side_choice == side_mice:
                     print("Number of lick detected: " + str(self.lick_count))
-                    if self.lick_count >= self.lick_threshold: # at least 2 lick needs to be detected in order to get reward
+                    if self.lick_count >= self.lick_threshold:
+                        # at least 2 lick needs to be detected in order to get reward
                         if side_mice == 'left':
                             self.pump.reward('1', self.session_info["reward_size"][reward_size])
-                            # self.lick_count = 0
                         elif side_mice == 'right':
                             self.pump.reward('2', self.session_info["reward_size"][reward_size])
-                            # self.lick_count = 0
                         self.total_reward += 1
                         self.restart()
                     else:
                         self.lick_count += 1
                 else:
                     self.error_count += 1
-                    # self.lick_count = 0
                     self.restart()
             else:
                 self.error_count += 1
-                # self.lick_count = 0
         # look for keystrokes
         self.box.check_keybd()
 
