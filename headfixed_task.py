@@ -108,8 +108,11 @@ class HeadfixedTask(object):
             initial='standby'
         )
         self.trial_running = False
+
+        # trial statistics
         self.trial_number = 0
         self.error_count = 0
+        self.error_regret_count = 0
         self.current_card = None
 
         # initialize behavior box
@@ -124,6 +127,7 @@ class HeadfixedTask(object):
         # for refining the lick detection
         self.lick_count = 0
         self.side_mice_buffer = None
+
         try:
             self.lick_threshold = self.session_info["lick_threshold"]
         except:
