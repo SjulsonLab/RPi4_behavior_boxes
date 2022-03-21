@@ -173,12 +173,17 @@ class HeadfixedTask(object):
                 reward_size = self.current_card[3]
                 if cue_state == 'sound+LED' or side_choice == side_mice:
                     print("Number of lick detected: " + str(self.lick_count))
-                    if self.lick_count >= self.lick_threshold:
-                        # at least 2 lick needs to be detected in order to get reward
+                    if self.lick_count == 0:
                         if side_mice == 'left':
                             self.pump.reward('1', self.session_info["reward_size"][reward_size])
                         elif side_mice == 'right':
                             self.pump.reward('2', self.session_info["reward_size"][reward_size])
+                    elif self.lick_count >= self.lick_threshold:
+                        # at least 2 lick needs to be detected in order to get reward
+                        # if side_mice == 'left':
+                        #     self.pump.reward('1', self.session_info["reward_size"][reward_size])
+                        # elif side_mice == 'right':
+                        #     self.pump.reward('2', self.session_info["reward_size"][reward_size])
                         self.total_reward += 1
                         self.restart()
                     else:
