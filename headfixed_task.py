@@ -187,6 +187,13 @@ class HeadfixedTask(object):
                         elif side_mice == 'right':
                             self.pump.reward('2', self.session_info["reward_size"][reward_size])
                         self.lick_count += 1
+                    elif self.side_mice_buffer == side_mice:
+                        self.lick_count += 1
+                    elif self.side_mice_buffer != side_mice: # if mice lick more than once
+                        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", error_regret")
+                        self.error_regret_count += 1
+                        self.error_count += 1
+                        self.restart()
                     elif self.lick_count >= self.lick_threshold:
                         # at least 2 lick needs to be detected in order to get reward
                         # if side_mice == 'left':
@@ -194,13 +201,6 @@ class HeadfixedTask(object):
                         # elif side_mice == 'right':
                         #     self.pump.reward('2', self.session_info["reward_size"][reward_size])
                         self.total_reward += 1
-                        self.restart()
-                    elif self.side_mice_buffer == side_mice:
-                        self.lick_count += 1
-                    elif self.side_mice_buffer != side_mice: # if mice lick more than once
-                        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", error_regret")
-                        self.error_regret_count += 1
-                        self.error_count += 1
                         self.restart()
                 else:
                     self.error_count += 1
