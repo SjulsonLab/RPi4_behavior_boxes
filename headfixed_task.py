@@ -131,13 +131,13 @@ class HeadfixedTask(object):
 
         # session_statistics
         self.total_reward = 0
+
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
     def run(self):
         self.box.sound1.off()
         if self.sound_on:
-
             self.box.sound1.blink(0.1, 0.9, 1)
         if self.box.event_list:
             event_name = self.box.event_list.popleft()
@@ -178,6 +178,7 @@ class HeadfixedTask(object):
                             self.pump.reward('1', self.session_info["reward_size"][reward_size])
                         elif side_mice == 'right':
                             self.pump.reward('2', self.session_info["reward_size"][reward_size])
+                        self.lick_count += 1
                     elif self.lick_count >= self.lick_threshold:
                         # at least 2 lick needs to be detected in order to get reward
                         # if side_mice == 'left':
@@ -212,7 +213,8 @@ class HeadfixedTask(object):
         self.trial_running = True
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.treadmill.distance_cm
-        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", treadmill distance t0: " + str(self.distance_buffer))
+        logging.info(
+            str(time.time()) + ", " + str(self.trial_number) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_initiate(self):
         # check the flag to see whether to shuffle or keep the original card
@@ -224,7 +226,8 @@ class HeadfixedTask(object):
         self.check_cue(self.current_card[0])
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.treadmill.distance_cm
-        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", treadmill distance t0: " + str(self.distance_buffer))
+        logging.info(
+            str(time.time()) + ", " + str(self.trial_number) + ", treadmill distance t0: " + str(self.distance_buffer))
 
     def exit_cue_state(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting cue state")
