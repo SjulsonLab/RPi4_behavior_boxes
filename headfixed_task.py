@@ -123,6 +123,7 @@ class HeadfixedTask(object):
 
         # for refining the lick detection
         self.lick_count = 0
+        self.side_mice_buffer = None
         try:
             self.lick_threshold = self.session_info["lick_threshold"]
         except:
@@ -180,6 +181,7 @@ class HeadfixedTask(object):
                 if side_choice == side_mice or cue_state == 'sound+LED':
                     print("Number of lick detected: " + str(self.lick_count))
                     if self.lick_count == 0:
+                        self.side_mice_buffer = side_mice
                         if side_mice == 'left':
                             self.pump.reward('1', self.session_info["reward_size"][reward_size])
                         elif side_mice == 'right':
@@ -193,8 +195,13 @@ class HeadfixedTask(object):
                         #     self.pump.reward('2', self.session_info["reward_size"][reward_size])
                         self.total_reward += 1
                         self.restart()
-                    else:
+                    elif self.side_mice_buffer == side_mice:
                         self.lick_count += 1
+                    elif self.side_mice_buffer != side_mice: # if mice lick more than once
+                        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", error_regret")
+                        self.error_regret_count += 1
+                        self.error_count += 1
+                        self.restart()
                 else:
                     self.error_count += 1
                     self.restart()
@@ -207,6 +214,7 @@ class HeadfixedTask(object):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering standby")
         self.trial_running = False
         self.lick_count = 0
+        self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
 
     def exit_standby(self):
