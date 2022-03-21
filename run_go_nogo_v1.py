@@ -382,7 +382,7 @@ if __name__ == "__main__":
         elif training_phase == "phase2":
 
             # First run some buffer trials
-            num_buffer_trial = 2
+            num_buffer_trial = 5
             for bt in range(num_buffer_trial):
                 trial_ident = "go_trial"
                 logging.info(str(time.time()) + ", ##############################")
