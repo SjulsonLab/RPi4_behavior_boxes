@@ -177,6 +177,7 @@ class HeadfixedTask(object):
                             reward_size = "small"
                         if reward_size == "small":
                             reward_size = "large"
+                        print("mismatch reward size: " + reward_size)
                 if side_choice == side_mice or cue_state == 'sound+LED':
                     print("Number of lick detected: " + str(self.lick_count))
                     if self.lick_count == 0:
