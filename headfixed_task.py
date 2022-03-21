@@ -173,14 +173,10 @@ class HeadfixedTask(object):
                 reward_size = self.current_card[3]
                 if cue_state == 'sound+LED':
                     if side_choice != side_mice:
-                        print("Enter switcharooooooo \n")
-                        print("before changing " + reward_size)
                         if reward_size == "large":
                             reward_size = "small"
-                            print("mismatch reward size: " + reward_size)
-                        if reward_size == "small":
+                        elif reward_size == "small":
                             reward_size = "large"
-                            print("mismatch reward size: " + reward_size)
                 if side_choice == side_mice or cue_state == 'sound+LED':
                     print("Number of lick detected: " + str(self.lick_count))
                     if self.lick_count == 0:
