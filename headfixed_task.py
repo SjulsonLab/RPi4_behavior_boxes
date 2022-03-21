@@ -171,7 +171,13 @@ class HeadfixedTask(object):
                 side_mice = 'right'
             if side_mice:
                 reward_size = self.current_card[3]
-                if cue_state == 'sound+LED' or side_choice == side_mice:
+                if cue_state == 'sound+LED':
+                    if side_choice != side_mice:
+                        if reward_size == "large":
+                            reward_size = "small"
+                        if reward_size == "small":
+                            reward_size = "large"
+                if side_choice == side_mice or cue_state == 'sound+LED':
                     print("Number of lick detected: " + str(self.lick_count))
                     if self.lick_count == 0:
                         if side_mice == 'left':
