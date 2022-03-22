@@ -113,6 +113,7 @@ class HeadfixedTask(object):
         self.trial_number = 0
         self.error_count = 0
         self.error_regret_count = 0
+        self.event_array = []
         self.current_card = None
 
         # initialize behavior box
@@ -164,7 +165,6 @@ class HeadfixedTask(object):
                 self.evaluate_reward()
             else:
                 self.error_count += 1
-
         elif self.state == "reward_available":
             # first detect the lick signal:
             cue_state = self.current_card[0]
@@ -191,32 +191,33 @@ class HeadfixedTask(object):
                         elif side_mice == 'right':
                             self.pump.reward('2', self.session_info["reward_size"][reward_size])
                         self.lick_count += 1
-                    elif self.side_mice_buffer == side_mice:
-                        self.lick_count += 1
+                    elif self.lick_count >= self.lick_threshold:
+                        self.total_reward += 1
+                        self.event_array.append('correct_trial')
+                        self.restart()
                     elif self.side_mice_buffer != side_mice: # if mice lick more than once
                         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", error_regret")
                         self.error_regret_count += 1
                         self.error_count += 1
+                        self.event_array.append('regret_error')
                         self.restart()
-                    elif self.lick_count >= self.lick_threshold:
-                        # at least 2 lick needs to be detected in order to get reward
-                        # if side_mice == 'left':
-                        #     self.pump.reward('1', self.session_info["reward_size"][reward_size])
-                        # elif side_mice == 'right':
-                        #     self.pump.reward('2', self.session_info["reward_size"][reward_size])
-                        self.total_reward += 1
-                        self.restart()
+                    elif self.side_mice_buffer == side_mice:
+                        self.lick_count += 1
                 else:
                     self.error_count += 1
+                    self.event_array.append('wrong_choice_error')
                     self.restart()
             else:
                 self.error_count += 1
+                self.event_array.append('miss_lick_error')
         # look for keystrokes
         self.box.check_keybd()
 
     def enter_standby(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering standby")
         self.trial_running = False
+        if self.lick_count < self.lick_threshold:
+            self.event_array.append('insufficient_lick_error')
         self.lick_count = 0
         self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
@@ -237,6 +238,7 @@ class HeadfixedTask(object):
     def exit_initiate(self):
         # check the flag to see whether to shuffle or keep the original card
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting initiate")
+        self.event_array.append('initiate_distance_error')
 
     def enter_cue_state(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering cue state")
@@ -250,6 +252,7 @@ class HeadfixedTask(object):
     def exit_cue_state(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting cue state")
         self.cue_off(self.current_card[0])
+        self.event_array.append('cue_state_distance_error')
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering reward available")
