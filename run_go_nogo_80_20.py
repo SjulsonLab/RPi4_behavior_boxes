@@ -387,18 +387,18 @@ if __name__ == "__main__":
 
                 #  Determine trial identity
                 # The first 2 trials are always go_trials
-                if i < 9:
+                if i < 8:
                     trial_ident = "go_trial"
                     print("go_trial")
                     go_nums = go_nums + 1
                     avoid_go = avoid_go + 1
-                elif avoid_go == 9:
+                elif avoid_go == 8:
                     trial_ident = "nogo_trial"
                     print("nogo_trial")
                     nogo_nums = nogo_nums + 1
                     avoid_go = 0
                     avoid_nogo = avoid_nogo + 1
-                elif avoid_nogo == 1:
+                elif avoid_nogo == 2:
                     trial_ident = "go_trial"
                     print("go_trial")
                     go_nums = go_nums + 1
