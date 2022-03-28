@@ -220,8 +220,8 @@ class HeadfixedTask(object):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering standby")
         self.trial_running = False
         if self.lick_count < self.lick_threshold:
-            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", insufficient_lick_error")
-            self.event_array.append('insufficient_lick_error')
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", lick_error")
+            self.event_array.append('lick_error')
         self.lick_count = 0
         self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
