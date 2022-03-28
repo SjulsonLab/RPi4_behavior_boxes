@@ -9,10 +9,10 @@ class TaskInformation(object):
             1: [
                 # block_1 forced component
                 ('LED', 'distance_short', 'right', 'large'),  # forced choice block 1
-                ('LED', 'distance_long', 'left', 'large'),  # 0, 1 index for corresponding condition setup
+                ('LED', 'distance_long', 'left', 'small'),  # 0, 1 index for corresponding condition setup
                 ('sound', 'distance_short', 'left', 'small'),
                 # column 0 is cue, 1 is state, 2 is choice, 3 is reward_amount
-                ('sound', 'distance_long', 'right', 'small'),
+                ('sound', 'distance_long', 'right', 'large'),
                 # each row is a combination of the condition parameter for block 1
                 # block_1 free component
                 ('sound+LED', 'distance_short', 'right', 'large'),  # free choice block 1
@@ -23,10 +23,10 @@ class TaskInformation(object):
             2: [
                 # block_2 forced component
                 ('LED', 'distance_short', 'right', 'small'),  # forced choice block 2
-                ('LED', 'distance_long', 'left', 'small'),  # 0, 1 index for corresponding condition setup
+                ('LED', 'distance_long', 'left', 'large'),  # 0, 1 index for corresponding condition setup
                 ('sound', 'distance_short', 'left', 'large'),
                 # column 0 is cue, 1 is state, 2 is choice, 3 is reward_amount
-                ('sound', 'distance_long', 'right', 'large'),
+                ('sound', 'distance_long', 'right', 'small'),
                 # each row is a combination of the condition parameter for block 1
                 # block_2 free component
                 ('sound+LED', 'distance_short', 'right', 'small'),  # free choice block 2
