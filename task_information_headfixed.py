@@ -38,13 +38,16 @@ class TaskInformation(object):
     def draw_card(self, block_key, phase):
         row_start = 0
         row_end = 7
-        if phase == 1:
+        if phase == 'forced_choice':
             row_end = 3
         elif phase == 'free_choice':
             row_start = 4
             row_end = 7
-        else:
-            pass
+        elif phase == 'forced_choice_LED':
+            row_end = 1
+        elif phase == 'forced_choice_sound':
+            row_start = 2
+            row_end = 3
         block_map = self.block[block_key]
         row_index = random.randint(row_start, row_end)
         print(str(row_index))

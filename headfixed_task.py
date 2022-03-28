@@ -193,10 +193,11 @@ class HeadfixedTask(object):
                         self.lick_count += 1
                     elif self.lick_count >= self.lick_threshold:
                         self.total_reward += 1
+                        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", correct_trial")
                         self.event_array.append('correct_trial')
                         self.restart()
                     elif self.side_mice_buffer != side_mice: # if mice lick more than once
-                        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", error_regret")
+                        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", regret_error")
                         self.error_regret_count += 1
                         self.error_count += 1
                         self.event_array.append('regret_error')
@@ -205,10 +206,12 @@ class HeadfixedTask(object):
                         self.lick_count += 1
                 else:
                     self.error_count += 1
+                    logging.info(str(time.time()) + ", " + str(self.trial_number) + ", wrong_choice_error")
                     self.event_array.append('wrong_choice_error')
                     self.restart()
             else:
                 self.error_count += 1
+                logging.info(str(time.time()) + ", " + str(self.trial_number) + ", miss_lick_error")
                 self.event_array.append('miss_lick_error')
         # look for keystrokes
         self.box.check_keybd()
@@ -217,6 +220,7 @@ class HeadfixedTask(object):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering standby")
         self.trial_running = False
         if self.lick_count < self.lick_threshold:
+            logging.info(str(time.time()) + ", " + str(self.trial_number) + ", insufficient_lick_error")
             self.event_array.append('insufficient_lick_error')
         self.lick_count = 0
         self.side_mice_buffer = None
@@ -238,6 +242,7 @@ class HeadfixedTask(object):
     def exit_initiate(self):
         # check the flag to see whether to shuffle or keep the original card
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting initiate")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", initiate_distance_error")
         self.event_array.append('initiate_distance_error')
 
     def enter_cue_state(self):
@@ -251,6 +256,7 @@ class HeadfixedTask(object):
 
     def exit_cue_state(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting cue state")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue_state_timeout_error")
         self.cue_off(self.current_card[0])
         self.event_array.append('cue_state_distance_error')
 
@@ -261,6 +267,7 @@ class HeadfixedTask(object):
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting reward available")
+        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue_state_timeout_error")
         pass
 
     def check_cue(self, cue):
