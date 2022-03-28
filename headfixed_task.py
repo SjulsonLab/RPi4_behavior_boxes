@@ -193,11 +193,11 @@ class HeadfixedTask(object):
                         self.lick_count += 1
                     elif self.lick_count >= self.lick_threshold:
                         self.total_reward += 1
-                        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", correct_trial")
+                        # logging.info(str(time.time()) + ", " + str(self.trial_number) + ", correct_trial")
                         self.event_array.append('correct_trial')
                         self.restart()
                     elif self.side_mice_buffer != side_mice: # if mice lick more than once
-                        logging.info(str(time.time()) + ", " + str(self.trial_number) + ", regret_error")
+                        # logging.info(str(time.time()) + ", " + str(self.trial_number) + ", regret_error")
                         self.error_regret_count += 1
                         self.error_count += 1
                         self.event_array.append('regret_error')
@@ -206,13 +206,13 @@ class HeadfixedTask(object):
                         self.lick_count += 1
                 else:
                     self.error_count += 1
-                    logging.info(str(time.time()) + ", " + str(self.trial_number) + ", wrong_choice_error")
+                    # logging.info(str(time.time()) + ", " + str(self.trial_number) + ", wrong_choice_error")
                     self.event_array.append('wrong_choice_error')
                     self.restart()
             else:
                 self.error_count += 1
-                logging.info(str(time.time()) + ", " + str(self.trial_number) + ", miss_lick_error")
-                self.event_array.append('miss_lick_error')
+                # logging.info(str(time.time()) + ", " + str(self.trial_number) + ", miss_lick_error")
+                # self.event_array.append('miss_lick_error')
         # look for keystrokes
         self.box.check_keybd()
 
