@@ -383,41 +383,27 @@ if __name__ == "__main__":
 
             # 80:20 go:no_go ratio
             for i in range(session_info['number_of_trials']):
-                ident_random = (round(random.uniform(0, 1) * 100)) % 2
+                ident_random = round(random.uniform(0, 10))
 
-                #  Determine trial identity
-                # The first 8 trials are always go_trials
-                if i < 9:
+                # Determine trial identity
+                # The first 5 trials are always go_trials
+                if i < 5:
                     trial_ident = "go_trial"
                     print("go_trial")
                     go_nums = go_nums + 1
                     avoid_go = avoid_go + 1
-                elif avoid_go == 8:
-                    trial_ident = "nogo_trial"
-                    print("nogo_trial")
-                    nogo_nums = nogo_nums + 1
-                    avoid_go = 0
-                    avoid_nogo = avoid_nogo + 1
-                elif avoid_nogo == 2:
+                elif avoid_nogo == 1:
                     trial_ident = "go_trial"
                     print("go_trial")
                     go_nums = go_nums + 1
                     avoid_nogo = 0
                     avoid_go = avoid_go + 1
-                # elif go_nums > nogo_nums + 8:
-                #     trial_ident = "nogo_trial"
-                #     print("nogo_trial")
-                #     nogo_nums = nogo_nums + 1
-                # elif nogo_nums > go_nums + 1:
-                #     trial_ident = "go_trial"
-                #     print("go_trial")
-                #     go_nums = go_nums + 1
-                elif ident_random == 1:
+                elif ident_random < 9:
                     trial_ident = "go_trial"
                     go_nums = go_nums + 1
                     avoid_go = avoid_go + 1
                     print("go_trial")
-                elif ident_random == 0:
+                elif ident_random > 8:
                     trial_ident = "nogo_trial"
                     nogo_nums = nogo_nums + 1
                     avoid_nogo = avoid_nogo + 1
