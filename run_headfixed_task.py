@@ -136,7 +136,7 @@ try:
 
                 while task.trial_running:
                     task.run()  # run command trigger additional functions outside of the state machine
-
+                print("error_count: " + task.error_count)
     raise SystemExit
 
 # graceful exit
