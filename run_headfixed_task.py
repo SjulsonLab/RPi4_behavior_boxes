@@ -101,7 +101,7 @@ try:
     task.start_session()
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
     pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
-    sleep(10)
+    # sleep(10)
     # loop over trials
     # Set a timer
     t_minute = int(input("Enter the time in minutes: "))
