@@ -112,7 +112,7 @@ class HeadfixedTask(object):
         # trial statistics
         self.trial_number = 0
         self.error_count = 0
-        self.error_regret_count = 0
+        # self.error_regret_count = 0
         self.event_array = []
         self.current_card = None
 
@@ -155,16 +155,16 @@ class HeadfixedTask(object):
             self.distance_diff = self.treadmill.distance_cm - self.distance_buffer
             if self.distance_diff >= self.distance_initiation:
                 self.start_cue()
-            else:
-                self.error_count += 1
+            # else:
+            #     self.error_count += 1
         elif self.state == "cue_state":
             self.distance_diff = self.treadmill.distance_cm - self.distance_buffer
             distance_condition = self.current_card[1]
             distance_required = self.session_info['treadmill_setup'][distance_condition]
             if self.distance_diff >= distance_required:
                 self.evaluate_reward()
-            else:
-                self.error_count += 1
+            # else:
+            #     self.error_count += 1
         elif self.state == "reward_available":
             # first detect the lick signal:
             cue_state = self.current_card[0]
@@ -198,19 +198,19 @@ class HeadfixedTask(object):
                         self.restart()
                     elif self.side_mice_buffer != side_mice: # if mice lick more than once
                         # logging.info(str(time.time()) + ", " + str(self.trial_number) + ", regret_error")
-                        self.error_regret_count += 1
-                        self.error_count += 1
+                        # self.error_regret_count += 1
+                        # self.error_count += 1
                         self.event_array.append('regret_error')
                         self.restart()
                     elif self.side_mice_buffer == side_mice:
                         self.lick_count += 1
                 else:
-                    self.error_count += 1
                     # logging.info(str(time.time()) + ", " + str(self.trial_number) + ", wrong_choice_error")
                     self.event_array.append('wrong_choice_error')
+                    self.error_count += 1
                     self.restart()
-            else:
-                self.error_count += 1
+            # else:
+            #     self.error_count += 1
                 # logging.info(str(time.time()) + ", " + str(self.trial_number) + ", miss_lick_error")
                 # self.event_array.append('miss_lick_error')
         # look for keystrokes
@@ -243,6 +243,7 @@ class HeadfixedTask(object):
         # check the flag to see whether to shuffle or keep the original card
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting initiate")
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", initiate_distance_error")
+        self.error_count += 1
         self.event_array.append('initiate_distance_error')
 
     def enter_cue_state(self):
@@ -259,6 +260,7 @@ class HeadfixedTask(object):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue_state_timeout_error")
         self.cue_off(self.current_card[0])
         self.event_array.append('cue_state_distance_error')
+        self.error_count += 1
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", entering reward available")
@@ -268,6 +270,7 @@ class HeadfixedTask(object):
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", exiting reward available")
         logging.info(str(time.time()) + ", " + str(self.trial_number) + ", cue_state_timeout_error")
+        self.error_count += 1
         pass
 
     def check_cue(self, cue):
