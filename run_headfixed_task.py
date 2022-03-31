@@ -132,6 +132,14 @@ try:
                   "*Reward: " + str(task.current_card[3]) + "\n")
             while first_card or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
                 "error_max"]):
+                if task.error_repeat:
+                    print("*error_repeat trial* \n" + "Block " + str(block_number) +
+                          " - Current card condition: \n" +
+                          "*******************************\n" +
+                          "*Cue: " + str(task.current_card[0]) + "\n" +
+                          "*State: " + str(task.current_card[1]) + "\n" +
+                          "*Choice: " + str(task.current_card[2]) + "\n" +
+                          "*Reward: " + str(task.current_card[3]) + "\n")
                 first_card = False
                 logging.info(str(time.time()) + ", " + str(task.trial_number) + ", start_trial()")
                 task.start_trial()  # initiate the time state machine, start_trial() is a trigger
