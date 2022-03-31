@@ -115,6 +115,7 @@ try:
             #                                                                               "number: " + str(
             #     block_number) +
             #              str("\n############################################################"))
+            print("Trial " + str(block) + " \n")
             first_card = True
             task.error_count = 0
             while first_card or (session_info["error_repeat"] and task.error_count < session_info["error_max"]):
