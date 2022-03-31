@@ -89,6 +89,7 @@ try:
     )
 
     from task_information_headfixed import TaskInformation
+
     task_information = TaskInformation()
     # print("Imported task_information_headfixed: " + str(task_information.name))
 
@@ -129,7 +130,8 @@ try:
                   "*State: " + str(task.current_card[1]) + "\n" +
                   "*Choice: " + str(task.current_card[2]) + "\n" +
                   "*Reward: " + str(task.current_card[3]) + "\n")
-            while first_card or (session_info["error_repeat"] and task.error_count < session_info["error_max"]):
+            while first_card or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
+                "error_max"]):
                 first_card = False
                 logging.info(str(time.time()) + ", " + str(task.trial_number) + ", start_trial()")
                 task.start_trial()  # initiate the time state machine, start_trial() is a trigger
