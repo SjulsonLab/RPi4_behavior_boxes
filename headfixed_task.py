@@ -202,6 +202,7 @@ class HeadfixedTask(object):
                         self.lick_count += 1
                     elif self.lick_count >= self.lick_threshold:
                         self.total_reward += 1
+                        self.error_repeat = False
                         # logging.info(str(time.time()) + ", " + str(self.trial_number) + ", correct_trial")
                         self.reward_error = False
                         self.restart()
