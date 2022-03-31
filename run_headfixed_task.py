@@ -119,7 +119,6 @@ try:
             task.error_count = 0
             print("Trial " + str(block) + " \n")
             task.trial_number += 1
-            first_card = False
             print("*******************************\n")
             task.current_card = task_information.draw_card(block_number, session_info['phase'])
             logging.info(str(time.time()) + ", " + str(task.trial_number) + ", current_card: " + str(task.current_card))
@@ -131,6 +130,7 @@ try:
                   "*Choice: " + str(task.current_card[2]) + "\n" +
                   "*Reward: " + str(task.current_card[3]) + "\n")
             while first_card or (session_info["error_repeat"] and task.error_count < session_info["error_max"]):
+                first_card = False
                 logging.info(str(time.time()) + ", " + str(task.trial_number) + ", start_trial()")
                 task.start_trial()  # initiate the time state machine, start_trial() is a trigger
                 while task.trial_running:
