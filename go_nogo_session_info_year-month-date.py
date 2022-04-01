@@ -33,8 +33,8 @@ session_info['number_of_phase1_trials']     = 500
 session_info['hit_criterion']               = 0.75  # 85% hit rate!
 session_info['lockout_length']              = 1.0  # in seconds
 session_info['vacuum_length']               = 0.8  # in seconds
-session_info['reward_size']					= 11  # in microliters
-session_info['reward_duration']             = 0.01
+session_info['reward_size']					= 10  # in microliters
+session_info['reward_duration']             = 0.05
 session_info['normal_iti_length']           = 3 - session_info['vacuum_length']
 session_info['punishment_iti_length']       = 6 - session_info['vacuum_length']
 
