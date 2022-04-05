@@ -404,12 +404,12 @@ if __name__ == "__main__":
                     go_nums = go_nums + 1
                     avoid_nogo = 0
                     avoid_go = avoid_go + 1
-                elif ident_random < 10:
+                elif ident_random < 9:
                     trial_ident = "go_trial"
                     go_nums = go_nums + 1
                     avoid_go = avoid_go + 1
                     print("go_trial")
-                elif ident_random > 9:
+                elif ident_random > 8:
                     trial_ident = "nogo_trial"
                     nogo_nums = nogo_nums + 1
                     avoid_nogo = avoid_nogo + 1
