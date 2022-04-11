@@ -6,19 +6,15 @@ import os
 import socket
 import time
 from collections import deque
-# from icecream import ic
 import pygame
 import logging
 from colorama import Fore, Style
-# import pysistence, collections
 from visualstim import VisualStim
 
 import scipy.io, pickle
 
 import Treadmill
 import ADS1x15
-
-from fake_session_info import fake_session_info
 
 # for the flipper
 from FlipperOutput import FlipperOutput
@@ -50,7 +46,7 @@ class BehavBox(object):
                     logging.StreamHandler()  # sends copy of log output to screen
                 ]
             )
-            logging.info(str(time.time()) + ", behavior_box_initialized")
+            logging.info(str(time.time()) + ";[initialization];behavior_box_initialized")
         except Exception as error_message:
             print("Logging error")
             print(str(error_message))
@@ -163,7 +159,7 @@ class BehavBox(object):
                 + "         1: left poke            2: center poke            3: right poke"
             )
             print(
-                "         Q: left lick            W: center lick            E: right lick"
+                "         Q: pump_1            W: pump_2            E: pump_3            R: pump_4"
             )
             print(
                 Fore.CYAN
@@ -189,28 +185,68 @@ class BehavBox(object):
     ###############################################################################################
 
     def check_keybd(self):
-        if self.keyboard_active == True:
-            event = pygame.event.poll()
-            KeyDown = 768  # event type numbers
-            KeyUp = 769
-            if event:
-                if event.type == KeyDown and event.key == 49:  # 1 key
-                    self.left_IR_entry()
-                elif event.type == KeyUp and event.key == 49:
-                    self.left_IR_exit()
-                elif event.type == KeyDown and event.key == 50:  # 2 key
-                    self.center_IR_entry()
-                elif event.type == KeyUp and event.key == 50:
-                    self.center_IR_exit()
-                elif event.type == KeyDown and event.key == 51:  # 3 key
-                    self.right_IR_entry()
-                elif event.type == KeyUp and event.key == 51:
-                    self.right_IR_exit()
-                elif event.type == KeyDown and event.key == 27:  # escape key
-                    pygame.quit()
-                    self.keyboard_active = False
-                # print(event) # for debug purpose
-
+        reward_size = self.session_info['reward_size']
+        # pump = Pump()
+        if self.keyboard_active:
+            # event = pygame.event.get()
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.keyboard_active = False
+                    elif event.key == pygame.K_1:
+                        self.left_IR_entry()
+                        logging.info(str(time.time()) + ";[event];key_pressed_left_IR_entry()")
+                    elif event.key == pygame.K_2:
+                        self.center_IR_entry()
+                        logging.info(str(time.time()) + ";[event];key_pressed_center_IR_entry()")
+                    elif event.key == pygame.K_3:
+                        self.right_IR_entry()
+                        logging.info(str(time.time()) + ";[event];key_pressed_right_IR_entry()")
+                    elif event.key == pygame.K_q:
+                        # print("Q down: syringe pump 1 moves")
+                        logging.info(str(time.time()) + ";[event];key_pressed_q")
+                        # pump.reward("1", reward_size)
+                    elif event.key == pygame.K_w:
+                        # print("W down: syringe pump 2 moves")
+                        logging.info(str(time.time()) + ";[event];key_pressed_w")
+                        # pump.reward("2", reward_size)
+                    elif event.key == pygame.K_e:
+                        # print("E down: syringe pump 3 moves")
+                        logging.info(str(time.time()) + ";[event];key_pressed_e")
+                        # pump.reward("3", reward_size)
+                    elif event.key == pygame.K_r:
+                        # print("R down: syringe pump 4 moves")
+                        logging.info(str(time.time()) + ";[event];key_pressed_r")
+                        # pump.reward("4", reward_size)
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_1:
+                        self.left_IR_exit()
+                    elif event.key == pygame.K_2:
+                        self.center_IR_exit()
+                    elif event.key == pygame.K_3:
+                        self.right_IR_exit()
+    # def check_keybd(self):
+    #     if self.keyboard_active == True:
+    #         event = pygame.event.poll()
+    #         KeyDown = 768  # event type numbers
+    #         KeyUp = 769
+    #         if event:
+    #             if event.type == KeyDown and event.key == 49:  # 1 key
+    #                 self.left_IR_entry()
+    #             elif event.type == KeyUp and event.key == 49:
+    #                 self.left_IR_exit()
+    #             elif event.type == KeyDown and event.key == 50:  # 2 key
+    #                 self.center_IR_entry()
+    #             elif event.type == KeyUp and event.key == 50:
+    #                 self.center_IR_exit()
+    #             elif event.type == KeyDown and event.key == 51:  # 3 key
+    #                 self.right_IR_entry()
+    #             elif event.type == KeyUp and event.key == 51:
+    #                 self.right_IR_exit()
+    #             elif event.type == KeyDown and event.key == 27:  # escape key
+    #                 pygame.quit()
+    #                 self.keyboard_active = False
+    #             # print(event) # for debug purpose
     ###############################################################################################
     # methods to start and stop video
     # These work with fake video files but haven't been tested with real ones
@@ -336,57 +372,52 @@ class BehavBox(object):
     ###############################################################################################
     def left_IR_entry(self):
         self.event_list.append("left_IR_entry")
-        self.cueLED1.on()
-        logging.info(str(time.time()) + ", left_IR_entry")
+        logging.info(str(time.time()) + ";[event];left_IR_entry")
 
     def center_IR_entry(self):
         self.event_list.append("center_IR_entry")
-        self.cueLED2.on()
-        logging.info(str(time.time()) + ", center_IR_entry")
+        logging.info(str(time.time()) + ";[event];center_IR_entry")
 
     def right_IR_entry(self):
         self.event_list.append("right_IR_entry")
-        self.cueLED3.on()
-        logging.info(str(time.time()) + ", right_IR_entry")
+        logging.info(str(time.time()) + ";[event];right_IR_entry")
 
     def left_IR_exit(self):
         self.event_list.append("left_IR_exit")
-        self.cueLED1.off()
-        logging.info(str(time.time()) + ", left_IR_exit")
+        logging.info(str(time.time()) + ";[event];left_IR_exit")
 
     def center_IR_exit(self):
         self.event_list.append("center_IR_exit")
-        self.cueLED2.off()
-        logging.info(str(time.time()) + ", center_IR_exit")
+        # self.cueLED2.off()
+        logging.info(str(time.time()) + ";[event];center_IR_exit")
 
     def right_IR_exit(self):
         self.event_list.append("right_IR_exit")
-        self.cueLED3.off()
-        logging.info(str(time.time()) + ", right_IR_exit")
+        logging.info(str(time.time()) + ";[event];right_IR_exit")
 
     # def left_lick_start(self):
     #     self.event_list.append("left_lick_start")
-    #     logging.info(str(time.time()) + ", left_lick_start")
+    #     logging.info(str(time.time()) + ";[event];left_lick_start")
     #
     # def center_lick_start(self):
     #     self.event_list.append("center_lick_start")
-    #     logging.info(str(time.time()) + ", center_lick_start")
+    #     logging.info(str(time.time()) + ";[event];center_lick_start")
     #
     # def right_lick_start(self):
     #     self.event_list.append("right_lick_start")
-    #     logging.info(str(time.time()) + ", right_lick_start")
+    #     logging.info(str(time.time()) + ";[event];right_lick_start")
     #
     # def left_lick_stop(self):
     #     self.event_list.append("left_lick_stop")
-    #     logging.info(str(time.time()) + ", left_lick_stop")
+    #     logging.info(str(time.time()) + ";[event];left_lick_stop")
     #
     # def center_lick_stop(self):
     #     self.event_list.append("center_lick_stop")
-    #     logging.info(str(time.time()) + ", center_lick_stop")
+    #     logging.info(str(time.time()) + ";[event];center_lick_stop")
     #
     # def right_lick_stop(self):
     #     self.event_list.append("right_lick_stop")
-    #     logging.info(str(time.time()) + ", right_lick_stop")
+    #     logging.info(str(time.time()) + ";[event];right_lick_stop")
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
@@ -404,16 +435,22 @@ class BoxLED(PWMLED):
 
 class Pump(object):
     def __init__(self):
-
-        ###############################################################################################
-        # syringe pumps
-        ###############################################################################################
-        self.pump1 = LED(19)  # for testing only - the correct pin number is 19
+        self.pump1 = LED(19)
         self.pump2 = LED(20)
         self.pump3 = LED(21)
         self.pump4 = LED(8)
         self.pump5 = LED(7)
-        self.pump_en = LED(25)  # pump enable
+        self.pump_en = LED(25)
+
+        ###############################################################################################
+        # syringe pumps
+        ###############################################################################################
+        # self.pump1 = LED(19)  # for testing only - the correct pin number is 19
+        # self.pump2 = LED(20)
+        # self.pump3 = LED(21)
+        # self.pump4 = LED(8)
+        # self.pump5 = LED(7)
+        # self.pump_en = LED(25)  # pump enable
 
     def reward(self, which_pump, reward_size):
         print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
@@ -427,17 +464,24 @@ class Pump(object):
         # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
         # // round to nearest int
         totalSteps = round(200 * howManyRevolutions * 4)
-        reward_duration = 1  # delivery reward over 300 ms
+        reward_duration = 0.01  # delivery reward over 300 ms
         cycle_length = (
                 reward_duration / totalSteps
         )  # need to know what the minimum value can be
-
-        if which_pump == "left":
+        # self.pump[which_pump].blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+        # logging.info(str(time.time()) + ", reward_side_" + which_pump + "," + str(reward_size))
+        if which_pump == "1":
             self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(str(time.time()) + ", left_reward," + str(reward_size))
-        elif which_pump == "center":
+            logging.info(str(time.time()) + ";[event];pump1_reward_" + str(reward_size))
+        elif which_pump == "2":
             self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(str(time.time()) + ", center_reward," + str(reward_size))
-        elif which_pump == "right":
-            logging.info(str(time.time()) + ", right_reward," + str(reward_size))
+            logging.info(str(time.time()) + ";[event];pump2_reward_" + str(reward_size))
+        elif which_pump == "3":
             self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info(str(time.time()) + ";[event];pump3_reward_" + str(reward_size))
+        elif which_pump == "4":
+            self.pump4.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info(str(time.time()) + ";[event];pump4_reward_" + str(reward_size))
+        elif which_pump == "5":
+            self.pump5.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            logging.info(str(time.time()) + ";[event];pump5_reward_" + str(reward_size))

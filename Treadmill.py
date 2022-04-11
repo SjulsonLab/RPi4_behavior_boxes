@@ -31,8 +31,8 @@ import struct
 def dacval(bus, address):
     # time.sleep(0.3)
     block = bus.read_i2c_block_data(address, 1)
-    running_speed = struct.unpack("<f", bytes(block[:4]))[0]
-    return running_speed
+    distance = struct.unpack("<f", bytes(block[:4]))[0]
+    return distance
 
 
 class Treadmill(object):
@@ -42,11 +42,12 @@ class Treadmill(object):
         except:
             self.close()
             raise
-
+        self.treadmill_calibrate = 9.14  # bit per cm
         self.bus = smbus.SMBus(1)  # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
         # This is the address we setup in the Arduino Program
         self.address = 0x08
-        self.treadmill_filename = self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info['basename'] + "_treadmill_output" + ".csv"
+        self.treadmill_filename = self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
+                                  self.session_info['basename'] + "_treadmill_output" + ".csv"
         print(self.treadmill_filename)
 
         self._dacval_thread = None
@@ -54,6 +55,9 @@ class Treadmill(object):
 
         self.treadmill_log = []
         self.delay = 0.3
+
+        self.distance_bit = None
+        self.distance_cm = None
 
     def start(self, background=True):
         self._stop_dacval()
@@ -85,23 +89,24 @@ class Treadmill(object):
         #     self._dacval_thread.stop()
         # self._dacval_thread = None
 
-
     def run(self):
         while self._running == True:
             time.sleep(self.delay)
-            running_speed = dacval(self.bus, self.address)
+            self.distance_bit = dacval(self.bus, self.address)
+            self.distance_cm = self.distance_bit / self.treadmill_calibrate
             self.treadmill_log.append(
                 (time.time(),
-                 running_speed)
+                 self.distance_bit,
+                 self.distance_cm)
             )
 
     # save the element list
     def treadmill_flush(self):
         print("Flushing: " + self.treadmill_filename)
         with io.open(self.treadmill_filename, 'w') as f:
-            f.write('time.time(), running_speed\n')
+            f.write('time.time(), distance_bit, distance_cm\n')
             for entry in self.treadmill_log:
-                f.write('%f, %f\n' % entry)
+                f.write('%f, %f, %f\n' % entry)
 
 
 """
