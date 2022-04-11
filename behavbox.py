@@ -6,19 +6,15 @@ import os
 import socket
 import time
 from collections import deque
-# from icecream import ic
 import pygame
 import logging
 from colorama import Fore, Style
-# import pysistence, collections
 from visualstim import VisualStim
 
 import scipy.io, pickle
 
 import Treadmill
 import ADS1x15
-
-from fake_session_info import fake_session_info
 
 # for the flipper
 from FlipperOutput import FlipperOutput
