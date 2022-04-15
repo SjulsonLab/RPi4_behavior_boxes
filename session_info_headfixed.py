@@ -34,10 +34,11 @@ session_info['timeout_length']              = 5  # in seconds
 session_info['reward_size']					= 10  # in microliters
 session_info["lick_threshold"]              = 2
 # visual stimulus
-session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
-session_info['vis_gratings']				= ['/home/pi/first_grating.dat',
-											   '/home/pi/second_grating.dat']
-session_info['vis_raws']					= []
+session_info["visual_stimulus"]             = False
+# session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
+# session_info['vis_gratings']				= ['/home/pi/first_grating.dat',
+# 											   '/home/pi/second_grating.dat']
+# session_info['vis_raws']					= []
 
 # task related information
 

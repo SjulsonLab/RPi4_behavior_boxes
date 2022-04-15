@@ -46,7 +46,7 @@ class BehavBox(object):
                     logging.StreamHandler()  # sends copy of log output to screen
                 ]
             )
-            logging.info(str(time.time()) + ";[initialization];behavior_box_initialized")
+            logging.info(";" + str(time.time()) + ";[initialization];behavior_box_initialized")
         except Exception as error_message:
             print("Logging error")
             print(str(error_message))
@@ -119,12 +119,14 @@ class BehavBox(object):
         ###############################################################################################
         # visual stimuli
         ###############################################################################################
-        try:
-            self.visualstim = VisualStim(self.session_info)
-        except Exception as error_message:
-            print("visualstim issue\n")
-            print(str(error_message))
-
+        if self.session_info["visual_stimulus"]:
+            try:
+                self.visualstim = VisualStim(self.session_info)
+            except Exception as error_message:
+                print("visualstim issue\n")
+                print(str(error_message))
+        else:
+            pass
         ###############################################################################################
         # TODO: ADC(Adafruit_ADS1x15)
         ###############################################################################################
@@ -198,28 +200,28 @@ class BehavBox(object):
                         self.keyboard_active = False
                     elif event.key == pygame.K_1:
                         self.left_IR_entry()
-                        logging.info(str(time.time()) + ";[event];key_pressed_left_IR_entry()")
+                        logging.info(";" + str(time.time()) + ";[event];key_pressed_left_IR_entry()")
                     elif event.key == pygame.K_2:
                         self.center_IR_entry()
-                        logging.info(str(time.time()) + ";[event];key_pressed_center_IR_entry()")
+                        logging.info(";" + str(time.time()) + ";[event];key_pressed_center_IR_entry()")
                     elif event.key == pygame.K_3:
                         self.right_IR_entry()
-                        logging.info(str(time.time()) + ";[event];key_pressed_right_IR_entry()")
+                        logging.info(";" + str(time.time()) + ";[event];key_pressed_right_IR_entry()")
                     elif event.key == pygame.K_q:
                         # print("Q down: syringe pump 1 moves")
-                        logging.info(str(time.time()) + ";[event];key_pressed_q")
+                        logging.info(";" + str(time.time()) + ";[event];key_pressed_q")
                         # pump.reward("1", reward_size)
                     elif event.key == pygame.K_w:
                         # print("W down: syringe pump 2 moves")
-                        logging.info(str(time.time()) + ";[event];key_pressed_w")
+                        logging.info(";" + str(time.time()) + ";[event];key_pressed_w")
                         # pump.reward("2", reward_size)
                     elif event.key == pygame.K_e:
                         # print("E down: syringe pump 3 moves")
-                        logging.info(str(time.time()) + ";[event];key_pressed_e")
+                        logging.info(";" + str(time.time()) + ";[event];key_pressed_e")
                         # pump.reward("3", reward_size)
                     elif event.key == pygame.K_r:
                         # print("R down: syringe pump 4 moves")
-                        logging.info(str(time.time()) + ";[event];key_pressed_r")
+                        logging.info(";" + str(time.time()) + ";[event];key_pressed_r")
                         # pump.reward("4", reward_size)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:
@@ -376,54 +378,54 @@ class BehavBox(object):
     ###############################################################################################
     def left_IR_entry(self):
         self.event_list.append("left_IR_entry")
-        logging.info(str(time.time()) + ";[event];left_IR_entry")
+        logging.info(";" + str(time.time()) + ";[event];left_IR_entry")
 
     def center_IR_entry(self):
         self.event_list.append("center_IR_entry")
-        logging.info(str(time.time()) + ";[event];center_IR_entry")
+        logging.info(";" + str(time.time()) + ";[event];center_IR_entry")
 
     def right_IR_entry(self):
         self.event_list.append("right_IR_entry")
-        logging.info(str(time.time()) + ";[event];right_IR_entry")
+        logging.info(";" + str(time.time()) + ";[event];right_IR_entry")
 
     def left_IR_exit(self):
         self.event_list.append("left_IR_exit")
-        logging.info(str(time.time()) + ";[event];left_IR_exit")
+        logging.info(";" + str(time.time()) + ";[event];left_IR_exit")
 
     def center_IR_exit(self):
         self.event_list.append("center_IR_exit")
         # self.cueLED2.off()
-        logging.info(str(time.time()) + ";[event];center_IR_exit")
+        logging.info(";" + str(time.time()) + ";[event];center_IR_exit")
 
     def right_IR_exit(self):
         self.event_list.append("right_IR_exit")
-        logging.info(str(time.time()) + ";[event];right_IR_exit")
+        logging.info(";" + str(time.time()) + ";[event];right_IR_exit")
 
 <<<<<<< HEAD
 =======
     # def left_lick_start(self):
     #     self.event_list.append("left_lick_start")
-    #     logging.info(str(time.time()) + ";[event];left_lick_start")
+    #     logging.info(";" + str(time.time()) + ";[event];left_lick_start")
     #
     # def center_lick_start(self):
     #     self.event_list.append("center_lick_start")
-    #     logging.info(str(time.time()) + ";[event];center_lick_start")
+    #     logging.info(";" + str(time.time()) + ";[event];center_lick_start")
     #
     # def right_lick_start(self):
     #     self.event_list.append("right_lick_start")
-    #     logging.info(str(time.time()) + ";[event];right_lick_start")
+    #     logging.info(";" + str(time.time()) + ";[event];right_lick_start")
     #
     # def left_lick_stop(self):
     #     self.event_list.append("left_lick_stop")
-    #     logging.info(str(time.time()) + ";[event];left_lick_stop")
+    #     logging.info(";" + str(time.time()) + ";[event];left_lick_stop")
     #
     # def center_lick_stop(self):
     #     self.event_list.append("center_lick_stop")
-    #     logging.info(str(time.time()) + ";[event];center_lick_stop")
+    #     logging.info(";" + str(time.time()) + ";[event];center_lick_stop")
     #
     # def right_lick_stop(self):
     #     self.event_list.append("right_lick_stop")
-    #     logging.info(str(time.time()) + ";[event];right_lick_stop")
+    #     logging.info(";" + str(time.time()) + ";[event];right_lick_stop")
 
 >>>>>>> 147befac0c2d8d70426d32e2e9e71a57392febe2
 
@@ -476,19 +478,19 @@ class Pump(object):
                 reward_duration / totalSteps
         )  # need to know what the minimum value can be
         # self.pump[which_pump].blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-        # logging.info(str(time.time()) + ", reward_side_" + which_pump + "," + str(reward_size))
+        # logging.info(";" + str(time.time()) + ", reward_side_" + which_pump + "," + str(reward_size))
         if which_pump == "1":
             self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(str(time.time()) + ";[event];pump1_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[event];pump1_reward_" + str(reward_size))
         elif which_pump == "2":
             self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(str(time.time()) + ";[event];pump2_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[event];pump2_reward_" + str(reward_size))
         elif which_pump == "3":
             self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(str(time.time()) + ";[event];pump3_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[event];pump3_reward_" + str(reward_size))
         elif which_pump == "4":
             self.pump4.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(str(time.time()) + ";[event];pump4_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[event];pump4_reward_" + str(reward_size))
         elif which_pump == "5":
             self.pump5.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(str(time.time()) + ";[event];pump5_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[event];pump5_reward_" + str(reward_size))

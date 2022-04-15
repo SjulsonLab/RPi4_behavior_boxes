@@ -117,7 +117,7 @@ try:
             task.trial_number += 1
             print("*******************************\n")
             task.current_card = task_information.draw_card(block_number, session_info['phase'])
-            logging.info(str(time.time()) + ";[condition];" + str(task.current_card))
+            logging.info(";" + str(time.time()) + ";[condition];" + str(task.current_card))
             print("Block " + str(block_number) +
                   " - Current card condition: \n" +
                   "*******************************\n" +
@@ -136,7 +136,7 @@ try:
                           "*Choice: " + str(task.current_card[2]) + "\n" +
                           "*Reward: " + str(task.current_card[3]) + "\n")
                 first_card = False
-                logging.info(str(time.time()) + ";[transition];start_trial()")
+                logging.info(";" + str(time.time()) + ";[transition];start_trial()")
                 task.start_trial()  # initiate the time state machine, start_trial() is a trigger
                 while task.trial_running:
                     task.run()  # run command trigger additional functions outside of the state machine

@@ -222,94 +222,94 @@ class HeadfixedTask(object):
         self.box.check_keybd()
 
     def enter_standby(self):
-        logging.info(str(time.time()) + ";[transition];enter_standby")
+        logging.info(";" + str(time.time()) + ";[transition];enter_standby")
         self.trial_running = False
         if self.lick_count < self.lick_threshold:
-            logging.info(str(time.time()) + ";[error];lick_error")
+            logging.info(";" + str(time.time()) + ";[error];lick_error")
             self.event_array.append('lick_error')
         self.lick_count = 0
         self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
 
     def exit_standby(self):
-        logging.info(str(time.time()) + ";[transition];exit_standby")
-        logging.info(str(time.time()) + ";[trial];trial_" + str(self.trial_number))
+        logging.info(";" + str(time.time()) + ";[transition];exit_standby")
+        logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number))
         self.error_repeat = False
         pass
 
     def enter_initiate(self):
         # check error_repeat
-        logging.info(str(time.time()) + ";[transition];enter_initiate")
+        logging.info(";" + str(time.time()) + ";[transition];enter_initiate")
         self.trial_running = True
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.treadmill.distance_cm
-        logging.info(str(time.time()) + ";[treadmill];" + str(self.distance_buffer))
+        logging.info(";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer))
 
     def exit_initiate(self):
         # check the flag to see whether to shuffle or keep the original card
-        logging.info(str(time.time()) + ";[transition];exit_initiate")
+        logging.info(";" + str(time.time()) + ";[transition];exit_initiate")
         if self.initiate_error:
-            logging.info(str(time.time()) + ";[error];initiate_error")
+            logging.info(";" + str(time.time()) + ";[error];initiate_error")
             self.error_repeat = True
             self.error_count += 1
             self.reward_error = False
 
     def enter_cue_state(self):
-        logging.info(str(time.time()) + ";[transition]enter_cue_state")
+        logging.info(";" + str(time.time()) + ";[transition]enter_cue_state")
         # turn on the cue according to the current card
         self.check_cue(self.current_card[0])
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.treadmill.distance_cm
-        logging.info(str(time.time()) + ";[treadmill];" + str(self.distance_buffer))
+        logging.info(";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer))
 
     def exit_cue_state(self):
-        logging.info(str(time.time()) + ";[transition];exit_cue_state")
+        logging.info(";" + str(time.time()) + ";[transition];exit_cue_state")
         self.cue_off(self.current_card[0])
         if self.cue_state_error:
-            logging.info(str(time.time()) + ";[error];cue_state_error")
+            logging.info(";" + str(time.time()) + ";[error];cue_state_error")
             self.error_repeat = True
             self.error_count += 1
             self.cue_state_error = False
 
     def enter_reward_available(self):
-        logging.info(str(time.time()) + ";[transition];enter_reward_available")
+        logging.info(";" + str(time.time()) + ";[transition];enter_reward_available")
         print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
         self.cue_off(self.current_card[0])
 
     def exit_reward_available(self):
-        logging.info(str(time.time()) + ";[transition];exit_reward_available")
+        logging.info(";" + str(time.time()) + ";[transition];exit_reward_available")
         if self.reward_error:
-            logging.info(str(time.time()) + ";[error];reward_error")
+            logging.info(";" + str(time.time()) + ";[error];reward_error")
             self.error_repeat = True
             self.error_count += 1
             self.reward_error = False
 
     def check_cue(self, cue):
         if cue == 'sound':
-            logging.info(str(time.time()) + ";[cue];cue_sound1_on")
+            logging.info(";" + str(time.time()) + ";[cue];cue_sound1_on")
             self.box.sound1.on()
             self.sound_on = True
         elif cue == 'LED':
             self.box.cueLED1.on()
-            logging.info(str(time.time()) + ";[cue];cueLED1_on")
+            logging.info(";" + str(time.time()) + ";[cue];cueLED1_on")
         else:
             self.box.cueLED1.on()
             self.box.sound1.blink(0.1, 0.9, 1)
             self.sound_on = True
-            logging.info(str(time.time()) + ";[cue];LED_sound_on")
+            logging.info(";" + str(time.time()) + ";[cue];LED_sound_on")
 
     def cue_off(self, cue):
         if cue == 'sound':
             self.sound_on = False
-            logging.info(str(time.time()) + ";[cue];cue_sound1_off")
+            logging.info(";" + str(time.time()) + ";[cue];cue_sound1_off")
             pass
         elif cue == 'LED':
             self.box.cueLED1.off()
-            logging.info(str(time.time()) + ";[cue];cueLED1_off")
+            logging.info(";" + str(time.time()) + ";[cue];cueLED1_off")
         else:
             self.sound_on = False
             self.box.cueLED1.off()
-            logging.info(str(time.time()) + ";[cue];LED_sound_off")
+            logging.info(";" + str(time.time()) + ";[cue];LED_sound_off")
 
     ########################################################################
     # methods to start and end the behavioral session
