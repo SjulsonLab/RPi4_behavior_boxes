@@ -205,7 +205,7 @@ class HeadfixedTask(object):
                         self.error_repeat = False
                         self.reward_error = False
                         self.restart()
-                    elif self.side_mice_buffer != side_mice: # if mice lick more than once
+                    elif self.side_mice_buffer != side_mice: # if mice lick more than one side
                         self.reward_error = True
                         self.error_repeat = True
                         self.restart()
@@ -224,16 +224,17 @@ class HeadfixedTask(object):
     def enter_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby")
         self.trial_running = False
-        if self.lick_count < self.lick_threshold:
+        if self.reward_error and self.lick_count < self.lick_threshold:
             logging.info(";" + str(time.time()) + ";[error];lick_error")
             self.event_array.append('lick_error')
+            self.reward_error = False
         self.lick_count = 0
         self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
+        logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number))
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby")
-        logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number))
         self.error_repeat = False
         pass
 
