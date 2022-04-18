@@ -256,7 +256,7 @@ class HeadfixedTask(object):
             self.reward_error = False
 
     def enter_cue_state(self):
-        logging.info(";" + str(time.time()) + ";[transition]enter_cue_state")
+        logging.info(";" + str(time.time()) + ";[transition];enter_cue_state")
         # turn on the cue according to the current card
         self.check_cue(self.current_card[0])
         # wait for treadmill signal and process the treadmill signal
