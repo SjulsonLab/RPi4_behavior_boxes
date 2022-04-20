@@ -115,10 +115,11 @@ class HeadfixedTask(object):
         self.initiate_error = False
         self.cue_state_error = False
         self.reward_error = False
+        self.wrong_choice_error = False
+        self.no_choice_error = False
+        self.multiple_choice_error = False
         self.error_repeat = False
 
-        # self.error_regret_count = 0
-        self.event_array = []
         self.current_card = None
 
         # initialize behavior box
@@ -207,16 +208,19 @@ class HeadfixedTask(object):
                         self.restart()
                     elif self.side_mice_buffer != side_mice: # if mice lick more than one side
                         self.reward_error = True
+                        self.multiple_choice_error = True
                         self.error_repeat = True
                         self.restart()
                     elif self.side_mice_buffer == side_mice:
                         self.lick_count += 1
-                else:
+                else: # wrong side
                     self.reward_error = True
+                    self.wrong_choice_error = True
                     self.error_repeat = True
                     self.restart()
-            else:
+            else: # no lick
                 self.reward_error = True
+                self.no_choice_error = True
                 self.error_repeat = True
         # look for keystrokes
         self.box.check_keybd()
@@ -226,7 +230,6 @@ class HeadfixedTask(object):
         self.trial_running = False
         if self.reward_error and self.lick_count < self.lick_threshold:
             logging.info(";" + str(time.time()) + ";[error];lick_error")
-            self.event_array.append('lick_error')
             self.reward_error = False
         self.lick_count = 0
         self.side_mice_buffer = None
@@ -280,10 +283,17 @@ class HeadfixedTask(object):
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available")
         if self.reward_error:
-            logging.info(";" + str(time.time()) + ";[error];reward_error")
+            if self.wrong_choice_error:
+                logging.info(";" + str(time.time()) + ";[error];wrong_choice_error")
+                self.wrong_choice_error = False
+            elif self.no_choice_error:
+                logging.info(";" + str(time.time()) + ";[error];no_choice_error")
+                self.no_choice_error = False
+            elif self.multiple_choice_error:
+                logging.info(";" + str(time.time()) + ";[error];multiple_choice_error")
+                self.multiple_choice_error = False
             self.error_repeat = True
             self.error_count += 1
-            self.reward_error = False
 
     def check_cue(self, cue):
         if cue == 'sound':
