@@ -401,8 +401,6 @@ class BehavBox(object):
         self.event_list.append("right_IR_exit")
         logging.info(";" + str(time.time()) + ";[event];right_IR_exit")
 
-<<<<<<< HEAD
-=======
     # def left_lick_start(self):
     #     self.event_list.append("left_lick_start")
     #     logging.info(";" + str(time.time()) + ";[event];left_lick_start")
@@ -427,7 +425,6 @@ class BehavBox(object):
     #     self.event_list.append("right_lick_stop")
     #     logging.info(";" + str(time.time()) + ";[event];right_lick_stop")
 
->>>>>>> 147befac0c2d8d70426d32e2e9e71a57392febe2
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the
