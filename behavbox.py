@@ -380,31 +380,6 @@ class BehavBox(object):
         self.event_list.append("right_IR_exit")
         logging.info(";" + str(time.time()) + ";[event];right_IR_exit")
 
-    # def left_lick_start(self):
-    #     self.event_list.append("left_lick_start")
-    #     logging.info(";" + str(time.time()) + ";[event];left_lick_start")
-    #
-    # def center_lick_start(self):
-    #     self.event_list.append("center_lick_start")
-    #     logging.info(";" + str(time.time()) + ";[event];center_lick_start")
-    #
-    # def right_lick_start(self):
-    #     self.event_list.append("right_lick_start")
-    #     logging.info(";" + str(time.time()) + ";[event];right_lick_start")
-    #
-    # def left_lick_stop(self):
-    #     self.event_list.append("left_lick_stop")
-    #     logging.info(";" + str(time.time()) + ";[event];left_lick_stop")
-    #
-    # def center_lick_stop(self):
-    #     self.event_list.append("center_lick_stop")
-    #     logging.info(";" + str(time.time()) + ";[event];center_lick_stop")
-    #
-    # def right_lick_stop(self):
-    #     self.event_list.append("right_lick_stop")
-    #     logging.info(";" + str(time.time()) + ";[event];right_lick_stop")
-
-
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the
 # LED will be if BoxLED.on() is called. This is better than the original PWMLED class.
@@ -426,16 +401,6 @@ class Pump(object):
         self.pump4 = LED(8)
         self.pump5 = LED(7)
         self.pump_en = LED(25)
-
-        ###############################################################################################
-        # syringe pumps
-        ###############################################################################################
-        # self.pump1 = LED(19)  # for testing only - the correct pin number is 19
-        # self.pump2 = LED(20)
-        # self.pump3 = LED(21)
-        # self.pump4 = LED(8)
-        # self.pump5 = LED(7)
-        # self.pump_en = LED(25)  # pump enable
 
     def reward(self, which_pump, reward_size):
         print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
