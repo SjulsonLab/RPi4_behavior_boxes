@@ -437,7 +437,7 @@ if __name__ == "__main__":
                     nogo_nums = nogo_nums + 1
                     avoid_go = 0
                     avoid_nogo = avoid_nogo + 1
-                elif avoid_nogo == 3:
+                elif avoid_nogo == 1:
                     trial_ident = "go_trial"
                     print("go_trial")
                     go_nums = go_nums + 1
