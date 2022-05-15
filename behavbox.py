@@ -153,7 +153,8 @@ class BehavBox(object):
         # Keystroke handler
         ###############################################################################################
         try:
-            DISPLAYSURF = pygame.display.set_mode((200, 200))
+            pygame.init()
+            self.main_display = pygame.display.set_mode((2000, 1200))
             pygame.display.set_caption(session_info["box_name"])
             print(
                 "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
@@ -184,6 +185,28 @@ class BehavBox(object):
         except Exception as error_message:
             print("pygame issue\n")
             print(str(error_message))
+    ###############################################################################################
+    # check for data visualization - uses pygame window to show behavior progress
+    ###############################################################################################
+    """
+    1. show a blank window. (change in the pygame initiation part)
+    2. show a x,y axis with a count of trial
+    """
+    def check_plot(self, data=None, FPS=144):
+        FramePerSec = pygame.time.Clock()
+        if data == None:
+            pass
+        else:
+            fig, ax = plt.subplots(figsize=(16, 9))
+            print(type(fig))
+            ax.plot([1, 2], [1, 2], color='green')
+            ax.text(1.5, 1.5, '2', size=50)
+            ax.set_xlabel('swag')
+
+            fig.canvas.draw()
+            self.main_display.blit(fig, (0, 0))
+            pygame.display.update()
+            FramePerSec.tick(FPS)
 
     ###############################################################################################
     # check for key presses - uses pygame window to simulate nosepokes and licks
