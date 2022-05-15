@@ -57,6 +57,15 @@ class BehavBox(object):
         IP_address_video_list = list(IP_address)
         IP_address_video_list[-3] = "2"
         self.IP_address_video = "".join(IP_address_video_list)
+
+        ###############################################################################################
+        # event list trigger by the interaction between the RPi and the animal for visualization
+        # interact_list: lick, choice interaction between the board and the animal for visualization
+        # reward_list: list of reward, reward amount for data visualization
+        ###############################################################################################
+        self.interact_list = []
+        self.reward_list = []
+
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
         # cue LEDs - setting PWM frequency of 200 Hz
@@ -86,12 +95,12 @@ class BehavBox(object):
         self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
 
         # link nosepoke event detections to callbacks
-        self.IR_rx1.when_pressed = self.left_IR_entry
-        self.IR_rx2.when_pressed = self.center_IR_entry
-        self.IR_rx3.when_pressed = self.right_IR_entry
-        self.IR_rx1.when_released = self.left_IR_exit
-        self.IR_rx2.when_released = self.center_IR_exit
-        self.IR_rx3.when_released = self.right_IR_exit
+        self.IR_rx1.when_pressed = self.left_IR_exit
+        self.IR_rx2.when_pressed = self.center_IR_exit
+        self.IR_rx3.when_pressed = self.right_IR_exit
+        self.IR_rx1.when_released = self.left_IR_entry
+        self.IR_rx2.when_released = self.center_IR_entry
+        self.IR_rx3.when_released = self.right_IR_entry
 
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
@@ -380,28 +389,33 @@ class BehavBox(object):
     ###############################################################################################
     def left_IR_entry(self):
         self.event_list.append("left_IR_entry")
-        logging.info(";" + str(time.time()) + ";[event];left_IR_entry")
+        self.interact_list.append("left_IR_entry")
+        logging.info(";" + str(time.time()) + ";[action];left_IR_entry")
 
     def center_IR_entry(self):
         self.event_list.append("center_IR_entry")
-        logging.info(";" + str(time.time()) + ";[event];center_IR_entry")
+        self.interact_list.append("center_IR_entry")
+        logging.info(";" + str(time.time()) + ";[action];center_IR_entry")
 
     def right_IR_entry(self):
         self.event_list.append("right_IR_entry")
-        logging.info(";" + str(time.time()) + ";[event];right_IR_entry")
+        self.interact_list.append("right_IR_entry")
+        logging.info(";" + str(time.time()) + ";[action];right_IR_entry")
 
     def left_IR_exit(self):
         self.event_list.append("left_IR_exit")
-        logging.info(";" + str(time.time()) + ";[event];left_IR_exit")
+        self.interact_list.append("left_IR_exit")
+        logging.info(";" + str(time.time()) + ";[action];left_IR_exit")
 
     def center_IR_exit(self):
         self.event_list.append("center_IR_exit")
-        # self.cueLED2.off()
-        logging.info(";" + str(time.time()) + ";[event];center_IR_exit")
+        self.interact_list.append("center_IR_exit")
+        logging.info(";" + str(time.time()) + ";[action];center_IR_exit")
 
     def right_IR_exit(self):
         self.event_list.append("right_IR_exit")
-        logging.info(";" + str(time.time()) + ";[event];right_IR_exit")
+        self.interact_list.append("right_IR_exit")
+        logging.info(";" + str(time.time()) + ";[action];right_IR_exit")
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the
@@ -445,16 +459,16 @@ class Pump(object):
         # logging.info(";" + str(time.time()) + ", reward_side_" + which_pump + "," + str(reward_size))
         if which_pump == "1":
             self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(";" + str(time.time()) + ";[event];pump1_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump1_reward_" + str(reward_size))
         elif which_pump == "2":
             self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(";" + str(time.time()) + ";[event];pump2_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump2_reward_" + str(reward_size))
         elif which_pump == "3":
             self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(";" + str(time.time()) + ";[event];pump3_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump3_reward_" + str(reward_size))
         elif which_pump == "4":
             self.pump4.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(";" + str(time.time()) + ";[event];pump4_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
         elif which_pump == "5":
             self.pump5.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            logging.info(";" + str(time.time()) + ";[event];pump5_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump5_reward_" + str(reward_size))
