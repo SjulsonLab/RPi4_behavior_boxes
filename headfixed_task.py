@@ -112,6 +112,7 @@ class HeadfixedTask(object):
         # trial statistics
         self.trial_number = 0
         self.error_count = 0
+        self.error_list = []
         self.initiate_error = False
         self.cue_state_error = False
         self.reward_error = False
@@ -229,6 +230,7 @@ class HeadfixedTask(object):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby")
         self.trial_running = False
         if self.reward_error and self.lick_count < self.lick_threshold:
+            self.error_list.append('lick_error')
             logging.info(";" + str(time.time()) + ";[error];lick_error")
             self.reward_error = False
         self.lick_count = 0
@@ -253,6 +255,7 @@ class HeadfixedTask(object):
         # check the flag to see whether to shuffle or keep the original card
         logging.info(";" + str(time.time()) + ";[transition];exit_initiate")
         if self.initiate_error:
+            self.error_list.append('initiate_error')
             logging.info(";" + str(time.time()) + ";[error];initiate_error")
             self.error_repeat = True
             self.error_count += 1
@@ -270,6 +273,7 @@ class HeadfixedTask(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_cue_state")
         self.cue_off(self.current_card[0])
         if self.cue_state_error:
+            self.error_list.append('cue_state_error')
             logging.info(";" + str(time.time()) + ";[error];cue_state_error")
             self.error_repeat = True
             self.error_count += 1
@@ -284,12 +288,15 @@ class HeadfixedTask(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available")
         if self.reward_error:
             if self.wrong_choice_error:
+                self.error_list.append('wrong_choice_error')
                 logging.info(";" + str(time.time()) + ";[error];wrong_choice_error")
                 self.wrong_choice_error = False
             elif self.no_choice_error:
+                self.error_list.append('no_choice_error')
                 logging.info(";" + str(time.time()) + ";[error];no_choice_error")
                 self.no_choice_error = False
             elif self.multiple_choice_error:
+                self.error_list.append('multiple_choice_error')
                 logging.info(";" + str(time.time()) + ";[error];multiple_choice_error")
                 self.multiple_choice_error = False
             self.error_repeat = True
