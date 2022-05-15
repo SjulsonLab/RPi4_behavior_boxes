@@ -39,3 +39,5 @@ fake_session_info['vis_gratings']				= ['/home/pi/gratings/first_grating.dat',
 											   '/home/pi/gratings/second_grating.dat']
 fake_session_info['vis_raws']					= []
 
+# treadmill
+fake_session_info['treadmill']                  = False
