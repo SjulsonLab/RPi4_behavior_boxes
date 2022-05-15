@@ -244,28 +244,28 @@ class BehavBox(object):
                         self.keyboard_active = False
                     elif event.key == pygame.K_1:
                         self.left_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[event];key_pressed_left_IR_entry()")
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_left_IR_entry()")
                     elif event.key == pygame.K_2:
                         self.center_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[event];key_pressed_center_IR_entry()")
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_center_IR_entry()")
                     elif event.key == pygame.K_3:
                         self.right_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[event];key_pressed_right_IR_entry()")
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_right_IR_entry()")
                     elif event.key == pygame.K_q:
                         # print("Q down: syringe pump 1 moves")
-                        logging.info(";" + str(time.time()) + ";[event];key_pressed_q")
+                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump1")
                         pump.reward("1", reward_size)
                     elif event.key == pygame.K_w:
                         # print("W down: syringe pump 2 moves")
-                        logging.info(";" + str(time.time()) + ";[event];key_pressed_w")
+                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump2")
                         pump.reward("2", reward_size)
                     elif event.key == pygame.K_e:
                         # print("E down: syringe pump 3 moves")
-                        logging.info(";" + str(time.time()) + ";[event];key_pressed_e")
+                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3")
                         pump.reward("3", reward_size)
                     elif event.key == pygame.K_r:
                         # print("R down: syringe pump 4 moves")
-                        logging.info(";" + str(time.time()) + ";[event];key_pressed_r")
+                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
                         pump.reward("4", reward_size)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:
@@ -401,32 +401,32 @@ class BehavBox(object):
     ###############################################################################################
     def left_IR_entry(self):
         self.event_list.append("left_IR_entry")
-        self.interact_list.append("left_IR_entry")
+        self.interact_list.append((time.time(), "left_IR_entry"))
         logging.info(";" + str(time.time()) + ";[action];left_IR_entry")
 
     def center_IR_entry(self):
         self.event_list.append("center_IR_entry")
-        self.interact_list.append("center_IR_entry")
+        self.interact_list.append((time.time(), "center_IR_entry"))
         logging.info(";" + str(time.time()) + ";[action];center_IR_entry")
 
     def right_IR_entry(self):
         self.event_list.append("right_IR_entry")
-        self.interact_list.append("right_IR_entry")
+        self.interact_list.append((time.time(), "right_IR_entry"))
         logging.info(";" + str(time.time()) + ";[action];right_IR_entry")
 
     def left_IR_exit(self):
         self.event_list.append("left_IR_exit")
-        self.interact_list.append("left_IR_exit")
+        self.interact_list.append((time.time(), "left_IR_exit"))
         logging.info(";" + str(time.time()) + ";[action];left_IR_exit")
 
     def center_IR_exit(self):
         self.event_list.append("center_IR_exit")
-        self.interact_list.append("center_IR_exit")
+        self.interact_list.append((time.time(), "center_IR_exit"))
         logging.info(";" + str(time.time()) + ";[action];center_IR_exit")
 
     def right_IR_exit(self):
         self.event_list.append("right_IR_exit")
-        self.interact_list.append("right_IR_exit")
+        self.interact_list.append((time.time(), "right_IR_exit"))
         logging.info(";" + str(time.time()) + ";[action];right_IR_exit")
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)

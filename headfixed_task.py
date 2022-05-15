@@ -329,6 +329,14 @@ class HeadfixedTask(object):
             self.box.cueLED1.off()
             logging.info(";" + str(time.time()) + ";[cue];LED_sound_off")
 
+    # def make_plot(self):
+    #     fig, ax = plt.subplots(figsize=(16, 9))
+    #     print(type(fig))
+    #     ax.plot([1, 2], [1, 2], color='green')
+    #     ax.text(1.5, 1.5, '2', size=50)
+    #     ax.set_xlabel('testing the visualization')
+    #
+    #     return visualization_plot
     ########################################################################
     # methods to start and end the behavioral session
     ########################################################################
