@@ -61,10 +61,8 @@ class BehavBox(object):
         ###############################################################################################
         # event list trigger by the interaction between the RPi and the animal for visualization
         # interact_list: lick, choice interaction between the board and the animal for visualization
-        # reward_list: list of reward, reward amount for data visualization
         ###############################################################################################
         self.interact_list = []
-        self.reward_list = []
 
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
@@ -438,6 +436,8 @@ class Pump(object):
         self.pump4 = LED(8)
         self.pump5 = LED(7)
         self.pump_en = LED(25)
+        self.reward_list = [] # a list of tuple (pump_x, reward_amount) with information of reward history for data
+        # visualization
 
     def reward(self, which_pump, reward_size):
         print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
@@ -459,16 +459,21 @@ class Pump(object):
         # logging.info(";" + str(time.time()) + ", reward_side_" + which_pump + "," + str(reward_size))
         if which_pump == "1":
             self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.reward_list.append(("pump1_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward_" + str(reward_size))
         elif which_pump == "2":
             self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.reward_list.append(("pump2_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump2_reward_" + str(reward_size))
         elif which_pump == "3":
             self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.reward_list.append(("pump3_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump3_reward_" + str(reward_size))
         elif which_pump == "4":
             self.pump4.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
         elif which_pump == "5":
             self.pump5.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.reward_list.append(("pump5_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump5_reward_" + str(reward_size))
