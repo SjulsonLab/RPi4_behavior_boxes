@@ -1,7 +1,7 @@
 # python3: headfixed_task.py
 """
 author: tian qiu
-date: 2022-03-16
+date: 2022-05-15
 name: headfixed_task.py
 goal: model_based reinforcement learning behavioral training task structure
 description:

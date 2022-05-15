@@ -1,3 +1,14 @@
+# python3: behavbox.py
+"""
+author: tian qiu
+date: 2022-05-15
+name: behavbox.py
+goal: base framework for running wide range of behavioral task
+description:
+    an updated test version for online behavior performance visualization
+
+"""
+
 # contains the behavior box class, which includes pin numbers and whether DIO pins are
 # configured as input or output
 
