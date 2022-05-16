@@ -179,12 +179,12 @@ class BehavBox(object):
         ###############################################################################################
         try:
             pygame.init()
-            fig, axes = plt.subplots(1, 1,)
-            axes.plot()
-            fig.canvas.draw()
-
-            self.main_display = pygame.display.set_mode((800, 600))
-            self.main_display.blit(fig, (100, 100))
+            # fig, axes = plt.subplots(1, 1,)
+            # axes.plot()
+            # fig.canvas.draw()
+            #
+            # self.main_display = pygame.display.set_mode((800, 600))
+            # self.main_display.blit(fig, (100, 100))
             pygame.display.set_caption(session_info["box_name"])
             print(
                 "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
