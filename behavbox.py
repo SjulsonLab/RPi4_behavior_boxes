@@ -18,6 +18,7 @@ import socket
 import time
 from collections import deque
 import pygame
+import pygame.display
 import logging
 from colorama import Fore, Style
 from visualstim import VisualStim
@@ -172,7 +173,7 @@ class BehavBox(object):
         ###############################################################################################
         try:
             pygame.init()
-            self.main_display = pygame.display.set_mode((2000, 1200))
+            self.main_display = pygame.display.set_mode((800, 600))
             pygame.display.set_caption(session_info["box_name"])
             print(
                 "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
@@ -214,7 +215,7 @@ class BehavBox(object):
         if figure:
             FramePerSec = pygame.time.Clock()
             # figure.canvas.draw()
-            self.main_display.blit(figure,(0,0))
+            self.main_display.blit(figure, (0, 0))
             pygame.display.update()
             FramePerSec.tick(FPS)
         else:
