@@ -213,7 +213,7 @@ class BehavBox(object):
     def check_plot(self, figure=None, FPS=144):
         if figure:
             FramePerSec = pygame.time.Clock()
-            figure.canvas.draw()
+            # figure.canvas.draw()
             self.main_display.blit(figure,(0,0))
             pygame.display.update()
             FramePerSec.tick(FPS)

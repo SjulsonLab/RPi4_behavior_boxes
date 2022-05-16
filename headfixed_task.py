@@ -24,6 +24,9 @@ import logging.config
 from time import sleep
 import random
 import threading
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.figure as fg
 
 logging.config.dictConfig(
     {
@@ -239,7 +242,7 @@ class HeadfixedTask(object):
 
     def enter_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby")
-        self.update_plot_choice()
+        self.update_plot()
         self.trial_running = False
         if self.reward_error and self.lick_count < self.lick_threshold:
             self.error_list.append('lick_error')
@@ -340,6 +343,12 @@ class HeadfixedTask(object):
             self.sound_on = False
             self.box.cueLED1.off()
             logging.info(";" + str(time.time()) + ";[cue];LED_sound_off")
+    def update_plot(self):
+        fig, axes = plt.subplots(1, 1, )
+        axes.plot([1, 2], [1, 2], color='green', label='test')
+
+        fig.canvas.draw()
+        self.box.check_plot(fig)
 
     def update_plot_error(self):
         # time_line = []
@@ -370,11 +379,13 @@ class HeadfixedTask(object):
         time_left = self.timeline_left_poke
         trajectory_right = self.right_poke_count_list
         time_right = self.timeline_right_poke
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+        fig, axes = plt.subplots(figsize(16, 9))
+        print(type(fig))
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111)
 
-        ax.scatter(time_left, trajectory_left, s=10, c='b', marker="s", label='left_lick_trajectory')
-        ax.scatter(time_right, trajectory_right, s=10, c='r', marker="o", label='right_lick_trajectory')
+        fig.scatter(time_left, trajectory_left, s=10, c='b', marker="s", label='left_lick_trajectory')
+        fig.scatter(time_right, trajectory_right, s=10, c='r', marker="o", label='right_lick_trajectory')
 
         self.box.check_plot(ax)
     ########################################################################
