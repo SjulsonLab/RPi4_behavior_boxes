@@ -346,8 +346,6 @@ class HeadfixedTask(object):
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
         axes.plot([1, 2], [1, 2], color='green', label='test')
-
-        fig.canvas.draw()
         self.box.check_plot(fig)
 
     def update_plot_error(self):

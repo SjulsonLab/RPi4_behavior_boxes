@@ -173,7 +173,12 @@ class BehavBox(object):
         ###############################################################################################
         try:
             pygame.init()
+            fig, axes = plt.subplots(1, 1,)
+            axes.plot()
+            fig.canvas.draw()
+
             self.main_display = pygame.display.set_mode((800, 600))
+            self.blit(fig, (100, 100))
             pygame.display.set_caption(session_info["box_name"])
             print(
                 "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
@@ -211,11 +216,12 @@ class BehavBox(object):
     1. show a blank window. (change in the pygame initiation part)
     2. show a x,y axis with a count of trial
     """
-    def check_plot(self, figure=None, FPS=144):
+    def check_plot(self, figure=None, screen=self.main_display, FPS=144):
         if figure:
             FramePerSec = pygame.time.Clock()
+            figure.canvas.draw()
             # figure.canvas.draw()
-            self.main_display.blit(figure, (0, 0))
+            screen.blit(figure, (0, 0))
             pygame.display.update()
             FramePerSec.tick(FPS)
         else:
