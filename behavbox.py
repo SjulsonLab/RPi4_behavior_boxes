@@ -19,6 +19,8 @@ import time
 from collections import deque
 import pygame
 import pygame.display
+import matplotlib.pyplot as plt
+import matplotlib.figure as fg
 import logging
 from colorama import Fore, Style
 from visualstim import VisualStim
