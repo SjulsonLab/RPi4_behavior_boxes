@@ -216,12 +216,12 @@ class BehavBox(object):
     1. show a blank window. (change in the pygame initiation part)
     2. show a x,y axis with a count of trial
     """
-    def check_plot(self, figure=None, screen=self.main_display, FPS=144):
+    def check_plot(self, figure=None, FPS=144):
         if figure:
             FramePerSec = pygame.time.Clock()
             figure.canvas.draw()
             # figure.canvas.draw()
-            screen.blit(figure, (0, 0))
+            self.main_display.blit(figure, (0, 0))
             pygame.display.update()
             FramePerSec.tick(FPS)
         else:
