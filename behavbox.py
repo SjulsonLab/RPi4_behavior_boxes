@@ -19,8 +19,12 @@ import time
 from collections import deque
 import pygame
 import pygame.display
+
+import matplotlib
+matplotlib.use('module://pygame_matplotlib.backend_pygame')
 import matplotlib.pyplot as plt
 import matplotlib.figure as fg
+
 import logging
 from colorama import Fore, Style
 from visualstim import VisualStim
