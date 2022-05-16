@@ -211,23 +211,14 @@ class BehavBox(object):
     2. show a x,y axis with a count of trial
     """
     def check_plot(self, figure=None, FPS=144):
-        FramePerSec = pygame.time.Clock()
-        if figure == None:
-            figure, ax = plt.subplots(figsize=(16, 9))
-            print(type(figure))
-            ax.plot([1, 2], [1, 2], color='green')
-            ax.text(1.5, 1.5, '2', size=50)
-            ax.set_xlabel('testing the visualization')
-
+        if figure:
+            FramePerSec = pygame.time.Clock()
             figure.canvas.draw()
-            self.main_display.blit(figure, (0, 0))
+            self.main_display.blit(figure,(0,0))
             pygame.display.update()
             FramePerSec.tick(FPS)
         else:
-            figure.canvas.draw()
-            self.main_display.blit(figure (0,0))
-            pygame.display.update()
-            FramePerSec.tick(FPS)
+            print("No figure available")
 
     ###############################################################################################
     # check for key presses - uses pygame window to simulate nosepokes and licks

@@ -122,7 +122,12 @@ class HeadfixedTask(object):
         self.error_repeat = False
 
         self.current_card = None
-
+        self.left_poke_count = 0
+        self.right_poke_count = 0
+        self.timeline_left_poke = []
+        self.left_poke_count_list = []
+        self.timeline_right_poke = []
+        self.right_poke_count_list = []
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
         self.pump = behavbox.Pump()
@@ -183,8 +188,14 @@ class HeadfixedTask(object):
             side_mice = None
             if event_name == "left_IR_entry":
                 side_mice = 'left'
+                self.left_poke_count += 1
+                self.left_poke_count_list.append(self.left_poke_count)
+                self.timeline_left_poke.append(time.time())
             elif event_name == "right_IR_entry":
                 side_mice = 'right'
+                self.right_poke_count += 1
+                self.right_poke_count_list.append(self.right_poke_count)
+                self.timeline_right_poke.append(time.time())
             if side_mice:
                 reward_size = self.current_card[3]
                 if cue_state == 'sound+LED':
@@ -228,6 +239,7 @@ class HeadfixedTask(object):
 
     def enter_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby")
+        self.update_plot_choice()
         self.trial_running = False
         if self.reward_error and self.lick_count < self.lick_threshold:
             self.error_list.append('lick_error')
@@ -329,14 +341,42 @@ class HeadfixedTask(object):
             self.box.cueLED1.off()
             logging.info(";" + str(time.time()) + ";[cue];LED_sound_off")
 
-    # def make_plot(self):
-    #     fig, ax = plt.subplots(figsize=(16, 9))
-    #     print(type(fig))
-    #     ax.plot([1, 2], [1, 2], color='green')
-    #     ax.text(1.5, 1.5, '2', size=50)
-    #     ax.set_xlabel('testing the visualization')
-    #
-    #     return visualization_plot
+    def update_plot_error(self):
+        # time_line = []
+        # action_line = []
+        # for interaction in self.box.interact_list:
+        #     time_line.append(interaction[0])
+        #     action_line.append(interaction[1])
+        #
+        # fig, ax = plt.subplots(figsize=(16, 9))
+        # print(type(fig))
+        # ax.plot(time_line, action_line, color='green')
+        # ax.text(1.5, 1.5, '2', size=50)
+        # ax.set_xlabel('testing the visualization')
+        # lick choice distribution and reward distribution
+        error_event = self.error_list
+        labels, counts = np.unique(error_event, return_counts=True)
+        ticks = range(len(counts))
+        plt.bar(ticks, counts, align='center')
+        plt.xticks(ticks, labels)
+        # plt.title(session_name)
+        ax = plt.gca()
+        ax.set_xticklabels(labels=labels, rotation=70)
+
+        self.box.check_plot(ax)
+
+    def update_plot_choice(self):
+        trajectory_left = self.left_poke_count_list
+        time_left = self.timeline_left_poke
+        trajectory_right = self.right_poke_count_list
+        time_right = self.timeline_right_poke
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        ax.scatter(time_left, trajectory_left, s=10, c='b', marker="s", label='left_lick_trajectory')
+        ax.scatter(time_right, trajectory_right, s=10, c='r', marker="o", label='right_lick_trajectory')
+
+        self.box.check_plot(ax)
     ########################################################################
     # methods to start and end the behavioral session
     ########################################################################
