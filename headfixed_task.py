@@ -374,7 +374,7 @@ class HeadfixedTask(object):
         ax = plt.gca()
         ax.set_xticklabels(labels=labels, rotation=70)
 
-        self.box.check_plot(ax)
+        self.box.check_plot(fig)
 
     def update_plot_choice(self):
         trajectory_left = self.left_poke_count_list
