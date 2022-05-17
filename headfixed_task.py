@@ -294,7 +294,7 @@ class HeadfixedTask(object):
         # turn on the cue according to the current card
         self.check_cue(self.current_card[0])
         # wait for treadmill signal and process the treadmill signal
-        self.distance_buffer = get_distance()
+        self.distance_buffer = self.get_distance()
         logging.info(";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer))
 
     def exit_cue_state(self):
