@@ -261,19 +261,19 @@ class BehavBox(object):
                     elif event.key == pygame.K_q:
                         # print("Q down: syringe pump 1 moves")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump1")
-                        self.pump.reward("1", reward_size)
+                        self.pump.reward("1", 10)
                     elif event.key == pygame.K_w:
                         # print("W down: syringe pump 2 moves")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump2")
-                        self.pump.reward("2", reward_size)
+                        self.pump.reward("2", 10)
                     elif event.key == pygame.K_e:
                         # print("E down: syringe pump 3 moves")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3")
-                        self.pump.reward("3", reward_size)
+                        self.pump.reward("3", 10)
                     elif event.key == pygame.K_r:
                         # print("R down: syringe pump 4 moves")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
-                        self.pump.reward("4", reward_size)
+                        self.pump.reward("4", 10)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:
                         self.left_IR_exit()
