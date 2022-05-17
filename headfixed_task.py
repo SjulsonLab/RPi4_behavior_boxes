@@ -248,13 +248,13 @@ class HeadfixedTask(object):
         # self.update_plot_choice()
         self.update_plot_error()
         self.trial_running = False
-        if self.reward_error and self.lick_count < self.lick_threshold: # if there is not enough lick pass a
-            # restrictive time
-            self.error_list.append('insufficient_lick_error')
-            logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
-        self.reward_error = False
-        self.lick_count = 0
-        self.side_mice_buffer = None
+        # if self.reward_error and self.lick_count < self.lick_threshold: # if there is not enough lick pass a
+        #     # restrictive time
+        #     self.error_list.append('insufficient_lick_error')
+        #     logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
+        # self.reward_error = False
+        # self.lick_count = 0
+        # self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
         logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number))
 
@@ -307,7 +307,6 @@ class HeadfixedTask(object):
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available")
         if self.reward_error:
-            self.reward_error = False
             if self.wrong_choice_error:
                 self.error_list.append('wrong_choice_error')
                 logging.info(";" + str(time.time()) + ";[error];wrong_choice_error")
@@ -320,8 +319,14 @@ class HeadfixedTask(object):
                 self.error_list.append('multiple_choice_error')
                 logging.info(";" + str(time.time()) + ";[error];multiple_choice_error")
                 self.multiple_choice_error = False
+            elif self.lick_count < self.lick_threshold:
+                # restrictive time
+                self.error_list.append('insufficient_lick_error')
+                logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
             self.error_repeat = True
             self.error_count += 1
+        self.lick_count = 0
+        self.side_mice_buffer = None
 
     def check_cue(self, cue):
         if cue == 'sound':
