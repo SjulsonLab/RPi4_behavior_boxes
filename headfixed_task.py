@@ -134,7 +134,7 @@ class HeadfixedTask(object):
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
         # self.pump = behavbox.Pump()
-        self.pump = self.box.pump()
+        self.pump = self.box.pump
         self.treadmill = self.box.treadmill
         self.distance_initiation = self.session_info['treadmill_setup']['distance_initiation']
         self.distance_buffer = self.treadmill.distance_cm
