@@ -377,7 +377,7 @@ class HeadfixedTask(object):
         time_left = self.timeline_left_poke
         trajectory_right = self.right_poke_count_list
         time_right = self.timeline_right_poke
-        fig, axes = plt.subplots(figsize(16, 9))
+        fig, axes = plt.subplots(1, 1,)
         print(type(fig))
         # fig = plt.figure()
         # ax = fig.add_subplot(111)
