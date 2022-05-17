@@ -246,10 +246,10 @@ class HeadfixedTask(object):
                     self.wrong_choice_error = True
                     self.error_repeat = True
                     self.restart()
-            else: # no lick
-                self.reward_error = True
-                self.no_choice_error = True
-                self.error_repeat = True
+            # else: # no lick
+            #     self.reward_error = True
+            #     self.no_choice_error = True
+            #     self.error_repeat = True
 
         # look for keystrokes
         self.box.check_keybd()
