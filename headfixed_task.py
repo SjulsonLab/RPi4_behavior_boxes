@@ -27,6 +27,7 @@ import threading
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.figure as fg
+import numpy as np
 
 logging.config.dictConfig(
     {
