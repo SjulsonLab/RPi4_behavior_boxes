@@ -211,14 +211,15 @@ class HeadfixedTask(object):
                             reward_size = "large"
                 if side_choice == side_mice or cue_state == 'sound+LED':
                     print("Number of lick detected: " + str(self.lick_count))
-                    if self.lick_count == 0:
-                        self.side_mice_buffer = side_mice
+                    if self.lick_count == 0: # first lick
+                        self.side_mice_buffer = side_mice # store the side option of the first lick
+                        # reward delivery
                         if side_mice == 'left':
                             self.pump.reward('1', self.session_info["reward_size"][reward_size])
                         elif side_mice == 'right':
                             self.pump.reward('2', self.session_info["reward_size"][reward_size])
                         self.lick_count += 1
-                    elif self.lick_count >= self.lick_threshold:
+                    elif self.lick_count >= self.lick_threshold: # if the lick count is enough
                         self.total_reward += 1
                         self.error_repeat = False
                         self.reward_error = False
@@ -247,10 +248,11 @@ class HeadfixedTask(object):
         # self.update_plot_choice()
         self.update_plot_error()
         self.trial_running = False
-        # if self.reward_error and self.lick_count < self.lick_threshold:
-        #     self.error_list.append('lick_error')
-        #     logging.info(";" + str(time.time()) + ";[error];lick_error")
-        #     self.reward_error = False
+        if self.reward_error and self.lick_count < self.lick_threshold: # if there is not enough lick pass a
+            # restrictive time
+            self.error_list.append('insufficient_lick_error')
+            logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
+        self.reward_error = False
         self.lick_count = 0
         self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
