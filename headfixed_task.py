@@ -138,7 +138,7 @@ class HeadfixedTask(object):
         self.pump = self.box.pump
         self.treadmill = self.box.treadmill
         self.distance_initiation = self.session_info['treadmill_setup']['distance_initiation']
-        self.distance_buffer = self.treadmill.distance_cm
+        self.distance_buffer = None
         self.distance_diff = 0
         self.sound_on = False
 
@@ -169,7 +169,7 @@ class HeadfixedTask(object):
         if self.state == "standby":
             pass
         elif self.state == "initiate":
-            self.distance_diff = self.treadmill.distance_cm - self.distance_buffer
+            self.distance_diff = self.get_distance() - self.distance_buffer
             if self.distance_diff >= self.distance_initiation:
                 self.initiate_error = False
                 self.start_cue()
@@ -177,7 +177,7 @@ class HeadfixedTask(object):
                 self.initiate_error = True
                 self.error_repeat = True
         elif self.state == "cue_state":
-            self.distance_diff = self.treadmill.distance_cm - self.distance_buffer
+            self.distance_diff = self.get_distance() - self.distance_buffer
             distance_condition = self.current_card[1]
             distance_required = self.session_info['treadmill_setup'][distance_condition]
             if self.distance_diff >= distance_required:
@@ -276,7 +276,7 @@ class HeadfixedTask(object):
         logging.info(";" + str(time.time()) + ";[transition];enter_initiate")
         self.trial_running = True
         # wait for treadmill signal and process the treadmill signal
-        self.distance_buffer = self.treadmill.distance_cm
+        self.distance_buffer = self.get_distance()
         logging.info(";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer))
 
     def exit_initiate(self):
@@ -294,7 +294,7 @@ class HeadfixedTask(object):
         # turn on the cue according to the current card
         self.check_cue(self.current_card[0])
         # wait for treadmill signal and process the treadmill signal
-        self.distance_buffer = self.treadmill.distance_cm
+        self.distance_buffer = get_distance()
         logging.info(";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer))
 
     def exit_cue_state(self):
@@ -362,24 +362,21 @@ class HeadfixedTask(object):
             self.sound_on = False
             self.box.cueLED1.off()
             logging.info(";" + str(time.time()) + ";[cue];LED_sound_off")
+
+    def get_distance(self):
+        try:
+            distance = self.treadmill.distance_cm
+        except Exception as e:
+            if e.message == 'OSError':
+                self.treadmill = self.box.treadmill
+                distance = self.treadmill.distance_cm
+        return distance
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
         axes.plot([1, 2], [1, 2], color='green', label='test')
         self.box.check_plot(fig)
 
     def update_plot_error(self):
-        # time_line = []
-        # action_line = []
-        # for interaction in self.box.interact_list:
-        #     time_line.append(interaction[0])
-        #     action_line.append(interaction[1])
-        #
-        # fig, ax = plt.subplots(figsize=(16, 9))
-        # print(type(fig))
-        # ax.plot(time_line, action_line, color='green')
-        # ax.text(1.5, 1.5, '2', size=50)
-        # ax.set_xlabel('testing the visualization')
-        # lick choice distribution and reward distribution
         error_event = self.error_list
         labels, counts = np.unique(error_event, return_counts=True)
         ticks = range(len(counts))
