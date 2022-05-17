@@ -190,7 +190,7 @@ class HeadfixedTask(object):
             # first detect the lick signal:
             cue_state = self.current_card[0]
             side_choice = self.current_card[2]
-            side_mice = None
+            # side_mice = None
             if event_name == "left_IR_entry":
                 side_mice = 'left'
                 self.left_poke_count += 1
@@ -201,6 +201,8 @@ class HeadfixedTask(object):
                 self.right_poke_count += 1
                 self.right_poke_count_list.append(self.right_poke_count)
                 self.timeline_right_poke.append(time.time())
+            else:
+                side_mice = None
             if side_mice:
                 reward_size = self.current_card[3]
                 if cue_state == 'sound+LED':
@@ -248,6 +250,7 @@ class HeadfixedTask(object):
                 self.reward_error = True
                 self.no_choice_error = True
                 self.error_repeat = True
+
         # look for keystrokes
         self.box.check_keybd()
 
@@ -371,6 +374,7 @@ class HeadfixedTask(object):
             self.treadmill = self.box.treadmill
             distance = self.treadmill.distance_cm
         return distance
+
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
         axes.plot([1, 2], [1, 2], color='green', label='test')
@@ -401,9 +405,11 @@ class HeadfixedTask(object):
         ax.plot(time_right, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
 
         self.box.check_plot(fig)
+
     ########################################################################
     # methods to start and end the behavioral session
     ########################################################################
+
     def start_session(self):
         ic("TODO: start video")
         self.box.video_start()
