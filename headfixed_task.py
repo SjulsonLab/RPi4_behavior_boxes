@@ -382,8 +382,8 @@ class HeadfixedTask(object):
         # fig = plt.figure()
         # ax = fig.add_subplot(111)
 
-        ax.plot(time_left, trajectory_left, s=10, c='b', marker="s", label='left_lick_trajectory')
-        ax.plot(time_right, trajectory_right, s=10, c='r', marker="o", label='right_lick_trajectory')
+        ax.plot(time_left, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
+        ax.plot(time_right, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
 
         self.box.check_plot(fig)
     ########################################################################
