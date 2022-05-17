@@ -326,14 +326,14 @@ class HeadfixedTask(object):
                 self.error_list.append('multiple_choice_error')
                 logging.info(";" + str(time.time()) + ";[error];multiple_choice_error")
                 self.multiple_choice_error = False
-            elif self.lick_count < self.lick_threshold:
-                # restrictive time
-                self.error_list.append('insufficient_lick_error')
-                logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
             elif self.no_choice_error:
                 self.error_list.append('no_choice_error')
                 logging.info(";" + str(time.time()) + ";[error];no_choice_error")
                 self.no_choice_error = False
+            elif 0 < self.lick_count < self.lick_threshold:
+                # restrictive time
+                self.error_list.append('insufficient_lick_error')
+                logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
             self.error_repeat = True
             self.error_count += 1
         self.lick_count = 0
