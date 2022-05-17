@@ -130,6 +130,11 @@ class BehavBox(object):
         self.sound5 = LED(24)  # originally DIO2
 
         ###############################################################################################
+        # pump: trigger signal output to a driver board induce the syringe pump to deliver reward
+        ###############################################################################################
+        self.pump = Pump()
+
+        ###############################################################################################
         # flipper strobe signal (previously called camera strobe signal)
         ###############################################################################################
         # previously: self.camera_strobe = Button(4)

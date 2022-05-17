@@ -133,7 +133,8 @@ class HeadfixedTask(object):
         self.right_poke_count_list = []
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
-        self.pump = behavbox.Pump()
+        # self.pump = behavbox.Pump()
+        self.pump = self.box.pump()
         self.treadmill = self.box.treadmill
         self.distance_initiation = self.session_info['treadmill_setup']['distance_initiation']
         self.distance_buffer = self.treadmill.distance_cm
@@ -379,8 +380,6 @@ class HeadfixedTask(object):
         time_right = self.timeline_right_poke
         fig, ax = plt.subplots(1, 1,)
         print(type(fig))
-        # fig = plt.figure()
-        # ax = fig.add_subplot(111)
 
         ax.plot(time_left, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
         ax.plot(time_right, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
