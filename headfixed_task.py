@@ -364,9 +364,10 @@ class HeadfixedTask(object):
         # lick choice distribution and reward distribution
         error_event = self.error_list
         labels, counts = np.unique(error_event, return_counts=True)
-        ticks = range(len(counts))
-        plt.bar(ticks, counts, align='center')
-        plt.xticks(ticks, labels)
+        # ticks = range(len(counts))
+        fig, ax = plt.subplots(1, 1, )
+        ax.bar(ticks, counts, align='center', tick_label=labels)
+        # plt.xticks(ticks, labels)
         # plt.title(session_name)
         ax = plt.gca()
         ax.set_xticklabels(labels=labels, rotation=70)
