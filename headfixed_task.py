@@ -377,15 +377,15 @@ class HeadfixedTask(object):
         time_left = self.timeline_left_poke
         trajectory_right = self.right_poke_count_list
         time_right = self.timeline_right_poke
-        fig, axes = plt.subplots(1, 1,)
+        fig, ax = plt.subplots(1, 1,)
         print(type(fig))
         # fig = plt.figure()
         # ax = fig.add_subplot(111)
 
-        fig.scatter(time_left, trajectory_left, s=10, c='b', marker="s", label='left_lick_trajectory')
-        fig.scatter(time_right, trajectory_right, s=10, c='r', marker="o", label='right_lick_trajectory')
+        ax.plot(time_left, trajectory_left, s=10, c='b', marker="s", label='left_lick_trajectory')
+        ax.plot(time_right, trajectory_right, s=10, c='r', marker="o", label='right_lick_trajectory')
 
-        self.box.check_plot(ax)
+        self.box.check_plot(fig)
     ########################################################################
     # methods to start and end the behavioral session
     ########################################################################
