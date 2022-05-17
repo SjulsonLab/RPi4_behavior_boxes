@@ -367,9 +367,9 @@ class HeadfixedTask(object):
         try:
             distance = self.treadmill.distance_cm
         except Exception as e:
-            if e.message == 'OSError':
-                self.treadmill = self.box.treadmill
-                distance = self.treadmill.distance_cm
+            logging.info(";" + str(time.time()) + ";[system_error];" + str(e))
+            self.treadmill = self.box.treadmill
+            distance = self.treadmill.distance_cm
         return distance
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
