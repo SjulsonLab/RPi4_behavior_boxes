@@ -190,7 +190,7 @@ class HeadfixedTask(object):
             # first detect the lick signal:
             cue_state = self.current_card[0]
             side_choice = self.current_card[2]
-            # side_mice = None
+            side_mice = None
             if event_name == "left_IR_entry":
                 side_mice = 'left'
                 self.left_poke_count += 1
@@ -201,8 +201,8 @@ class HeadfixedTask(object):
                 self.right_poke_count += 1
                 self.right_poke_count_list.append(self.right_poke_count)
                 self.timeline_right_poke.append(time.time())
-            else:
-                side_mice = None
+            # else:
+            #     side_mice = None
             if side_mice:
                 reward_size = self.current_card[3]
                 if cue_state == 'sound+LED':
@@ -233,23 +233,23 @@ class HeadfixedTask(object):
                         self.restart()
                     elif self.side_mice_buffer == side_mice:
                         self.lick_count += 1
-                elif self.side_mice_buffer:
-                    if self.side_mice_buffer != side_mice:
-                        self.reward_error = True
-                        self.multiple_choice_error = True
-                        self.error_repeat = True
-                        self.restart()
-                    elif self.side_mice_buffer == side_mice:
-                        self.lick_count += 1
-                else: # wrong side
+                elif self.side_mice_buffer != side_mice:
+                    # if self.side_mice_buffer != side_mice:
+                    self.reward_error = True
+                    self.multiple_choice_error = True
+                    self.error_repeat = True
+                    self.restart()
+                elif self.side_mice_buffer == side_mice:
+                    self.lick_count += 1
+                else:
                     self.reward_error = True
                     self.wrong_choice_error = True
                     self.error_repeat = True
                     self.restart()
-            # else: # no lick
-            #     self.reward_error = True
-            #     self.no_choice_error = True
-            #     self.error_repeat = True
+            else: # no lick
+                self.reward_error = True
+                self.no_choice_error = True
+                self.error_repeat = True
 
         # look for keystrokes
         self.box.check_keybd()
@@ -330,7 +330,7 @@ class HeadfixedTask(object):
                 self.error_list.append('no_choice_error')
                 logging.info(";" + str(time.time()) + ";[error];no_choice_error")
                 self.no_choice_error = False
-            elif 0 < self.lick_count < self.lick_threshold:
+            elif 1 < self.lick_count < self.lick_threshold:
                 # restrictive time
                 self.error_list.append('insufficient_lick_error')
                 logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
