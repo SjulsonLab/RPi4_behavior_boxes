@@ -245,8 +245,8 @@ class HeadfixedTask(object):
 
     def enter_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby")
-        # self.update_plot_choice()
-        self.update_plot_error()
+        self.update_plot_choice()
+        # self.update_plot_error()
         self.trial_running = False
         self.reward_error = False
         self.lick_count = 0
