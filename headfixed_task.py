@@ -378,7 +378,8 @@ class HeadfixedTask(object):
         # plt.xticks(ticks, labels)
         # plt.title(session_name)
         ax = plt.gca()
-        ax.xticks(rotation=70)
+        ax.set_xticks(ticks, labels)
+        ax.set_xticklabels(labels=labels, rotation=70)
 
         self.box.check_plot(fig)
 
