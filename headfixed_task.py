@@ -322,6 +322,9 @@ class HeadfixedTask(object):
                 logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
             self.error_repeat = True
             self.error_count += 1
+        else:
+            logging.info(";" + str(time.time()) + ";[error];correct_trial")
+            self.error_list.append('correct_trial')
         self.lick_count = 0
         self.side_mice_buffer = None
 
