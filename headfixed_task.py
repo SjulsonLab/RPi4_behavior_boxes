@@ -223,13 +223,18 @@ class HeadfixedTask(object):
                         self.error_repeat = False
                         self.reward_error = False
                         self.restart()
-                    elif self.side_mice_buffer != side_mice: # if mice lick more than one side
-                        self.reward_error = True
-                        self.multiple_choice_error = True
-                        self.error_repeat = True
-                        self.restart()
+                    # elif self.side_mice_buffer != side_mice: # if mice lick more than one side
+                    #     self.reward_error = True
+                    #     self.multiple_choice_error = True
+                    #     self.error_repeat = True
+                    #     self.restart()
                     elif self.side_mice_buffer == side_mice:
                         self.lick_count += 1
+                elif self.side_mice_buffer:
+                    self.reward_error = True
+                    self.multiple_choice_error = True
+                    self.error_repeat = True
+                    self.restart()
                 else: # wrong side
                     self.reward_error = True
                     self.wrong_choice_error = True
