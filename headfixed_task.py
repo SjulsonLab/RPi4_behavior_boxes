@@ -121,7 +121,7 @@ class HeadfixedTask(object):
         self.cue_state_error = False
         self.reward_error = False
         self.wrong_choice_error = False
-        self.no_choice_error = False
+        # self.no_choice_error = False
         self.multiple_choice_error = False
         self.error_repeat = False
 
@@ -240,58 +240,10 @@ class HeadfixedTask(object):
                     self.wrong_choice_error = True
                     self.error_repeat = True
                     self.restart()
-            else: # no lick
-                self.reward_error = True
-                self.no_choice_error = True
-                self.error_repeat = True
-#
-#             if side_mice:
-#                 reward_size = self.current_card[3]
-#                 if cue_state == 'sound+LED':
-#                     if side_choice != side_mice:
-#                         if reward_size == "large":
-#                             reward_size = "small"
-#                         elif reward_size == "small":
-#                             reward_size = "large"
-#                 if side_choice == side_mice or cue_state == 'sound+LED':
-#                     print("Number of lick detected: " + str(self.lick_count))
-#                     if self.lick_count == 0: # first lick
-#                         self.side_mice_buffer = side_mice # store the side option of the first lick
-#                         # reward delivery
-#                         if side_mice == 'left':
-#                             self.pump.reward('1', self.session_info["reward_size"][reward_size])
-#                         elif side_mice == 'right':
-#                             self.pump.reward('2', self.session_info["reward_size"][reward_size])
-#                         self.lick_count += 1
-#                     elif self.lick_count >= self.lick_threshold: # if the lick count is enough
-#                         self.total_reward += 1
-#                         self.error_repeat = False
-#                         self.reward_error = False
-#                         self.restart()
-#                     elif self.side_mice_buffer != side_mice: # if mice lick more than one side
-#                         self.reward_error = True
-#                         self.multiple_choice_error = True
-#                         self.error_repeat = True
-#                         self.restart()
-#                     elif self.side_mice_buffer == side_mice:
-#                         self.lick_count += 1
-#                 elif self.side_mice_buffer != side_mice:
-#                     # if self.side_mice_buffer != side_mice:
-#                     self.reward_error = True
-#                     self.multiple_choice_error = True
-#                     self.error_repeat = True
-#                     self.restart()
-#                 elif self.side_mice_buffer == side_mice:
-#                     self.lick_count += 1
-#                 else:
-#                     self.reward_error = True
-#                     self.wrong_choice_error = True
-#                     self.error_repeat = True
-#                     self.restart()
-#             else: # no lick
-#                 self.reward_error = True
-#                 self.no_choice_error = True
-#                 self.error_repeat = True
+            # else: # no lick
+            #     self.reward_error = True
+            #     self.no_choice_error = True
+            #     self.error_repeat = True
         # look for keystrokes
         self.box.check_keybd()
 
@@ -364,11 +316,11 @@ class HeadfixedTask(object):
                 logging.info(";" + str(time.time()) + ";[error];multiple_choice_error")
                 self.error_list.append('multiple_choice_error')
                 self.multiple_choice_error = False
-            elif self.no_choice_error:
+            elif self.lick_count == 0:
                 logging.info(";" + str(time.time()) + ";[error];no_choice_error")
                 self.error_list.append('no_choice_error')
-                self.no_choice_error = False
-            elif 1 < self.lick_count < self.lick_threshold:
+                # self.no_choice_error = False
+            elif 0 < self.lick_count < self.lick_threshold:
                 # restrictive time
                 self.error_list.append('insufficient_lick_error')
                 logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
