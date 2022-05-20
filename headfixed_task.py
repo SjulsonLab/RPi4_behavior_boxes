@@ -191,6 +191,7 @@ class HeadfixedTask(object):
             cue_state = self.current_card[0]
             side_choice = self.current_card[2]
             side_mice = None
+            self.reward_error = True
             if event_name == "left_IR_entry":
                 side_mice = 'left'
                 self.left_poke_count += 1
@@ -223,20 +224,15 @@ class HeadfixedTask(object):
                         self.error_repeat = False
                         self.reward_error = False
                         self.restart()
-                    # elif self.side_mice_buffer != side_mice: # if mice lick more than one side
-                    #     self.reward_error = True
-                    #     self.multiple_choice_error = True
-                    #     self.error_repeat = True
-                    #     self.restart()
                     elif self.side_mice_buffer == side_mice:
                         self.lick_count += 1
                 elif self.side_mice_buffer:
-                    self.reward_error = True
+                    # self.reward_error = True
                     self.multiple_choice_error = True
                     self.error_repeat = True
                     self.restart()
                 else: # wrong side
-                    self.reward_error = True
+                    # self.reward_error = True
                     self.wrong_choice_error = True
                     self.error_repeat = True
                     self.restart()
@@ -279,7 +275,7 @@ class HeadfixedTask(object):
             logging.info(";" + str(time.time()) + ";[error];initiate_error")
             self.error_repeat = True
             self.error_count += 1
-            self.reward_error = False
+            # self.reward_error = False
 
     def enter_cue_state(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_cue_state")
@@ -307,7 +303,7 @@ class HeadfixedTask(object):
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available")
         if self.reward_error:
-            self.reward_error = False
+            # self.reward_error = False
             if self.wrong_choice_error:
                 logging.info(";" + str(time.time()) + ";[error];wrong_choice_error")
                 self.error_list.append('wrong_choice_error')
