@@ -296,13 +296,13 @@ class HeadfixedTask(object):
         self.update_plot_error()
         self.trial_running = False
         """testing"""
-        if self.reward_error and self.lick_count < self.lick_threshold: # if there is not enough lick pass a
-            # restrictive time
-            self.error_list.append('insufficient_lick_error')
-            logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
-        self.reward_error = False
-        self.lick_count = 0
-        self.side_mice_buffer = None
+        # if self.reward_error and self.lick_count < self.lick_threshold: # if there is not enough lick pass a
+        #     # restrictive time
+        #     self.error_list.append('insufficient_lick_error')
+        #     logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
+        # self.reward_error = False
+        # self.lick_count = 0
+        # self.side_mice_buffer = None
         """end of testing"""
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
         logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number))
@@ -368,10 +368,10 @@ class HeadfixedTask(object):
                 logging.info(";" + str(time.time()) + ";[error];no_choice_error")
                 self.error_list.append('no_choice_error')
                 self.no_choice_error = False
-            # elif 1 < self.lick_count < self.lick_threshold:
-            #     # restrictive time
-            #     self.error_list.append('insufficient_lick_error')
-            #     logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
+            elif 1 < self.lick_count < self.lick_threshold:
+                # restrictive time
+                self.error_list.append('insufficient_lick_error')
+                logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
             self.error_repeat = True
             self.error_count += 1
         # self.lick_count = 0
