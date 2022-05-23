@@ -231,7 +231,7 @@ class HeadfixedTask(object):
                     self.multiple_choice_error = True
                     self.error_repeat = True
                     self.restart()
-                else: # wrong side
+                else:  # wrong side
                     # self.reward_error = True
                     self.wrong_choice_error = True
                     self.error_repeat = True
@@ -383,17 +383,19 @@ class HeadfixedTask(object):
 
         self.box.check_plot(fig)
 
-    def update_plot_choice(self):
+    def update_plot_choice(self, save_fig=False):
         trajectory_left = self.left_poke_count_list
         time_left = self.timeline_left_poke
         trajectory_right = self.right_poke_count_list
         time_right = self.timeline_right_poke
-        fig, ax = plt.subplots(1, 1,)
+        fig, ax = plt.subplots(1, 1, )
         print(type(fig))
 
         ax.plot(time_left, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
         ax.plot(time_right, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
-
+        if save_fig:
+            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
+                        self.session_info['basename'] + "_choice_plot" + '.png')
         self.box.check_plot(fig)
 
     ########################################################################
@@ -406,4 +408,5 @@ class HeadfixedTask(object):
 
     def end_session(self):
         ic("TODO: stop video")
+        self.update_plot_choice(save_fig=True)
         self.box.video_stop()
