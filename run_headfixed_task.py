@@ -135,6 +135,7 @@ try:
                           "*State: " + str(task.current_card[1]) + "\n" +
                           "*Choice: " + str(task.current_card[2]) + "\n" +
                           "*Reward: " + str(task.current_card[3]) + "\n")
+                    task.trial_number += 1
                 first_card = False
                 logging.info(";" + str(time.time()) + ";[transition];start_trial()")
                 task.start_trial()  # initiate the time state machine, start_trial() is a trigger
