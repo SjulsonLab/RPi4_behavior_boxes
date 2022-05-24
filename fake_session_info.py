@@ -33,8 +33,11 @@ fake_session_info['timeout_length']              = 5  # in seconds
 fake_session_info['reward_size']					= 10  # in microliters
 
 # visual stimulus
+fake_session_info['visual_stimulus']            = False
 fake_session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
 fake_session_info['vis_gratings']				= ['/home/pi/gratings/first_grating.dat',
 											   '/home/pi/gratings/second_grating.dat']
 fake_session_info['vis_raws']					= []
 
+# treadmill
+fake_session_info['treadmill']                  = False
