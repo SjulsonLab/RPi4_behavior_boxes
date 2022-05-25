@@ -344,7 +344,6 @@ class BehavBox(object):
                 Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
 
             # start initiating the dumping of the session information when available
-            print("DEBUG, basename: " + basename)
             scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
             print("dumping session_info")
             pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
