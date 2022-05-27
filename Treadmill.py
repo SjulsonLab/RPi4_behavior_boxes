@@ -22,16 +22,20 @@ def dacval():
 # import datetime as dt
 import io
 from threading import Thread, Event
-
+import subprocess
 import smbus
 import time
 import struct
 
 
 def dacval(bus, address):
-    # time.sleep(0.3)
-    block = bus.read_i2c_block_data(address, 1)
-    distance = struct.unpack("<f", bytes(block[:4]))[0]
+    try:
+        block = bus.read_i2c_block_data(address, 1)
+        distance = struct.unpack("<f", bytes(block[:4]))[0]
+    except IOError:
+        subprocess.call(['i2cdetect', '-y', '1'])
+        block = bus.read_i2c_block_data(address, 1)
+        distance = struct.unpack("<f", bytes(block[:4]))[0]
     return distance
 
 
