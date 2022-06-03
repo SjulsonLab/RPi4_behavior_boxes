@@ -1,3 +1,5 @@
+#### THIS VERSION IS THE SAME AS run_go_nogo_v1, but it runs go_nogo_v3
+
 debug_enable = False
 
 from icecream import ic
@@ -37,7 +39,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import the go_nogo_task task class here
-from go_nogo_v2 import go_nogo_task
+from go_nogo_v3 import go_nogo_task
 
 # define the plotting function here
 def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_count, miss_count,
