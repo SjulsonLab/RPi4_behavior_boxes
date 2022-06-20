@@ -10,9 +10,6 @@ description:
 
 """
 import random
-
-debug_enable = False
-
 from transitions import Machine
 from transitions import State
 from icecream import ic
@@ -30,6 +27,8 @@ import pygame
 from colorama import Fore, Style
 import time
 from time import sleep
+
+debug_enable = False
 
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
