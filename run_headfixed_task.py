@@ -127,6 +127,8 @@ try:
             while first_card or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
                 "error_max"]):
                 if task.error_repeat:
+                    print("punishment_time_out: " + str(session_info["punishment_timeout"]))
+                    sleep(session_info["punishment_timeout"])
                     print("*error_repeat trial* \n" + "Block " + str(block_number) +
                           " - Current card condition: \n" +
                           "*******************************\n" +
