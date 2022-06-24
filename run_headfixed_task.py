@@ -10,9 +10,6 @@ description:
 
 """
 import random
-
-debug_enable = False
-
 from transitions import Machine
 from transitions import State
 from icecream import ic
@@ -30,6 +27,8 @@ import pygame
 from colorama import Fore, Style
 import time
 from time import sleep
+
+debug_enable = False
 
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
@@ -102,7 +101,7 @@ try:
     task.start_session()
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
     pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
-    # sleep(10)
+    sleep(10)
     # loop over trials
     # Set a timer
     t_minute = int(input("Enter the time in minutes: "))
@@ -128,6 +127,8 @@ try:
             while first_card or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
                 "error_max"]):
                 if task.error_repeat:
+                    print("punishment_time_out: " + str(session_info["punishment_timeout"]))
+                    sleep(session_info["punishment_timeout"])
                     print("*error_repeat trial* \n" + "Block " + str(block_number) +
                           " - Current card condition: \n" +
                           "*******************************\n" +
@@ -142,6 +143,10 @@ try:
                 while task.trial_running:
                     task.run()  # run command trigger additional functions outside of the state machine
                 print("error_count: " + str(task.error_count))
+                if time.time() >= t_end:
+                    break
+            if time.time() >= t_end:
+                break
     raise SystemExit
 
 # graceful exit

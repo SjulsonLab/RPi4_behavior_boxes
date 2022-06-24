@@ -61,25 +61,3 @@ session_info['block_duration'] = 2  # each block has this amount of repetition
 session_info['block_variety'] = 2
 if session_info['block_variety'] > 1:
     initial_block = 1
-
-from task_information_headfixed import task_information
-
-<<<<<<< HEAD
-# treadmill
-session_info['treadmill']                   = True
-if session_info['treadmill'] == True:
-    session_info['treadmill_task']                        = 'headfixed_reinforcement_learning'
-    session_info['phase_number']                          = 4
-    if session_info['phase_number'] == 4: # 4 is final stage
-        session_info['block_duration'] = 50
-        session_info['initial_state'] = 'sound_long' # sound prompt for long distance => high reward;
-                                                    # short distance => small reward; reverse for cue light
-        if session_info['initial_state'] == False:
-            if random.random() < 0.5:
-                session_info['initial_state'] = 'sound_long'
-            else:
-                session_info['initial_state'] = 'sound_short' # sound prompt for short distance => low reward;
-                                                            # short distance => high reward; reverse for cue light
-=======
-task_information = task_information(session_info=session_info)
->>>>>>> 147befac0c2d8d70426d32e2e9e71a57392febe2
