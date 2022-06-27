@@ -21,7 +21,7 @@ session_info['external_storage']            = '/mnt/hd'
 # for actual data save to this dir:
 #session_info['basedir']					  	= '/home/pi/video'
 session_info['weight']                	    = 32.18
-session_info['manual_date']					= '2021-11-19'
+session_info['manual_date']					= '2022-06-27'
 session_info['box_name']             		= socket.gethostname()
 
 # session_info['config']						= 'freely_moving_v1'
@@ -33,8 +33,8 @@ session_info['number_of_phase1_trials']     = 500
 session_info['hit_criterion']               = 0.75  # 85% hit rate!
 session_info['lockout_length']              = 1.0  # in seconds
 session_info['vacuum_length']               = 0.8  # in seconds
-session_info['reward_size']					= 10  # in microliters
-session_info['reward_duration']             = 0.05
+session_info['reward_size']					= 5  # in microliters
+session_info['reward_duration']             = 0.5
 session_info['normal_iti_length']           = 3 - session_info['vacuum_length']
 session_info['punishment_iti_length']       = 6 - session_info['vacuum_length']
 
