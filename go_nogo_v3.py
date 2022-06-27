@@ -303,8 +303,8 @@ class go_nogo_task(object):
     def enter_temp1(self):
         logging.info(str(time.time()) + ", entering temp1")
         # entering temp1 means reward was delivered immediately before the transition
-        self.trial_outcome = 1  # Hit!
-        logging.info(str(time.time()) + ", Hit!")
+        # self.trial_outcome = 1  # Hit!
+        # logging.info(str(time.time()) + ", Hit!")
 
     def exit_temp1(self):
         logging.info(str(time.time()) + ", exiting temp1")
@@ -426,8 +426,11 @@ class go_nogo_task(object):
             self.start_temp1()  # trigger state transition to temp1
 
         elif self.state == "temp1":
-            # transition to vacuum state when vstim 4s countdown ends
-            if event_name == "2s countdown ends...":
+            if event_name == "left_IR_entry":
+                self.trial_outcome = 1  # Hit!
+                logging.info(str(time.time()) + ", Hit!")
+            # transition to vacuum state when vstim 3s countdown ends
+            elif event_name == "2s countdown ends...":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
                 self.start_vacuum_temp1()
 
