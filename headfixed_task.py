@@ -396,7 +396,8 @@ class HeadfixedTask(object):
         if save_fig:
             plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
                         self.session_info['basename'] + "_choice_plot" + '.png')
-        self.box.check_plot(fig)
+        # self.box.check_plot(fig)
+        self.box.check_plot(ax)
 
     ########################################################################
     # methods to start and end the behavioral session
