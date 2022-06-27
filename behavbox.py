@@ -463,7 +463,7 @@ class Pump(object):
 
     def reward(self, which_pump, reward_size):
         print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
-        diameter_mm = 12.06  # for 5 mL syringe
+        diameter_mm = 11.7  # for 5 mL syringe
         # diameter_mm = 14.5   # for 10 mL syringe
         volPerRevolution_uL = (
                 0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
