@@ -403,8 +403,8 @@ class Pump(object):
         self.pump_en = LED(25)  # pump enable
 
     def reward(self, which_pump, reward_size, reward_duration):
-        diameter_mm = 12.06  # for 5 mL syringe
-        # diameter_mm = 14.5   # for 10 mL syringe
+        # diameter_mm = 12.06  # for 5 mL syringe
+        diameter_mm = 14.5   # for 10 mL syringe
         volPerRevolution_uL = (
                 0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
         )  # thread is 0.8 mm per turn
