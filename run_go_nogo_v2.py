@@ -384,7 +384,7 @@ if __name__ == "__main__":
         elif training_phase == "phase2":
 
             # First run some buffer trials
-            num_buffer_trial = 2
+            num_buffer_trial = 3
             for bt in range(num_buffer_trial):
                 trial_ident = "go_trial"
                 logging.info(str(time.time()) + ", ##############################")
@@ -439,7 +439,7 @@ if __name__ == "__main__":
                     nogo_nums = nogo_nums + 1
                     avoid_go = 0
                     avoid_nogo = avoid_nogo + 1
-                elif avoid_nogo == 1:
+                elif avoid_nogo == 3:
                     trial_ident = "go_trial"
                     print("go_trial")
                     go_nums = go_nums + 1
