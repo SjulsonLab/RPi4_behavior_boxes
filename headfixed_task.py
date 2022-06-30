@@ -396,8 +396,35 @@ class HeadfixedTask(object):
         if save_fig:
             plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
                         self.session_info['basename'] + "_choice_plot" + '.png')
-        # self.box.check_plot(fig)
-        self.box.check_plot(ax)
+        self.box.check_plot(fig)
+
+    def integrate_plot(self, save_fig=False):
+
+        fig, ax = plt.subplots(2, 1)
+
+        trajectory_left = self.left_poke_count_list
+        time_left = self.timeline_left_poke
+        trajectory_right = self.right_poke_count_list
+        time_right = self.timeline_right_poke
+        print(type(fig))
+
+        ax[0].plot(time_left, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
+        ax[0].plot(time_right, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
+
+        error_event = self.error_list
+        labels, counts = np.unique(error_event, return_counts=True)
+        ticks = range(len(counts))
+        ax[1].bar(ticks, counts, align='center', tick_label=labels)
+        # plt.xticks(ticks, labels)
+        # plt.title(session_name)
+        ax[1] = plt.gca()
+        ax[1].set_xticks(ticks, labels)
+        ax[1].set_xticklabels(labels=labels, rotation=70)
+
+        if save_fig:
+            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
+                        self.session_info['basename'] + "_summery" + '.png')
+        self.box.check_plot(fig)
 
     ########################################################################
     # methods to start and end the behavioral session
