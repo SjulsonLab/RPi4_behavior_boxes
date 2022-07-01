@@ -244,7 +244,7 @@ class HeadfixedTask(object):
         self.box.check_keybd()
 
     def enter_standby(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_standby")
+        logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + self.error_repeat)
         self.update_plot_choice()
         # self.update_plot_error()
         self.trial_running = False
@@ -252,114 +252,115 @@ class HeadfixedTask(object):
         self.lick_count = 0
         self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
-        logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number))
+        logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number) + ";" + self.error_repeat)
 
     def exit_standby(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_standby")
-        self.error_repeat = False
+        # self.error_repeat = False
+        logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + self.error_repeat)
         pass
 
     def enter_initiate(self):
         # check error_repeat
-        logging.info(";" + str(time.time()) + ";[transition];enter_initiate")
+        logging.info(";" + str(time.time()) + ";[transition];enter_initiate;" + self.error_repeat)
         self.trial_running = True
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.get_distance()
-        logging.info(";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer))
+        logging.info(";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer) + ";" + self.error_repeat)
 
     def exit_initiate(self):
         # check the flag to see whether to shuffle or keep the original card
-        logging.info(";" + str(time.time()) + ";[transition];exit_initiate")
+        logging.info(";" + str(time.time()) + ";[transition];exit_initiate;" + self.error_repeat)
         if self.initiate_error:
             self.error_list.append('initiate_error')
-            logging.info(";" + str(time.time()) + ";[error];initiate_error")
             self.error_repeat = True
+            logging.info(";" + str(time.time()) + ";[error];initiate_error;" + self.error_repeat)
             self.error_count += 1
             # self.reward_error = False
 
     def enter_cue_state(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_cue_state")
+        logging.info(";" + str(time.time()) + ";[transition];enter_cue_state;" + self.error_repeat)
         # turn on the cue according to the current card
         self.check_cue(self.current_card[0])
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.get_distance()
-        logging.info(";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer))
+        logging.info(";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer) + ";" + self.error_repeat)
 
     def exit_cue_state(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_cue_state")
+        logging.info(";" + str(time.time()) + ";[transition];exit_cue_state;" + self.error_repeat)
         self.cue_off(self.current_card[0])
         if self.cue_state_error:
             self.error_list.append('cue_state_error')
-            logging.info(";" + str(time.time()) + ";[error];cue_state_error")
             self.error_repeat = True
+            logging.info(";" + str(time.time()) + ";[error];cue_state_error;" + self.error_repeat)
             self.error_count += 1
             self.cue_state_error = False
 
     def enter_reward_available(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_reward_available")
+        logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + self.error_repeat)
         print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
         self.cue_off(self.current_card[0])
 
     def exit_reward_available(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_reward_available")
+        logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + self.error_repeat)
         if self.reward_error:
+            self.error_repeat = True
             # self.reward_error = False
             if self.wrong_choice_error:
-                logging.info(";" + str(time.time()) + ";[error];wrong_choice_error")
+                logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + self.error_repeat)
                 self.error_list.append('wrong_choice_error')
                 self.wrong_choice_error = False
             elif self.multiple_choice_error:
-                logging.info(";" + str(time.time()) + ";[error];multiple_choice_error")
+                logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + self.error_repeat)
                 self.error_list.append('multiple_choice_error')
                 self.multiple_choice_error = False
             elif self.lick_count == 0:
-                logging.info(";" + str(time.time()) + ";[error];no_choice_error")
+                logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + self.error_repeat)
                 self.error_list.append('no_choice_error')
                 # self.no_choice_error = False
             elif 0 < self.lick_count < self.lick_threshold:
                 # restrictive time
                 self.error_list.append('insufficient_lick_error')
-                logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error")
-            self.error_repeat = True
+                logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error;" + self.error_repeat)
             self.error_count += 1
         else:
-            logging.info(";" + str(time.time()) + ";[error];correct_trial")
+            self.error_repeat = False
+            logging.info(";" + str(time.time()) + ";[error];correct_trial;" + self.error_repeat)
             self.error_list.append('correct_trial')
         self.lick_count = 0
         self.side_mice_buffer = None
 
     def check_cue(self, cue):
         if cue == 'sound':
-            logging.info(";" + str(time.time()) + ";[cue];cue_sound1_on")
+            logging.info(";" + str(time.time()) + ";[cue];cue_sound1_on;" + self.error_repeat)
             self.box.sound1.on()
             self.sound_on = True
         elif cue == 'LED':
             self.box.cueLED1.on()
-            logging.info(";" + str(time.time()) + ";[cue];cueLED1_on")
+            logging.info(";" + str(time.time()) + ";[cue];cueLED1_on;" + self.error_repeat)
         else:
             self.box.cueLED1.on()
             self.box.sound1.blink(0.1, 0.9, 1)
             self.sound_on = True
-            logging.info(";" + str(time.time()) + ";[cue];LED_sound_on")
+            logging.info(";" + str(time.time()) + ";[cue];LED_sound_on; "+ self.error_repeat)
 
     def cue_off(self, cue):
         if cue == 'sound':
             self.sound_on = False
-            logging.info(";" + str(time.time()) + ";[cue];cue_sound1_off")
+            logging.info(";" + str(time.time()) + ";[cue];cue_sound1_off;" + self.error_repeat)
             pass
         elif cue == 'LED':
             self.box.cueLED1.off()
-            logging.info(";" + str(time.time()) + ";[cue];cueLED1_off")
+            logging.info(";" + str(time.time()) + ";[cue];cueLED1_off;" + self.error_repeat)
         else:
             self.sound_on = False
             self.box.cueLED1.off()
-            logging.info(";" + str(time.time()) + ";[cue];LED_sound_off")
+            logging.info(";" + str(time.time()) + ";[cue];LED_sound_off;" + self.error_repeat)
 
     def get_distance(self):
         try:
             distance = self.treadmill.distance_cm
         except Exception as e:
-            logging.info(";" + str(time.time()) + ";[system_error];" + str(e))
+            logging.info(";" + str(time.time()) + ";[system_error];" + str(e) + ";" + self.error_repeat)
             self.treadmill = self.box.treadmill
             distance = self.treadmill.distance_cm
         return distance
