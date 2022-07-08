@@ -110,6 +110,9 @@ try:
     while time.time() < t_end:
         block_number = random.randint(1, session_info["block_variety"])
         for block in range(session_info["block_duration"]):
+            if time.time() >= t_end:
+                print("Times up, finishing up")
+                break
             first_card = True
             task.error_count = 0
             print("Trial " + str(block) + " \n")
@@ -126,6 +129,9 @@ try:
                   "*Reward: " + str(task.current_card[3]) + "\n")
             while first_card or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
                 "error_max"]):
+                if time.time() >= t_end:
+                    print("Times up, finishing up")
+                    break
                 if task.error_repeat:
                     print("punishment_time_out: " + str(session_info["punishment_timeout"]))
                     sleep(session_info["punishment_timeout"])
@@ -143,10 +149,6 @@ try:
                 while task.trial_running:
                     task.run()  # run command trigger additional functions outside of the state machine
                 print("error_count: " + str(task.error_count))
-                if time.time() >= t_end:
-                    break
-            if time.time() >= t_end:
-                break
     raise SystemExit
 
 # graceful exit
