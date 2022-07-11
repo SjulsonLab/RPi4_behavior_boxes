@@ -272,6 +272,7 @@ class HeadfixedTask(object):
         pass
 
     def enter_initiate(self):
+        print(event_name) # for debugging purposes
         # check error_repeat
         logging.info(";" + str(time.time()) + ";[transition];enter_initiate;" + str(self.error_repeat))
         self.trial_running = True
