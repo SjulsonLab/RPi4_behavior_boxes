@@ -172,10 +172,11 @@ class HeadfixedTask(object):
         # if lick detected prior to reward available state
         # the trial will restart and transition to standby
         if self.event_name == "left_IR_entry" or "right_IR_entry":
+            print("EVENT NAME !!!!!! " + self.event_name)
             if self.state == "reward_available":
                 pass
             else:
-                print("beeeeeeep")
+                print("beeeeeeep") # debug signal
                 self.early_lick_error = True
                 self.error_repeat = True
                 self.restart()
@@ -273,7 +274,7 @@ class HeadfixedTask(object):
         pass
 
     def enter_initiate(self):
-        print(self.event_name) # for debugging purposes
+        print("!!!!!!!!!!!event name is " + self.event_name) # for debugging purposes
         # check error_repeat
         logging.info(";" + str(time.time()) + ";[transition];enter_initiate;" + str(self.error_repeat))
         self.trial_running = True
