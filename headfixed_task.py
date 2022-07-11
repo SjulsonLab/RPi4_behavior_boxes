@@ -172,62 +172,11 @@ class HeadfixedTask(object):
         # if lick detected prior to reward available state
         # the trial will restart and transition to standby
         if event_name == "left_IR_entry" or "right_IR_entry":
-        #or (self.state == "reward_available"):
-            if self.state == "reward_available":
-                # first detect the lick signal:
-                cue_state = self.current_card[0]
-                side_choice = self.current_card[2]
-                side_mice = None
-                self.reward_error = True
-                if event_name == "left_IR_entry":
-                    side_mice = 'left'
-                    self.left_poke_count += 1
-                    self.left_poke_count_list.append(self.left_poke_count)
-                    self.timeline_left_poke.append(time.time())
-                elif event_name == "right_IR_entry":
-                    side_mice = 'right'
-                    self.right_poke_count += 1
-                    self.right_poke_count_list.append(self.right_poke_count)
-                    self.timeline_right_poke.append(time.time())
-                if side_mice:
-                    reward_size = self.current_card[3]
-                    if cue_state == 'sound+LED':
-                        if side_choice != side_mice:
-                            if reward_size == "large":
-                                reward_size = "small"
-                            elif reward_size == "small":
-                                reward_size = "large"
-                    if side_choice == side_mice or cue_state == 'sound+LED':
-                        print("Number of lick detected: " + str(self.lick_count))
-                        if self.lick_count == 0:
-                            self.side_mice_buffer = side_mice
-                            if side_mice == 'left':
-                                self.pump.reward('1', self.session_info["reward_size"][reward_size])
-                            elif side_mice == 'right':
-                                self.pump.reward('2', self.session_info["reward_size"][reward_size])
-                            self.lick_count += 1
-                        elif self.lick_count >= self.lick_threshold:
-                            self.total_reward += 1
-                            self.error_repeat = False
-                            self.reward_error = False
-                            self.restart()
-                        elif self.side_mice_buffer == side_mice:
-                            self.lick_count += 1
-                    elif self.side_mice_buffer:
-                        # self.reward_error = True
-                        self.multiple_choice_error = True
-                        self.error_repeat = True
-                        self.restart()
-                    else:  # wrong side
-                        # self.reward_error = True
-                        self.wrong_choice_error = True
-                        self.error_repeat = True
-                        self.restart()
-                        ###
-            else:
-                self.early_lick_error = True
-                self.error_repeat = True
-                self.restart()
+            pass
+        else:
+            self.early_lick_error = True
+            self.error_repeat = True
+            self.restart()
         if self.state == "standby":
             pass
         elif self.state == "initiate":
@@ -248,6 +197,56 @@ class HeadfixedTask(object):
             else:
                 self.cue_state_error = True
                 # self.error_repeat = True
+        elif self.state == "reward_available":
+            # first detect the lick signal:
+            cue_state = self.current_card[0]
+            side_choice = self.current_card[2]
+            side_mice = None
+            self.reward_error = True
+            if event_name == "left_IR_entry":
+                side_mice = 'left'
+                self.left_poke_count += 1
+                self.left_poke_count_list.append(self.left_poke_count)
+                self.timeline_left_poke.append(time.time())
+            elif event_name == "right_IR_entry":
+                side_mice = 'right'
+                self.right_poke_count += 1
+                self.right_poke_count_list.append(self.right_poke_count)
+                self.timeline_right_poke.append(time.time())
+            if side_mice:
+                reward_size = self.current_card[3]
+                if cue_state == 'sound+LED':
+                    if side_choice != side_mice:
+                        if reward_size == "large":
+                            reward_size = "small"
+                        elif reward_size == "small":
+                            reward_size = "large"
+                if side_choice == side_mice or cue_state == 'sound+LED':
+                    print("Number of lick detected: " + str(self.lick_count))
+                    if self.lick_count == 0:
+                        self.side_mice_buffer = side_mice
+                        if side_mice == 'left':
+                            self.pump.reward('1', self.session_info["reward_size"][reward_size])
+                        elif side_mice == 'right':
+                            self.pump.reward('2', self.session_info["reward_size"][reward_size])
+                        self.lick_count += 1
+                    elif self.lick_count >= self.lick_threshold:
+                        self.total_reward += 1
+                        self.error_repeat = False
+                        self.reward_error = False
+                        self.restart()
+                    elif self.side_mice_buffer == side_mice:
+                        self.lick_count += 1
+                elif self.side_mice_buffer:
+                    # self.reward_error = True
+                    self.multiple_choice_error = True
+                    self.error_repeat = True
+                    self.restart()
+                else:  # wrong side
+                    # self.reward_error = True
+                    self.wrong_choice_error = True
+                    self.error_repeat = True
+                    self.restart()
 
         # look for keystrokes
         self.box.check_keybd()
