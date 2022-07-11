@@ -172,11 +172,11 @@ class HeadfixedTask(object):
         # if lick detected prior to reward available state
         # the trial will restart and transition to standby
         if self.event_name is "left_IR_entry" or self.event_name == "right_IR_entry":
-            print("EVENT NAME !!!!!! " + self.event_name)
+            # print("EVENT NAME !!!!!! " + self.event_name)
             if self.state == "reward_available":
                 pass
             else:
-                print("beeeeeeep") # debug signal
+                # print("beeeeeeep") # debug signal
                 self.early_lick_error = True
                 self.error_repeat = True
                 self.restart()
@@ -235,7 +235,7 @@ class HeadfixedTask(object):
                         self.lick_count += 1
                     elif self.lick_count >= self.lick_threshold:
                         self.total_reward += 1
-                        self.error_repeat = False
+                        # self.error_repeat = False
                         self.reward_error = False
                         self.restart()
                     elif self.side_mice_buffer == side_mice:
@@ -274,7 +274,7 @@ class HeadfixedTask(object):
         pass
 
     def enter_initiate(self):
-        print("!!!!!!!!!!!event name is " + self.event_name) # for debugging purposes
+        # print("!!!!!!!!!!!event name is " + self.event_name) # for debugging purposes
         # check error_repeat
         logging.info(";" + str(time.time()) + ";[transition];enter_initiate;" + str(self.error_repeat))
         self.trial_running = True
@@ -338,7 +338,7 @@ class HeadfixedTask(object):
                 logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error;" + str(self.error_repeat))
             self.error_count += 1
         else:
-            self.error_repeat = False
+            # self.error_repeat = False
             logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
             self.error_list.append('correct_trial')
         self.lick_count = 0
