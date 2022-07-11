@@ -133,7 +133,7 @@ class HeadfixedTask(object):
         self.left_poke_count_list = []
         self.timeline_right_poke = []
         self.right_poke_count_list = []
-
+        self.event_name = ""
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
         self.pump = self.box.pump
@@ -165,13 +165,13 @@ class HeadfixedTask(object):
         if self.sound_on:
             self.box.sound1.blink(0.1, 0.9, 1)
         if self.box.event_list:
-            event_name = self.box.event_list.popleft()
+            self.event_name = self.box.event_list.popleft()
         else:
-            event_name = ""
+            self.event_name = ""
         # there can only be lick during the reward available state
         # if lick detected prior to reward available state
         # the trial will restart and transition to standby
-        if event_name == "left_IR_entry" or "right_IR_entry":
+        if self.event_name == "left_IR_entry" or "right_IR_entry":
             if self.state == "reward_available":
                 pass
             else:
@@ -205,12 +205,12 @@ class HeadfixedTask(object):
             side_choice = self.current_card[2]
             side_mice = None
             self.reward_error = True
-            if event_name == "left_IR_entry":
+            if self.event_name == "left_IR_entry":
                 side_mice = 'left'
                 self.left_poke_count += 1
                 self.left_poke_count_list.append(self.left_poke_count)
                 self.timeline_left_poke.append(time.time())
-            elif event_name == "right_IR_entry":
+            elif self.event_name == "right_IR_entry":
                 side_mice = 'right'
                 self.right_poke_count += 1
                 self.right_poke_count_list.append(self.right_poke_count)
@@ -273,7 +273,7 @@ class HeadfixedTask(object):
         pass
 
     def enter_initiate(self):
-        print(event_name) # for debugging purposes
+        print(self.event_name) # for debugging purposes
         # check error_repeat
         logging.info(";" + str(time.time()) + ";[transition];enter_initiate;" + str(self.error_repeat))
         self.trial_running = True
