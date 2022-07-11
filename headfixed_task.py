@@ -175,6 +175,7 @@ class HeadfixedTask(object):
             if self.state == "reward_available":
                 pass
             else:
+                print("beeeeeeep")
                 self.early_lick_error = True
                 self.error_repeat = True
                 self.restart()
