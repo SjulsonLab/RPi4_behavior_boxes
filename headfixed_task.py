@@ -171,7 +171,8 @@ class HeadfixedTask(object):
         # there can only be lick during the reward available state
         # if lick detected prior to reward available state
         # the trial will restart and transition to standby
-        if (event_name == "left_IR_entry" or "right_IR_entry") or (self.state == "reward_available"):
+        if event_name == "left_IR_entry" or "right_IR_entry":
+        #or (self.state == "reward_available"):
             if self.state == "reward_available":
                 # first detect the lick signal:
                 cue_state = self.current_card[0]
@@ -227,7 +228,7 @@ class HeadfixedTask(object):
                 self.early_lick_error = True
                 self.error_repeat = True
                 self.restart()
-        elif self.state == "standby":
+        if self.state == "standby":
             pass
         elif self.state == "initiate":
             self.distance_diff = self.get_distance() - self.distance_buffer
@@ -236,7 +237,7 @@ class HeadfixedTask(object):
                 self.start_cue()
             else:
                 self.initiate_error = True
-                self.error_repeat = True
+                # self.error_repeat = True
         elif self.state == "cue_state":
             self.distance_diff = self.get_distance() - self.distance_buffer
             distance_condition = self.current_card[1]
@@ -246,7 +247,7 @@ class HeadfixedTask(object):
                 self.evaluate_reward()
             else:
                 self.cue_state_error = True
-                self.error_repeat = True
+                # self.error_repeat = True
 
         # look for keystrokes
         self.box.check_keybd()
