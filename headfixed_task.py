@@ -172,11 +172,12 @@ class HeadfixedTask(object):
         # if lick detected prior to reward available state
         # the trial will restart and transition to standby
         if event_name == "left_IR_entry" or "right_IR_entry":
-            pass
-        else:
-            self.early_lick_error = True
-            self.error_repeat = True
-            self.restart()
+            if self.state == "reward_available":
+                pass
+            else:
+                self.early_lick_error = True
+                self.error_repeat = True
+                self.restart()
         if self.state == "standby":
             pass
         elif self.state == "initiate":
