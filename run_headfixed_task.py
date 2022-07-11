@@ -133,6 +133,7 @@ try:
                     print("Times up, finishing up")
                     break
                 if task.error_repeat:
+                    task.error_repeat = False
                     print("punishment_time_out: " + str(session_info["punishment_timeout"]))
                     sleep(session_info["punishment_timeout"])
                     print("*error_repeat trial* \n" + "Block " + str(block_number) +
