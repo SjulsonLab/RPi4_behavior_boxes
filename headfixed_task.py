@@ -241,7 +241,7 @@ class HeadfixedTask(object):
                     elif self.lick_count >= self.lick_threshold:
                         self.total_reward += 1
                         self.reward_error = False
-                        # sleep(5)
+                        sleep(5)
                         self.restart()
                     self.lick_count += 1
                 elif self.side_mice_buffer: # multiple choice error
@@ -280,6 +280,7 @@ class HeadfixedTask(object):
         # print("!!!!!!!!!!!event name is " + self.event_name) # for debugging purposes
         # check error_repeat
         logging.info(";" + str(time.time()) + ";[transition];enter_initiate;" + str(self.error_repeat))
+        self.event_name = ""
         print("EVENT NAME: " + self.event_name)
         self.trial_running = True
         # wait for treadmill signal and process the treadmill signal
