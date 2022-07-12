@@ -152,7 +152,7 @@ class HeadfixedTask(object):
             self.lick_threshold = self.session_info["lick_threshold"]
         except:
             print("No lick_threshold defined in session_info. Therefore, default defined as 2 \n")
-            self.lick_threshold = 2
+            self.lick_threshold = 1
 
         # session_statistics
         self.total_reward = 0
