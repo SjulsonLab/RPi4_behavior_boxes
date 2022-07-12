@@ -238,7 +238,7 @@ class HeadfixedTask(object):
                     elif self.lick_count < self.lick_threshold:
                         pass
                         # self.lick_count += 1
-                    elif self.lick_count == self.lick_threshold:
+                    elif self.lick_count >= self.lick_threshold:
                         self.total_reward += 1
                         self.reward_error = False
                         sleep(5)
