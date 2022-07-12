@@ -171,7 +171,7 @@ class HeadfixedTask(object):
         # there can only be lick during the reward available state
         # if lick detected prior to reward available state
         # the trial will restart and transition to standby
-        if self.event_name is "left_IR_exit" or self.event_name == "right_IR_exit":
+        if self.event_name is "left_IR_entry" or self.event_name == "right_IR_entry":
             # print("EVENT NAME !!!!!! " + self.event_name)
             if self.state == "reward_available" or self.state == "standby":
                 pass
@@ -274,14 +274,13 @@ class HeadfixedTask(object):
     def exit_standby(self):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
+        self.event_name = ""
         pass
 
     def enter_initiate(self):
         # print("!!!!!!!!!!!event name is " + self.event_name) # for debugging purposes
         # check error_repeat
         logging.info(";" + str(time.time()) + ";[transition];enter_initiate;" + str(self.error_repeat))
-        self.event_name = ""
-        print("EVENT NAME: " + self.event_name)
         self.trial_running = True
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.get_distance()
