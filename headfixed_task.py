@@ -289,7 +289,7 @@ class HeadfixedTask(object):
     def exit_initiate(self):
         # check the flag to see whether to shuffle or keep the original card
         logging.info(";" + str(time.time()) + ";[transition];exit_initiate;" + str(self.error_repeat))
-        print("EVENT NAME: " + self.event_name)
+        print("EVENT NAME: " + str(self.box.event_list))
         if self.initiate_error:
             self.error_list.append('initiate_error')
             self.error_repeat = True
