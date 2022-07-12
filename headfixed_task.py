@@ -79,10 +79,9 @@ class HeadfixedTask(object):
 
         # initialize the state machine
         self.states = [
-            Timeout(name='standby',
+            State(name='standby',
                   on_enter=["enter_standby"],
-                  on_exit=["exit_standby"],
-                  timeout=5),
+                  on_exit=["exit_standby"]),
             Timeout(name="initiate",
                     on_enter=["enter_initiate"],
                     on_exit=["exit_initiate"],
@@ -250,7 +249,7 @@ class HeadfixedTask(object):
                     self.error_repeat = True
                     self.restart()
                 else: # wrong side
-                    # self.reward_error = True
+                    self.reward_error = True
                     self.wrong_choice_error = True
                     self.error_repeat = True
                     self.restart()
