@@ -226,6 +226,7 @@ class HeadfixedTask(object):
                         reward_size = self.current_card[3][1]
                         pump_num = self.current_card[4][1]
                 else:
+                    side_choice = self.current_card[2]
                     reward_size = self.current_card[3]
                     pump_num = self.current_card[4]
                 if side_mice == side_choice:
