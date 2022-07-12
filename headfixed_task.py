@@ -234,12 +234,13 @@ class HeadfixedTask(object):
                     if self.lick_count == 0:
                         self.side_mice_buffer = side_mice
                         self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
-                        self.lick_count += 1
+                        # self.lick_count += 1
                     elif self.lick_count < self.lick_threshold:
-                        self.lick_count += 1
+                        # self.lick_count += 1
                     elif self.lick_count == self.lick_threshold:
                         self.total_reward += 1
                         self.reward_error = False
+                    self.lick_count += 1
                 elif self.side_mice_buffer: # multiple choice error
                     self.multiple_choice_error = True
                     self.error_repeat = True
