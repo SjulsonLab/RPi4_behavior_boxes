@@ -217,27 +217,28 @@ class HeadfixedTask(object):
                 self.right_poke_count_list.append(self.right_poke_count)
                 self.timeline_right_poke.append(time.time())
             if side_mice:
-                reward_size = self.current_card[3]
-                if cue_state == 'sound+LED':
-                    if side_choice != side_mice:
-                        if reward_size == "large":
-                            reward_size = "small"
-                        elif reward_size == "small":
-                            reward_size = "large"
                 if side_choice == side_mice or cue_state == 'sound+LED':
                     print("Number of lick detected: " + str(self.lick_count))
+                    if cue_state == 'sound+LED':
+                        if side_mice == 'left':
+                            reward_size = self.current_card[3][0]
+                            pump_num = self.current_card[4][0]
+                        elif side_mice == 'right':
+                            reward_size = self.current_card[3][1]
+                            pump_num = self.current_card[4][1]
+                    else:
+                        reward_size = self.current_card[3]
+                        pump_num = self.current_card[4]
                     if self.lick_count == 0:
                         self.side_mice_buffer = side_mice
-                        if side_mice == 'left':
-                            self.pump.reward('1', self.session_info["reward_size"][reward_size])
-                        elif side_mice == 'right':
-                            self.pump.reward('2', self.session_info["reward_size"][reward_size])
-                        self.lick_count += 1
-                    elif self.lick_count >= self.lick_threshold:
+                        """edit for new pumps"""
+                        self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
+                        """edit for new pumps ends here"""
+                    elif self.lick_count == self.lick_threshold:
                         self.total_reward += 1
                         # self.error_repeat = False
                         self.reward_error = False
-                        self.restart()
+                        # self.restart()
                     elif self.side_mice_buffer == side_mice:
                         self.lick_count += 1
                 elif self.side_mice_buffer:
