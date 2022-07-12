@@ -50,10 +50,12 @@ class TaskInformation(object):
                 """old version ends here"""
             ]}
 
-    def draw_card(self, block_key, phase):
+    def draw_card(self, block_key, phase="final"):
         row_start = 0
         row_end = 6
-        if phase == 'forced_choice':
+        if phase == 'final':
+            pass
+        elif phase == 'forced_choice':
             row_end = 3
         elif phase == 'free_choice':
             """old version"""
