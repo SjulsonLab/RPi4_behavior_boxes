@@ -239,7 +239,7 @@ class HeadfixedTask(object):
                         # self.error_repeat = False
                         self.reward_error = False
                         # self.restart()
-                    elif self.side_mice_buffer == side_mice:
+                    elif self.lick_count < self.lick_threshold and self.side_mice_buffer == side_mice:
                         self.lick_count += 1
                 elif self.side_mice_buffer:
                     # self.reward_error = True
