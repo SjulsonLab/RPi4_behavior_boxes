@@ -203,7 +203,7 @@ class HeadfixedTask(object):
         elif self.state == "reward_available":
             # first detect the lick signal:
             cue_state = self.current_card[0]
-            side_choice = self.current_card[2]
+            # side_choice = self.current_card[2]
             side_mice = None
             self.reward_error = True
             if self.event_name == "left_IR_entry":
@@ -217,37 +217,32 @@ class HeadfixedTask(object):
                 self.right_poke_count_list.append(self.right_poke_count)
                 self.timeline_right_poke.append(time.time())
             if side_mice:
-                if side_choice == side_mice or cue_state == 'sound+LED':
-                    print("Number of lick detected: " + str(self.lick_count))
-                    if cue_state == 'sound+LED':
-                        if side_mice == 'left':
-                            reward_size = self.current_card[3][0]
-                            pump_num = self.current_card[4][0]
-                        elif side_mice == 'right':
-                            reward_size = self.current_card[3][1]
-                            pump_num = self.current_card[4][1]
-                    else:
-                        reward_size = self.current_card[3]
-                        pump_num = self.current_card[4]
-                    if self.lick_count < self.lick_threshold and self.side_mice_buffer == side_mice:
-                        self.lick_count += 1
-                    elif self.lick_count == 0:
+                if cue_state == 'sound+LED':
+                    side_choice = side_mice
+                    if side_choice == 'left':
+                        reward_size = self.current_card[3][0]
+                        pump_num = self.current_card[4][0]
+                    elif side_choice == 'right':
+                        reward_size = self.current_card[3][1]
+                        pump_num = self.current_card[4][1]
+                else:
+                    reward_size = self.current_card[3]
+                    pump_num = self.current_card[4]
+                if side_mice == side_choice:
+                    if self.lick_count == 0:
                         self.side_mice_buffer = side_mice
-                        """edit for new pumps"""
                         self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
-                        """edit for new pumps ends here"""
-                    elif self.lick_count == self.lick_threshold:
+                        self.lick_count += 1
+                    elif self.lick_count < self.lick_threshold:
+                        self.lick_count += 1
+                    elif self.lick_count == self.lick_threashold:
                         self.total_reward += 1
-                        # self.error_repeat = False
                         self.reward_error = False
-                        # self.restart()
-
-                elif self.side_mice_buffer:
-                    # self.reward_error = True
+                elif self.side_mice_buffer: # multiple choice error
                     self.multiple_choice_error = True
                     self.error_repeat = True
                     self.restart()
-                else:  # wrong side
+                else: # wrong side
                     # self.reward_error = True
                     self.wrong_choice_error = True
                     self.error_repeat = True
