@@ -274,7 +274,7 @@ class HeadfixedTask(object):
     def exit_standby(self):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
-        self.event_name = ""
+        self.box.event_list.clear()
         pass
 
     def enter_initiate(self):
