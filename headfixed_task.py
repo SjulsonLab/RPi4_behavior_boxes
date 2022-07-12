@@ -173,7 +173,7 @@ class HeadfixedTask(object):
         # the trial will restart and transition to standby
         if self.event_name is "left_IR_entry" or self.event_name == "right_IR_entry":
             # print("EVENT NAME !!!!!! " + self.event_name)
-            if self.state == "reward_available":
+            if self.state == "reward_available" or self.state == "standby":
                 pass
             else:
                 # print("beeeeeeep") # debug signal
@@ -230,6 +230,7 @@ class HeadfixedTask(object):
                     reward_size = self.current_card[3]
                     pump_num = self.current_card[4]
                 if side_mice == side_choice:
+                    print("Number of lick detected: " + str(self.lick_count))
                     if self.lick_count == 0:
                         self.side_mice_buffer = side_mice
                         self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
