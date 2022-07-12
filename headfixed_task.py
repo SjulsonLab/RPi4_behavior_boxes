@@ -171,7 +171,7 @@ class HeadfixedTask(object):
         # there can only be lick during the reward available state
         # if lick detected prior to reward available state
         # the trial will restart and transition to standby
-        if self.event_name is "left_IR_entry" or self.event_name == "right_IR_entry":
+        if self.event_name is "left_IR_exit" or self.event_name == "right_IR_exit":
             # print("EVENT NAME !!!!!! " + self.event_name)
             if self.state == "reward_available" or self.state == "standby":
                 pass
