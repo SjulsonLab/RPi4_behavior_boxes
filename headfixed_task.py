@@ -79,9 +79,10 @@ class HeadfixedTask(object):
 
         # initialize the state machine
         self.states = [
-            State(name='standby',
+            Timeout(name='standby',
                   on_enter=["enter_standby"],
-                  on_exit=["exit_standby"]),
+                  on_exit=["exit_standby"],
+                  timeout=5),
             Timeout(name="initiate",
                     on_enter=["enter_initiate"],
                     on_exit=["exit_initiate"],
@@ -241,7 +242,7 @@ class HeadfixedTask(object):
                     elif self.lick_count >= self.lick_threshold:
                         self.total_reward += 1
                         self.reward_error = False
-                        sleep(5)
+                        # sleep(5)
                         self.restart()
                     self.lick_count += 1
                 elif self.side_mice_buffer: # multiple choice error
