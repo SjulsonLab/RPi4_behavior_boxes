@@ -20,13 +20,13 @@ class TaskInformation(object):
                 # modification on block_1 free component
                 ('sound+LED', 'distance_short', ('left', 'right'), ('small', 'large'), ('3','2')),
                 ('sound+LED', 'distance_long', ('left', 'right'), ('large', 'small'), ('1','4'))
-                """old version"""
-                # ('sound+LED', 'distance_short', 'right', 'large', '2'),  # free choice block 1
-                # ('sound+LED', 'distance_short', 'left', 'small', '3'),  # LED
-                # # 0, 1 index for corresponding condition setup, 2 in column 0
-                # ('sound+LED', 'distance_long', 'left', 'large', '1'),  # means both cues are on
-                # ('sound+LED', 'distance_long', 'right', 'small', '4')
-                """old version ends here"""
+                # """old version"""
+                # # ('sound+LED', 'distance_short', 'right', 'large', '2'),  # free choice block 1
+                # # ('sound+LED', 'distance_short', 'left', 'small', '3'),  # LED
+                # # # 0, 1 index for corresponding condition setup, 2 in column 0
+                # # ('sound+LED', 'distance_long', 'left', 'large', '1'),  # means both cues are on
+                # # ('sound+LED', 'distance_long', 'right', 'small', '4')
+                # """old version ends here"""
             ],
             2: [
                 # block_2 forced component
@@ -41,13 +41,13 @@ class TaskInformation(object):
                 # modification on block_1 free component
                 ('sound+LED', 'distance_short', ('left', 'right'), ('large', 'small'), ('3','2')),
                 ('sound+LED', 'distance_long', ('left', 'right'), ('small', 'large'), ('1','4'))
-                """old version"""
+                # """old version"""
                 # ('sound+LED', 'distance_short', 'right', 'small', '2'),  # free choice block 1
                 # ('sound+LED', 'distance_short', 'left', 'large', '3'),
                 # # 0, 1 index for corresponding condition setup, 2 in column 0
                 # ('sound+LED', 'distance_long', 'left', 'small', '1'),  # means both cues are on # sound
                 # ('sound+LED', 'distance_long', 'right', 'large', '4')
-                """old version ends here"""
+                # """old version ends here"""
             ]}
 
     def draw_card(self, block_key, phase="final"):
@@ -58,10 +58,10 @@ class TaskInformation(object):
         elif phase == 'forced_choice':
             row_end = 3
         elif phase == 'free_choice':
-            """old version"""
+            # """old version"""
             row_start = 4
             # row_end = 7
-            """old version ends here"""
+            # """old version ends here"""
             row_start = 4
         elif phase == 'forced_choice_LED':
             row_end = 1
