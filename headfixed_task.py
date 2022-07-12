@@ -229,7 +229,9 @@ class HeadfixedTask(object):
                     else:
                         reward_size = self.current_card[3]
                         pump_num = self.current_card[4]
-                    if self.lick_count == 0:
+                    if self.lick_count < self.lick_threshold and self.side_mice_buffer == side_mice:
+                        self.lick_count += 1
+                    elif self.lick_count == 0:
                         self.side_mice_buffer = side_mice
                         """edit for new pumps"""
                         self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
@@ -239,8 +241,7 @@ class HeadfixedTask(object):
                         # self.error_repeat = False
                         self.reward_error = False
                         # self.restart()
-                    elif self.lick_count < self.lick_threshold and self.side_mice_buffer == side_mice:
-                        self.lick_count += 1
+
                 elif self.side_mice_buffer:
                     # self.reward_error = True
                     self.multiple_choice_error = True
