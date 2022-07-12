@@ -236,7 +236,7 @@ class HeadfixedTask(object):
                         self.lick_count += 1
                     elif self.lick_count < self.lick_threshold:
                         self.lick_count += 1
-                    elif self.lick_count == self.lick_threashold:
+                    elif self.lick_count == self.lick_threshold:
                         self.total_reward += 1
                         self.reward_error = False
                 elif self.side_mice_buffer: # multiple choice error
