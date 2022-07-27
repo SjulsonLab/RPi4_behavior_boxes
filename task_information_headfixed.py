@@ -8,41 +8,61 @@ class TaskInformation(object):
         self.block = {
             1: [
                 # block_1 forced component
-                ('LED', 'distance_short', 'right', 'large'),  # forced choice block 1
-                ('LED', 'distance_long', 'left', 'small'),  # 0, 1 index for corresponding condition setup
-                ('sound', 'distance_short', 'left', 'small'),
+                ('LED', 'distance_short', 'right', 'large', '2'),  # 0, 1 index for corresponding condition setup
+                ('LED', 'distance_long', 'left', 'large', '1'),  # forced choice block 1
+
+                ('sound', 'distance_short', 'left', 'small', '3'),
                 # column 0 is cue, 1 is state, 2 is choice, 3 is reward_amount
-                ('sound', 'distance_long', 'right', 'large'),
+                ('sound', 'distance_long', 'right', 'small', '4'),
+
                 # each row is a combination of the condition parameter for block 1
                 # block_1 free component
-                ('sound+LED', 'distance_short', 'right', 'large'),  # free choice block 1
-                ('sound+LED', 'distance_short', 'left', 'small'),
-                # 0, 1 index for corresponding condition setup, 2 in column 0
-                ('sound+LED', 'distance_long', 'right', 'small'),  # means both cues are on
-                ('sound+LED', 'distance_long', 'right', 'large')],
+                # modification on block_1 free component
+                ('sound+LED', 'distance_short', ('left', 'right'), ('small', 'large'), ('3','2')),
+                ('sound+LED', 'distance_long', ('left', 'right'), ('large', 'small'), ('1','4'))
+                # """old version"""
+                # # ('sound+LED', 'distance_short', 'right', 'large', '2'),  # free choice block 1
+                # # ('sound+LED', 'distance_short', 'left', 'small', '3'),  # LED
+                # # # 0, 1 index for corresponding condition setup, 2 in column 0
+                # # ('sound+LED', 'distance_long', 'left', 'large', '1'),  # means both cues are on
+                # # ('sound+LED', 'distance_long', 'right', 'small', '4')
+                # """old version ends here"""
+            ],
             2: [
                 # block_2 forced component
-                ('LED', 'distance_short', 'right', 'small'),  # forced choice block 2
-                ('LED', 'distance_long', 'left', 'large'),  # 0, 1 index for corresponding condition setup
-                ('sound', 'distance_short', 'left', 'large'),
-                # column 0 is cue, 1 is state, 2 is choice, 3 is reward_amount
-                ('sound', 'distance_long', 'right', 'small'),
-                # each row is a combination of the condition parameter for block 1
-                # block_2 free component
-                ('sound+LED', 'distance_short', 'right', 'small'),  # free choice block 2
-                ('sound+LED', 'distance_short', 'left', 'large'),
-                # 0, 1 index for corresponding condition setup, None in column 0
-                ('sound+LED', 'distance_long', 'right', 'large'),  # means both cues are on
-                ('sound+LED', 'distance_long', 'right', 'small')]}
+                ('LED', 'distance_short', 'right', 'small', '2'),  # 0, 1 index for corresponding condition setup
+                ('LED', 'distance_long', 'left', 'small', '1'),  # forced choice block 1
 
-    def draw_card(self, block_key, phase):
+                ('sound', 'distance_short', 'left', 'large', '3'),
+                # column 0 is cue, 1 is state, 2 is choice, 3 is reward_amount
+                ('sound', 'distance_long', 'right', 'large', '4'),
+
+                # each row is a combination of the condition parameter for block 1
+                # modification on block_1 free component
+                ('sound+LED', 'distance_short', ('left', 'right'), ('large', 'small'), ('3','2')),
+                ('sound+LED', 'distance_long', ('left', 'right'), ('small', 'large'), ('1','4'))
+                # """old version"""
+                # ('sound+LED', 'distance_short', 'right', 'small', '2'),  # free choice block 1
+                # ('sound+LED', 'distance_short', 'left', 'large', '3'),
+                # # 0, 1 index for corresponding condition setup, 2 in column 0
+                # ('sound+LED', 'distance_long', 'left', 'small', '1'),  # means both cues are on # sound
+                # ('sound+LED', 'distance_long', 'right', 'large', '4')
+                # """old version ends here"""
+            ]}
+
+    def draw_card(self, block_key, phase="final"):
         row_start = 0
-        row_end = 7
-        if phase == 'forced_choice':
+        row_end = 6
+        if phase == 'final':
+            pass
+        elif phase == 'forced_choice':
             row_end = 3
         elif phase == 'free_choice':
+            # """old version"""
             row_start = 4
-            row_end = 7
+            # row_end = 7
+            # """old version ends here"""
+            row_start = 4
         elif phase == 'forced_choice_LED':
             row_end = 1
         elif phase == 'forced_choice_sound':
