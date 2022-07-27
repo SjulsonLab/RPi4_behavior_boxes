@@ -455,8 +455,8 @@ class Pump(object):
         self.pump1 = LED(19)
         self.pump2 = LED(20)
         self.pump3 = LED(21)
-        self.pump4 = LED(8)
-        self.pump5 = LED(7)
+        self.pump4 = LED(7)
+        self.pump5 = LED(8)
         self.pump_en = LED(25)
         self.reward_list = [] # a list of tuple (pump_x, reward_amount) with information of reward history for data
         # visualization
