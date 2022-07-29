@@ -1,7 +1,7 @@
 # python3: headfixed_task.py
 """
 author: tian qiu
-date: 2022-05-15
+date: 2022-07-29
 name: headfixed_task.py
 goal: model_based reinforcement learning behavioral training task structure
 description:
@@ -142,7 +142,6 @@ class HeadfixedTask(object):
         self.distance_initiation = self.session_info['treadmill_setup']['distance_initiation']
         self.distance_buffer = None
         self.distance_diff = 0
-        # self.sound_on = False
 
         # for refining the lick detection
         self.lick_count = 0
@@ -161,9 +160,6 @@ class HeadfixedTask(object):
     # functions called when state transitions occur
     ########################################################################
     def run(self):
-        # self.box.sound1.off()
-        # if self.sound_on:
-        #     self.box.sound1.blink(0.1, 0.9, 1)
         if self.box.event_list:
             self.event_name = self.box.event_list.popleft()
         else:
@@ -353,20 +349,16 @@ class HeadfixedTask(object):
         if cue == 'sound':
             logging.info(";" + str(time.time()) + ";[cue];cue_sound1_on;" + str(self.error_repeat))
             self.box.sound1.on()
-            # self.sound_on = True
         elif cue == 'LED':
             self.box.cueLED1.on()
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_on;" + str(self.error_repeat))
         else:
             self.box.cueLED1.on()
             self.box.sound1.on()
-            # self.box.sound1.blink(0.1, 0.9, 1)
-            # self.sound_on = True
             logging.info(";" + str(time.time()) + ";[cue];LED_sound_on; " + str(self.error_repeat))
 
     def cue_off(self, cue):
         if cue == 'sound':
-            # self.sound_on = False
             self.box.sound1.off()
             logging.info(";" + str(time.time()) + ";[cue];cue_sound1_off;" + str(self.error_repeat))
             pass
@@ -374,7 +366,6 @@ class HeadfixedTask(object):
             self.box.cueLED1.off()
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_off;" + str(self.error_repeat))
         else:
-            # self.sound_on = False
             self.box.cueLED1.off()
             self.box.sound1.off()
             logging.info(";" + str(time.time()) + ";[cue];LED_sound_off;" + str(self.error_repeat))
