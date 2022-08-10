@@ -198,6 +198,10 @@ class HeadfixedTask(object):
             else:
                 self.cue_state_error = True
         elif self.state == "reward_available":
+            if not self.reward_times_up:
+                if self.reward_time_start:
+                    if time.time() >= self.reward_time_start + self.reward_time:
+                        self.restart()
             # first detect the lick signal:
             cue_state = self.current_card[0]
             # side_choice = self.current_card[2]
@@ -233,10 +237,9 @@ class HeadfixedTask(object):
                         self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
                         self.total_reward += 1
                         self.reward_time_start = time.time()
+                        print("Reward time start" + str(self.reward_time_start))
                     self.lick_count += 1
-                    if not self.reward_times_up:
-                        if time.time() >= self.reward_time_start + self.reward_time:
-                            self.restart()
+
                 elif self.side_mice_buffer:
                     if self.lick_count == 0:  # multiple choice error
                         # self.reward_error = True
@@ -317,9 +320,6 @@ class HeadfixedTask(object):
 
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
-        # if self.reward_error:
-            # self.error_repeat = True
-        # print("Reward_error, error repeat!!!!!!")
         self.reward_times_up = True
         if self.wrong_choice_error:
             logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
@@ -335,12 +335,6 @@ class HeadfixedTask(object):
             logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
             self.error_repeat = True
             self.error_list.append('no_choice_error')
-            # self.no_choice_error = False
-        # elif 0 < self.lick_count < self.lick_threshold:
-        #     # restrictive time
-        #     self.error_list.append('insufficient_lick_error')
-        #     logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error;" + str(self.error_repeat))
-        # self.error_count += 1
         else:
             logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
             self.error_list.append('correct_trial')
