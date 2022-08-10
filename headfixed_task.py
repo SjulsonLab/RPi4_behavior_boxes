@@ -185,7 +185,6 @@ class HeadfixedTask(object):
                 self.start_cue()
             else:
                 self.initiate_error = True
-                # self.error_repeat = True
         elif self.state == "cue_state":
             self.distance_diff = self.get_distance() - self.distance_buffer
             distance_condition = self.current_card[1]
@@ -195,13 +194,11 @@ class HeadfixedTask(object):
                 self.evaluate_reward()
             else:
                 self.cue_state_error = True
-                # self.error_repeat = True
         elif self.state == "reward_available":
             # first detect the lick signal:
             cue_state = self.current_card[0]
             # side_choice = self.current_card[2]
             side_mice = None
-            # self.reward_error = True
             if self.event_name == "left_IR_entry":
                 side_mice = 'left'
                 self.left_poke_count += 1
@@ -226,30 +223,20 @@ class HeadfixedTask(object):
                     side_choice = self.current_card[2]
                     reward_size = self.current_card[3]
                     pump_num = self.current_card[4]
-                if side_mice == side_choice: # if the animal chose correctly
+                if side_mice == side_choice:  # if the animal chose correctly
                     print("Number of lick detected: " + str(self.lick_count))
-                    if self.lick_count == 0: # if this is the first lick
+                    if self.lick_count == 0:  # if this is the first lick
                         # self.side_mice_buffer = side_mice
                         self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
                         self.total_reward += 1
-                        # self.lick_count += 1
-                    # elif self.lick_count < self.lick_threshold:
-                    #     pass
-                    #     # self.lick_count += 1
-                    #     elif self.lick_count > 0: # if this is beyond the first lick
-                            # self.total_reward += 1
-                            # self.reward_error = False
-                            # sleep(5)
-                            # self.restart()
                     self.lick_count += 1
-                elif self.side_mice_buffer: # multiple choice error
+                elif self.side_mice_buffer:  # multiple choice error
+                    self.reward_error = True
                     self.multiple_choice_error = True
-                    self.error_repeat = True
                     self.restart()
-                else: # wrong side - wrong_choice error
+                else:  # wrong side - wrong_choice error
                     self.reward_error = True
                     self.wrong_choice_error = True
-                    self.error_repeat = True
                     self.restart()
 
         # look for keystrokes
@@ -263,7 +250,7 @@ class HeadfixedTask(object):
         self.reward_error = False
         if self.early_lick_error:
             self.error_list.append("early_lick_error")
-            self.early_lick_error = True
+            self.early_lick_error = False
         self.lick_count = 0
         self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
@@ -282,7 +269,8 @@ class HeadfixedTask(object):
         self.trial_running = True
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.get_distance()
-        logging.info(";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer) + ";" + str(self.error_repeat))
+        logging.info(
+            ";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer) + ";" + str(self.error_repeat))
 
     def exit_initiate(self):
         # check the flag to see whether to shuffle or keep the original card
@@ -293,7 +281,6 @@ class HeadfixedTask(object):
             self.error_repeat = True
             logging.info(";" + str(time.time()) + ";[error];initiate_error;" + str(self.error_repeat))
             self.error_count += 1
-            # self.reward_error = False
 
     def enter_cue_state(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_cue_state;" + str(self.error_repeat))
@@ -301,7 +288,8 @@ class HeadfixedTask(object):
         self.check_cue(self.current_card[0])
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.get_distance()
-        logging.info(";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer) + ";" + str(self.error_repeat))
+        logging.info(
+            ";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer) + ";" + str(self.error_repeat))
 
     def exit_cue_state(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_cue_state;" + str(self.error_repeat))
@@ -323,7 +311,6 @@ class HeadfixedTask(object):
         if self.reward_error:
             self.error_repeat = True
             print("Reward_error, error repeat!!!!!!")
-            # self.reward_error = False
             if self.wrong_choice_error:
                 logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
                 self.error_list.append('wrong_choice_error')
@@ -336,17 +323,15 @@ class HeadfixedTask(object):
                 logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
                 self.error_list.append('no_choice_error')
                 # self.no_choice_error = False
-            elif 0 < self.lick_count < self.lick_threshold:
-                # restrictive time
-                self.error_list.append('insufficient_lick_error')
-                logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error;" + str(self.error_repeat))
-            self.error_count += 1
+            # elif 0 < self.lick_count < self.lick_threshold:
+            #     # restrictive time
+            #     self.error_list.append('insufficient_lick_error')
+            #     logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error;" + str(self.error_repeat))
+            # self.error_count += 1
         else:
-            # self.error_repeat = False
             logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
             self.error_list.append('correct_trial')
         self.lick_count = 0
-        # self.side_mice_buffer = None
 
     def check_cue(self, cue):
         if cue == 'sound':
