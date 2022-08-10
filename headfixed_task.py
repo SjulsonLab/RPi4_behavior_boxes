@@ -201,7 +201,7 @@ class HeadfixedTask(object):
             cue_state = self.current_card[0]
             # side_choice = self.current_card[2]
             side_mice = None
-            self.reward_error = True
+            # self.reward_error = True
             if self.event_name == "left_IR_entry":
                 side_mice = 'left'
                 self.left_poke_count += 1
