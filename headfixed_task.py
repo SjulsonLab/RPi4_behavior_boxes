@@ -320,6 +320,7 @@ class HeadfixedTask(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
         if self.reward_error:
             self.error_repeat = True
+            print("Reward_error, error repeat!!!!!!")
             # self.reward_error = False
             if self.wrong_choice_error:
                 logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
