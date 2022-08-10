@@ -120,7 +120,7 @@ class HeadfixedTask(object):
         self.early_lick_error = False
         self.initiate_error = False
         self.cue_state_error = False
-        self.reward_error = False
+        # self.reward_error = False
         self.wrong_choice_error = False
         # self.no_choice_error = False
         self.multiple_choice_error = False
@@ -231,11 +231,11 @@ class HeadfixedTask(object):
                         self.total_reward += 1
                     self.lick_count += 1
                 elif self.side_mice_buffer:  # multiple choice error
-                    self.reward_error = True
+                    # self.reward_error = True
                     self.multiple_choice_error = True
                     self.restart()
                 else:  # wrong side - wrong_choice error
-                    self.reward_error = True
+                    # self.reward_error = True
                     self.wrong_choice_error = True
                     self.restart()
 
@@ -247,7 +247,7 @@ class HeadfixedTask(object):
         self.update_plot_choice()
         # self.update_plot_error()
         self.trial_running = False
-        self.reward_error = False
+        # self.reward_error = False
         if self.early_lick_error:
             self.error_list.append("early_lick_error")
             self.early_lick_error = False
@@ -308,26 +308,29 @@ class HeadfixedTask(object):
 
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
-        if self.reward_error:
+        # if self.reward_error:
+            # self.error_repeat = True
+        # print("Reward_error, error repeat!!!!!!")
+        if self.wrong_choice_error:
+            logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
             self.error_repeat = True
-            print("Reward_error, error repeat!!!!!!")
-            if self.wrong_choice_error:
-                logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
-                self.error_list.append('wrong_choice_error')
-                self.wrong_choice_error = False
-            elif self.multiple_choice_error:
-                logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
-                self.error_list.append('multiple_choice_error')
-                self.multiple_choice_error = False
-            elif self.lick_count == 0:
-                logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
-                self.error_list.append('no_choice_error')
-                # self.no_choice_error = False
-            # elif 0 < self.lick_count < self.lick_threshold:
-            #     # restrictive time
-            #     self.error_list.append('insufficient_lick_error')
-            #     logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error;" + str(self.error_repeat))
-            # self.error_count += 1
+            self.error_list.append('wrong_choice_error')
+            self.wrong_choice_error = False
+        elif self.multiple_choice_error:
+            logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
+            self.error_repeat = True
+            self.error_list.append('multiple_choice_error')
+            self.multiple_choice_error = False
+        elif self.lick_count == 0:
+            logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
+            self.error_repeat = True
+            self.error_list.append('no_choice_error')
+            # self.no_choice_error = False
+        # elif 0 < self.lick_count < self.lick_threshold:
+        #     # restrictive time
+        #     self.error_list.append('insufficient_lick_error')
+        #     logging.info(";" + str(time.time()) + ";[error];insufficient_lick_error;" + str(self.error_repeat))
+        # self.error_count += 1
         else:
             logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
             self.error_list.append('correct_trial')
