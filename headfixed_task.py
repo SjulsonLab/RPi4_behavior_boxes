@@ -213,6 +213,7 @@ class HeadfixedTask(object):
                 self.right_poke_count_list.append(self.right_poke_count)
                 self.timeline_right_poke.append(time.time())
             if side_mice:
+                self.side_mice_buffer = side_mice
                 if cue_state == 'sound+LED':
                     side_choice = side_mice
                     if side_choice == 'left':
@@ -225,26 +226,27 @@ class HeadfixedTask(object):
                     side_choice = self.current_card[2]
                     reward_size = self.current_card[3]
                     pump_num = self.current_card[4]
-                if side_mice == side_choice:
+                if side_mice == side_choice: # if the animal chose correctly
                     print("Number of lick detected: " + str(self.lick_count))
-                    if self.lick_count == 0:
-                        self.side_mice_buffer = side_mice
+                    if self.lick_count == 0: # if this is the first lick
+                        # self.side_mice_buffer = side_mice
                         self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
-                        # self.lick_count += 1
-                    elif self.lick_count < self.lick_threshold:
-                        pass
-                        # self.lick_count += 1
-                    elif self.lick_count >= self.lick_threshold:
                         self.total_reward += 1
-                        self.reward_error = False
-                        # sleep(5)
-                        # self.restart()
+                        # self.lick_count += 1
+                    # elif self.lick_count < self.lick_threshold:
+                    #     pass
+                    #     # self.lick_count += 1
+                    #     elif self.lick_count > 0: # if this is beyond the first lick
+                            # self.total_reward += 1
+                            # self.reward_error = False
+                            # sleep(5)
+                            # self.restart()
                     self.lick_count += 1
                 elif self.side_mice_buffer: # multiple choice error
                     self.multiple_choice_error = True
                     self.error_repeat = True
                     self.restart()
-                else: # wrong side
+                else: # wrong side - wrong_choice error
                     self.reward_error = True
                     self.wrong_choice_error = True
                     self.error_repeat = True
@@ -344,7 +346,7 @@ class HeadfixedTask(object):
             logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
             self.error_list.append('correct_trial')
         self.lick_count = 0
-        self.side_mice_buffer = None
+        # self.side_mice_buffer = None
 
     def check_cue(self, cue):
         if cue == 'sound':
