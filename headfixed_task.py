@@ -346,11 +346,11 @@ class HeadfixedTask(object):
             logging.info(";" + str(time.time()) + ";[cue];cue_sound1_on;" + str(self.error_repeat))
             self.box.sound1.on()
         elif cue == 'LED':
-            self.box.cueLED1.blink(0.2, 0.1, 1000)
+            self.box.cueLED1.blink(0.2, 0.1)
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_on;" + str(self.error_repeat))
         else:
             # self.LED_blink = True
-            self.box.cueLED1.blink(0.2, 0.1, 1000)
+            self.box.cueLED1.blink(0.2, 0.1)
             self.box.sound1.on()
             logging.info(";" + str(time.time()) + ";[cue];LED_sound_on; " + str(self.error_repeat))
 
