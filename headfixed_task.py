@@ -187,8 +187,8 @@ class HeadfixedTask(object):
             else:
                 self.initiate_error = True
         elif self.state == "cue_state":
-            if self.LED_blink:
-                self.box.cueLED1.blink(0.2, 0.1)
+            # if self.LED_blink:
+            #     self.box.cueLED1.blink(0.2, 0.1)
             self.distance_diff = self.get_distance() - self.distance_buffer
             distance_condition = self.current_card[1]
             distance_required = self.session_info['treadmill_setup'][distance_condition]
@@ -346,10 +346,11 @@ class HeadfixedTask(object):
             logging.info(";" + str(time.time()) + ";[cue];cue_sound1_on;" + str(self.error_repeat))
             self.box.sound1.on()
         elif cue == 'LED':
-            self.LED_blink = True
+            self.box.cueLED1.blink(0.2, 0.1, 1000)
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_on;" + str(self.error_repeat))
         else:
-            self.box.cueLED1.on()
+            # self.LED_blink = True
+            self.box.cueLED1.blink(0.2, 0.1, 1000)
             self.box.sound1.on()
             logging.info(";" + str(time.time()) + ";[cue];LED_sound_on; " + str(self.error_repeat))
 
