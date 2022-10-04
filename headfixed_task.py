@@ -328,7 +328,7 @@ class HeadfixedTask(object):
             self.wrong_choice_error = False
         elif self.multiple_choice_error:
             logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
-            self.error_repeat = True
+            self.error_repeat = False
             self.error_list.append('multiple_choice_error')
             self.multiple_choice_error = False
         elif self.lick_count == 0:
