@@ -120,9 +120,7 @@ class HeadfixedTask(object):
         self.early_lick_error = False
         self.initiate_error = False
         self.cue_state_error = False
-        # self.reward_error = False
         self.wrong_choice_error = False
-        # self.no_choice_error = False
         self.multiple_choice_error = False
         self.error_repeat = False
         self.reward_time_start = None # for reward_available state time keeping purpose
@@ -149,7 +147,7 @@ class HeadfixedTask(object):
         # for refining the lick detection
         self.lick_count = 0
         self.side_mice_buffer = None
-
+        self.LED_blink = False
         try:
             self.lick_threshold = self.session_info["lick_threshold"]
         except:
@@ -189,6 +187,8 @@ class HeadfixedTask(object):
             else:
                 self.initiate_error = True
         elif self.state == "cue_state":
+            # if self.LED_blink:
+            #     self.box.cueLED1.blink(0.2, 0.1)
             self.distance_diff = self.get_distance() - self.distance_buffer
             distance_condition = self.current_card[1]
             distance_required = self.session_info['treadmill_setup'][distance_condition]
@@ -328,7 +328,7 @@ class HeadfixedTask(object):
             self.wrong_choice_error = False
         elif self.multiple_choice_error:
             logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
-            self.error_repeat = True
+            self.error_repeat = False
             self.error_list.append('multiple_choice_error')
             self.multiple_choice_error = False
         elif self.lick_count == 0:
@@ -346,10 +346,11 @@ class HeadfixedTask(object):
             logging.info(";" + str(time.time()) + ";[cue];cue_sound1_on;" + str(self.error_repeat))
             self.box.sound1.on()
         elif cue == 'LED':
-            self.box.cueLED1.on()
+            self.box.cueLED1.blink(0.2, 0.1)
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_on;" + str(self.error_repeat))
         else:
-            self.box.cueLED1.on()
+            # self.LED_blink = True
+            self.box.cueLED1.blink(0.2, 0.1)
             self.box.sound1.on()
             logging.info(";" + str(time.time()) + ";[cue];LED_sound_on; " + str(self.error_repeat))
 
@@ -360,6 +361,7 @@ class HeadfixedTask(object):
             pass
         elif cue == 'LED':
             self.box.cueLED1.off()
+            self.LED_blink = False
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_off;" + str(self.error_repeat))
         else:
             self.box.cueLED1.off()
