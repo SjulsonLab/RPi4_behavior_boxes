@@ -170,7 +170,7 @@ class HeadfixedTask(object):
         # the trial will restart and transition to standby
         if self.event_name is "left_IR_entry" or self.event_name == "right_IR_entry":
             # print("EVENT NAME !!!!!! " + self.event_name)
-            if self.state == "reward_available" or self.state == "standby":
+            if self.state == "reward_available" or self.state == "standby" or self.state == "initiate":
                 pass
             else:
                 # print("beeeeeeep") # debug signal
