@@ -52,7 +52,7 @@ class TaskInformation(object):
 
     def draw_card(self, block_key, phase="final"):
         row_start = 0
-        row_end = 6
+        row_end = 5
         if phase == 'final':
             pass
         elif phase == 'forced_choice':
