@@ -1,0 +1,15 @@
+name: RPi_behavbox
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - pip
+  - pip:
+    - numpy
+    - scipy
+    - matplotlib
+    - RPi.GPIO
+    - colorzero
+    - colorama
+    - pyserial
+    - pysistence
