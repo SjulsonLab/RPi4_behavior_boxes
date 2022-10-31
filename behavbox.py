@@ -275,6 +275,10 @@ class BehavBox(object):
                         # print("R down: syringe pump 4 moves")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
                         self.pump.reward("4", 10)
+                    elif event.key == pygame.K_t:
+                        # print("T down: Vaccum on")
+                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
+                        self.pump.reward("vacuum", 1)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:
                         self.left_IR_exit()
@@ -493,5 +497,5 @@ class Pump(object):
             self.reward_list.append(("pump5_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump5_reward_" + str(reward_size))
         elif which_pump == "vaccum":
-            self.pump_vaccum.blink(1, 0.1)
+            self.pump_vaccum.blink(duration, 0.1)
             logging.info(";" + str(time.time()) + ";[reward];pump_vaccum")
