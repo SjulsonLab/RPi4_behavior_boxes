@@ -30,3 +30,7 @@ while run:
             if event.key == pygame.K_r:
                 print("R down: syringe pump 4 moves")
                 pump.reward("4", reward_size)
+            if event.key == pygame.K_t:
+                # print("T down: Vaccum on")
+                logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
+                pump.reward("vacuum", 1)
