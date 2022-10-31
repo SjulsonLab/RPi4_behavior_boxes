@@ -457,45 +457,41 @@ class Pump(object):
         self.pump3 = LED(21)
         self.pump4 = LED(7)
         self.pump5 = LED(8)
-        self.pump_en = LED(25)
+        self.pump_vaccum = LED(25)
         self.reward_list = [] # a list of tuple (pump_x, reward_amount) with information of reward history for data
         # visualization
 
     def reward(self, which_pump, reward_size):
-        print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
-        diameter_mm = 11.7  # for 5 mL syringe
-        # diameter_mm = 14.5   # for 10 mL syringe
-        volPerRevolution_uL = (
-                0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
-        )  # thread is 0.8 mm per turn
-        howManyRevolutions = reward_size / volPerRevolution_uL
-        # // determine total steps needed to reach desired revolutions, @200 steps/revolution
-        # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
-        # // round to nearest int
-        totalSteps = round(200 * howManyRevolutions * 4)
-        reward_duration = 0.01  # delivery reward over 300 ms
-        cycle_length = (
-                reward_duration / totalSteps
-        )  # need to know what the minimum value can be
-        # self.pump[which_pump].blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-        # logging.info(";" + str(time.time()) + ", reward_side_" + which_pump + "," + str(reward_size))
+        coefficient_fit = np.array([8.78674242e-04, 7.33609848e-02, 1.47535000e+00]) # further calibration is needed
+        coefficient_1 = coefficient_fit[-1]
+        coefficient_2 = coefficient_fit[-2]
+        coefficient_3 = coefficient_fit[-3] - reward_size
+        discriminant = coefficient_2 ** 2 - 4 * coefficient_1 * coefficient_3
+        solution = np.array([(-coefficient_2 + np.sqrt(discriminant)) / (2 * coefficient_1),
+                             (-coefficient_2 - np.sqrt(discriminant)) / (2 * coefficient_1)])
+
+        solution_positive = solution[(solution > 0).nonzero()[0][0]]
+        duration = round(solution_positive, 2)
         if which_pump == "1":
-            self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.pump1.blink(duration, 0.1)
             self.reward_list.append(("pump1_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward_" + str(reward_size))
         elif which_pump == "2":
-            self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.pump2.blink(duration, 0.1)
             self.reward_list.append(("pump2_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump2_reward_" + str(reward_size))
         elif which_pump == "3":
-            self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.pump3.blink(duration, 0.1)
             self.reward_list.append(("pump3_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump3_reward_" + str(reward_size))
         elif which_pump == "4":
-            self.pump4.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.pump4.blink(duration, 0.1)
             self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
         elif which_pump == "5":
-            self.pump5.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.pump5.blink(duration, 0.1)
             self.reward_list.append(("pump5_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump5_reward_" + str(reward_size))
+        elif which_pump == "vaccum":
+            self.pump_vaccum.blink(1, 0.1)
+            logging.info(";" + str(time.time()) + ";[reward];pump_vaccum")
