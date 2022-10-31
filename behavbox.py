@@ -20,6 +20,7 @@ from collections import deque
 import pygame
 import pygame.display
 
+import numpy as np
 import matplotlib
 matplotlib.use('module://pygame_matplotlib.backend_pygame')
 import matplotlib.pyplot as plt

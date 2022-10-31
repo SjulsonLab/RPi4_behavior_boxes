@@ -1,6 +1,6 @@
 import pygame
 from behavbox import Pump
-
+import numpy as np
 try:
     pump = Pump()
     pygame.init()
