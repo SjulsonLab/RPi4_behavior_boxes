@@ -478,25 +478,25 @@ class Pump(object):
         solution_positive = solution[(solution > 0).nonzero()[0][0]]
         duration = round(solution_positive, 2)
         if which_pump == "1":
-            self.pump1.blink(duration, 0.1)
+            self.pump1.blink(duration, 0.1, 1)
             self.reward_list.append(("pump1_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward_" + str(reward_size))
         elif which_pump == "2":
-            self.pump2.blink(duration, 0.1)
+            self.pump2.blink(duration, 0.1, 1)
             self.reward_list.append(("pump2_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump2_reward_" + str(reward_size))
         elif which_pump == "3":
-            self.pump3.blink(duration, 0.1)
+            self.pump3.blink(duration, 0.1, 1)
             self.reward_list.append(("pump3_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump3_reward_" + str(reward_size))
         elif which_pump == "4":
-            self.pump4.blink(duration, 0.1)
+            self.pump4.blink(duration, 0.1, 1)
             self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
         elif which_pump == "5":
-            self.pump5.blink(duration, 0.1)
+            self.pump5.blink(duration, 0.1, 1)
             self.reward_list.append(("pump5_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump5_reward_" + str(reward_size))
         elif which_pump == "vaccum":
-            self.pump_vaccum.blink(duration, 0.1)
+            self.pump_vaccum.blink(duration, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump_vaccum")
