@@ -104,7 +104,7 @@ class BehavBox(object):
         # there is a DIO6, but that is the same pin as the camera strobe
 
         ###############################################################################################
-        # IR detection - for nosepoke
+        # IR detection - for nosepoke detection
         ###############################################################################################
         self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
         self.IR_rx2 = Button(6, None, True)
@@ -132,7 +132,7 @@ class BehavBox(object):
         self.sound5 = LED(24)  # originally DIO2
 
         ###############################################################################################
-        # pump: trigger signal output to a driver board induce the syringe pump to deliver reward
+        # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
         ###############################################################################################
         self.pump = Pump()
 
@@ -149,7 +149,7 @@ class BehavBox(object):
             print(str(error_message))
 
         ###############################################################################################
-        # visual stimuli
+        # visual stimuli initiation
         ###############################################################################################
         if self.session_info["visual_stimulus"]:
             try:
@@ -160,7 +160,7 @@ class BehavBox(object):
         else:
             pass
         ###############################################################################################
-        # TODO: ADC(Adafruit_ADS1x15)
+        # ADC(Adafruit_ADS1x15) setup
         ###############################################################################################
         try:
             self.ADC = ADS1x15.ADS1015
@@ -169,7 +169,7 @@ class BehavBox(object):
             print(str(error_message))
 
         # ###############################################################################################
-        # # TODO: treadmill
+        # # treadmill setup
         # ###############################################################################################
         if session_info['treadmill'] == True:
             try:
@@ -182,7 +182,7 @@ class BehavBox(object):
             self.treadmill = False
             print("No treadmill I2C connection detected!")
         ###############################################################################################
-        # Keystroke handler
+        # pygame window setup and keystroke handler
         ###############################################################################################
         try:
             pygame.init()
@@ -231,7 +231,6 @@ class BehavBox(object):
         if figure:
             FramePerSec = pygame.time.Clock()
             figure.canvas.draw()
-            # figure.canvas.draw()
             self.main_display.blit(figure, (0, 0))
             pygame.display.update()
             FramePerSec.tick(FPS)
@@ -461,8 +460,8 @@ class Pump(object):
         self.pump2 = LED(20)
         self.pump3 = LED(21)
         self.pump4 = LED(7)
-        self.pump5 = LED(8)
-        self.pump_vaccum = LED(25)
+        self.pump_vaccum = LED(8)
+        self.pump_en = LED(25)
         self.reward_list = [] # a list of tuple (pump_x, reward_amount) with information of reward history for data
         # visualization
 
@@ -472,10 +471,13 @@ class Pump(object):
         coefficient_2 = coefficient_fit[-2]
         coefficient_3 = coefficient_fit[-3] - reward_size
         discriminant = coefficient_2 ** 2 - 4 * coefficient_1 * coefficient_3
+        # find solution, i.e. duration of pulse, by calculating the solution for the quadratic equation
         solution = np.array([(-coefficient_2 + np.sqrt(discriminant)) / (2 * coefficient_1),
                              (-coefficient_2 - np.sqrt(discriminant)) / (2 * coefficient_1)])
 
+        # With two solution, get the positive value
         solution_positive = solution[(solution > 0).nonzero()[0][0]]
+        # round to the second decimal
         duration = round(solution_positive, 2)
         if which_pump == "1":
             self.pump1.blink(duration, 0.1, 1)
@@ -493,10 +495,10 @@ class Pump(object):
             self.pump4.blink(duration, 0.1, 1)
             self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
-        elif which_pump == "5":
-            self.pump5.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump5_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump5_reward_" + str(reward_size))
+        # elif which_pump == "5":
+        #     self.pump5.blink(duration, 0.1, 1)
+        #     self.reward_list.append(("pump5_reward", reward_size))
+        #     logging.info(";" + str(time.time()) + ";[reward];pump5_reward_" + str(reward_size))
         elif which_pump == "vaccum":
             self.pump_vaccum.blink(duration, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump_vaccum")

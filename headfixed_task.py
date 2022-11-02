@@ -321,6 +321,7 @@ class HeadfixedTask(object):
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
         self.reward_times_up = True
+
         if self.wrong_choice_error:
             logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
             self.error_repeat = True
