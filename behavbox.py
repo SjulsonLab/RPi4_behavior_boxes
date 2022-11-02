@@ -479,6 +479,7 @@ class Pump(object):
         solution_positive = solution[(solution > 0).nonzero()[0][0]]
         # round to the second decimal
         duration = round(solution_positive, 2)
+        duration_vaccum = 1
         if which_pump == "1":
             self.pump1.blink(duration, 0.1, 1)
             self.reward_list.append(("pump1_reward", reward_size))
@@ -500,5 +501,5 @@ class Pump(object):
         #     self.reward_list.append(("pump5_reward", reward_size))
         #     logging.info(";" + str(time.time()) + ";[reward];pump5_reward_" + str(reward_size))
         elif which_pump == "vaccum":
-            self.pump_vaccum.blink(duration, 0.1, 1)
+            self.pump_vaccum.blink(duration_vaccum, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump_vaccum")
