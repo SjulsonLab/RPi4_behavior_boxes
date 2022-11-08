@@ -28,7 +28,7 @@ base_path = sys.argv[1]
 
 #set the frame rate if user gave input
 if len(sys.argv)>2:
-    FRAMERATE = sys.argv[2]
+    FRAMERATE = int(sys.argv[2])
 else:
     FRAMERATE = 30
 #set high thread priority

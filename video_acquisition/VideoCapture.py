@@ -31,11 +31,12 @@ class VideoCapture():
             E:/MyProject/Session/
     
     """
-    def __init__(self,IP_address_video,video_name,base_pi_dir,local_storage_dir):
+    def __init__(self,IP_address_video,video_name,base_pi_dir,local_storage_dir,frame_rate=30):
             self.IP_address_video = IP_address_video
             self.basename = video_name
             self.base_dir = base_pi_dir
             self.local_storage_dir = local_storage_dir
+            self.frame_rate = frame_rate
         
     def video_preview_only(self):
             IP_address_video = self.IP_address_video
@@ -60,6 +61,7 @@ class VideoCapture():
             dir_name = self.base_dir
             basename = self.basename
             hd_dir = self.local_storage_dir
+            frame_rate = self.frame_rate
             file_name = dir_name + "/" + basename
             # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
             # create directory on the external storage
@@ -84,7 +86,8 @@ class VideoCapture():
                 os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
                 tempstr = (
                         "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
-                        + file_name
+                        + file_name + " "
+                        + str(frame_rate)
                         + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
                 )
                 # start the flipper before the recording start
@@ -122,11 +125,10 @@ class VideoCapture():
     
                 # Create a directory for storage on the hard drive mounted on the box behavior
                 hd_dir = self.local_storage_dir
-    
-                #scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
-    
-                #THIS PART SHOULD BE TRIGGERED BY THE USER, YOU DON'T WANT SEVERAL 
-                #STUFF BEING COPIED INTO THE HARD DRIVE AT THE SAME TIME!
+                
+                #This is to avoid copying the data into a HDD while ephys or other process might still going on,
+                #thus corrupting ongoing data writing
+                input("Press any key to continue with copying the videos to the local storage...")
                 
                 # Move the video + log from the box_video SD card to the box_behavior external hard drive
                 os.system(
