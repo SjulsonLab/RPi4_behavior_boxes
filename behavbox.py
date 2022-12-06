@@ -276,7 +276,7 @@ class BehavBox(object):
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
                         self.pump.reward("4", 10)
                     elif event.key == pygame.K_t:
-                        # print("T down: Vaccum on")
+                        # print("T down: vacuum on")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
                         self.pump.reward("vacuum", 1)
                 elif event.type == pygame.KEYUP:
@@ -460,7 +460,7 @@ class Pump(object):
         self.pump2 = LED(20)
         self.pump3 = LED(21)
         self.pump4 = LED(7)
-        self.pump_vaccum = LED(8)
+        self.pump_vacuum = LED(8)
         self.pump_en = LED(25)
         self.reward_list = [] # a list of tuple (pump_x, reward_amount) with information of reward history for data
         # visualization
@@ -479,7 +479,7 @@ class Pump(object):
         solution_positive = solution[(solution > 0).nonzero()[0][0]]
         # round to the second decimal
         duration = round(solution_positive, 2)
-        duration_vaccum = 1
+        duration_vacuum = 1
         if which_pump == "1":
             self.pump1.blink(duration, 0.1, 1)
             self.reward_list.append(("pump1_reward", reward_size))
@@ -500,6 +500,6 @@ class Pump(object):
         #     self.pump5.blink(duration, 0.1, 1)
         #     self.reward_list.append(("pump5_reward", reward_size))
         #     logging.info(";" + str(time.time()) + ";[reward];pump5_reward_" + str(reward_size))
-        elif which_pump == "vaccum":
-            self.pump_vaccum.blink(duration_vaccum, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[reward];pump_vaccum")
+        elif which_pump == "vacuum":
+            self.pump_vacuum.blink(duration_vacuum, 0.1, 1)
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum")
