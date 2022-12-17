@@ -19,17 +19,20 @@ while run:
         if event.type == pygame.KEYDOWN:
             # print("KeyDown: " + str(event.type) + "\n")
             if event.key == pygame.K_q:
-                print("Q down: syringe pump 1 moves")
+                print("Q down: syringe pump 1")
                 pump.reward("1", reward_size)
             if event.key == pygame.K_w:
-                print("W down: syringe pump 2 moves")
+                print("W down: syringe pump 2")
                 pump.reward("2", reward_size)
             if event.key == pygame.K_e:
-                print("E down: syringe pump 3 moves")
+                print("E down: syringe pump 3")
                 pump.reward("3", reward_size)
             if event.key == pygame.K_r:
-                print("R down: syringe pump 4 moves")
+                print("R down: syringe pump 4")
                 pump.reward("4", reward_size)
-            if event.key == pygame.K_t:
-                print("T down: vacuum on")
+            if event.key == pygame.K_a:
+                print("A down: air puff on")
+                pump.reward("air_puff", reward_size)
+            if event.key == pygame.K_s:
+                print("S down: vacuum on")
                 pump.reward("vacuum", 1)
