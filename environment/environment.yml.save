@@ -1,0 +1,22 @@
+name: RPi_behavbox
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - pip
+  - pip:
+    - numpy
+    - scipy
+    - matplotlib
+    - RPi.GPIO
+    - colorzero
+    - colorama
+    - Adafruit-Blinka
+    - adafruit-circuitpython-busdevice
+    - Adafruit-GPIO
+    - Adafruit-PlatformDetect
+    - Adafruit-PureIO
+    - gpiozero
+    - icecream    - picamera
+    - pyserial
+    - pysistence
