@@ -460,6 +460,7 @@ class Pump(object):
         self.pump2 = LED(20)
         self.pump3 = LED(21)
         self.pump4 = LED(7)
+        self.pump_air = LED(8)
         self.pump_vacuum = LED(25)
         self.reward_list = [] # a list of tuple (pump_x, reward_amount) with information of reward history for data
         # visualization
@@ -492,6 +493,10 @@ class Pump(object):
             self.reward_list.append(("pump3_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump3_reward_" + str(reward_size))
         elif which_pump == "4":
+            self.pump4.blink(duration, 0.1, 1)
+            self.reward_list.append(("pump4_reward", reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
+        elif which_pump == "air_puff":
             self.pump4.blink(duration, 0.1, 1)
             self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
