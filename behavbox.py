@@ -478,7 +478,7 @@ class Pump(object):
         # With two solution, get the positive value
         solution_positive = solution[(solution > 0).nonzero()[0][0]]
         # round to the second decimal
-        duration = round(solution_positive, 2)
+        duration = round(solution_positive, 3) * (10**-3)
         duration_vacuum = 1
         if which_pump == "1":
             self.pump1.blink(duration, 0.1, 1)
