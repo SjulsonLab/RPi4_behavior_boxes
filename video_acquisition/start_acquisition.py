@@ -26,6 +26,11 @@ def signal_handler(signum, frame):
 signal.signal(signal.SIGINT, signal_handler)
 base_path = sys.argv[1]
 
+#set the frame rate if user gave input
+if len(sys.argv)>2:
+    FRAMERATE = int(sys.argv[2])
+else:
+    FRAMERATE = 30
 #set high thread priority
 try:
     os.nice(-20)
@@ -35,7 +40,6 @@ except:
 #camera parameter setting
 WIDTH  = 640
 HEIGHT = 480
-FRAMERATE = 30
 VIDEO_STABILIZATION = True
 EXPOSURE_MODE = 'night'
 BRIGHTNESS = 55
