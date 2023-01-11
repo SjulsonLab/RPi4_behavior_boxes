@@ -98,7 +98,7 @@ class LickTask(object):
 
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
-        self.pump = behavbox.Pump()
+        self.pump = self.box.pump
 
     ########################################################################
     # functions called when state transitions occur
@@ -153,12 +153,13 @@ class LickTask(object):
             pass
 
         elif self.state == "reward_available":
+            reward_size = "little"
             if event_name == "left_IR_entry":
                 # self.box.sound2.blink(0.5,0.1,1)
-                self.pump.reward("1", self.session_info["reward_size"])
+                self.pump.reward("1", self.session_info["reward_size"][reward_size])
                 self.active_poke()  # triggers state transition
             if event_name == "right_IR_entry":
-                self.pump.reward("2", self.session_info["reward_size"])
+                self.pump.reward("2", self.session_info["reward_size"][reward_size])
                 # self.box.sound2.blink(0.5,0.1,1)
                 self.active_poke()  # triggers state transition
         elif self.state == "cue":
