@@ -153,7 +153,7 @@ class LickTask(object):
             pass
 
         elif self.state == "reward_available":
-            reward_size = "little"
+            reward_size = "small"
             if event_name == "left_IR_entry":
                 # self.box.sound2.blink(0.5,0.1,1)
                 self.pump.reward("1", self.session_info["reward_size"][reward_size])
