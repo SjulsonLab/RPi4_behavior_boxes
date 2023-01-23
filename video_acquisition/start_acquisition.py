@@ -118,7 +118,8 @@ class TimestampOutput(object):
         self._stop = 0
 
     def flipper_timestamps_write(self, pin_flipper):
-        if self._stop == 0:
+        var = True
+        if var:
             time.sleep(0.1)
             input_state = GPIO.input(pin_flipper)
             detect_time = time.time()
