@@ -119,14 +119,14 @@ class TimestampOutput(object):
 
     def flipper_timestamps_write(self, pin_flipper):
         if self._stop == 0:
-            sleep(0.1)
+            time.sleep(0.1)
             input_state = GPIO.input(pin_flipper)
             detect_time = time.time()
             if input_state:
                 self._flipper_timestamps.append((input_state, detect_time))
                 print(input_state, str(detect_time))
                 GPIO.remove_event_detect(pin_flipper)
-                sleep(0.1)
+                time.sleep(0.1)
                 GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
 
 
