@@ -65,7 +65,7 @@ GPIO.setmode(GPIO.BCM)
 pin_flipper = 4
 
 #set the pin as input pin
-GPIO.setup(pin_flipper, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(pin_flipper, GPIO.IN) # , pull_up_down = GPIO.PUD_DOWN)
 
 #add event detection (both falling edge and rising edge) script to GPIO pin
 GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
