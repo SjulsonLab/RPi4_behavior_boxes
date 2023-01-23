@@ -62,7 +62,7 @@ FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + str(dt.datetime.no
 GPIO.setmode(GPIO.BCM)
 
 #pin number to receive TTL input
-pin_flipper = 4
+pin_flipper = 7
 
 #set the pin as input pin
 GPIO.setup(pin_flipper, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
@@ -127,7 +127,6 @@ class TimestampOutput(object):
             GPIO.remove_event_detect(pin_flipper)
             time.sleep(0.01)
             GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
-
         print("Flipper detection OFF")
 
 
