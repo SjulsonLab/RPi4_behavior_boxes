@@ -50,7 +50,7 @@ AWB_MODE = 'off'
 AWB_GAINS = 1.4
 
 #Flipper TTL Pulse BounceTme in milliseconds
-BOUNCETIME=10
+BOUNCETIME=100
 camId = str(0)
 
 #video, timestamps and ttl file name
@@ -117,12 +117,18 @@ class TimestampOutput(object):
         self._flipper_timestamps = []
 
     def flipper_timestamps_write(self, pin_flipper):
-        input_state = GPIO.input(pin_flipper)
-        GPIO.remove_event_detect(pin_flipper)
-        self._flipper_timestamps.append((input_state, time.time()))
-        #print(input_state, time.time())
-        print(str(self._flipper_timestamps))
-        GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
+        if var == 1:
+            sleep(0.1)
+            input_state = GPIO.input(pin_flipper)
+            detect_time = time.time()
+            if input_state:
+                self._flipper_timestamps.append((input_state, detect_time))
+                print(input_state, str(detect_time))
+                GPIO.remove_event_detect(pin_flipper)
+                sleep(0.1)
+                GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
+
+
 
     def write(self, buf):
         if self.camera.frame.complete and self.camera.frame.timestamp is not None:
