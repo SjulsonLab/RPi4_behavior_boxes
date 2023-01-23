@@ -62,7 +62,7 @@ FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + str(dt.datetime.no
 GPIO.setmode(GPIO.BCM)
 
 #pin number to receive TTL input
-pin_flipper = 7
+pin_flipper = 4
 
 #set the pin as input pin
 GPIO.setup(pin_flipper, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
