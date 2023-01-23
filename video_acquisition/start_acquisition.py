@@ -115,9 +115,10 @@ class TimestampOutput(object):
         self._flipper_file = flipper_filename
         self._timestamps = []
         self._flipper_timestamps = []
+        self._stop = 0
 
     def flipper_timestamps_write(self, pin_flipper):
-        if var == 1:
+        if self._stop == 0:
             sleep(0.1)
             input_state = GPIO.input(pin_flipper)
             detect_time = time.time()
@@ -158,6 +159,7 @@ class TimestampOutput(object):
                 f.write('%f,%f\n' % entry)
 
     def close(self):
+        self._stop = 1
         self._video.close()
 
 with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
