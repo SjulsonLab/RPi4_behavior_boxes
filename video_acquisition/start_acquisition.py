@@ -118,7 +118,9 @@ class TimestampOutput(object):
         self._stop = 0
 
     def flipper_timestamps_write(self, pin_flipper):
-        while self._stop == 0:
+        worked = False
+        while not worked:
+            worked = True
             time.sleep(0.01)
             input_state = GPIO.input(pin_flipper)
             detect_time = time.time()
@@ -126,7 +128,10 @@ class TimestampOutput(object):
             print(input_state, str(detect_time))
             GPIO.remove_event_detect(pin_flipper)
             time.sleep(0.01)
-            GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
+            try:
+                GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
+            except RuntimeError:
+                worked = False
         print("Flipper detection OFF")
 
 
