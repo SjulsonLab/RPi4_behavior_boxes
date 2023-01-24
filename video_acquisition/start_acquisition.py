@@ -65,7 +65,7 @@ GPIO.setmode(GPIO.BCM)
 pin_flipper = 4
 
 #set the pin as input pin
-GPIO.setup(pin_flipper, GPIO.IN) # , pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(pin_flipper, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
 #add event detection (both falling edge and rising edge) script to GPIO pin
 GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
@@ -118,14 +118,18 @@ class TimestampOutput(object):
         self._stop = 0
 
     def flipper_timestamps_write(self, pin_flipper):
+        input_state_buffer = None
         while self._stop == 0:
             time.sleep(0.01)
             input_state = GPIO.input(pin_flipper)
-            detect_time = time.time()
-            self._flipper_timestamps.append((input_state, detect_time))
-            print(input_state, str(detect_time))
+            input_state_buffer = input_state
+            if input_state != input_state_buffer:
+
+                detect_time = time.time()
+                self._flipper_timestamps.append((input_state, detect_time))
+                print(input_state, str(detect_time))
             GPIO.remove_event_detect(pin_flipper)
-            time.sleep(0.01)
+            time.sleep(0.1)
             GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
         print("Flipper detection OFF")
 
