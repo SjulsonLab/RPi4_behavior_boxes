@@ -44,10 +44,10 @@ session_info["visual_stimulus"]             = False
 
 session_info['config']	                    = 'headfixed_soyoun'
 session_info['treadmill_setup'] = {}
-session_info['treadmill_setup']['present']             = True
+session_info['treadmill']             = True
 session_info['phase']             	= 1
 
-if session_info['treadmill_setup']['present']:
+if session_info['treadmill']:
     session_info['treadmill_setup']['distance_initiation'] = 1  # cm
     session_info['treadmill_setup']['distance_short'] = 3  # cm
     session_info['treadmill_setup']['distance_long'] = 5 # cm
