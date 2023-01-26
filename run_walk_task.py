@@ -47,7 +47,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import your task class here
-from headfixed_task import HeadfixedTask
+from walk_task import WalkTask
 
 try:
     # load in session_info file, check that dates are correct, put in automatic
@@ -58,7 +58,7 @@ try:
     full_module_name = 'session_info_' + datestr
     import sys
 
-    session_info_path = '/home/pi/experiment_info/headfixed_task/session_info'
+    session_info_path = '/home/pi/experiment_info/walk_task/session_info'
     sys.path.insert(0, session_info_path)
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
@@ -89,7 +89,6 @@ try:
         ]
     )
 
-    # print("Imported task_information_headfixed: " + str(task_information.name))
 
     task = WalkTask(name="walk_task", session_info=session_info)
 
