@@ -118,6 +118,13 @@ class SelfAdminTask(object):
         self.reward_pump = self.session_info["reward_pump"]
         self.reward_size = self.session_info["reward_size"]
 
+        self.active_press = 0
+        self.inactive_press = 0
+        self.timeline_active_press = []
+        self.active_press_count_list = []
+        self.timeline_inactive_press = []
+        self.inactive_press_count_list = []
+
         self.left_poke_count = 0
         self.right_poke_count = 0
         self.timeline_left_poke = []
@@ -180,11 +187,11 @@ class SelfAdminTask(object):
                 self.reward_time_start = time.time()
                 print("Reward time start" + str(self.reward_time_start))
                 self.active_press += 1
-                self.left_poke_count_list.append(self.left_poke_count)
+                self.active_press_count_list.append(self.left_poke_count)
                 self.timeline_active_press.append(time.time())
             elif self.event_name == "reserved_rx2_pressed":
                 self.inactive_press += 1
-                self.inactive_press_list.append(self.right_poke_count)
+                self.inactive_press_count_list.append(self.right_poke_count)
                 self.timeline_inactive_press.append(time.time())
 
             # Lick detection:
@@ -192,16 +199,6 @@ class SelfAdminTask(object):
                 self.left_poke_count += 1
                 self.left_poke_count_list.append(self.left_poke_count)
                 self.timeline_left_poke.append(time.time())
-                self.lick_count += 1
-            elif self.event_name == "right_IR_entry":
-                self.right_poke_count += 1
-                self.right_poke_count_list.append(self.right_poke_count)
-                self.timeline_right_poke.append(time.time())
-                self.lick_count += 1
-            elif self.event_name == "center_IR_entry":
-                self.center_IR_entry += 1
-                self.center_IR_entry_list.append(self.right_poke_count)
-                self.timeline_center_poke.append(time.time())
                 self.lick_count += 1
 
         # look for keystrokes
@@ -214,9 +211,9 @@ class SelfAdminTask(object):
         # self.update_plot_error()
         self.trial_running = False
         # self.reward_error = False
-        if self.early_lick_error:
-            self.error_list.append("early_lick_error")
-            self.early_lick_error = False
+        # if self.early_lick_error:
+        #     self.error_list.append("early_lick_error")
+        #     self.early_lick_error = False
         self.lick_count = 0
         self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
@@ -238,16 +235,16 @@ class SelfAdminTask(object):
         # self.cue_off('sound2')
         self.reward_times_up = True
         self.pump.reward("vaccum", 0)
-        if self.multiple_choice_error:
-            logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
-            self.error_repeat = False
-            self.error_list.append('multiple_choice_error')
-            self.multiple_choice_error = False
-        elif self.lick_count == 0:
-            logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
-            self.error_repeat = True
-            self.error_list.append('no_choice_error')
-        self.lick_count = 0
+        # if self.multiple_choice_error:
+        #     logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
+        #     self.error_repeat = False
+        #     self.error_list.append('multiple_choice_error')
+        #     self.multiple_choice_error = False
+        # elif self.lick_count == 0:
+        #     logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
+        #     self.error_repeat = True
+        #     self.error_list.append('no_choice_error')
+        # self.lick_count = 0
         self.reward_time_start = None
 
     def update_plot(self):
@@ -270,32 +267,32 @@ class SelfAdminTask(object):
         self.box.check_plot(fig)
 
     def update_plot_choice(self, save_fig=False):
-        trajectory_left = self.left_poke_count_list
-        time_left = self.timeline_left_poke
-        trajectory_right = self.right_poke_count_list
-        time_right = self.timeline_right_poke
+        trajectory_active = self.left_poke_count_list
+        time_active = self.timeline_left_poke
+        trajectory_inactive = self.right_poke_count_list
+        time_inactive = self.timeline_right_poke
         fig, ax = plt.subplots(1, 1, )
         print(type(fig))
 
-        ax.plot(time_left, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
-        ax.plot(time_right, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
+        ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
+        ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
         if save_fig:
             plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
-                        self.session_info['basename'] + "_choice_plot" + '.png')
+                        self.session_info['basename'] + "_lever_choice_plot" + '.png')
         self.box.check_plot(fig)
 
     def integrate_plot(self, save_fig=False):
 
         fig, ax = plt.subplots(2, 1)
 
-        trajectory_left = self.left_poke_count_list
-        time_left = self.timeline_left_poke
+        trajectory_left = self.active_press
+        time_active_press = self.timeline_active_press
         trajectory_right = self.right_poke_count_list
-        time_right = self.timeline_right_poke
+        time_inactive_press = self.timeline_inactive_press
         print(type(fig))
 
-        ax[0].plot(time_left, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
-        ax[0].plot(time_right, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
+        ax[0].plot(time_active_press, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
+        ax[0].plot(time_inactive_press, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
 
         error_event = self.error_list
         labels, counts = np.unique(error_event, return_counts=True)
