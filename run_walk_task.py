@@ -110,7 +110,7 @@ try:
         # does it take to the session to finish
         # first_card = True
         task.error_count = 0
-        print("Trial " + str(block) + " \n")
+        print("Trial " + str(task.trial_number) + " \n")
         task.trial_number += 1
         print("*******************************\n")
         random_cue = random.randint(0,1)
