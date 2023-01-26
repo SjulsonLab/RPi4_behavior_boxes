@@ -109,8 +109,8 @@ class BehavBox(object):
         self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
         self.IR_rx2 = Button(6, None, True)
         self.IR_rx3 = Button(12, None, True)
-        self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
-        self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
+        self.reserved_rx1 = Button(13, None, True)  # (optional, reserved for future use
+        self.reserved_rx2 = Button(16, None, True)  # (optional, reserved for future use
 
         # link nosepoke event detections to callbacks
         self.IR_rx1.when_pressed = self.left_IR_exit
@@ -119,6 +119,11 @@ class BehavBox(object):
         self.IR_rx1.when_released = self.left_IR_entry
         self.IR_rx2.when_released = self.center_IR_entry
         self.IR_rx3.when_released = self.right_IR_entry
+
+        self.reserved_rx1.when_pressed = self.reserved_rx1_pressed
+        self.reserved_rx2.when_pressed = self.reserved_rx2_pressed
+        self.reserved_rx1.when_released = self.reserved_rx1_released
+        self.reserved_rx2.when_released = self.reserved_rx2_released
 
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
@@ -259,6 +264,12 @@ class BehavBox(object):
                     elif event.key == pygame.K_3:
                         self.right_IR_entry()
                         logging.info(";" + str(time.time()) + ";[action];key_pressed_right_IR_entry()")
+                    elif event.key == pygame.K_4:
+                        self.reserved_rx1_pressed()
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx1_pressed()")
+                    elif event.key == pygame.K_5:
+                        self.reserved_rx2_pressed()
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx2_pressed()")
                     elif event.key == pygame.K_q:
                         # print("Q down: syringe pump 1 moves")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump1")
@@ -440,6 +451,28 @@ class BehavBox(object):
         self.event_list.append("right_IR_exit")
         self.interact_list.append((time.time(), "right_IR_exit"))
         logging.info(";" + str(time.time()) + ";[action];right_IR_exit")
+
+    def reserved_rx1_pressed(self):
+        self.event_list.append("reserved_rx1_pressed")
+        self.interact_list.append((time.time(), "reserved_rx1_pressed"))
+        logging.info(";" + str(time.time()) + ";[action];reserved_rx1_pressed")
+
+    def reserved_rx2_pressed(self):
+        self.event_list.append("reserved_rx2_pressed")
+        self.interact_list.append((time.time(), "reserved_rx2_pressed"))
+        logging.info(";" + str(time.time()) + ";[action];reserved_rx2_pressed")
+
+    def reserved_rx1_released(self):
+        self.event_list.append("reserved_rx1_released")
+        self.interact_list.append((time.time(), "reserved_rx1_released"))
+        logging.info(";" + str(time.time()) + ";[action];reserved_rx1_released")
+
+    def reserved_rx2_released(self):
+        self.event_list.append("reserved_rx2_released")
+        self.interact_list.append((time.time(), "reserved_rx2_released"))
+        logging.info(";" + str(time.time()) + ";[action];reserved_rx2_released")
+
+
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the
