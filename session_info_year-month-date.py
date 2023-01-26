@@ -26,8 +26,9 @@ session_info['box_name'] = socket.gethostname()
 
 # session_info['config']						= 'freely_moving_v1'
 session_info['experiment_setup'] = 'head_fixed'
-session_info['treadmill_setup'] = True
-if session_info['treadmill_setup']:
+session_info['treadmill'] = True
+session_info['treadmill_setup'] = {}
+if session_info['treadmill']:
     session_info['treadmill_setup']['distance_initiation'] = 5  # cm
     session_info['treadmill_setup']['distance_short'] = 7  # cm
     session_info['treadmill_setup']['distance_long'] = 30  # cm
@@ -50,6 +51,7 @@ if session_info['error_repeat']:
 session_info['reward_size'] = {'small': 5, 'large': 10}  # in microliters
 
 # visual stimulus
+session_info["visual_stimulus"] = False
 # session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
 # session_info['vis_gratings']				= ['/home/pi/gratings/first_grating.dat',
 # 											   '/home/pi/gratings/second_grating.dat']

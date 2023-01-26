@@ -466,20 +466,24 @@ class Pump(object):
         # visualization
 
     def reward(self, which_pump, reward_size):
-        coefficient_fit = np.array([8.78674242e-04, 7.33609848e-02, 1.47535000e+00]) # further calibration is needed
-        coefficient_1 = coefficient_fit[-1]
-        coefficient_2 = coefficient_fit[-2]
-        coefficient_3 = coefficient_fit[-3] - reward_size
-        discriminant = coefficient_2 ** 2 - 4 * coefficient_1 * coefficient_3
-        # find solution, i.e. duration of pulse, by calculating the solution for the quadratic equation
-        solution = np.array([(-coefficient_2 + np.sqrt(discriminant)) / (2 * coefficient_1),
-                             (-coefficient_2 - np.sqrt(discriminant)) / (2 * coefficient_1)])
+        # coefficient_fit = np.array([8.78674242e-04, 7.33609848e-02, 1.47535000e+00]) # further calibration is needed
+        # coefficient_1 = coefficient_fit[-1]
+        # coefficient_2 = coefficient_fit[-2]
+        # coefficient_3 = coefficient_fit[-3] - reward_size
+        tube_fit = 0.11609 # ml/s
+        # discriminant = coefficient_2 ** 2 - 4 * coefficient_1 * coefficient_3
+        # # find solution, i.e. duration of pulse, by calculating the solution for the quadratic equation
+        # solution = np.array([(-coefficient_2 + np.sqrt(discriminant)) / (2 * coefficient_1),
+        #                      (-coefficient_2 - np.sqrt(discriminant)) / (2 * coefficient_1)])
 
         # With two solution, get the positive value
-        solution_positive = solution[(solution > 0).nonzero()[0][0]]
+        # solution_positive = solution[(solution > 0).nonzero()[0][0]]
         # round to the second decimal
-        duration = round(solution_positive, 3) * (10**-3)
-        duration_vacuum = 1
+        # duration = round(solution_positive, 3) * (10**-3)
+
+        duration = round((reward_size/1000)/tube_fit, 3)
+        duration_vacuum = 0.5
+
         if which_pump == "1":
             self.pump1.blink(duration, 0.1, 1)
             self.reward_list.append(("pump1_reward", reward_size))
