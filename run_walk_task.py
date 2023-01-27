@@ -127,8 +127,8 @@ try:
             if time.time() >= t_end:
                 print("Times up, finishing up")
                 break
-            if not task.innocent:
-                task.innocent = True
+            if task.innocent:
+                task.innocent = False
             if task.error_repeat:
                 task.error_repeat = False
                 print("punishment_time_out: " + str(session_info["punishment_timeout"]))
