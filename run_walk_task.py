@@ -110,16 +110,19 @@ try:
         # does it take to the session to finish
         # first_card = True
         task.error_count = 0
-        print("Trial " + str(task.trial_number) + " \n")
-        task.trial_number += 1
-        print("*******************************\n")
         random_cue = random.randint(0,1)
         if random_cue:
             task.current_cue = "left"
         else:
             task.current_cue = "right"
+
+        print("*******************************\n")
+        print("Trial " + str(task.trial_number) + "; Side" + task.current_cue + "\n")
+        task.trial_number += 1
+        print("*******************************\n")
+
         logging.info(";" + str(time.time()) + ";[condition];" + str(task.current_cue) + "_LED")
-        while not task.error_repeat or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
+        while (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
             "error_max"]):
             if time.time() >= t_end:
                 print("Times up, finishing up")
