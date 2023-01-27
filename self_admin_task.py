@@ -82,12 +82,6 @@ class SelfAdminTask(object):
             State(name='standby',
                   on_enter=["enter_standby"],
                   on_exit=["exit_standby"]),
-            Timeout(name='lever_press',
-                    on_enter=["enter_lever_press"],
-                    on_exit=["exit_lever_press"],
-                    timeout=self.session_info["lever_timeout"],
-                    on_timeout=["restart"]
-            ),
             Timeout(name='reward_available',
                     on_enter=["enter_reward_available"],
                     on_exit=["exit_reward_available"],
@@ -96,7 +90,7 @@ class SelfAdminTask(object):
         ]
         self.transitions = [
             ['start_trial', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
-            ['restart', ['lever_press', 'reward_available'], 'standby']
+            ['restart', 'reward_available', 'standby']
         ]
 
         self.machine = TimedStateMachine(
