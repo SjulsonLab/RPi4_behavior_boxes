@@ -1,4 +1,4 @@
-# session_info_walk.py
+# session_info_self_admin.py
 
 # put all of your mouse and session info in here
 
