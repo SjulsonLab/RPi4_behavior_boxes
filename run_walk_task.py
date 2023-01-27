@@ -122,11 +122,13 @@ try:
         print("*******************************\n")
 
         logging.info(";" + str(time.time()) + ";[condition];" + str(task.current_cue) + "_LED")
-        while (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
+        while task.innocent or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
             "error_max"]):
             if time.time() >= t_end:
                 print("Times up, finishing up")
                 break
+            if not task.innocent:
+                task.innocent = True
             if task.error_repeat:
                 task.error_repeat = False
                 print("punishment_time_out: " + str(session_info["punishment_timeout"]))
