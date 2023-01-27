@@ -338,8 +338,6 @@ class WalkTask(object):
         else:
             logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
             self.error_list.append('correct_trial')
-        if self.error_repeat:
-            self.innocent = False
         self.lick_count = 0
         self.reward_time_start = None
 
