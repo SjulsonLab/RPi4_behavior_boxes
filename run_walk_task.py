@@ -109,6 +109,7 @@ try:
         # session_info["block_duration"] indicate how many successful trials
         # does it take to the session to finish
         # first_card = True
+        task.innocent = True
         task.error_count = 0
         random_cue = random.randint(0,1)
         if random_cue:
