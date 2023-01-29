@@ -103,9 +103,11 @@ try:
     t_end = time.time() + 60 * t_minute
 
     while time.time() < t_end:
+        if task.trail_number >= session_info['max_trial_number']:
+            break
         # session_info["block_duration"] indicate how many successful trials
         # does it take to the session to finish
-        # first_card = True
+        first_card = True
         task.error_count = 0
         print("Trial " + str(task.trial_number) + " \n")
         task.trial_number += 1
@@ -116,7 +118,7 @@ try:
         else:
             task.current_cue = "right"
         logging.info(";" + str(time.time()) + ";[condition];" + str(task.current_cue) + "_LED")
-        while not task.error_repeat or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
+        while first_card or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
             "error_max"]):
             if time.time() >= t_end:
                 print("Times up, finishing up")
@@ -126,7 +128,7 @@ try:
                 print("punishment_time_out: " + str(session_info["punishment_timeout"]))
                 sleep(session_info["punishment_timeout"])
                 task.trial_number += 1
-            # first_card = False
+            first_card = False
             logging.info(";" + str(time.time()) + ";[transition];start_trial()")
             task.start_trial()  # initiate the time state machine, start_trial() is a trigger
             while task.trial_running:

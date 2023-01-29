@@ -26,6 +26,8 @@ session_info['box_name']             		= socket.gethostname()
 # session_info['config']						= 'freely_moving_v1'
 session_info['config']						= 'self_admin'
 
+session_info['max_trial_number']            = 100
+
 # behavior parameters
 session_info['timeout_length']              = 5  # in seconds
 session_info['reward_size']					= 10  # in microliters
