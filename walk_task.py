@@ -237,6 +237,7 @@ class WalkTask(object):
                 elif self.side_mice_buffer:
                     if self.lick_count == 0:  # multiple choice error
                         # self.reward_error = True
+                        self.check_cue('sound2')
                         self.wrong_choice_error = True
                         self.restart()
                     else:  # wrong side - wrong_choice error
@@ -312,7 +313,7 @@ class WalkTask(object):
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
         print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
-        self.check_cue('sound2')
+        # self.check_cue('sound2')
         self.cue_off(self.current_cue)
         self.reward_times_up = False
 
@@ -347,7 +348,7 @@ class WalkTask(object):
             self.box.sound1.on()
         if cue == 'sound2':
             logging.info(";" + str(time.time()) + ";[cue];cue_sound2_on;" + str(self.error_repeat))
-            self.box.sound2.on()
+            self.box.sound2.blnk(1,0.1,1)
         elif cue == 'left':
             self.box.cueLED1.blink(0.2, 0.1)
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_on;" + str(self.error_repeat))
