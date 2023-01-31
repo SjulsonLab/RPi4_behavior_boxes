@@ -348,7 +348,7 @@ class WalkTask(object):
             self.box.sound1.on()
         if cue == 'sound2':
             logging.info(";" + str(time.time()) + ";[cue];cue_sound2_on;" + str(self.error_repeat))
-            self.box.sound2.blnk(1,0.1,1)
+            self.box.sound2.blink(1,0.1,1)
         elif cue == 'left':
             self.box.cueLED1.blink(0.2, 0.1)
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_on;" + str(self.error_repeat))
