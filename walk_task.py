@@ -319,7 +319,7 @@ class WalkTask(object):
 
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
-        self.cue_off('sound2')
+        # self.cue_off('sound2')
         self.reward_times_up = True
         self.pump.reward("vaccum", 0)
         if self.wrong_choice_error:
@@ -360,7 +360,7 @@ class WalkTask(object):
     def cue_off(self, cue):
         if cue == 'all':
             self.box.sound1.off()
-            self.box.sound2.off()
+            # self.box.sound2.off()
             self.box.cueLED1.off()
             self.box.cueLED2.off()
         if cue == 'sound1':
