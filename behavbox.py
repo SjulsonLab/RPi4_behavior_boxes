@@ -535,7 +535,7 @@ class Pump(object):
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
         elif which_pump == "air_puff":
             self.pump_air.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump4_reward", reward_size))
+            self.reward_list.append(("air_puff", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
         elif which_pump == "vacuum":
             self.pump_vacuum.blink(duration_vacuum, 0.1, 1)
