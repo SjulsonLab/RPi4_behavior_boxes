@@ -102,40 +102,16 @@ try:
     t_minute = int(input("Enter the time in minutes: "))
     t_end = time.time() + 60 * t_minute
 
-    while time.time() < t_end:
-        if task.trial_number >= session_info['max_trial_number']:
+    for i in range(session_info['max_trial_number']):
+        print("Trial " + str(i) + "\n")
+        if time.time() >= t_end:
+            print("Times up, finishing up")
             break
-        # session_info["block_duration"] indicate how many successful trials
-        # does it take to the session to finish
-        task.innocent = True
-        task.error_count = 0
-        random_cue = random.randint(0, 1)
-        # if random_cue:
-        #     task.current_cue = "left"
-        # else:
-        #     task.current_cue = "right"
-
-        print("Trial " + str(task.trial_number) + " \n")
-        print("*******************************\n")
-        print("Trial " + str(task.trial_number) + "\n")
-        task.trial_number += 1
-        print("*******************************\n")
-        while task.innocent or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
-            "error_max"]):
-            if time.time() >= t_end:
-                print("Times up, finishing up")
-                break
-            if task.error_repeat:
-                task.error_repeat = False
-                print("punishment_time_out: " + str(session_info["punishment_timeout"]))
-                sleep(session_info["punishment_timeout"])
-                task.trial_number += 1
-            first_card = False
-            logging.info(";" + str(time.time()) + ";[transition];start_trial()")
-            task.start_trial()  # initiate the time state machine, start_trial() is a trigger
-            while task.trial_running:
-                task.run()  # run command trigger additional functions outside of the state machine
-            print("error_count: " + str(task.error_count))
+        logging.info(";" + str(time.time()) + ";[transition];start_trial()")
+        task.start_trial()  # initiate the time state machine, start_trial() is a trigger
+        while task.trial_running:
+            task.run()  # run command trigger additional functions outside of the state machine
+        print("error_count: " + str(task.error_count))
     raise SystemExit
 
 # graceful exit

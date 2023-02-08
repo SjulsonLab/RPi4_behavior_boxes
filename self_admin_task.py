@@ -158,23 +158,13 @@ class SelfAdminTask(object):
             self.event_name = self.box.event_list.popleft()
         else:
             self.event_name = ""
-        # there can only be lick during the reward available state
-        # if lick detected prior to reward available state
-        # the trial will restart and transition to standby
-        # if self.event_name is "reserved_rx1_pressed" or self.event_name == "right_IR_entry":
-        #     # print("EVENT NAME !!!!!! " + self.event_name)
-        #     if self.state == "reward_available" or self.state == "standby" or self.state == "initiate":
-        #         pass
-        #     else:
-        #         self.error_repeat = True
-        #         self.restart()
         if self.state == "standby":
             pass
         elif self.state == "reward_available":
-            if not self.reward_times_up:
-                if self.reward_time_start:
-                    if time.time() >= self.reward_time_start + self.reward_time:
-                        self.restart()
+            # if not self.reward_times_up:
+            #     if self.reward_time_start:
+            #         if time.time() >= self.reward_time_start + self.reward_time:
+            #             self.restart()
             # lever pressing detection:
             if self.event_name == "reserved_rx1_pressed":
                 self.pump.reward(self.reward_pump, self.reward_size)
@@ -222,7 +212,7 @@ class SelfAdminTask(object):
 
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
-        print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
+        self.trial_running = True
         self.reward_times_up = False
 
     def exit_reward_available(self):
