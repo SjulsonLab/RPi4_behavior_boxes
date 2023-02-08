@@ -107,7 +107,9 @@ class SelfAdminTask(object):
         self.error_count = 0
         self.error_list = []
         self.error_repeat = False
-        self.reward_time_start = None # for reward_available state time keeping purpose
+        self.lever_pressed_time = 0.0
+        self.lever_press_interval = self.session_info["lever_press_interval"]
+        # self.reward_time_start = None # for reward_available state time keeping purpose
         self.reward_time = 10 # sec. could be incorporate into the session_info; available time for reward
         self.reward_times_up = False
         self.reward_pump = self.session_info["reward_pump"]
@@ -161,19 +163,18 @@ class SelfAdminTask(object):
         if self.state == "standby":
             pass
         elif self.state == "reward_available":
-            # if not self.reward_times_up:
-            #     if self.reward_time_start:
-            #         if time.time() >= self.reward_time_start + self.reward_time:
-            #             self.restart()
-            # lever pressing detection:
             if self.event_name == "reserved_rx1_pressed":
-                self.pump.reward(self.reward_pump, self.reward_size)
-                self.total_reward += 1
-                self.reward_time_start = time.time()
-                print("Reward time start" + str(self.reward_time_start))
-                self.active_press += 1
-                self.active_press_count_list.append(self.left_poke_count)
-                self.timeline_active_press.append(time.time())
+                lever_pressed_time_temp = time.time()
+                lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time
+                self.lever_pressed_time = lever_pressed_time_temp
+                if lever_pressed_dt >= self.lever_press_interval:
+                    self.pump.reward(self.reward_pump, self.reward_size)
+                    self.total_reward += 1
+                    # self.reward_time_start = time.time()
+                    # print("Reward time start" + str(self.reward_time_start))
+                    self.active_press += 1
+                    self.active_press_count_list.append(self.left_poke_count)
+                    self.timeline_active_press.append(time.time())
             elif self.event_name == "reserved_rx2_pressed":
                 self.inactive_press += 1
                 self.inactive_press_count_list.append(self.right_poke_count)
@@ -230,7 +231,7 @@ class SelfAdminTask(object):
         #     self.error_repeat = True
         #     self.error_list.append('no_choice_error')
         # self.lick_count = 0
-        self.reward_time_start = None
+        # self.reward_time_start = None
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
