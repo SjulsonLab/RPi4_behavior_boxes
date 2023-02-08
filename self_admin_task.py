@@ -170,22 +170,21 @@ class SelfAdminTask(object):
                 if lever_pressed_dt >= self.lever_press_interval:
                     self.pump.reward(self.reward_pump, self.reward_size)
                     self.total_reward += 1
-                    # self.reward_time_start = time.time()
-                    # print("Reward time start" + str(self.reward_time_start))
-                    self.active_press += 1
-                    self.active_press_count_list.append(self.left_poke_count)
-                    self.timeline_active_press.append(time.time())
-            elif self.event_name == "reserved_rx2_pressed":
-                self.inactive_press += 1
-                self.inactive_press_count_list.append(self.right_poke_count)
-                self.timeline_inactive_press.append(time.time())
+                    # self.active_press += 1
+                    # self.active_press_count_list.append(self.left_poke_count)
+                    # self.timeline_active_press.append(time.time())
+            # elif self.event_name == "reserved_rx2_pressed":
+            #
+                # self.inactive_press += 1
+                # self.inactive_press_count_list.append(self.right_poke_count)
+                # self.timeline_inactive_press.append(time.time())
 
             # Lick detection:
-            if self.event_name == "left_IR_entry":
-                self.left_poke_count += 1
-                self.left_poke_count_list.append(self.left_poke_count)
-                self.timeline_left_poke.append(time.time())
-                self.lick_count += 1
+            # if self.event_name == "left_IR_entry":
+            #     self.left_poke_count += 1
+            #     self.left_poke_count_list.append(self.left_poke_count)
+            #     self.timeline_left_poke.append(time.time())
+            #     self.lick_count += 1
 
         # look for keystrokes
         self.box.check_keybd()
@@ -200,8 +199,8 @@ class SelfAdminTask(object):
         # if self.early_lick_error:
         #     self.error_list.append("early_lick_error")
         #     self.early_lick_error = False
-        self.lick_count = 0
-        self.side_mice_buffer = None
+        # self.lick_count = 0
+        # self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
         logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number) + ";" + str(self.error_repeat))
 
@@ -214,12 +213,12 @@ class SelfAdminTask(object):
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
         self.trial_running = True
-        self.reward_times_up = False
+        # self.reward_times_up = False
 
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
         # self.cue_off('sound2')
-        self.reward_times_up = True
+        # self.reward_times_up = True
         self.pump.reward("vaccum", 0)
         # if self.multiple_choice_error:
         #     logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
