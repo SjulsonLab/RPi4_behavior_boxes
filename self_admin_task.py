@@ -102,6 +102,7 @@ class SelfAdminTask(object):
         self.trial_running = False
 
         # trial statistics
+        self.innocent = True
         self.trial_number = 0
         self.error_count = 0
         self.error_list = []
@@ -160,13 +161,13 @@ class SelfAdminTask(object):
         # there can only be lick during the reward available state
         # if lick detected prior to reward available state
         # the trial will restart and transition to standby
-        if self.event_name is "left_IR_entry" or self.event_name == "right_IR_entry":
-            # print("EVENT NAME !!!!!! " + self.event_name)
-            if self.state == "reward_available" or self.state == "standby" or self.state == "initiate":
-                pass
-            else:
-                self.error_repeat = True
-                self.restart()
+        # if self.event_name is "reserved_rx1_pressed" or self.event_name == "right_IR_entry":
+        #     # print("EVENT NAME !!!!!! " + self.event_name)
+        #     if self.state == "reward_available" or self.state == "standby" or self.state == "initiate":
+        #         pass
+        #     else:
+        #         self.error_repeat = True
+        #         self.restart()
         if self.state == "standby":
             pass
         elif self.state == "reward_available":
