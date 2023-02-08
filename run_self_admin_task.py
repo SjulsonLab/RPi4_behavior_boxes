@@ -103,7 +103,7 @@ try:
     t_end = time.time() + 60 * t_minute
 
     while time.time() < t_end:
-        if task.trail_number >= session_info['max_trial_number']:
+        if task.trial_number >= session_info['max_trial_number']:
             break
         # session_info["block_duration"] indicate how many successful trials
         # does it take to the session to finish
