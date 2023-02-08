@@ -166,9 +166,9 @@ class SelfAdminTask(object):
             if self.event_name == "reserved_rx1_pressed":
                 lever_pressed_time_temp = time.time()
                 lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time
-                self.lever_pressed_time = lever_pressed_time_temp
                 if lever_pressed_dt >= self.lever_press_interval:
                     self.pump.reward(self.reward_pump, self.reward_size)
+                    self.lever_pressed_time = lever_pressed_time_temp
                     self.total_reward += 1
                     # self.active_press += 1
                     # self.active_press_count_list.append(self.left_poke_count)
