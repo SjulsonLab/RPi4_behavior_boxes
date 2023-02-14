@@ -193,6 +193,7 @@ class WalkTask(object):
         elif self.state == "cue_state":
             # if self.LED_blink:
             #     self.box.cueLED1.blink(0.2, 0.1)
+            self.check_cue(self.current_cue)
             self.distance_diff = self.get_distance() - self.distance_buffer
             if self.distance_diff >= self.distance_cue:
                 self.cue_state_error = False
