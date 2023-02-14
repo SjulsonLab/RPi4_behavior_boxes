@@ -191,9 +191,6 @@ class WalkTask(object):
             else:
                 self.initiate_error = True
         elif self.state == "cue_state":
-            # if self.LED_blink:
-            #     self.box.cueLED1.blink(0.2, 0.1)
-            self.check_cue(self.current_cue)
             self.distance_diff = self.get_distance() - self.distance_buffer
             if self.distance_diff >= self.distance_cue:
                 self.cue_state_error = False
@@ -295,6 +292,7 @@ class WalkTask(object):
 
     def enter_cue_state(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_cue_state;" + str(self.error_repeat))
+        self.check_cue(self.current_cue)
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.get_distance()
         logging.info(
@@ -302,7 +300,7 @@ class WalkTask(object):
 
     def exit_cue_state(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_cue_state;" + str(self.error_repeat))
-        # self.cue_off(self.current_cue)
+        self.cue_off(self.current_cue)
         if self.cue_state_error:
             self.check_cue("sound2")
             self.error_list.append('cue_state_error')
