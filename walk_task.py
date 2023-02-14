@@ -235,13 +235,14 @@ class WalkTask(object):
                     self.lick_count += 1
 
                 elif self.side_mice_buffer:
-                    if self.lick_count == 0:  # multiple choice error
+                    if self.lick_count == 0:
                         # self.reward_error = True
                         self.check_cue('sound2')
                         self.wrong_choice_error = True
                         self.restart()
-                    else:  # wrong side - wrong_choice error
+                    else:  # multiple choice error
                         # self.reward_error = True
+                        self.check_cue('sound2')
                         self.multiple_choice_error = True
                         self.restart()
 
@@ -293,8 +294,6 @@ class WalkTask(object):
 
     def enter_cue_state(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_cue_state;" + str(self.error_repeat))
-        # turn on the cue according to the current card
-        self.check_cue(self.current_cue)
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.get_distance()
         logging.info(
@@ -302,8 +301,9 @@ class WalkTask(object):
 
     def exit_cue_state(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_cue_state;" + str(self.error_repeat))
-        self.cue_off(self.current_cue)
+        # self.cue_off(self.current_cue)
         if self.cue_state_error:
+            self.check_cue("sound2")
             self.error_list.append('cue_state_error')
             self.error_repeat = True
             logging.info(";" + str(time.time()) + ";[error];cue_state_error;" + str(self.error_repeat))
