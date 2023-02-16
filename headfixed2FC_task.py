@@ -99,7 +99,7 @@ class Headfixed2FCTask(object):
                     on_timeout=["restart"])
         ]
         self.transitions = [
-            ['start_trial', 'standby', 'initiate'],  # format: ['trigger', 'origin', 'destination']
+            ['start_trial', 'standby', 'initiate'],
             ['start_cue', 'initiate', 'cue_state'],
             ['evaluate_reward', 'cue_state', 'reward_available'],
             ['restart', ['initiate', 'cue_state', 'reward_available'], 'standby']
@@ -127,6 +127,8 @@ class Headfixed2FCTask(object):
         self.reward_time = 10 # sec. could be incorporate into the session_info; available time for reward
         self.reward_times_up = False
 
+        self.block_count = 0
+        self.blocknumber = 0
         self.current_card = None
         self.left_poke_count = 0
         self.right_poke_count = 0
@@ -216,7 +218,7 @@ class Headfixed2FCTask(object):
                 self.timeline_right_poke.append(time.time())
             if side_mice:
                 self.side_mice_buffer = side_mice
-                if cue_state == 'sound+LED':
+                if cue_state == 'all':
                     side_choice = side_mice
                     if side_choice == 'left':
                         reward_size = self.current_card[2][0]
@@ -351,16 +353,16 @@ class Headfixed2FCTask(object):
             self.box.sound2.blink(1, 0.1, 1)
         elif cue == 'left':
             self.box.cueLED1.on()
-            logging.info(";" + str(time.time()) + ";[cue];cueLED1_on;" + str(self.error_repeat))
+            logging.info(";" + str(time.time()) + ";[cue];cueLED_L_on;" + str(self.error_repeat))
         elif cue == 'right':
             # self.LED_blink = True
             self.box.cueLED2.on()
-            logging.info(";" + str(time.time()) + ";[cue];cueLED2_on;" + str(self.error_repeat))
+            logging.info(";" + str(time.time()) + ";[cue];cueLED_R_on;" + str(self.error_repeat))
         elif cue =='all':
             #self.box.cueLED1.blink(0.2, 0.1)
             self.box.cueLED1.on()
             self.box.cueLED2.on()
-            logging.info(";" + str(time.time()) + ";[cue];LED_sound_on; " + str(self.error_repeat))
+            logging.info(";" + str(time.time()) + ";[cue];LED_L+R_on; " + str(self.error_repeat))
 
     def cue_off(self, cue):
         if cue == 'all':
@@ -368,7 +370,7 @@ class Headfixed2FCTask(object):
             #self.box.sound2.off()
             self.box.cueLED1.off()
             self.box.cueLED2.off()
-        if cue == 'sound1':
+        elif cue == 'sound1':
             self.box.sound1.off()
             logging.info(";" + str(time.time()) + ";[cue];cue_sound1_off;" + str(self.error_repeat))
         elif cue == 'sound2':
@@ -376,7 +378,7 @@ class Headfixed2FCTask(object):
             logging.info(";" + str(time.time()) + ";[cue];cue_sound2_off;" + str(self.error_repeat))
         elif cue == 'left':
             self.box.cueLED1.off()
-            self.LED_blink = False
+            #self.LED_blink = False
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_off;" + str(self.error_repeat))
         elif cue == 'right':
             self.box.cueLED2.off()

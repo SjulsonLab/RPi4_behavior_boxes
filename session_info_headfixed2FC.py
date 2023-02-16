@@ -1,5 +1,4 @@
 
-
 # put all of your mouse and session info in here
 
 from datetime import datetime
@@ -21,10 +20,11 @@ session_info['basedir']					  	= '/home/pi/buffer'
 session_info['external_storage']            = '/mnt/hd'
 session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
 # for actual data save to this dir:
-#session_info['basedir']					  	= '/home/pi/video'
+# session_info['basedir']					  	= '/home/pi/video'
 session_info['weight']                	    = 0.0
 session_info['manual_date']					= '202x-xx-xx'
 session_info['box_name']             		= socket.gethostname()
+session_info['block_number']                = 1 # which block starts
 
 
 session_info['config']						= 'headfixed2FC'
