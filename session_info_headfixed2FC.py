@@ -24,7 +24,7 @@ session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp
 session_info['weight']                	    = 0.0
 session_info['manual_date']					= '202x-xx-xx'
 session_info['box_name']             		= socket.gethostname()
-session_info['block_number']                = 1 # which block starts
+session_info['block_number']                = 1 # 1 (left large) or 2 (right large) which block starts
 
 
 session_info['config']						= 'headfixed2FC'

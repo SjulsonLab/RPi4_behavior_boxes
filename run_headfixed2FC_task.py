@@ -56,7 +56,7 @@ try:
     full_module_name = 'session_info_' + datestr
     import sys
 
-    session_info_path = '/home/pi/experiment_info/headfixed_task/session_info'
+    session_info_path = '/home/pi/experiment_info/headfixed2FC_task/session_info'
     sys.path.insert(0, session_info_path)
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
@@ -87,12 +87,12 @@ try:
         ]
     )
 
-    from task_information_headfixed import TaskInformation
+    from task_information_headfixed2FC import TaskInformation
 
     task_information = TaskInformation()
     # print("Imported task_information_headfixed: " + str(task_information.name))
 
-    task = HeadfixedTask(name="headfixed_task", session_info=session_info)
+    task = Headfixed2FCTask(name="headfixed2FC_task", session_info=session_info)
 
     # # you can change various parameters if you want
     # task.machine.states['cue'].timeout = 2
@@ -109,10 +109,14 @@ try:
     block_count = 0
     while time.time() < t_end:
         if block_count==0:
-            block_number = random.randint(1, session_info["block_variety"])
+            block_number = session_info["block_number"] #random.randint(1, session_info["block_variety"])
         else:
             block_number = 3-block_number
             block_count = block_count+1
+
+        if ((block_number != 1 ) || (block_number != 2) ):
+            warnings('check_block number')
+            block_number = 1
 
         for block in range(session_info["block_duration"]):
             if time.time() >= t_end:
@@ -129,7 +133,6 @@ try:
                   " - Current card condition: \n" +
                   "*******************************\n" +
                   "*Cue: " + str(task.current_card[0]) + "\n" +
-                  #"*Block: " + str(task.current_card[1]) + "\n" +
                   "*Choice: " + str(task.current_card[1]) + "\n" +
                   "*Reward: " + str(task.current_card[2]) + "\n")
             while first_card or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[

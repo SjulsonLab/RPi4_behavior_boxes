@@ -128,7 +128,7 @@ class Headfixed2FCTask(object):
         self.reward_times_up = False
 
         self.block_count = 0
-        self.blocknumber = 0
+        self.blocknumber = self.session_info["block_number"]
         self.current_card = None
         self.left_poke_count = 0
         self.right_poke_count = 0
