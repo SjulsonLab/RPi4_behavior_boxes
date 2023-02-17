@@ -143,7 +143,7 @@ class Headfixed2FCTask(object):
         self.treadmill = self.box.treadmill
 
         self.distance_initiation = self.session_info['treadmill_setup']['distance_initiation']
-        self.distance_cue = self.session_info['treadmill_setup']['distance_cue']
+        self.distance_cue = 5 #self.session_info['treadmill_setup']['distance_cue']
         self.distance_buffer = None
         self.distance_diff = 0
 
