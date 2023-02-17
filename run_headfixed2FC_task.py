@@ -1,5 +1,5 @@
 #!/usr/bin/env -S ipython3 -i
-# run_headfixed_task.py
+# run_headfixed2FC_task.py
 """
 author: tian qiu & Soyoun Kim
 date: 2023-02-16
@@ -104,7 +104,7 @@ try:
     sleep(10)
     # loop over trials
     # Set a timer
-    t_minute = int(input("Enter the time in minutes: "))
+    t_minute = int(input("Enter the time in minutes: ")) ## wll add in the session info
     t_end = time.time() + 60 * t_minute
     block_count = 0 ## can be replaced with task.block_count
     while time.time() < t_end:
@@ -115,9 +115,9 @@ try:
             block_count = block_count+1
             #task.block_number = block_number
 
-        if ((block_number != 1 ) || (block_number != 2) ):
-            print('check_block number!!!!')
-            block_number = 1
+        #if ((block_number != 1 ) || (block_number != 2) ):
+        #    print('check_block number!!!!')
+        #    block_number = 1
 
         for block in range(session_info["block_duration"]):
             if time.time() >= t_end:
