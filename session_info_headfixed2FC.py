@@ -40,10 +40,11 @@ session_info['config']	                    = 'headfixed2FC'
 session_info['treadmill_setup']             = {}
 session_info['treadmill']                    = True
 session_info['phase']                   	= 'forced_choice'
+session_info['treadmill_setup']['distance_cue'] = 5
 
 if session_info['treadmill']:
     session_info['treadmill_setup']['distance_initiation'] = 10  # cm
-    session_info['treadmill_setup']['distance_cue'] = 5  # cm
+    #session_info['treadmill_setup']['distance_cue'] = 5  # cm
 else:
     session_info['treadmill_setup'] = None
 
