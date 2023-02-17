@@ -143,7 +143,7 @@ class Headfixed2FCTask(object):
         self.treadmill = self.box.treadmill
 
         self.distance_initiation = self.session_info['treadmill_setup']['distance_initiation']
-        self.distance_cue = self.session_info['treadmill_setup']['distance_initiation']
+        self.distance_cue = self.session_info['treadmill_setup']['distance_cue']
         self.distance_buffer = None
         self.distance_diff = 0
 
@@ -352,10 +352,10 @@ class Headfixed2FCTask(object):
         if cue == 'sound2':
             logging.info(";" + str(time.time()) + ";[cue];cue_sound2_on;" + str(self.error_repeat))
             self.box.sound2.blink(1, 0.1, 1)
-        elif cue == 'left':
+        elif cue == 'LED_L':
             self.box.cueLED1.on()
             logging.info(";" + str(time.time()) + ";[cue];cueLED_L_on;" + str(self.error_repeat))
-        elif cue == 'right':
+        elif cue == 'LED_R':
             # self.LED_blink = True
             self.box.cueLED2.on()
             logging.info(";" + str(time.time()) + ";[cue];cueLED_R_on;" + str(self.error_repeat))
@@ -377,11 +377,11 @@ class Headfixed2FCTask(object):
         elif cue == 'sound2':
             self.box.sound2.off()
             logging.info(";" + str(time.time()) + ";[cue];cue_sound2_off;" + str(self.error_repeat))
-        elif cue == 'left':
+        elif cue == 'LED_L':
             self.box.cueLED1.off()
             #self.LED_blink = False
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_off;" + str(self.error_repeat))
-        elif cue == 'right':
+        elif cue == 'LED_R':
             self.box.cueLED2.off()
             logging.info(";" + str(time.time()) + ";[cue];cueLED2_off;" + str(self.error_repeat))
 

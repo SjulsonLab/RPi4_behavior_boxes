@@ -39,7 +39,7 @@ session_info["visual_stimulus"]             = False
 session_info['config']	                    = 'headfixed2FC'
 session_info['treadmill_setup']             = {}
 session_info['treadmill']                    = True
-session_info['phase']                   	= 1
+session_info['phase']                   	= 'forced_choice'
 
 if session_info['treadmill']:
     session_info['treadmill_setup']['distance_initiation'] = 10  # cm
