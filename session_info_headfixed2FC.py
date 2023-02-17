@@ -43,7 +43,7 @@ session_info['phase']                   	= 1
 
 if session_info['treadmill']:
     session_info['treadmill_setup']['distance_initiation'] = 10  # cm
-    session_info['treadmill_setup']['distance'] = 10  # cm
+    session_info['treadmill_setup']['distance_cue'] = 10  # cm
 else:
     session_info['treadmill_setup'] = None
 
