@@ -53,7 +53,7 @@ if session_info['error_repeat']:
 
 # condition setup
 session_info['cue'] = ['LED_L', 'LED_R', 'all']
-session_info['state'] = ['block1', 'block2']  # treadmill distance
+#session_info['state'] = ['block1', 'block2']  #
 session_info['choice'] = ['right', 'left']  # lick port
 session_info['reward'] = ['small', 'large']  # reward size
 session_info['reward_size'] = {'small': 5, 'large': 10}
@@ -65,7 +65,7 @@ if session_info['phase'] == 1:
 session_info['initiation_timeout'] = 120  # s
 session_info['cue_timeout'] = 120
 session_info['reward_timeout'] = 60
-session_info["punishment_timeout"] = 1
+session_info["punishment_timeout"] = 3
 
 # define block_duration and initial block to start the session
 session_info['block_duration'] = 30  # each block has this amount of repetition
