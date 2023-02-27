@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#import the necessary modules
+# import the necessary modules
 from gpiozero import Button
 import io
 import time
@@ -26,6 +26,11 @@ def signal_handler(signum, frame):
 signal.signal(signal.SIGINT, signal_handler)
 base_path = sys.argv[1]
 
+#set the frame rate if user gave input
+if len(sys.argv)>2:
+    FRAMERATE = int(sys.argv[2])
+else:
+    FRAMERATE = 30
 #set high thread priority
 try:
     os.nice(-20)
@@ -35,7 +40,6 @@ except:
 #camera parameter setting
 WIDTH  = 640
 HEIGHT = 480
-FRAMERATE = 30
 VIDEO_STABILIZATION = True
 EXPOSURE_MODE = 'night'
 BRIGHTNESS = 55
@@ -46,7 +50,7 @@ AWB_MODE = 'off'
 AWB_GAINS = 1.4
 
 #Flipper TTL Pulse BounceTme in milliseconds
-BOUNCETIME=10
+BOUNCETIME=100
 camId = str(0)
 
 #video, timestamps and ttl file name
@@ -58,7 +62,7 @@ FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + str(dt.datetime.no
 GPIO.setmode(GPIO.BCM)
 
 #pin number to receive TTL input
-pin_flipper = 4
+pin_flipper = 26
 
 #set the pin as input pin
 GPIO.setup(pin_flipper, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
@@ -102,7 +106,7 @@ class VideoOutput(Thread):
     def name(self):
         return self._output.name
 
-#timestamp output object to save timestamps according to pi and TTL inputs received and write to file
+# timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class TimestampOutput(object):
     def __init__(self, camera, video_filename, timestamp_filename, flipper_filename):
         self.camera = camera
@@ -111,14 +115,26 @@ class TimestampOutput(object):
         self._flipper_file = flipper_filename
         self._timestamps = []
         self._flipper_timestamps = []
+        self._stop = 0
 
     def flipper_timestamps_write(self, pin_flipper):
-        input_state = GPIO.input(pin_flipper)
-        GPIO.remove_event_detect(pin_flipper)
-        self._flipper_timestamps.append((input_state, time.time()))
-        #print(input_state, time.time())
-        print(str(self._flipper_timestamps))
-        GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
+        worked = False
+        while not worked:
+            worked = True
+            time.sleep(0.01)
+            input_state = GPIO.input(pin_flipper)
+            detect_time = time.time()
+            self._flipper_timestamps.append((input_state, detect_time))
+            # print(input_state, str(detect_time))
+            #GPIO.remove_event_detect(pin_flipper)
+            time.sleep(0.01)
+            try:
+                GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
+            except RuntimeError:
+                worked = False
+        print("Flipper detection OFF")
+
+
 
     def write(self, buf):
         if self.camera.frame.complete and self.camera.frame.timestamp is not None:
@@ -148,6 +164,7 @@ class TimestampOutput(object):
                 f.write('%f,%f\n' % entry)
 
     def close(self):
+        self._stop = 1
         self._video.close()
 
 with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
