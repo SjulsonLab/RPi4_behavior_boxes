@@ -64,15 +64,7 @@ class go_nogo_phase0(object):
         ic(self.session_info)
 
         ########################################################################
-        # Task has many possible states
-        # stanby is the initial state, then trigger appropriate transitions depending on the type of trial
-        # temp# are temporary states (used as a "place holder" for transitions to other states)
-        # the go/nogo task has 2 possible types of trials
-        # go trials: 45 degree drifting gratings presentation for 3s and reward is available after the 2nd second
-        # normal ITI length of 3s
-        # nogo trials: 135 degree drifting gratings presentation for 3s and no reward is available, if any lick is
-        # detected after the 2nd second, it will consider it as False Alarm trial with longer ITI of 6.5s
-        # all timeout lengths can be edited in the session_info file
+        # Write details of the task here!
         ########################################################################
         self.states = [
             State(name="standby", on_enter=["enter_standby"], on_exit=["exit_standby"]),
@@ -200,6 +192,8 @@ class go_nogo_phase0(object):
 
     def enter_reward_collection(self):
         logging.info(str(time.time()) + ", entering reward_collection")
+        self.trial_outcome = 1  # Hit!
+        logging.info(str(time.time()) + ", Hit!")
 
     def exit_reward_collection(self):
         logging.info(str(time.time()) + ", exiting reward_collection")
@@ -281,8 +275,7 @@ class go_nogo_phase0(object):
                 self.start_reward_collection()  # trigger state transition to reward_collection
 
         elif self.state == "reward_collection":
-            self.trial_outcome = 1  # Hit!
-            logging.info(str(time.time()) + ", Hit!")
+            pass
 
         elif self.state == "vacuum":
             pass
