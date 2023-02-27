@@ -340,23 +340,23 @@ class Pump(object):
         if which_pump == "1":
             self.pump1.blink(duration, 0.1, 1)
             self.reward_list.append(("pump1_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump1_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump1_reward")
         elif which_pump == "2":
             self.pump2.blink(duration, 0.1, 1)
             self.reward_list.append(("pump2_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump2_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump2_reward")
         elif which_pump == "3":
             self.pump3.blink(duration, 0.1, 1)
             self.reward_list.append(("pump3_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump3_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump3_reward")
         elif which_pump == "4":
             self.pump4.blink(duration, 0.1, 1)
             self.reward_list.append(("pump4_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump4_reward")
         elif which_pump == "air_puff":
             self.pump_air.blink(duration, 0.1, 1)
             self.reward_list.append(("air_puff", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump4_air_puff_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];air_puff")
         elif which_pump == "vacuum":
             self.pump_vacuum.blink(duration_vacuum, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum")
+            logging.info(";" + str(time.time()) + ";[reward];vacuum")
