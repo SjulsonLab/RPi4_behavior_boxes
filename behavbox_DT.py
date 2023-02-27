@@ -51,7 +51,7 @@ class BehavBox(object):
                     logging.StreamHandler()  # sends copy of log output to screen
                 ]
             )
-            logging.info(";" + str(time.time()) + ";[initialization];behavior_box_initialized")
+            logging.info(";" + str(time.time()) + "; behavior_box_initialized")
         except Exception as error_message:
             print("Logging error")
             print(str(error_message))
@@ -89,8 +89,8 @@ class BehavBox(object):
         self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
         self.IR_rx2 = Button(6, None, True)
         self.IR_rx3 = Button(12, None, True)
-        self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
-        self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
+        # self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
+        # self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
 
         # link nosepoke event detections to callbacks (exit and entry are opposite to pressed and release)
         self.IR_rx1.when_pressed = self.left_IR_exit
@@ -205,6 +205,14 @@ class BehavBox(object):
                 print("flipper can't run\n")
                 print(str(error_message))
 
+            # Treadmill initiation
+            if self.treadmill is not False:
+                try:
+                    self.treadmill.start()
+                except Exception as error_message:
+                    print("treadmill cannot run\n")
+                    print(str(error_message))
+
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
@@ -236,7 +244,11 @@ class BehavBox(object):
             except:
                 pass
             time.sleep(2)
-
+            if self.treadmill is not False:
+                try:
+                    self.treadmill.close()
+                except:
+                    pass
             hostname = socket.gethostname()
             print("Moving video files from " + hostname + "video to " + hostname + ":")
 

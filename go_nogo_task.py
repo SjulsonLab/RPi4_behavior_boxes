@@ -210,7 +210,7 @@ class go_nogo_phase0(object):
 
     def enter_iti(self):
         logging.info(str(time.time()) + ", entering iti")
-        self.iti_time = round(random.uniform(2.5, 3.5), 1)
+        self.iti_time = round(random.uniform(2, 3), 1)
         logging.info(str(time.time()) + ", " + str(self.iti_time) + "s iti length")
         self.countdown_iti(self.iti_time)
 
