@@ -317,6 +317,7 @@ class Pump(object):
         self.pump4 = LED(7)
         self.pump_air = LED(8)
         self.pump_vacuum = LED(25)
+        self.reward_list = []  # a list of tuple (pump_x, reward_amount) with information of reward history for data
 
     def reward(self, which_pump, reward_size):
         # coefficient_fit = np.array([8.78674242e-04, 7.33609848e-02, 1.47535000e+00]) # further calibration is needed
