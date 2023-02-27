@@ -336,7 +336,7 @@ class Pump(object):
         # duration = round(solution_positive, 3) * (10**-3)
 
         duration = round((reward_size / 1000) / tube_fit, 3)
-        duration_vacuum = 1
+        duration_vacuum = 0.5  # in seconds
 
         if which_pump == "1":
             self.pump1.blink(duration, 0.1, 1)
