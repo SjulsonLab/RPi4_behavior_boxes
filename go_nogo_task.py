@@ -158,7 +158,7 @@ class go_nogo_phase0(object):
         self.box = behavbox_DT.BehavBox(self.session_info)
 
         # pump class is for reward delivery
-        self.pump = self.box.pump()
+        self.pump = self.box.pump
 
         # initialize treadmill
         self.treadmill = self.box.treadmill
