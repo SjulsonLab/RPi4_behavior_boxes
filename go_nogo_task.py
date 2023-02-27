@@ -115,7 +115,7 @@ class go_nogo_phase0(object):
                 on_timeout=["start_iti"],
             ),
 
-            # normal iti state
+            # ITI state
             Timeout(
                 name="iti",
                 on_enter=["enter_iti"],
@@ -216,6 +216,9 @@ class go_nogo_phase0(object):
 
     def enter_iti(self):
         logging.info(str(time.time()) + ", entering iti")
+        self.iti_time = round(random.uniform(3, 4), 1)
+        logging.info(str(time.time()) + ", " + str(self.iti_time) + "s iti length")
+        self.countdown_iti(self.iti_time)
 
     def exit_iti(self):
         logging.info(str(time.time()) + ", exiting iti")
