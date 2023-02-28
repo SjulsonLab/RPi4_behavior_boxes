@@ -179,6 +179,8 @@ class RemiSelfAdminTask(object):
         # self.reward_time_start = None # for reward_available state time keeping purpose
         self.reward_time = 10 # sec. could be incorporate into the session_info; available time for reward
         self.reward_times_up = False
+        self.reward_time_delay = self.session_info["reward_time_delay"]
+        self.reward_time_recent = time.time()
         self.reward_pump = self.session_info["reward_pump"]
         self.reward_size = self.session_info["reward_size"]
 
@@ -244,9 +246,10 @@ class RemiSelfAdminTask(object):
             if self.event_name == "reserved_rx1_pressed":
                 lever_pressed_time_temp = time.time()
                 lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time
-                if lever_pressed_dt >= self.lever_press_interval:
+                if lever_pressed_dt >= self.lever_press_interval and (time.time() - self.reward_time_recent > self.reward_time_delay):
                     self.reward()
                     self.lever_pressed_time = lever_pressed_time_temp
+                    self.reward_time_recent = time.time()
                     self.total_reward += 1
                 # self.active_press += 1
                 # self.active_press_count_list.append(self.left_poke_count)
