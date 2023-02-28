@@ -399,11 +399,11 @@ class RemiSelfAdminTask(object):
 
         # Lick detection:
 
-    if self.event_name == "left_IR_entry":
-        self.left_poke_count += 1
-        self.left_poke_count_list.append(self.left_poke_count)
-        self.timeline_left_poke.append(time.time())
-        self.lick_count += 1
+    # if self.event_name == "left_IR_entry":
+    #     self.left_poke_count += 1
+    #     self.left_poke_count_list.append(self.left_poke_count)
+    #     self.timeline_left_poke.append(time.time())
+    #     self.lick_count += 1
 
     # look for keystrokes
     self.box.check_keybd()
