@@ -52,8 +52,34 @@ import ivsa_syringe_pump  # I will need to add the ivsa_syringe_pump class to th
 
 
 #######################ivsa_syringe_pump code below#########################
-class ivsa_syringe_pump(object):  # changed this to syringe pump
-    def __init__(self):
+class ivsa_syringe_pump(object,session_info):  # changed this to syringe pump
+    def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
+
+        # if no name or session, make fake ones (for testing purposes)
+        if kwargs.get("name", None) is None:
+            self.name = "name"
+            print(
+                Fore.RED
+                + Style.BRIGHT
+                + "Warning: no name supplied; making fake one"
+                + Style.RESET_ALL
+            )
+        else:
+            self.name = kwargs.get("name", None)
+
+        if kwargs.get("session_info", None) is None:
+            print(
+                Fore.RED
+                + Style.BRIGHT
+                + "Warning: no session_info supplied; making fake one"
+                + Style.RESET_ALL
+            )
+            from fake_session_info import fake_session_info
+
+            self.session_info = fake_session_info
+        else:
+            self.session_info = kwargs.get("session_info", None)
+        ic(self.session_info)
         self.syringe_pump = LED(19)
         self.reward_list = []
 
@@ -62,16 +88,13 @@ class ivsa_syringe_pump(object):  # changed this to syringe pump
     # For a 30g mouse, the syringe pump will be on for 1 second
     # For <30g mouse, the syringe pump will be on for <1s
     # For >30g mouse, the syringe pump will be on for >1s
-    def reward(self, self.
-
-        session_info['mouse_weight']):  # prototype mouse weight equals 30
-    infusion_duration = (self.session_info[
-                             'mouse_weight'] / 30)  # season's edit: I would like to suggest having this defined in the session_information, and import this value as self.infusion_duration = self.session_info["infusion_duration"], so you don't need to make the calculation everytime you deliver reward - for the body weight doesn't change within one trial
-    self.syringe_pump.blink(infusion_duration, 0.1,
-                            1)  # season's edit: this is a shorter implement without having a function
-    self.reward_list.append(("syringe_pump_reward", infusion_duration))
-    logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
-    # self.inject(infusion_duration) # season's' edit: a function requires the input - infusion duration
+    def reward(self):  # prototype mouse weight equals 30
+        infusion_duration = (self.session_info['mouse_weight'] / 30)  # season's edit: I would like to suggest having this defined in the session_information, and import this value as self.infusion_duration = self.session_info["infusion_duration"], so you don't need to make the calculation everytime you deliver reward - for the body weight doesn't change within one trial
+        self.syringe_pump.blink(infusion_duration, 0.1,
+                                1)  # season's edit: this is a shorter implement without having a function
+        self.reward_list.append(("syringe_pump_reward", infusion_duration))
+        logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
+        # self.inject(infusion_duration) # season's' edit: a function requires the input - infusion duration
 
 
 # COMMENTS ON INJECT LOGIC#
@@ -194,6 +217,17 @@ class RemiSelfAdminTask(object):
         # session_statistics
         self.total_reward = 0
 
+        # for the reward function
+        self.syringe_pump = LED(19)
+        self.reward_list = []
+
+    def reward(self):  # prototype mouse weight equals 30
+        infusion_duration = (self.session_info['mouse_weight'] / 30)  # season's edit: I would like to suggest having this defined in the session_information, and import this value as self.infusion_duration = self.session_info["infusion_duration"], so you don't need to make the calculation everytime you deliver reward - for the body weight doesn't change within one trial
+        self.syringe_pump.blink(infusion_duration, 0.1,
+                                1)  # season's edit: this is a shorter implement without having a function
+        self.reward_list.append(("syringe_pump_reward", infusion_duration))
+        logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
+        # self.inject(infusion_duration) # season's' edit: a function requires the input - infusion duration
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
@@ -221,7 +255,7 @@ class RemiSelfAdminTask(object):
                         self.restart()
             # lever pressing detection:
             if self.event_name == "reserved_rx1_pressed":
-                self.pump.reward(self.reward_pump, self.reward_size)
+                self.reward()
                 self.total_reward += 1
                 self.reward_time_start = time.time()
                 print("Reward time start" + str(self.reward_time_start))
