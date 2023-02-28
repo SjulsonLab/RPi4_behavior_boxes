@@ -48,7 +48,7 @@ logging.config.dictConfig(
 # all modules above this line will have logging disabled
 
 import behavbox
-import ivsa_syringe_pump  # I will need to add the ivsa_syringe_pump class to the behavbox code
+# import ivsa_syringe_pump  # I will need to add the ivsa_syringe_pump class to the behavbox code
 
 
 #######################ivsa_syringe_pump code below#########################
