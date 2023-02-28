@@ -218,7 +218,7 @@ class RemiSelfAdminTask(object):
         self.total_reward = 0
 
         # for the reward function
-        self.syringe_pump = LED(19)
+        self.syringe_pump = LED(9)
         self.reward_list = []
 
     def reward(self):  # prototype mouse weight equals 30
