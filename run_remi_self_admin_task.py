@@ -4,8 +4,8 @@
 # run_self_admin_task.py
 """
 author: tian qiu
-date: 2023-01-25
-name: run_self_admin_task.py
+date: 2023-02-28
+name: run_remi_self_admin_task.py
 goal: running the self_admin_Task
 description:
     adapted from Mitch's run_self_admin_task.py

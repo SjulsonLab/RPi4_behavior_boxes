@@ -11,8 +11,8 @@
 # python3: headfixed_task.py
 """
 author: tian qiu
-date: 2023-01-26
-name: self_admin_Task.py
+date: 2023-02-28
+name: remi_self_admin_task.py
 goal: self administration task adpated via Mitch's instruction
 description:
     an updated test version of self_admin_Task.py
