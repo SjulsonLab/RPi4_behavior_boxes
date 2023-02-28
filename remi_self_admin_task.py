@@ -80,7 +80,7 @@ class ivsa_syringe_pump(object,session_info):  # changed this to syringe pump
         else:
             self.session_info = kwargs.get("session_info", None)
         ic(self.session_info)
-        self.syringe_pump = LED(19)
+        self.syringe_pump = LED(23)
         self.reward_list = []
 
     # COMMENTS ON REWARD LOGIC#
