@@ -245,9 +245,9 @@ class RemiSelfAdminTask(object):
                 lever_pressed_time_temp = time.time()
                 lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time
                 if lever_pressed_dt >= self.lever_press_interval:
-                self.reward()
-                self.lever_pressed_time = lever_pressed_time_temp
-                self.total_reward += 1
+                    self.reward()
+                    self.lever_pressed_time = lever_pressed_time_temp
+                    self.total_reward += 1
                 # self.active_press += 1
                 # self.active_press_count_list.append(self.left_poke_count)
                 # self.timeline_active_press.append(time.time())
