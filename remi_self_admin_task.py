@@ -149,14 +149,12 @@ class RemiSelfAdminTask(object):
             State(name='standby',
                   on_enter=["enter_standby"],
                   on_exit=["exit_standby"]),
-
             Timeout(name='reward_available',
                     on_enter=["enter_reward_available"],
                     on_exit=["exit_reward_available"],
                     timeout=self.session_info["reward_timeout"],
                     on_timeout=["restart"])
         ]
-
         self.transitions = [
             ['start_trial', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
             ['restart', 'reward_available', 'standby']
@@ -171,12 +169,15 @@ class RemiSelfAdminTask(object):
         self.trial_running = False
 
         # trial statistics
+        self.innocent = True
         self.trial_number = 0
         self.error_count = 0
         self.error_list = []
         self.error_repeat = False
-        self.reward_time_start = None  # for reward_available state time keeping purpose
-        self.reward_time = 10  # sec. could be incorporate into the session_info; available time for reward
+        self.lever_pressed_time = 0.0
+        self.lever_press_interval = self.session_info["lever_press_interval"]
+        # self.reward_time_start = None # for reward_available state time keeping purpose
+        self.reward_time = 10 # sec. could be incorporate into the session_info; available time for reward
         self.reward_times_up = False
         self.reward_pump = self.session_info["reward_pump"]
         self.reward_size = self.session_info["reward_size"]
@@ -197,7 +198,7 @@ class RemiSelfAdminTask(object):
         self.event_name = ""
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
-        self.pump = self.box.pump  #####can I use this pump code for my syringe pump######
+        self.pump = self.box.pump
         self.treadmill = self.box.treadmill
 
         # self.distance_initiation = self.session_info['treadmill_setup']['distance_initiation']
@@ -237,46 +238,34 @@ class RemiSelfAdminTask(object):
             self.event_name = self.box.event_list.popleft()
         else:
             self.event_name = ""
-        # there can only be lick during the reward available state
-        # if lick detected prior to reward available state
-        # the trial will restart and transition to standby
-        if self.event_name is "left_IR_entry" or self.event_name == "right_IR_entry":
-            # print("EVENT NAME !!!!!! " + self.event_name)
-            if self.state == "reward_available" or self.state == "standby" or self.state == "initiate":
-                pass
-            else:
-                self.error_repeat = True
-                self.restart()
         if self.state == "standby":
             pass
         elif self.state == "reward_available":
-            if not self.reward_times_up:
-                if self.reward_time_start:
-                    if time.time() >= self.reward_time_start + self.reward_time:
-                        self.restart()
-            # lever pressing detection:
             if self.event_name == "reserved_rx1_pressed":
+                lever_pressed_time_temp = time.time()
+                lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time
+                if lever_pressed_dt >= self.lever_press_interval:
                 self.reward()
+                self.lever_pressed_time = lever_pressed_time_temp
                 self.total_reward += 1
-                self.reward_time_start = time.time()
-                print("Reward time start" + str(self.reward_time_start))
-                self.active_press += 1
-                self.active_press_count_list.append(self.left_poke_count)
-                self.timeline_active_press.append(time.time())
-            elif self.event_name == "reserved_rx2_pressed":
-                self.inactive_press += 1
-                self.inactive_press_count_list.append(self.right_poke_count)
-                self.timeline_inactive_press.append(time.time())
+                # self.active_press += 1
+                # self.active_press_count_list.append(self.left_poke_count)
+                # self.timeline_active_press.append(time.time())
+            # elif self.event_name == "reserved_rx2_pressed":
+            #
+            # self.inactive_press += 1
+            # self.inactive_press_count_list.append(self.right_poke_count)
+            # self.timeline_inactive_press.append(time.time())
 
             # Lick detection:
-            if self.event_name == "left_IR_entry":
-                self.left_poke_count += 1
-                self.left_poke_count_list.append(self.left_poke_count)
-                self.timeline_left_poke.append(time.time())
-                self.lick_count += 1
+            # if self.event_name == "left_IR_entry":
+            #     self.left_poke_count += 1
+            #     self.left_poke_count_list.append(self.left_poke_count)
+            #     self.timeline_left_poke.append(time.time())
+            #     self.lick_count += 1
 
-        # look for keystrokes
-        self.box.check_keybd()
+            # look for keystrokes
+            self.box.check_keybd()
 
     def enter_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
@@ -293,6 +282,21 @@ class RemiSelfAdminTask(object):
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
         logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number) + ";" + str(self.error_repeat))
 
+    def enter_standby(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
+        # self.cue_off('all')
+        self.update_plot_choice()
+        # self.update_plot_error()
+        self.trial_running = False
+        # self.reward_error = False
+        # if self.early_lick_error:
+        #     self.error_list.append("early_lick_error")
+        #     self.early_lick_error = False
+        # self.lick_count = 0
+        # self.side_mice_buffer = None
+        print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
+        logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number) + ";" + str(self.error_repeat))
+
     def exit_standby(self):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
@@ -301,13 +305,13 @@ class RemiSelfAdminTask(object):
 
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
-        print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
-        self.reward_times_up = False
+        self.trial_running = True
+        # self.reward_times_up = False
 
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
         # self.cue_off('sound2')
-        self.reward_times_up = True
+        # self.reward_times_up = True
         self.pump.reward("vaccum", 0)
         # if self.multiple_choice_error:
         #     logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
@@ -319,7 +323,7 @@ class RemiSelfAdminTask(object):
         #     self.error_repeat = True
         #     self.error_list.append('no_choice_error')
         # self.lick_count = 0
-        self.reward_time_start = None
+        # self.reward_time_start = None
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
@@ -351,8 +355,8 @@ class RemiSelfAdminTask(object):
         ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
         ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
         if save_fig:
-            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-                'basename'] + "_lever_choice_plot" + '.png')
+            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
+                        self.session_info['basename'] + "_lever_choice_plot" + '.png')
         self.box.check_plot(fig)
 
     def integrate_plot(self, save_fig=False):
@@ -379,8 +383,8 @@ class RemiSelfAdminTask(object):
         ax[1].set_xticklabels(labels=labels, rotation=70)
 
         if save_fig:
-            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-                'basename'] + "_summery" + '.png')
+            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
+                        self.session_info['basename'] + "_summery" + '.png')
         self.box.check_plot(fig)
 
     ########################################################################
@@ -394,144 +398,4 @@ class RemiSelfAdminTask(object):
     def end_session(self):
         ic("TODO: stop video")
         self.update_plot_choice(save_fig=True)
-        self.box.v
-        self.timeline_inactive_press.append(time.time())
-
-        # Lick detection:
-
-    # if self.event_name == "left_IR_entry":
-    #     self.left_poke_count += 1
-    #     self.left_poke_count_list.append(self.left_poke_count)
-    #     self.timeline_left_poke.append(time.time())
-    #     self.lick_count += 1
-    #
-    # # look for keystrokes
-#     # self.box.check_keybd()
-#
-#
-# def enter_standby(self):
-#     logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
-#     # self.cue_off('all')
-#     self.update_plot_choice()
-#     # self.update_plot_error()
-#     self.trial_running = False
-#     # self.reward_error = False
-#     # if self.early_lick_error:
-#     #     self.error_list.append("early_lick_error")
-#     #     self.early_lick_error = False
-#     self.lick_count = 0
-#     self.side_mice_buffer = None
-#     print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
-#     logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number) + ";" + str(self.error_repeat))
-#
-#
-# def exit_standby(self):
-#     # self.error_repeat = False
-#     logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
-#     self.box.event_list.clear()
-#     pass
-#
-#
-# def enter_reward_available(self):
-#     logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
-#     print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
-#     self.reward_times_up = False
-#
-#
-# def exit_reward_available(self):
-#     logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
-#     # self.cue_off('sound2')
-#     self.reward_times_up = True
-#     self.pump.reward("vaccum", 0)
-#     # if self.multiple_choice_error:
-#     #     logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
-#     #     self.error_repeat = False
-#     #     self.error_list.append('multiple_choice_error')
-#     #     self.multiple_choice_error = False
-#     # elif self.lick_count == 0:
-#     #     logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
-#     #     self.error_repeat = True
-#     #     self.error_list.append('no_choice_error')
-#     # self.lick_count = 0
-#     self.reward_time_start = None
-#
-#
-# def update_plot(self):
-#     fig, axes = plt.subplots(1, 1, )
-#     axes.plot([1, 2], [1, 2], color='green', label='test')
-#     self.box.check_plot(fig)
-#
-#
-# def update_plot_error(self):
-#     error_event = self.error_list
-#     labels, counts = np.unique(error_event, return_counts=True)
-#     ticks = range(len(counts))
-#     fig, ax = plt.subplots(1, 1, )
-#     ax.bar(ticks, counts, align='center', tick_label=labels)
-#     # plt.xticks(ticks, labels)
-#     # plt.title(session_name)
-#     ax = plt.gca()
-#     ax.set_xticks(ticks, labels)
-#     ax.set_xticklabels(labels=labels, rotation=70)
-#
-#     self.box.check_plot(fig)
-#
-#
-# def update_plot_choice(self, save_fig=False):
-#     trajectory_active = self.left_poke_count_list
-#     time_active = self.timeline_left_poke
-#     trajectory_inactive = self.right_poke_count_list
-#     time_inactive = self.timeline_right_poke
-#     fig, ax = plt.subplots(1, 1, )
-#     print(type(fig))
-#
-#     ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
-#     ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
-#     if save_fig:
-#         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-#             'basename'] + "_lever_choice_plot" + '.png')
-#     self.box.check_plot(fig)
-#
-#
-# def integrate_plot(self, save_fig=False):
-#     fig, ax = plt.subplots(2, 1)
-#
-#     trajectory_left = self.active_press
-#     time_active_press = self.timeline_active_press
-#     trajectory_right = self.right_poke_count_list
-#     time_inactive_press = self.timeline_inactive_press
-#     print(type(fig))
-#
-#     ax[0].plot(time_active_press, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
-#     ax[0].plot(time_inactive_press, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
-#
-#     error_event = self.error_list
-#     labels, counts = np.unique(error_event, return_counts=True)
-#     ticks = range(len(counts))
-#     ax[1].bar(ticks, counts, align='center', tick_label=labels)
-#     # plt.xticks(ticks, labels)
-#     # plt.title(session_name)
-#     ax[1] = plt.gca()
-#     ax[1].set_xticks(ticks, labels)
-#     ax[1].set_xticklabels(labels=labels, rotation=70)
-#
-#     if save_fig:
-#         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-#             'basename'] + "_summery" + '.png')
-#     self.box.check_plot(fig)
-#
-#
-# ########################################################################
-# # methods to start and end the behavioral session
-# ########################################################################
-#
-# def start_session(self):
-#     ic("TODO: start video")
-#     self.box.video_start()
-#
-#
-# def end_session(self):
-#     ic("TODO: stop video")
-#     self.update_plot_choice(save_fig=True)
-#     self.box.video_stop()
-#
+        self.box.video_stop()
