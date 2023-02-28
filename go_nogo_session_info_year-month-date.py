@@ -18,9 +18,7 @@ session_info['training_phase']             	= 1
 session_info['basedir']					  	= '/home/pi/buffer'
 session_info['external_storage']            = '/mnt/hd'
 session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
-# for actual data save to this dir:
-#session_info['basedir']					  	= '/home/pi/video'
-session_info['weight']                	    = 32.18
+session_info['weight']                	    = 20.0
 session_info['manual_date']					= '2022-06-27'
 session_info['box_name']             		= socket.gethostname()
 
@@ -28,24 +26,18 @@ session_info['box_name']             		= socket.gethostname()
 session_info['config']						= 'head_fixed_go_nogo'
 session_info['treadmill']                   = True
 
+# universal parameters regardless of training phase
+session_info['number_of_trials']            = 500  # total number of phase 2 trials
+session_info['vacuum_length']               = 0.5  # in seconds
+session_info['iti_length']                  = round((3 - session_info['vacuum_length']), 1)
+session_info['reward_solenoid_duration'] = 0.020  # in seconds
+
 # parameters for phase 0
 session_info['number_of_phase0_trials']     = 500
 session_info['RR_temp1_length']             = 10  # in seconds
 session_info['RR_reward_collection_length'] = 2  # in seconds
-session_info['RR_reward_solenoid_duration']              = 0.020  # in seconds
 
 # parameters for phase 1
-
-
-# universal parameters regardless of training phase
-session_info['number_of_trials']            = 500  # total number of phase 2 trials
-session_info['hit_criterion']               = 0.75
-session_info['lockout_length']              = 1.0  # in seconds
-session_info['vacuum_length']               = 1.0  # in seconds
-session_info['reward_size'] 				= 5  # in microliters
-session_info['reward_duration']             = 0.05
-session_info['normal_iti_length']           = 3 - session_info['vacuum_length']
-session_info['punishment_iti_length']       = 6 - session_info['vacuum_length']
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli

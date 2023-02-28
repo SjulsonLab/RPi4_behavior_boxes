@@ -76,7 +76,7 @@ class go_nogo_phase0(object):
                 name="reward_available",
                 on_enter=["enter_reward_available"],
                 on_exit=["exit_reward_available"],
-                timeout=self.session_info["RR_reward_solenoid_duration"],
+                timeout=self.session_info["reward_solenoid_duration"],
                 on_timeout=["start_temp1"],
             ),
 
@@ -184,6 +184,7 @@ class go_nogo_phase0(object):
         self.trial_outcome = 2  # Miss!!
         self.pump.pump1.on()
         logging.info(str(time.time()) + ", delivering reward")
+        self.time_at_reward = time.time() - self.trial_start_time
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
@@ -216,7 +217,7 @@ class go_nogo_phase0(object):
 
     def enter_iti(self):
         logging.info(str(time.time()) + ", entering iti")
-        self.iti_time = round(random.uniform(2, 3), 1)
+        self.iti_time = round(random.uniform(self.session_info["iti_length"], (self.session_info["iti_length"] + 1)), 1)
         logging.info(str(time.time()) + ", " + str(self.iti_time) + "s iti length")
         self.countdown_iti(self.iti_time)
 
@@ -229,7 +230,7 @@ class go_nogo_phase0(object):
         # If y, deliver reward, if hit enter, start random reward phase
         self.deliver_reward = input("Deliver reward, else Start random_reward? (y or hit enter): \n")
         if self.deliver_reward == "y":
-            self.pump.reward("1", self.session_info["reward_size"])
+            self.pump.pump1.blink(self.session_info["reward_solenoid_duration"], 0.1, 1)
 
     ########################################################################
     # countdown method to generate variable ITI length
