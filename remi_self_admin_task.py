@@ -52,6 +52,7 @@ import behavbox
 
 
 #######################ivsa_syringe_pump code below#########################
+"""
 class ivsa_syringe_pump(object,session_info):  # changed this to syringe pump
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
 
@@ -96,7 +97,7 @@ class ivsa_syringe_pump(object,session_info):  # changed this to syringe pump
         logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
         # self.inject(infusion_duration) # season's' edit: a function requires the input - infusion duration
 
-
+"""
 # COMMENTS ON INJECT LOGIC#
 # this code will turn on the syringe pump, sleep for 'infusion_duration', then turn off the syringe pump with a 2nd pulse
 #    def inject(self, duration): # season's' edit: a function requires the input - infusion duration
