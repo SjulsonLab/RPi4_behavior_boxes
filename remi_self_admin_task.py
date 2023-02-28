@@ -404,134 +404,134 @@ class RemiSelfAdminTask(object):
     #     self.left_poke_count_list.append(self.left_poke_count)
     #     self.timeline_left_poke.append(time.time())
     #     self.lick_count += 1
-
-    # look for keystrokes
-    self.box.check_keybd()
-
-
-def enter_standby(self):
-    logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
-    # self.cue_off('all')
-    self.update_plot_choice()
-    # self.update_plot_error()
-    self.trial_running = False
-    # self.reward_error = False
-    # if self.early_lick_error:
-    #     self.error_list.append("early_lick_error")
-    #     self.early_lick_error = False
-    self.lick_count = 0
-    self.side_mice_buffer = None
-    print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
-    logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number) + ";" + str(self.error_repeat))
-
-
-def exit_standby(self):
-    # self.error_repeat = False
-    logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
-    self.box.event_list.clear()
-    pass
-
-
-def enter_reward_available(self):
-    logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
-    print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
-    self.reward_times_up = False
-
-
-def exit_reward_available(self):
-    logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
-    # self.cue_off('sound2')
-    self.reward_times_up = True
-    self.pump.reward("vaccum", 0)
-    # if self.multiple_choice_error:
-    #     logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
-    #     self.error_repeat = False
-    #     self.error_list.append('multiple_choice_error')
-    #     self.multiple_choice_error = False
-    # elif self.lick_count == 0:
-    #     logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
-    #     self.error_repeat = True
-    #     self.error_list.append('no_choice_error')
-    # self.lick_count = 0
-    self.reward_time_start = None
-
-
-def update_plot(self):
-    fig, axes = plt.subplots(1, 1, )
-    axes.plot([1, 2], [1, 2], color='green', label='test')
-    self.box.check_plot(fig)
-
-
-def update_plot_error(self):
-    error_event = self.error_list
-    labels, counts = np.unique(error_event, return_counts=True)
-    ticks = range(len(counts))
-    fig, ax = plt.subplots(1, 1, )
-    ax.bar(ticks, counts, align='center', tick_label=labels)
-    # plt.xticks(ticks, labels)
-    # plt.title(session_name)
-    ax = plt.gca()
-    ax.set_xticks(ticks, labels)
-    ax.set_xticklabels(labels=labels, rotation=70)
-
-    self.box.check_plot(fig)
-
-
-def update_plot_choice(self, save_fig=False):
-    trajectory_active = self.left_poke_count_list
-    time_active = self.timeline_left_poke
-    trajectory_inactive = self.right_poke_count_list
-    time_inactive = self.timeline_right_poke
-    fig, ax = plt.subplots(1, 1, )
-    print(type(fig))
-
-    ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
-    ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
-    if save_fig:
-        plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-            'basename'] + "_lever_choice_plot" + '.png')
-    self.box.check_plot(fig)
-
-
-def integrate_plot(self, save_fig=False):
-    fig, ax = plt.subplots(2, 1)
-
-    trajectory_left = self.active_press
-    time_active_press = self.timeline_active_press
-    trajectory_right = self.right_poke_count_list
-    time_inactive_press = self.timeline_inactive_press
-    print(type(fig))
-
-    ax[0].plot(time_active_press, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
-    ax[0].plot(time_inactive_press, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
-
-    error_event = self.error_list
-    labels, counts = np.unique(error_event, return_counts=True)
-    ticks = range(len(counts))
-    ax[1].bar(ticks, counts, align='center', tick_label=labels)
-    # plt.xticks(ticks, labels)
-    # plt.title(session_name)
-    ax[1] = plt.gca()
-    ax[1].set_xticks(ticks, labels)
-    ax[1].set_xticklabels(labels=labels, rotation=70)
-
-    if save_fig:
-        plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-            'basename'] + "_summery" + '.png')
-    self.box.check_plot(fig)
-
-
-########################################################################
-# methods to start and end the behavioral session
-########################################################################
-
-def start_session(self):
-    ic("TODO: start video")
-    self.box.video_start()
-
-
-def end_session(self):
-    ic("TODO: stop video")
-    self.update_plot_choice(save_fig=True)
-    self.box.video_stop()
-
+    #
+    # # look for keystrokes
+#     # self.box.check_keybd()
+#
+#
+# def enter_standby(self):
+#     logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
+#     # self.cue_off('all')
+#     self.update_plot_choice()
+#     # self.update_plot_error()
+#     self.trial_running = False
+#     # self.reward_error = False
+#     # if self.early_lick_error:
+#     #     self.error_list.append("early_lick_error")
+#     #     self.early_lick_error = False
+#     self.lick_count = 0
+#     self.side_mice_buffer = None
+#     print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
+#     logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number) + ";" + str(self.error_repeat))
+#
+#
+# def exit_standby(self):
+#     # self.error_repeat = False
+#     logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
+#     self.box.event_list.clear()
+#     pass
+#
+#
+# def enter_reward_available(self):
+#     logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
+#     print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
+#     self.reward_times_up = False
+#
+#
+# def exit_reward_available(self):
+#     logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
+#     # self.cue_off('sound2')
+#     self.reward_times_up = True
+#     self.pump.reward("vaccum", 0)
+#     # if self.multiple_choice_error:
+#     #     logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
+#     #     self.error_repeat = False
+#     #     self.error_list.append('multiple_choice_error')
+#     #     self.multiple_choice_error = False
+#     # elif self.lick_count == 0:
+#     #     logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
+#     #     self.error_repeat = True
+#     #     self.error_list.append('no_choice_error')
+#     # self.lick_count = 0
+#     self.reward_time_start = None
+#
+#
+# def update_plot(self):
+#     fig, axes = plt.subplots(1, 1, )
+#     axes.plot([1, 2], [1, 2], color='green', label='test')
+#     self.box.check_plot(fig)
+#
+#
+# def update_plot_error(self):
+#     error_event = self.error_list
+#     labels, counts = np.unique(error_event, return_counts=True)
+#     ticks = range(len(counts))
+#     fig, ax = plt.subplots(1, 1, )
+#     ax.bar(ticks, counts, align='center', tick_label=labels)
+#     # plt.xticks(ticks, labels)
+#     # plt.title(session_name)
+#     ax = plt.gca()
+#     ax.set_xticks(ticks, labels)
+#     ax.set_xticklabels(labels=labels, rotation=70)
+#
+#     self.box.check_plot(fig)
+#
+#
+# def update_plot_choice(self, save_fig=False):
+#     trajectory_active = self.left_poke_count_list
+#     time_active = self.timeline_left_poke
+#     trajectory_inactive = self.right_poke_count_list
+#     time_inactive = self.timeline_right_poke
+#     fig, ax = plt.subplots(1, 1, )
+#     print(type(fig))
+#
+#     ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
+#     ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
+#     if save_fig:
+#         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
+#             'basename'] + "_lever_choice_plot" + '.png')
+#     self.box.check_plot(fig)
+#
+#
+# def integrate_plot(self, save_fig=False):
+#     fig, ax = plt.subplots(2, 1)
+#
+#     trajectory_left = self.active_press
+#     time_active_press = self.timeline_active_press
+#     trajectory_right = self.right_poke_count_list
+#     time_inactive_press = self.timeline_inactive_press
+#     print(type(fig))
+#
+#     ax[0].plot(time_active_press, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
+#     ax[0].plot(time_inactive_press, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
+#
+#     error_event = self.error_list
+#     labels, counts = np.unique(error_event, return_counts=True)
+#     ticks = range(len(counts))
+#     ax[1].bar(ticks, counts, align='center', tick_label=labels)
+#     # plt.xticks(ticks, labels)
+#     # plt.title(session_name)
+#     ax[1] = plt.gca()
+#     ax[1].set_xticks(ticks, labels)
+#     ax[1].set_xticklabels(labels=labels, rotation=70)
+#
+#     if save_fig:
+#         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
+#             'basename'] + "_summery" + '.png')
+#     self.box.check_plot(fig)
+#
+#
+# ########################################################################
+# # methods to start and end the behavioral session
+# ########################################################################
+#
+# def start_session(self):
+#     ic("TODO: start video")
+#     self.box.video_start()
+#
+#
+# def end_session(self):
+#     ic("TODO: stop video")
+#     self.update_plot_choice(save_fig=True)
+#     self.box.video_stop()
+#
