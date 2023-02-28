@@ -224,7 +224,7 @@ class RemiSelfAdminTask(object):
         self.reward_list = []
 
     def reward(self):  # prototype mouse weight equals 30
-        infusion_duration = (self.session_info['mouse_weight'] / 30)  # season's edit: I would like to suggest having this defined in the session_information, and import this value as self.infusion_duration = self.session_info["infusion_duration"], so you don't need to make the calculation everytime you deliver reward - for the body weight doesn't change within one trial
+        infusion_duration = (self.session_info['weight'] / 30)  # season's edit: I would like to suggest having this defined in the session_information, and import this value as self.infusion_duration = self.session_info["infusion_duration"], so you don't need to make the calculation everytime you deliver reward - for the body weight doesn't change within one trial
         self.syringe_pump.blink(infusion_duration, 0.1,
                                 1)  # season's edit: this is a shorter implement without having a function
         self.reward_list.append(("syringe_pump_reward", infusion_duration))
