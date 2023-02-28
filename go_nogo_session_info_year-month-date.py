@@ -32,7 +32,7 @@ session_info['treadmill']                   = True
 session_info['number_of_phase0_trials']     = 500
 session_info['RR_temp1_length']             = 10  # in seconds
 session_info['RR_reward_collection_length'] = 2  # in seconds
-session_info['RR_reward_size']              = 5
+session_info['RR_reward_solenoid_duration']              = 0.020  # in seconds
 
 # parameters for phase 1
 
