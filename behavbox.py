@@ -133,7 +133,7 @@ class BehavBox(object):
         self.sound2 = LED(27)  # originally lick2
         self.sound3 = LED(15)  # originally lick3
 
-        self.sound4 = LED(23)  # originally DIO1
+        # self.sound4 = LED(23)  # originally DIO1
         self.sound5 = LED(24)  # originally DIO2
 
         ###############################################################################################
