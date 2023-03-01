@@ -329,9 +329,8 @@ class Pump(object):
         self.pump4 = LED(7)
         self.pump_air = LED(8)
         self.pump_vacuum = LED(25)
-        self.reward_list = []  # a list of tuple (pump_x, reward_amount) with information of reward history for data
 
-    def reward(self, which_pump, reward_size):
+    def reward(self, which_pump, on_time, off_time, numtimes):
         # coefficient_fit = np.array([8.78674242e-04, 7.33609848e-02, 1.47535000e+00]) # further calibration is needed
         # coefficient_1 = coefficient_fit[-1]
         # coefficient_2 = coefficient_fit[-2]
@@ -347,29 +346,23 @@ class Pump(object):
         # round to the second decimal
         # duration = round(solution_positive, 3) * (10**-3)
 
-        duration = round((reward_size / 1000) / tube_fit, 3)
-        duration_vacuum = 0.5  # in seconds
+        duration_vacuum = 0.1  # in seconds
 
         if which_pump == "1":
-            self.pump1.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump1_reward", reward_size))
+            self.pump1.blink(on_time, off_time, numtimes)
             logging.info(";" + str(time.time()) + " pump1_reward")
         elif which_pump == "2":
-            self.pump2.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump2_reward", reward_size))
+            self.pump2.blink(on_time, off_time, numtimes)
             logging.info(";" + str(time.time()) + " pump2_reward")
         elif which_pump == "3":
-            self.pump3.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump3_reward", reward_size))
+            self.pump3.blink(on_time, off_time, numtimes)
             logging.info(";" + str(time.time()) + " pump3_reward")
         elif which_pump == "4":
-            self.pump4.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump4_reward", reward_size))
+            self.pump4.blink(on_time, off_time, numtimes)
             logging.info(";" + str(time.time()) + " pump4_reward")
         elif which_pump == "air_puff":
-            self.pump_air.blink(duration, 0.1, 1)
-            self.reward_list.append(("air_puff", reward_size))
+            self.pump_air.blink(on_time, off_time, numtimes)
             logging.info(";" + str(time.time()) + " air_puff")
         elif which_pump == "vacuum":
-            self.pump_vacuum.blink(duration_vacuum, 0.1, 1)
+            self.pump_vacuum.blink(on_time, off_time, numtimes)
             logging.info(";" + str(time.time()) + " vacuum")

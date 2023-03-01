@@ -28,9 +28,9 @@ session_info['treadmill']                   = True
 
 # universal parameters regardless of training phase
 session_info['number_of_trials']            = 500  # total number of phase 2 trials
-session_info['vacuum_length']               = 0.5  # in seconds
-session_info['iti_length']                  = round((3 - session_info['vacuum_length']), 1)
-session_info['reward_solenoid_duration'] = 0.020  # in seconds
+session_info['iti_length']                  = 3
+session_info['solenoid_blink_duration']     = 0.01  # in seconds
+session_info['vacuum_duration']             = 0.1  # in seconds
 
 # parameters for phase 0
 session_info['number_of_phase0_trials']     = 500

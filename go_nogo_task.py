@@ -76,8 +76,6 @@ class go_nogo_phase0(object):
                 name="reward_available",
                 on_enter=["enter_reward_available"],
                 on_exit=["exit_reward_available"],
-                timeout=self.session_info["reward_solenoid_duration"],
-                on_timeout=["start_temp1"],
             ),
 
             # temp1 state: if the animal licks, transition to reward_collection state
@@ -105,8 +103,6 @@ class go_nogo_phase0(object):
                 name="vacuum",
                 on_enter=["enter_vacuum"],
                 on_exit=["exit_vacuum"],
-                timeout=self.session_info["vacuum_length"],
-                on_timeout=["start_iti"],
             ),
 
             # ITI state
@@ -182,14 +178,10 @@ class go_nogo_phase0(object):
         self.trial_running = True
         logging.info(str(time.time()) + ", entering reward_available")
         self.trial_outcome = 2  # Miss!!
-        self.pump.pump1.on()
-        logging.info(str(time.time()) + ", delivering reward")
         self.time_at_reward = time.time() - self.trial_start_time
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
-        self.pump.pump1.off()
-        logging.info(str(time.time()) + ", reward delivered!")
 
     def enter_temp1(self):
         logging.info(str(time.time()) + ", entering temp1")
@@ -207,13 +199,9 @@ class go_nogo_phase0(object):
 
     def enter_vacuum(self):
         logging.info(str(time.time()) + ", entering vacuum")
-        self.pump.pump_vacuum.on()
-        logging.info(str(time.time()) + ", vacuum ON!")
 
     def exit_vacuum(self):
         logging.info(str(time.time()) + ", exiting vacuum")
-        self.pump.pump_vacuum.off()
-        logging.info(str(time.time()) + ", vacuum OFF!")
 
     def enter_iti(self):
         logging.info(str(time.time()) + ", entering iti")
@@ -230,7 +218,7 @@ class go_nogo_phase0(object):
         # If y, deliver reward, if hit enter, start random reward phase
         self.deliver_reward = input("Deliver reward, else Start random_reward? (y or hit enter): \n")
         if self.deliver_reward == "y":
-            self.pump.pump1.blink(self.session_info["reward_solenoid_duration"], 0.1, 1)
+            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
 
     ########################################################################
     # countdown method to generate variable ITI length
@@ -267,7 +255,9 @@ class go_nogo_phase0(object):
             pass
 
         elif self.state == "reward_available":
-            pass
+            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
+            logging.info(str(time.time()) + ", reward delivered!")
+            self.start_temp1()
 
         elif self.state == "temp1":
             # If there is lick detected, immediately transition to reward_collection state
@@ -279,7 +269,9 @@ class go_nogo_phase0(object):
             pass
 
         elif self.state == "vacuum":
-            pass
+            self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1)
+            logging.info(str(time.time()) + ", vacuum initiated!")
+            self.start_iti()
 
         elif self.state == "iti":
             if event_name == "ITI countdown ends...":
