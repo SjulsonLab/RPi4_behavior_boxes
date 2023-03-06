@@ -37,7 +37,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import the go_nogo_task task class here
-from go_nogo_task import go_nogo_phase1
+from go_nogo_task import go_nogo_phase1_lick_evoked_reward
 
 # define the plotting function here
 def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_count, miss_count,
@@ -107,8 +107,8 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     # create a 2D array for eventplot
     events_to_plot = [lick_times, [reward_time]]
     if combine_trial_outcome[current_trial] == "FA !!!":
-        plot_period = 10  # in seconds, how long to plot since the start of trial
-        plot_bin_number = 1150
+        plot_period = 7  # in seconds, how long to plot since the start of trial
+        plot_bin_number = 800
     else:
         plot_period = 7
         plot_bin_number = 800
@@ -131,7 +131,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     linelengths1 = [0.8, 0.8]
     ax2.eventplot(events_to_plot, colors=colors1, lineoffsets=lineoffsets1, linelengths=linelengths1)
     ax2.plot(vstim_plot_data_x, vstim_plot_data_y)
-    ax2.set_xlim([-0.5, 11.5])  # 8s total to show (trial duration)
+    ax2.set_xlim([-0.5, 7])  # 8s total to show (trial duration)
     ax2.set_xlabel('Time since trial start (s)', fontsize=9)
     ax2.set_yticks((-1, 2, 3))
     ax2.set_yticklabels(('vstim', 'reward', 'lick'))
@@ -242,7 +242,7 @@ if __name__ == "__main__":
         )
 
         # initiate task object
-        task = go_nogo_phase1(name="go_nogo_phase1", session_info=session_info)
+        task = go_nogo_phase1_lick_evoked_reward(name="go_nogo_phase1_lick_evoked_reward", session_info=session_info)
         trial_list = list(range(0, session_info["number_of_trials"]))
         combine_trial_outcome = ["" for o in range(session_info["number_of_trials"])]
         hit_count = [0 for o in range(session_info["number_of_trials"])]
