@@ -37,7 +37,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import the go_nogo_task task class here
-from go_nogo_v3 import go_nogo_task
+from go_nogo_task import go_nogo_phase1
 
 # define the plotting function here
 def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_count, miss_count,
@@ -214,7 +214,7 @@ if __name__ == "__main__":
         session_info['mouse_name'] = animal_ID
         animal_weight = input("Enter animal weight (ex 19.5):\n")
         session_info['weight'] = animal_weight
-        training_phase = input("Enter training phase (ex phase1):\n")
+        training_phase = input("Enter training_phase (allgo or phase1):\n")
         session_info['training_phase'] = training_phase
 
         session_info['date'] = datestr
@@ -242,7 +242,7 @@ if __name__ == "__main__":
         )
 
         # initiate task object
-        task = go_nogo_task(name="go_nogo_task", session_info=session_info)
+        task = go_nogo_phase1(name="go_nogo_phase1", session_info=session_info)
         trial_list = list(range(0, session_info["number_of_trials"]))
         combine_trial_outcome = ["" for o in range(session_info["number_of_trials"])]
         hit_count = [0 for o in range(session_info["number_of_trials"])]
@@ -251,39 +251,24 @@ if __name__ == "__main__":
         fa_count = [0 for o in range(session_info["number_of_trials"])]
         dprimebinp = [0 for o in range(session_info["number_of_trials"])]
 
-        phase1_trial_list = list(range(0, session_info["number_of_phase1_trials"]))
-        phase1_trial_outcome = ["" for o in range(session_info['number_of_phase1_trials'])]
-        phase1_hit_count = [0 for o in range(session_info['number_of_phase1_trials'])]
-        phase1_miss_count = [0 for o in range(session_info['number_of_phase1_trials'])]
-        phase1_cr_count = [0 for o in range(session_info['number_of_phase1_trials'])]
-        phase1_fa_count = [0 for o in range(session_info['number_of_phase1_trials'])]
-
         # start session
         task.start_session()
         scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
         pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
 
-        # Loops over trials for phase 2 training
+        # Loops over trials for phase 1 training
         avoid_go = 0
         avoid_nogo = 0
         go_nums = 0
         nogo_nums = 0
 
-        if training_phase == "phase0":
+        if training_phase == "allgo":
             # phase 0 is the first day of training (after habituation)
-            while training_phase == "phase0":
-                task.bait_phase0()
-                if task.deliver_reward == "p":  # start phase1 of training
+            while training_phase == "allgo":
+                task.bait_phase1()
+                if task.deliver_reward == "":  # start phase1 of training
 
-                    # reset the variables for plotting if entering phase 1 the second time
-                    phase1_trial_list = list(range(0, session_info["number_of_phase1_trials"]))
-                    phase1_trial_outcome = ["" for o in range(session_info['number_of_phase1_trials'])]
-                    phase1_hit_count = [0 for o in range(session_info['number_of_phase1_trials'])]
-                    phase1_miss_count = [0 for o in range(session_info['number_of_phase1_trials'])]
-                    phase1_cr_count = [0 for o in range(session_info['number_of_phase1_trials'])]
-                    phase1_fa_count = [0 for o in range(session_info['number_of_phase1_trials'])]
-
-                    for w in range(session_info['number_of_phase1_trials']):
+                    for w in range(session_info['number_of_trials']):
                         trial_ident = "go_trial"
                         logging.info(str(time.time()) + ", ##############################")
                         logging.info(str(time.time()) + ", starting trial " + str(w))
@@ -298,15 +283,14 @@ if __name__ == "__main__":
 
                         # assess trial outcome
                         trial_outcome = task.trial_outcome
-                        phase1_trial_outcome[w] = trial_outcome
                         if trial_outcome == 1:
-                            phase1_trial_outcome[w] = "Hit!"
+                            combine_trial_outcome[w] = "Hit!"
                         elif trial_outcome == 2:
-                            phase1_trial_outcome[w] = "Miss !!!"
-                        phase1_hit_count[w] = phase1_trial_outcome.count("Hit!")
-                        phase1_miss_count[w] = phase1_trial_outcome.count("Miss !!!")
-                        phase1_cr_count[w] = 0
-                        phase1_fa_count[w] = 0
+                            combine_trial_outcome[w] = "Miss !!!"
+                        hit_count[w] = combine_trial_outcome.count("Hit!")
+                        miss_count[w] = combine_trial_outcome.count("Miss !!!")
+                        cr_count[w] = 0
+                        fa_count[w] = 0
                         lick_times = task.lick_times
                         reward_time = task.time_at_reward
                         vstimON_time = task.time_at_vstim_ON
@@ -314,9 +298,9 @@ if __name__ == "__main__":
                         # Starting a new process for plotting
                         plot_dprime = False
                         plot_process = Process(target=plot_trial_progress,
-                                               args=(w, phase1_trial_list, phase1_trial_outcome,
-                                                     phase1_hit_count, phase1_miss_count, phase1_cr_count,
-                                                     phase1_fa_count, lick_times, vstimON_time, plot_dprime,
+                                               args=(w, trial_list, combine_trial_outcome,
+                                                     hit_count, miss_count, cr_count,
+                                                     fa_count, lick_times, vstimON_time, plot_dprime,
                                                      dprimebinp))
                         plot_process.start()  # no join because we do not want to wait until the plotting is finished
 
@@ -331,96 +315,6 @@ if __name__ == "__main__":
                         #     raise SystemExit
 
         elif training_phase == "phase1":
-            # phase 1 of training is all go trials
-            # print if hit_criterion is achieved
-            for w in range(session_info['number_of_phase1_trials']):
-                trial_ident = "go_trial"
-                logging.info(str(time.time()) + ", ##############################")
-                logging.info(str(time.time()) + ", starting trial " + str(w))
-                logging.info(str(time.time()) + ", " + trial_ident)
-                logging.info(str(time.time()) + ", ##############################")
-
-                task.go_trial_start()
-
-                #  Run trial in loop
-                while task.trial_running:
-                    task.run_go()
-
-                # assess trial outcome
-                trial_outcome = task.trial_outcome
-                phase1_trial_outcome[w] = trial_outcome
-                if trial_outcome == 1:
-                    phase1_trial_outcome[w] = "Hit!"
-                elif trial_outcome == 2:
-                    phase1_trial_outcome[w] = "Miss !!!"
-                phase1_hit_count[w] = phase1_trial_outcome.count("Hit!")
-                phase1_miss_count[w] = phase1_trial_outcome.count("Miss !!!")
-                phase1_cr_count[w] = 0
-                phase1_fa_count[w] = 0
-                lick_times = task.lick_times
-                reward_time = task.time_at_reward
-                vstimON_time = task.time_at_vstim_ON
-
-                # Starting a new process for plotting
-                plot_dprime = False
-                plot_process = Process(target=plot_trial_progress, args=(w, phase1_trial_list, phase1_trial_outcome,
-                                                                         phase1_hit_count, phase1_miss_count, phase1_cr_count,
-                                                                         phase1_fa_count, lick_times, vstimON_time, plot_dprime,
-                                                                         dprimebinp))
-                plot_process.start()  # no join because we do not want to wait until the plotting is finished
-
-                # Determine if Hit criterion is achieved and automatically exit
-                # if w == 0:
-                #     phase1_hit_rate = 0
-                # else:
-                #     phase1_hit_rate = (phase1_hit_count[w])/w
-                #
-                # if w > 50 and phase1_hit_rate > session_info['hit_criterion']:
-                #     print("Hit criterion is achieved!!!")
-                #     raise SystemExit
-
-        elif training_phase == "phase2":
-
-            # First run some buffer trials
-            num_buffer_trial = 3
-            for bt in range(num_buffer_trial):
-                trial_ident = "go_trial"
-                logging.info(str(time.time()) + ", ##############################")
-                logging.info(str(time.time()) + ", starting buffer trial " + str(bt))
-                logging.info(str(time.time()) + ", " + trial_ident)
-                logging.info(str(time.time()) + ", ##############################")
-
-                task.go_trial_start()
-
-                #  Run trial in loop
-                while task.trial_running:
-                    task.run_go()
-
-                # assess trial outcome
-                trial_outcome = task.trial_outcome
-                phase1_trial_outcome[bt] = trial_outcome
-                if trial_outcome == 1:
-                    phase1_trial_outcome[bt] = "Hit!"
-                elif trial_outcome == 2:
-                    phase1_trial_outcome[bt] = "Miss !!!"
-                phase1_hit_count[bt] = phase1_trial_outcome.count("Hit!")
-                phase1_miss_count[bt] = phase1_trial_outcome.count("Miss !!!")
-                phase1_cr_count[bt] = 0
-                phase1_fa_count[bt] = 0
-                lick_times = task.lick_times
-                reward_time = task.time_at_reward
-                vstimON_time = task.time_at_vstim_ON
-
-                # Starting a new process for plotting
-                plot_dprime = False
-                plot_process = Process(target=plot_trial_progress,
-                                       args=(bt, phase1_trial_list, phase1_trial_outcome,
-                                             phase1_hit_count, phase1_miss_count, phase1_cr_count,
-                                             phase1_fa_count, lick_times, vstimON_time, plot_dprime,
-                                             dprimebinp))
-                plot_process.start()
-
-            # The real phase 2 task is below
             for i in range(session_info['number_of_trials']):
                 ident_random = (round(random.uniform(0, 1) * 100)) % 2
 
@@ -481,7 +375,6 @@ if __name__ == "__main__":
                 # get task variables from the task object
                 # print to make sure that it works
                 trial_outcome = task.trial_outcome
-                print(trial_outcome)
 
                 # Covert number trial_outcome into strings
                 if trial_outcome == 1:
@@ -492,7 +385,6 @@ if __name__ == "__main__":
                     combine_trial_outcome[i] = "CR!"
                 elif trial_outcome == 4:
                     combine_trial_outcome[i] = "FA !!!"
-                print(combine_trial_outcome[i])
 
                 # Count the number of each trial outcome
                 # Establish other parameters for plotting

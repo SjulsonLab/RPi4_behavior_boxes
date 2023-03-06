@@ -176,8 +176,8 @@ if __name__ == "__main__":
         session_info['mouse_name'] = animal_ID
         animal_weight = input("Enter animal weight (ex 19.5):\n")
         session_info['weight'] = animal_weight
-        session_info['training_phase'] = "phase0"
-        training_phase = session_info['training_phase']
+        training_phase = "phase0"
+        session_info['training_phase'] = training_phase
 
         session_info['date'] = datestr
         session_info['time'] = timestr

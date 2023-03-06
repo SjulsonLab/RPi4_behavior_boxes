@@ -29,8 +29,8 @@ session_info['treadmill']                   = True
 # universal parameters regardless of training phase
 session_info['number_of_trials']            = 500  # total number of phase 2 trials
 session_info['iti_length']                  = 3
-session_info['solenoid_blink_duration']     = 0.01  # in seconds
-session_info['vacuum_duration']             = 0.1  # in seconds
+session_info['solenoid_blink_duration']     = 0.005  # in seconds
+session_info['vacuum_duration']             = 0.1
 
 # parameters for phase 0
 session_info['number_of_phase0_trials']     = 500
@@ -38,6 +38,9 @@ session_info['RR_temp1_length']             = 10  # in seconds
 session_info['RR_reward_collection_length'] = 2  # in seconds
 
 # parameters for phase 1
+session_info['lockout_length']              = 1  # in seconds
+session_info['normal_iti_length']           = 3  # in seconds
+session_info['punishment_iti_length']       = 3  # in seconds
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
