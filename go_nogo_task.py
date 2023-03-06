@@ -406,7 +406,7 @@ class go_nogo_phase1(object):
             ),
 
             # lick_count state: if there is lick, transition to temp2 state
-            # otherwise will transition to vacuum state after 1s
+            # otherwise will transition to vacuum state after 2s
             Timeout(
                 name="lick_count",
                 on_enter=["enter_lick_count"],
