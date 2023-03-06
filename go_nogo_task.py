@@ -729,7 +729,8 @@ class go_nogo_phase1(object):
                 self.start_vacuum_temp2()
 
         elif self.state == "vacuum":
-            pass
+            logging.info(str(time.time()) + ", no vacuum!")
+            self.start_assessment()
 
         elif self.state == "assessment":
             # if trial_outcome is CR!, transition to normal_iti
