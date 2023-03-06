@@ -677,7 +677,6 @@ class go_nogo_phase1(object):
         elif self.state == "temp1":
             if event_name == "left_IR_entry":
                 self.trial_outcome = 1  # Hit!
-                logging.info(str(time.time()) + ", Hit!")
             # transition to vacuum state when vstim 3s countdown ends
             elif event_name == "countdown ends":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
