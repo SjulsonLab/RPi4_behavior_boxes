@@ -1598,7 +1598,7 @@ class go_nogo_phase1_trial_initiation(object):
     def countdown(self, t):
         # This counts down the length of reward_available or lick_count duration (2s)
         logging.info(str(time.time()) + ", countdown starts")
-        while t > 0.4:
+        while t > 0.3:
             # mins, secs = divmod(t, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
