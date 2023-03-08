@@ -1721,14 +1721,10 @@ class go_nogo_phase1_trial_initiation(object):
                 self.start_initiation_assessment()
 
         elif self.state == "initiation_assessment":
-            start_time_initiation = time.time()
-            while (time.time() - start_time_initiation) < 1:
-                if event_name == "left_IR_entry":
-                    start_time_initiation = time.time()
-                    continue
-                elif (time.time() - start_time_initiation) > 1:
-                    self.return_to_standby()
-                    break
+            if event_name == "left_IR_entry":
+                self.start_time_initiation = time.time()
+            if time.time() - self.start_time_initiation > 1:
+                self.return_to_standby()
 
     ########################################################################
     # methods to start and end the behavioral session
