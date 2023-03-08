@@ -1096,8 +1096,8 @@ class go_nogo_phase1_lick_evoked_reward(object):
             # mins, secs = divmod(t, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
-            time.sleep(0.5)
-            t -= 0.5
+            time.sleep(0.2)
+            t -= 0.2
         logging.info(str(time.time()) + ", countdown ends")
         self.box.event_list.append("countdown ends")
 
