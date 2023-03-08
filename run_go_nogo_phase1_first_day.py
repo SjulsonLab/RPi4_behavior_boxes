@@ -189,7 +189,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     screen.blit(surf, (0, 0))
     pygame.display.flip()
     plt.close(fig)
-    time.sleep(4)  # sleep for 3 seconds for pygame to remain displayed
+    time.sleep(3)  # sleep for 3 seconds for pygame to remain displayed
     pygame.quit()
 
 
