@@ -1561,7 +1561,7 @@ class go_nogo_phase1_trial_initiation(object):
         logging.info(str(time.time()) + ", exiting extra_iti")
 
     def enter_initiation_assessment(self):
-        start_time_initiation = time.time()
+        self.start_time_initiation = time.time()
         logging.info(str(time.time()) + ", entering initiation_assessment")
 
     def exit_initiation_assessment(self):
@@ -1664,8 +1664,8 @@ class go_nogo_phase1_trial_initiation(object):
 
         elif self.state == "initiation_assessment":
             if event_name == "left_IR_entry":
-                start_time_initiation = time.time()
-            if time.time() - start_time_initiation > 1:
+                self.start_time_initiation = time.time()
+            if time.time() - self.start_time_initiation > 1:
                 self.return_to_standby()
 
     def run_nogo(self):
