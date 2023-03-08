@@ -350,19 +350,19 @@ class Pump(object):
 
         if which_pump == "1":
             self.pump1.blink(on_time, off_time, numtimes)
-            logging.info(";" + str(time.time()) + " pump1_reward")
+            logging.info(str(time.time()) + ", pump1_reward")
         elif which_pump == "2":
             self.pump2.blink(on_time, off_time, numtimes)
-            logging.info(";" + str(time.time()) + " pump2_reward")
+            logging.info(str(time.time()) + ", pump2_reward")
         elif which_pump == "3":
             self.pump3.blink(on_time, off_time, numtimes)
-            logging.info(";" + str(time.time()) + " pump3_reward")
+            logging.info(str(time.time()) + ", pump3_reward")
         elif which_pump == "4":
             self.pump4.blink(on_time, off_time, numtimes)
-            logging.info(";" + str(time.time()) + " pump4_reward")
+            logging.info(str(time.time()) + ", pump4_reward")
         elif which_pump == "air_puff":
             self.pump_air.blink(on_time, off_time, numtimes)
-            logging.info(";" + str(time.time()) + " air_puff")
+            logging.info(str(time.time()) + ", air_puff")
         elif which_pump == "vacuum":
             self.pump_vacuum.blink(on_time, off_time, numtimes)
-            logging.info(";" + str(time.time()) + " vacuum")
+            logging.info(str(time.time()) + ", vacuum")

@@ -1507,7 +1507,7 @@ class go_nogo_phase1_trial_initiation(object):
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
         self.trial_outcome = 2  # Miss!!
-        self.countdown(1.8)
+        self.countdown(1)
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
