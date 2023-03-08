@@ -1313,6 +1313,15 @@ class go_nogo_phase1_trial_initiation(object):
                 on_exit=["exit_temp1"],
             ),
 
+            # reward_lockout state: intermediate state near the end of the trial where if the animal licks, no reward!
+            Timeout(
+                name="reward_lockout",
+                on_enter=["enter_reward_lockout"],
+                on_exit=["exit_reward_lockout"],
+                timeout=0.2,  # in seconds
+                on_timeout=["start_vacuum_reward_lockout"],
+            ),
+
             # vacuum state: open vacuum for specified amount of time, then transition to assessment state
             Timeout(
                 name="vacuum",
@@ -1403,9 +1412,10 @@ class go_nogo_phase1_trial_initiation(object):
             # to trigger this transition pathway, put 'go_trial_start' in the run_go_nogo code
             ["go_trial_start", "standby", "vstim_go"],
             ["start_reward_available", "vstim_go", "reward_available"],
-            ["start_vacuum_reward_available", "reward_available", "vacuum"],
+            ["start_reward_lockout_reward_available", "reward_available", "reward_lockout"],
             ["start_temp1", "reward_available", "temp1"],
-            ["start_vacuum_temp1", "temp1", "vacuum"],
+            ["start_reward_lockout_temp1", "temp1", "reward_lockout"],
+            ["start_vacuum_reward_lockout", "reward_lockout", "vacuum"],
             ["start_assessment", "vacuum", "assessment"],
             ["start_normal_iti", "assessment", "normal_iti"],
             ["start_extra_iti_normal", "normal_iti", "extra_iti"],
@@ -1497,7 +1507,7 @@ class go_nogo_phase1_trial_initiation(object):
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
         self.trial_outcome = 2  # Miss!!
-        self.countdown(2)
+        self.countdown(1.8)
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
@@ -1526,6 +1536,12 @@ class go_nogo_phase1_trial_initiation(object):
 
     def exit_temp2(self):
         logging.info(str(time.time()) + ", exiting temp2")
+
+    def enter_reward_lockout(self):
+        logging.info(str(time.time()) + ", entering reward_lockout")
+
+    def exit_reward_lockout(self):
+        logging.info(str(time.time()) + ", exiting reward_lockout")
 
     def enter_vacuum(self):
         logging.info(str(time.time()) + ", entering vacuum")
@@ -1640,12 +1656,15 @@ class go_nogo_phase1_trial_initiation(object):
                 self.start_temp1()  # trigger state transition to temp1
             elif event_name == "countdown ends":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
-                self.start_vacuum_reward_available()
+                self.start_reward_lockout_reward_available()
 
         elif self.state == "temp1":
             if event_name == "countdown ends":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
-                self.start_vacuum_temp1()
+                self.start_reward_lockout_temp1()
+
+        elif self.state == "reward_lockout":
+            pass
 
         elif self.state == "vacuum":
             self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1)
@@ -1665,7 +1684,7 @@ class go_nogo_phase1_trial_initiation(object):
         elif self.state == "initiation_assessment":
             if event_name == "left_IR_entry":
                 self.start_time_initiation = time.time()
-            if time.time() - self.start_time_initiation > 1:
+            if (time.time() - self.start_time_initiation) > 1:
                 self.return_to_standby()
 
     def run_nogo(self):
@@ -1723,7 +1742,7 @@ class go_nogo_phase1_trial_initiation(object):
         elif self.state == "initiation_assessment":
             if event_name == "left_IR_entry":
                 self.start_time_initiation = time.time()
-            if time.time() - self.start_time_initiation > 1:
+            if (time.time() - self.start_time_initiation) > 1:
                 self.return_to_standby()
 
     ########################################################################
