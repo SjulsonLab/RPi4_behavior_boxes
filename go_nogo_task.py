@@ -1666,12 +1666,12 @@ class go_nogo_phase1_trial_initiation(object):
             ii = 0
             while ii < 1:
                 elapsed_time_initiation = time.time() - start_time_initiation
-                if elapsed_time_initiation > 1:  # in seconds
+                if event_name == "left_IR_entry":
+                    ii = 2
+                elif elapsed_time_initiation > 1:  # in seconds
                     logging.info(str(time.time()) + ", new trial initializing!")
                     self.return_to_standby()
                     ii = 2
-                elif event_name == "left_IR_entry":
-                    ii = 2  # exit the while loop and return to the beginning
 
     def run_nogo(self):
 
@@ -1730,12 +1730,12 @@ class go_nogo_phase1_trial_initiation(object):
             ii = 0
             while ii < 1:
                 elapsed_time_initiation = time.time() - start_time_initiation
-                if elapsed_time_initiation > 1:  # in seconds
+                if event_name == "left_IR_entry":
+                    ii = 2
+                elif elapsed_time_initiation > 1:  # in seconds
                     logging.info(str(time.time()) + ", new trial initializing!")
                     self.return_to_standby()
                     ii = 2
-                elif event_name == "left_IR_entry":
-                    ii = 2  # exit the while loop and return to the beginning
 
     ########################################################################
     # methods to start and end the behavioral session
