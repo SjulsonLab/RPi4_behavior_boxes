@@ -1507,7 +1507,7 @@ class go_nogo_phase1_trial_initiation(object):
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
         self.trial_outcome = 2  # Miss!!
-        self.countdown(1.8)
+        self.countdown(2)
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
@@ -1598,12 +1598,12 @@ class go_nogo_phase1_trial_initiation(object):
     def countdown(self, t):
         # This counts down the length of reward_available or lick_count duration (2s)
         logging.info(str(time.time()) + ", countdown starts")
-        while t > 0:
+        while t > 0.2:
             # mins, secs = divmod(t, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
-            time.sleep(0.05)
-            t -= 0.05
+            time.sleep(0.1)
+            t -= 0.1
         logging.info(str(time.time()) + ", countdown ends")
         self.box.event_list.append("countdown ends")
 
