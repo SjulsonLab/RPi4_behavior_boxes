@@ -1669,7 +1669,7 @@ class go_nogo_phase1_trial_initiation(object):
                     continue
                 elif (time.time() - start_time_initiation) > 1:
                     break
-            self.return_to_stanby()
+            self.return_to_standby()
 
     def run_nogo(self):
 
@@ -1731,7 +1731,7 @@ class go_nogo_phase1_trial_initiation(object):
                     continue
                 elif (time.time() - start_time_initiation) > 1:
                     break
-            self.return_to_stanby()
+            self.return_to_standby()
 
     ########################################################################
     # methods to start and end the behavioral session
