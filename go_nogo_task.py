@@ -1663,13 +1663,10 @@ class go_nogo_phase1_trial_initiation(object):
 
         elif self.state == "initiation_assessment":
             start_time_initiation = time.time()
-            while (time.time() - start_time_initiation) < 1:
-                if event_name == "left_IR_entry":
-                    start_time_initiation = time.time()
-                    continue
-                elif (time.time() - start_time_initiation) > 1:
-                    self.return_to_standby()
-                    break
+            if event_name == "left_IR_entry":
+                start_time_initiation = time.time()
+            if time.time() - start_time_initiation > 1:
+                self.return_to_standby()
 
     def run_nogo(self):
 
