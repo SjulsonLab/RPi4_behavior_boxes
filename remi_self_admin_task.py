@@ -251,21 +251,6 @@ class RemiSelfAdminTask(object):
                     self.lever_pressed_time = lever_pressed_time_temp
                     self.reward_time_recent = time.time()
                     self.total_reward += 1
-                # self.active_press += 1
-                # self.active_press_count_list.append(self.left_poke_count)
-                # self.timeline_active_press.append(time.time())
-            # elif self.event_name == "reserved_rx2_pressed":
-            #
-            # self.inactive_press += 1
-            # self.inactive_press_count_list.append(self.right_poke_count)
-            # self.timeline_inactive_press.append(time.time())
-
-            # Lick detection:
-            # if self.event_name == "left_IR_entry":
-            #     self.left_poke_count += 1
-            #     self.left_poke_count_list.append(self.left_poke_count)
-            #     self.timeline_left_poke.append(time.time())
-            #     self.lick_count += 1
 
             # look for keystrokes
             self.box.check_keybd()
@@ -291,12 +276,6 @@ class RemiSelfAdminTask(object):
         self.update_plot_choice()
         # self.update_plot_error()
         self.trial_running = False
-        # self.reward_error = False
-        # if self.early_lick_error:
-        #     self.error_list.append("early_lick_error")
-        #     self.early_lick_error = False
-        # self.lick_count = 0
-        # self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
         logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number) + ";" + str(self.error_repeat))
 
@@ -316,17 +295,6 @@ class RemiSelfAdminTask(object):
         # self.cue_off('sound2')
         # self.reward_times_up = True
         self.pump.reward("vaccum", 0)
-        # if self.multiple_choice_error:
-        #     logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
-        #     self.error_repeat = False
-        #     self.error_list.append('multiple_choice_error')
-        #     self.multiple_choice_error = False
-        # elif self.lick_count == 0:
-        #     logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
-        #     self.error_repeat = True
-        #     self.error_list.append('no_choice_error')
-        # self.lick_count = 0
-        # self.reward_time_start = None
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
