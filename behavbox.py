@@ -106,20 +106,30 @@ class BehavBox(object):
         ###############################################################################################
         # IR detection - for nosepoke detection
         ###############################################################################################
-        self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
-        self.IR_rx2 = Button(6, None, True)
-        self.IR_rx3 = Button(12, None, True)
-        self.reserved_rx1 = Button(13, None, True)  # (optional, reserved for future use
-        self.reserved_rx2 = Button(16, None, True)  # (optional, reserved for future use
+        self.lick1 = Button(26, None, True)
+        self.lick2 = Button(27, None, True)
+        self.lick3 = Button(15, None, True)
+        # self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
+        # self.IR_rx2 = Button(6, None, True)
+        # self.IR_rx3 = Button(12, None, True)
+        self.reserved_rx1 = Button(13, None, True)  # for mitch
+        self.reserved_rx2 = Button(16, None, True)  # for mitch
+        #
+        # # link nosepoke event detections to callbacks
+        self.lick1.when_pressed = self.left_exit
+        self.lick2.when_pressed = self.center_exit
+        self.lick3.when_pressed = self.right_exit
 
-        # link nosepoke event detections to callbacks
-        self.IR_rx1.when_pressed = self.left_IR_exit
-        self.IR_rx2.when_pressed = self.center_IR_exit
-        self.IR_rx3.when_pressed = self.right_IR_exit
-        self.IR_rx1.when_released = self.left_IR_entry
-        self.IR_rx2.when_released = self.center_IR_entry
-        self.IR_rx3.when_released = self.right_IR_entry
-
+        self.lick1.when_released = self.left_entry
+        self.lick2.when_released = self.center_entry
+        self.lick3.when_released = self.right_entry
+        # self.IR_rx1.when_pressed = self.left_IR_exit
+        # self.IR_rx2.when_pressed = self.center_IR_exit
+        # self.IR_rx3.when_pressed = self.right_IR_exit
+        # self.IR_rx1.when_released = self.left_IR_entry
+        # self.IR_rx2.when_released = self.center_IR_entry
+        # self.IR_rx3.when_released = self.right_IR_entry
+        #
         self.reserved_rx1.when_pressed = self.reserved_rx1_pressed
         self.reserved_rx2.when_pressed = self.reserved_rx2_pressed
         self.reserved_rx1.when_released = self.reserved_rx1_released
@@ -129,12 +139,18 @@ class BehavBox(object):
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
         # pins originally reserved for the lick detection is now used for audio board TTL input signal
+        # NEW EDIT: switch sound to lick
+        """
         self.sound1 = LED(26)  # originally lick1
         self.sound2 = LED(27)  # originally lick2
         self.sound3 = LED(15)  # originally lick3
+        """
+        self.sound1 = LED(23) # branch new_lick modification
+        self.sound2 = LED(24) # branch new_lick modification
+        # self.sound3 = LED()
 
-        # self.sound4 = LED(23)  # originally DIO1
-        self.sound5 = LED(24)  # originally DIO2
+        # self.sound4 = LED(23)  # originally DIO1 occupied
+        # self.sound5 = LED(24)  # originally DIO2 occupied
 
         ###############################################################################################
         # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
