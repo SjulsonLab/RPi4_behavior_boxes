@@ -109,9 +109,6 @@ class BehavBox(object):
         self.lick1 = Button(26, None, True)
         self.lick2 = Button(27, None, True)
         self.lick3 = Button(15, None, True)
-        # self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
-        # self.IR_rx2 = Button(6, None, True)
-        # self.IR_rx3 = Button(12, None, True)
         self.reserved_rx1 = Button(13, None, True)  # for mitch
         self.reserved_rx2 = Button(16, None, True)  # for mitch
         #
@@ -123,13 +120,7 @@ class BehavBox(object):
         self.lick1.when_released = self.left_entry
         self.lick2.when_released = self.center_entry
         self.lick3.when_released = self.right_entry
-        # self.IR_rx1.when_pressed = self.left_IR_exit
-        # self.IR_rx2.when_pressed = self.center_IR_exit
-        # self.IR_rx3.when_pressed = self.right_IR_exit
-        # self.IR_rx1.when_released = self.left_IR_entry
-        # self.IR_rx2.when_released = self.center_IR_entry
-        # self.IR_rx3.when_released = self.right_IR_entry
-        #
+
         self.reserved_rx1.when_pressed = self.reserved_rx1_pressed
         self.reserved_rx2.when_pressed = self.reserved_rx2_pressed
         self.reserved_rx1.when_released = self.reserved_rx1_released
@@ -147,10 +138,6 @@ class BehavBox(object):
         """
         self.sound1 = LED(23) # branch new_lick modification
         self.sound2 = LED(24) # branch new_lick modification
-        # self.sound3 = LED()
-
-        # self.sound4 = LED(23)  # originally DIO1 occupied
-        # self.sound5 = LED(24)  # originally DIO2 occupied
 
         ###############################################################################################
         # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
@@ -272,14 +259,14 @@ class BehavBox(object):
                     if event.key == pygame.K_ESCAPE:
                         self.keyboard_active = False
                     elif event.key == pygame.K_1:
-                        self.left_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[action];key_pressed_left_IR_entry()")
+                        self.left_entry()
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_left_entry()")
                     elif event.key == pygame.K_2:
-                        self.center_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[action];key_pressed_center_IR_entry()")
+                        self.center_entry()
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_center_entry()")
                     elif event.key == pygame.K_3:
-                        self.right_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[action];key_pressed_right_IR_entry()")
+                        self.right_entry()
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_right_entry()")
                     elif event.key == pygame.K_4:
                         self.reserved_rx1_pressed()
                         logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx1_pressed()")
@@ -308,11 +295,11 @@ class BehavBox(object):
                         self.pump.reward("vacuum", 1)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:
-                        self.left_IR_exit()
+                        self.left_exit()
                     elif event.key == pygame.K_2:
-                        self.center_IR_exit()
+                        self.center_exit()
                     elif event.key == pygame.K_3:
-                        self.right_IR_exit()
+                        self.right_exit()
 
     ###############################################################################################
     # methods to start and stop video
@@ -438,35 +425,35 @@ class BehavBox(object):
     ###############################################################################################
     # callbacks
     ###############################################################################################
-    def left_IR_entry(self):
-        self.event_list.append("left_IR_entry")
-        self.interact_list.append((time.time(), "left_IR_entry"))
-        logging.info(";" + str(time.time()) + ";[action];left_IR_entry")
+    def left_entry(self):
+        self.event_list.append("left_entry")
+        self.interact_list.append((time.time(), "left_entry"))
+        logging.info(";" + str(time.time()) + ";[action];left_entry")
 
-    def center_IR_entry(self):
-        self.event_list.append("center_IR_entry")
-        self.interact_list.append((time.time(), "center_IR_entry"))
-        logging.info(";" + str(time.time()) + ";[action];center_IR_entry")
+    def center_entry(self):
+        self.event_list.append("center_entry")
+        self.interact_list.append((time.time(), "center_entry"))
+        logging.info(";" + str(time.time()) + ";[action];center_entry")
 
-    def right_IR_entry(self):
-        self.event_list.append("right_IR_entry")
-        self.interact_list.append((time.time(), "right_IR_entry"))
-        logging.info(";" + str(time.time()) + ";[action];right_IR_entry")
+    def right_entry(self):
+        self.event_list.append("right_entry")
+        self.interact_list.append((time.time(), "right_entry"))
+        logging.info(";" + str(time.time()) + ";[action];right_entry")
 
-    def left_IR_exit(self):
-        self.event_list.append("left_IR_exit")
-        self.interact_list.append((time.time(), "left_IR_exit"))
-        logging.info(";" + str(time.time()) + ";[action];left_IR_exit")
+    def left_exit(self):
+        self.event_list.append("left_exit")
+        self.interact_list.append((time.time(), "left_exit"))
+        logging.info(";" + str(time.time()) + ";[action];left_exit")
 
-    def center_IR_exit(self):
-        self.event_list.append("center_IR_exit")
-        self.interact_list.append((time.time(), "center_IR_exit"))
-        logging.info(";" + str(time.time()) + ";[action];center_IR_exit")
+    def center_exit(self):
+        self.event_list.append("center_exit")
+        self.interact_list.append((time.time(), "center_exit"))
+        logging.info(";" + str(time.time()) + ";[action];center_exit")
 
-    def right_IR_exit(self):
-        self.event_list.append("right_IR_exit")
-        self.interact_list.append((time.time(), "right_IR_exit"))
-        logging.info(";" + str(time.time()) + ";[action];right_IR_exit")
+    def right_exit(self):
+        self.event_list.append("right_exit")
+        self.interact_list.append((time.time(), "right_exit"))
+        logging.info(";" + str(time.time()) + ";[action];right_exit")
 
     def reserved_rx1_pressed(self):
         self.event_list.append("reserved_rx1_pressed")
