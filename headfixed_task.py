@@ -168,7 +168,7 @@ class HeadfixedTask(object):
         # there can only be lick during the reward available state
         # if lick detected prior to reward available state
         # the trial will restart and transition to standby
-        if self.event_name is "left_IR_entry" or self.event_name == "right_IR_entry":
+        if self.event_name is "left_entry" or self.event_name == "right_entry":
             # print("EVENT NAME !!!!!! " + self.event_name)
             if self.state == "reward_available" or self.state == "standby" or self.state == "initiate":
                 pass
@@ -206,12 +206,12 @@ class HeadfixedTask(object):
             cue_state = self.current_card[0]
             # side_choice = self.current_card[2]
             side_mice = None
-            if self.event_name == "left_IR_entry":
+            if self.event_name == "left_entry":
                 side_mice = 'left'
                 self.left_poke_count += 1
                 self.left_poke_count_list.append(self.left_poke_count)
                 self.timeline_left_poke.append(time.time())
-            elif self.event_name == "right_IR_entry":
+            elif self.event_name == "right_entry":
                 side_mice = 'right'
                 self.right_poke_count += 1
                 self.right_poke_count_list.append(self.right_poke_count)
