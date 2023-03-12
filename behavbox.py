@@ -118,8 +118,8 @@ class BehavBox(object):
         self.lick3.when_pressed = self.right_exit
 
         self.lick1.when_released = self.left_entry
-        self.lick2.when_released = self.center_entry
-        self.lick3.when_released = self.right_entry
+        self.lick2.when_released = self.right_entry
+        self.lick3.when_released = self.center_entry
 
         self.reserved_rx1.when_pressed = self.reserved_rx1_pressed
         self.reserved_rx2.when_pressed = self.reserved_rx2_pressed
