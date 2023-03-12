@@ -114,8 +114,8 @@ class BehavBox(object):
         #
         # # link nosepoke event detections to callbacks
         self.lick1.when_pressed = self.left_exit
-        self.lick2.when_pressed = self.center_exit
-        self.lick3.when_pressed = self.right_exit
+        self.lick2.when_pressed = self.right_exit
+        self.lick3.when_pressed = self.center_exit
 
         self.lick1.when_released = self.left_entry
         self.lick2.when_released = self.right_entry
