@@ -198,11 +198,12 @@ class SelfAdminTask(object):
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.sound1.on() #ACTIVATE SOUND CUE#
+        while self.state == 'reward_available':
+            self.box.sound1.on() #ACTIVATE SOUND CUE#
         
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
-        self.pump.reward("vaccum", 0)
+        # self.pump.reward("vaccum", 0)
         self.box.sound1.off() #INACTIVATE SOUND CUE#
 
     def update_plot(self):
