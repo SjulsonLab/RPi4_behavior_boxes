@@ -64,3 +64,6 @@ session_info['reward_size'] = 5
 session_info['initiation_timeout'] = 120  # s
 session_info['reward_timeout'] = 60
 # session_info["punishment_timeout"] = 1
+
+session_info['standby_timeout'] = 30 #new
+session_info["reward_timeout"] = 30 #new
