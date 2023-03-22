@@ -15,7 +15,7 @@ from gpiozero import LED
 datestr = str(datetime.now().strftime("%Y-%m-%d"))
 timestr = str(datetime.now().strftime('%H%M%S'))
 calibrator = str(input("Who is calibrating the pump? (Enter your name)"))
-box_number = check_output(['hostname', '-I']).decode('ascii')
+box_number = check_output(['hostname', '-I']).decode('ascii')[-5:-2]
 base_path = "/home/pi/experiment_info/calibration_info/"
 calibration_filename = base_path + "calibration_box" + str(box_number) + "_" + str(
     calibrator) + "_" + datestr + timestr + '.csv'
