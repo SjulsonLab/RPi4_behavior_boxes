@@ -502,44 +502,38 @@ class Pump(object):
         # visualization
 
     def reward(self, which_pump, reward_size):
-        # coefficient_fit = np.array([8.78674242e-04, 7.33609848e-02, 1.47535000e+00]) # further calibration is needed
-        # coefficient_1 = coefficient_fit[-1]
-        # coefficient_2 = coefficient_fit[-2]
-        # coefficient_3 = coefficient_fit[-3] - reward_size
-        tube_fit = 0.11609 # ml/s
-        # discriminant = coefficient_2 ** 2 - 4 * coefficient_1 * coefficient_3
-        # # find solution, i.e. duration of pulse, by calculating the solution for the quadratic equation
-        # solution = np.array([(-coefficient_2 + np.sqrt(discriminant)) / (2 * coefficient_1),
-        #                      (-coefficient_2 - np.sqrt(discriminant)) / (2 * coefficient_1)])
-
-        # With two solution, get the positive value
-        # solution_positive = solution[(solution > 0).nonzero()[0][0]]
-        # round to the second decimal
-        # duration = round(solution_positive, 3) * (10**-3)
-
-        duration = round((reward_size/1000)/tube_fit, 3)
-        duration_vacuum = 0.5
+        # import coefficient from the session_information
+        coefficient_p1 = self.session_info["calibration_coefficient"]['1']
+        coefficient_p2 = self.session_info["calibration_coefficient"]['2']
+        coefficient_p3 = self.session_info["calibration_coefficient"]['3']
+        coefficient_p4 = self.session_info["calibration_coefficient"]['4']
+        duration_air = self.session_info['air_duration']
+        duration_vac = self.session_info["vacuum_duration"]
 
         if which_pump == "1":
+            duration = round((coefficient_p1[-1] * (reward_size / 1000) + coefficient_p1[-2]), 3)  # linear function
             self.pump1.blink(duration, 0.1, 1)
             self.reward_list.append(("pump1_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward_" + str(reward_size))
         elif which_pump == "2":
+            duration = round((coefficient_p2[-1] * (reward_size / 1000) + coefficient_p2[-2]), 3)  # linear function
             self.pump2.blink(duration, 0.1, 1)
             self.reward_list.append(("pump2_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump2_reward_" + str(reward_size))
         elif which_pump == "3":
+            duration = round((coefficient_p3[-1] * (reward_size / 1000) + coefficient_p3[-2]), 3)  # linear function
             self.pump3.blink(duration, 0.1, 1)
             self.reward_list.append(("pump3_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump3_reward_" + str(reward_size))
         elif which_pump == "4":
+            duration = round((coefficient_p4[-1] * (reward_size / 1000) + coefficient_p4[-2]), 3)  # linear function
             self.pump4.blink(duration, 0.1, 1)
             self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
         elif which_pump == "air_puff":
-            self.pump_air.blink(duration, 0.1, 1)
+            self.pump_air.blink(duration_air, 0.1, 1)
             self.reward_list.append(("air_puff", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
         elif which_pump == "vacuum":
-            self.pump_vacuum.blink(duration_vacuum, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum")
+            self.pump_vacuum.blink(duration_vac, 0.1, 1)
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum" + str(duration_vac))

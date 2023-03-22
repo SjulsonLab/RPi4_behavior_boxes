@@ -7,7 +7,7 @@ goal: calibrating the the pump and log the data entry
 description:
 
 """
-import datetime
+from datetime import datetime
 import io
 from subprocess import check_output
 from gpiozero import LED
