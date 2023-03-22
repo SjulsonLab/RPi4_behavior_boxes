@@ -69,7 +69,10 @@ while True:
     print("Please go weight the container with the liquid!\n")
     weight_total = float(input("weight_total: "))
     weight_fluid = weight_total - weight_tube
-    calibration_log.append(pump_number, on_duration, off_duration, pulse_time, weight_tube, weight_total, weight_fluid)
+    calibration_log.append(
+        (pump_number, on_duration, off_duration,
+         pulse_time, weight_tube, weight_total, weight_fluid)
+    )
     abort_or_not = str(input("Abort the program?(Y/N) \n")).upper()
     if abort_or_not == 'Y':
         break
