@@ -56,7 +56,7 @@ class Pump(object):  # specifically for calibration, different from the behavbox
 
 
 # initiate pump
-pump = Pump
+pump = Pump()
 
 while True:
     pump_number = int(input("Pump Number: "))  # user inputs the pump number they intend to calibrate at the moment
