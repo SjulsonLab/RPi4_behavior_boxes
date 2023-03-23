@@ -79,7 +79,7 @@ while True:
     elif pump_number == "4":
         LED(7).blink(on_time, off_time, iteration)
         print("pump4, " + str(on_time) + str(off_time) + str(iteration))
-    # time.sleep((on_duration+off_duration)*pulse_time + 0.1)
+    time.sleep((on_duration+off_duration)*pulse_time + 0.1)
     print("Please go weight the container with the liquid!\n")
     weight_total = float(input("weight_total: "))
     weight_fluid = weight_total - weight_tube
