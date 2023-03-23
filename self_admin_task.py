@@ -192,7 +192,7 @@ class SelfAdminTask(object):
     def enter_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
         # self.cue_off('all')
-        self.update_plot_choice()
+        # self.update_plot_choice()
         # self.update_plot_error()
         self.trial_running = False
         # self.reward_error = False

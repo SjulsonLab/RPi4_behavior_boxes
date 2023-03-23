@@ -193,18 +193,19 @@ class SelfAdminTask(object):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
+        self.trial_running = False
         pass
 
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
         self.trial_running = True
-        while self.state == 'reward_available':
-            self.box.sound1.on() #ACTIVATE SOUND CUE#
+        self.box.sound1.on() #ACTIVATE SOUND CUE#
         
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
         # self.pump.reward("vaccum", 0)
         self.box.sound1.off() #INACTIVATE SOUND CUE#
+        self.trial_running = False
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )

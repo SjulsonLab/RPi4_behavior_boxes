@@ -113,8 +113,7 @@ try:
             print("Times up, finishing up")
             break
         logging.info(";" + str(time.time()) + ";[transition];start_trial()")
-        task.start_trial()  # initiate the time state machine, start_trial() is a trigger
-        while task.trial_running:
+        while task.trial_running: #trial running in both standby and reward_available
             task.run()  # run command trigger additional functions outside of the state machine
         print("error_count: " + str(task.error_count))
     raise SystemExit
