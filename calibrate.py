@@ -11,6 +11,7 @@ from datetime import datetime
 import io
 from subprocess import check_output
 from gpiozero import LED
+import time
 
 datestr = str(datetime.now().strftime("%Y-%m-%d"))
 timestr = str(datetime.now().strftime('%H%M%S'))
@@ -66,6 +67,7 @@ while True:
     weight_tube = float(input("weight_tube: "))
     # deliver the water using the pump object
     pump.reward(pump_number, on_duration, off_duration, pulse_time)
+    time.sleep((on_duration+off_duration)*pulse_time + 0.1)
     print("Please go weight the container with the liquid!\n")
     weight_total = float(input("weight_total: "))
     weight_fluid = weight_total - weight_tube
