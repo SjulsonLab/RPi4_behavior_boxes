@@ -89,16 +89,17 @@ class SelfAdminTask(object):
                   on_enter=["enter_standby"],
                   on_exit=["exit_standby"],
                   timeout=self.session_info['standby_timeout'],  #ADD STANDBY TIMEOUT TO SESSION_INFO = 5min
-                  on_timeout=["interrupt_while_loop_switch_to_reward_available"])
+                  on_timeout=["switch_to_reward_available"])
             Timeout(name='reward_available',
                     on_enter=["enter_reward_available"],
                     on_exit=["exit_reward_available"],
                     timeout=self.session_info["reward_timeout"], #5 min; In self_admin_task program, this is just a restart signal that counts the trials doesn't really do anything. So I can update this to switch to standby
-                    on_timeout=["interrupt_while_loop_switch_to_standby"])]
+                    on_timeout=["switch_to_standby"])]
         
         self.transitions = [
             ['switch_to_reward_available', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
-            ['switch_to_standby', 'reward_available', 'standby']]
+            ['switch_to_standby', 'reward_available', 'standby']
+        ]
 
         self.machine = TimedStateMachine(
             model=self,
@@ -106,7 +107,7 @@ class SelfAdminTask(object):
             transitions=self.transitions,
             initial='standby'  #STARTS IN STANDBY MODE
         )
-        self.trial_running = False
+        self.trial_running = True
 
         # trial statistics
         self.innocent = True
@@ -182,13 +183,13 @@ class SelfAdminTask(object):
                     self.total_reward += 1
         self.box.check_keybd()
 
-    def interrupt_while_loop_switch_to_reward_available(self):
-        logging.info(";" + str(time.time()) + ";[transition];switch_to_reward_available;" + str(self.error_repeat))
-        self.trial_running = False
-
-    def interrupt_while_loop_switch_to_standby(self):
-        logging.info(";" + str(time.time()) + ";[transition];switch_to_standby;" + str(self.error_repeat))
-        self.trial_running = False
+    # def interrupt_while_loop_switch_to_reward_available(self):
+    #     logging.info(";" + str(time.time()) + ";[transition];switch_to_reward_available;" + str(self.error_repeat))
+    #     self.trial_running = False
+    #
+    # def interrupt_while_loop_switch_to_standby(self):
+    #     logging.info(";" + str(time.time()) + ";[transition];switch_to_standby;" + str(self.error_repeat))
+    #     self.trial_running = False
 
     def enter_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
@@ -201,7 +202,7 @@ class SelfAdminTask(object):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
-        # self.trial_running = False
+        self.trial_running = False
         pass
 
     def enter_reward_available(self):
@@ -213,7 +214,7 @@ class SelfAdminTask(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
         # self.pump.reward("vaccum", 0)
         self.box.sound1.off() #INACTIVATE SOUND CUE#
-        # self.trial_running = False
+        self.trial_running = False
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )

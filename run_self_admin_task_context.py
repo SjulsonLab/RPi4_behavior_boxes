@@ -113,13 +113,10 @@ try:
             print("Times up, finishing up")
             break
         logging.info(";" + str(time.time()) + ";[transition];start_trial()")
-        if i == 0 or i % 2 == 0:
-            task.switch_to_reward_available()
-        elif i == 1 or i % 2 == 1:
-            task.switch_to_standby()
         while task.trial_running: #trial running in both standby and reward_available
             task.run()  # run command trigger additional functions outside of the state machine
         print("error_count: " + str(task.error_count))
+        #maybe add brief pause here so as to not repeat for loop again too quickly?
     raise SystemExit
 
 # graceful exit
