@@ -32,28 +32,28 @@ def calibration_flush(calibration_filename, calibration_log):
             f.write('%f, %f, %f, %f, %f, %f, %f\n' % entry)
 
 
-class Pump(object):  # specifically for calibration, different from the behavbox pump object
-    def __init__(self):
-        self.pump1 = LED(19)
-        self.pump2 = LED(20)
-        self.pump3 = LED(21)
-        self.pump4 = LED(7)
-        self.pump_air = LED(8)
-        self.pump_vacuum = LED(25)
-
-    def reward(self, which_pump, on_time, off_time, iteration):
-        if which_pump == "1":
-            self.pump1.blink(on_time, off_time, iteration)
-            print("pump1, " + str(on_time) + str(off_time) + str(iteration))
-        elif which_pump == "2":
-            self.pump2.blink(on_time, off_time, iteration)
-            print("pump2, " + str(on_time) + str(off_time) + str(iteration))
-        elif which_pump == "3":
-            self.pump3.blink(on_time, off_time, iteration)
-            print("pump3, " + str(on_time) + str(off_time) + str(iteration))
-        elif which_pump == "4":
-            self.pump4.blink(on_time, off_time, iteration)
-            print("pump4, " + str(on_time) + str(off_time) + str(iteration))
+# class Pump(object):  # specifically for calibration, different from the behavbox pump object
+#     def __init__(self):
+#         self.pump1 = LED(19)
+#         self.pump2 = LED(20)
+#         self.pump3 = LED(21)
+#         self.pump4 = LED(7)
+#         self.pump_air = LED(8)
+#         self.pump_vacuum = LED(25)
+#
+#     def reward(self, which_pump, on_time, off_time, iteration):
+#         if which_pump == "1":
+#             self.pump1.blink(on_time, off_time, iteration)
+#             print("pump1, " + str(on_time) + str(off_time) + str(iteration))
+#         elif which_pump == "2":
+#             self.pump2.blink(on_time, off_time, iteration)
+#             print("pump2, " + str(on_time) + str(off_time) + str(iteration))
+#         elif which_pump == "3":
+#             self.pump3.blink(on_time, off_time, iteration)
+#             print("pump3, " + str(on_time) + str(off_time) + str(iteration))
+#         elif which_pump == "4":
+#             self.pump4.blink(on_time, off_time, iteration)
+#             print("pump4, " + str(on_time) + str(off_time) + str(iteration))
 
 
 # initiate pump
@@ -66,8 +66,20 @@ while True:
     pulse_time = float(input("iteration: "))
     weight_tube = float(input("weight_tube: "))
     # deliver the water using the pump object
-    pump.reward(pump_number, on_duration, off_duration, pulse_time)
-    time.sleep((on_duration+off_duration)*pulse_time + 0.1)
+    # pump.reward(pump_number, on_duration, off_duration, pulse_time)
+    if pump_number == "1":
+        LED(19).blink(on_time, off_time, iteration)
+        print("pump1, " + str(on_time) + str(off_time) + str(iteration))
+    elif pump_number == "2":
+        LED(20).blink(on_time, off_time, iteration)
+        print("pump2, " + str(on_time) + str(off_time) + str(iteration))
+    elif pump_number == "3":
+        LED(21).blink(on_time, off_time, iteration)
+        print("pump3, " + str(on_time) + str(off_time) + str(iteration))
+    elif pump_number == "4":
+        LED(7).blink(on_time, off_time, iteration)
+        print("pump4, " + str(on_time) + str(off_time) + str(iteration))
+    # time.sleep((on_duration+off_duration)*pulse_time + 0.1)
     print("Please go weight the container with the liquid!\n")
     weight_total = float(input("weight_total: "))
     weight_fluid = weight_total - weight_tube
