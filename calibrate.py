@@ -57,7 +57,7 @@ def calibration_flush(calibration_filename, calibration_log):
 
 
 # initiate pump
-pump = Pump()
+# pump = Pump()
 
 while True:
     pump_number = int(input("Pump Number: "))  # user inputs the pump number they intend to calibrate at the moment
