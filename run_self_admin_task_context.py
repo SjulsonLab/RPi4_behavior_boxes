@@ -63,7 +63,7 @@ try:
     full_module_name = 'session_info_' + datestr
     import sys
 
-    session_info_path = '/home/pi/experiment_info/self_admin_task/session_info_self_admin'
+    session_info_path = '/home/pi/experiment_info/self_admin_task_context/session_info_self_admin'
     sys.path.insert(0, session_info_path)
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
