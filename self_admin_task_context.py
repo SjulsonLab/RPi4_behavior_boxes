@@ -107,7 +107,7 @@ class SelfAdminTask(object):
         ]
 
         self.transitions = [
-            ['start_trial_logic', 'standby','ContextB'], # format: ['trigger', 'origin', 'destination']
+            ['start_trial_logic', 'standby', 'ContextB'], # format: ['trigger', 'origin', 'destination']
             ['switch_to_ContextC_from_ContextA', 'ContextA', 'ContextC'],
             ['switch_to_ContextC_from_ContextB', 'ContextB', 'ContextC'],
             ['switch_to_ContextB', 'ContextC', 'ContextB'],
@@ -210,6 +210,9 @@ class SelfAdminTask(object):
             if self.event_name == "reserved_rx1_pressed":
                 print('ContextC_from_ContextB_active_press')
         self.box.check_keybd()
+    def start_trial_logic_funct(self):
+        self.start_trial_logic()
+        logging.info(";" + str(time.time()) + ";[transition];start_trial_called;" + str(self.error_repeat))
 
     def exit_standby(self):
         # self.error_repeat = False

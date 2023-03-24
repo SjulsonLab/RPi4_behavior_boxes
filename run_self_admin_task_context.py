@@ -107,8 +107,7 @@ try:
     t_end = time.time() + 60 * t_minute
 
     i = True #running this while loop until break encountered
-    task.start_trial_logic() #shifts state from standby to Context B
-
+    task.start_trial_logic_funct() #shifts state from standby to Context B
     while i: #change this to a while loop to run through repeatedly, but maintain the original while loop for running the trial
         if time.time() >= t_end:
             print("Times up, finishing up")
