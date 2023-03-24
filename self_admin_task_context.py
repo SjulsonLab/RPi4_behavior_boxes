@@ -78,7 +78,7 @@ class SelfAdminTaskContext(object):
             self.session_info = fake_session_info
         else:
             self.session_info = kwargs.get("session_info_self_admin", None)
-        ic(self.session_info)
+        ic(self.session_info_self_admin)
 
         # initialize the state machine
         self.states = [
