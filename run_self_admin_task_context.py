@@ -52,7 +52,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import your task class here
-from self_admin_task import SelfAdminTask
+from self_admin_task_context import SelfAdminTaskContext
 
 try:
     # load in session_info file, check that dates are correct, put in automatic
@@ -94,7 +94,7 @@ try:
         ]
     )
 
-    task = SelfAdminTask(name="self_admin_task_context", session_info=session_info)
+    task = SelfAdminTaskContext(name="self_admin_task_context", session_info=session_info)
 
     # start session
     task.start_session()
