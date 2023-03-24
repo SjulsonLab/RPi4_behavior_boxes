@@ -63,5 +63,9 @@ session_info['reward_size'] = 5
 # define timeout during each condition
 session_info['initiation_timeout'] = 120  # s
 
-session_info['reward_timeout'] = 30 #usually 60 for normal SA task
-session_info['standby_timeout'] = 30 #new for context version of task
+session_info['ContextA_reward_probability'] = 0.50
+session_info['ContextB_reward_probability'] = 0.25
+session_info["ContextA_time"] = 300
+session_info["ContextB_time"] = 300
+session_info["ContextC_time"] = 150
+

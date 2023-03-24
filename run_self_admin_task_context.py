@@ -4,18 +4,17 @@
 # In[ ]:
 
 
-#run_self_admin.task
+#run_self_admin_task_context.task
 
 #!/usr/bin/env -S ipython3 -i
 # run_self_admin_task.py
 """
-author: tian qiu
-date: 2023-01-25
-name: run_self_admin_task.py
-goal: running the self_admin_Task
+author: Mitch Farrell
+date: 2023-03-24
+name: run_self_admin_task_context.py
+goal: running the self_admin_task_context
 description:
-    adapted from Mitch's run_self_admin_task.py
-
+    adapted from Season's run_self_admin_task.py
 """
 import random
 from transitions import Machine
@@ -107,16 +106,15 @@ try:
     t_minute = int(input("Enter the time in minutes: "))
     t_end = time.time() + 60 * t_minute
 
-    for i in range(session_info['max_trial_number']):
-        print("Trial " + str(i) + "\n")
+    i = True #running this while loop until break encountered
+    task.start_trial_logic() #shifts state from standby to Context B
+
+    while i: #change this to a while loop to run through repeatedly, but maintain the original while loop for running the trial
         if time.time() >= t_end:
             print("Times up, finishing up")
             break
-        logging.info(";" + str(time.time()) + ";[transition];start_trial()")
         while task.trial_running: #trial running in both standby and reward_available
-            task.run()  # run command trigger additional functions outside of the state machine
-        print("error_count: " + str(task.error_count))
-        #maybe add brief pause here so as to not repeat for loop again too quickly?
+            task.run() #breaks out of this while loop during transitions between blocks; this will permit checking the t_end clock in this loop
     raise SystemExit
 
 # graceful exit

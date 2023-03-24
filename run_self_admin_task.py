@@ -89,7 +89,6 @@ try:
         ]
     )
 
-
     task = SelfAdminTask(name="self_admin_task", session_info=session_info)
 
     # start session
