@@ -84,12 +84,12 @@ class SelfAdminTaskContext(object):
         self.states = [
             State(name='standby',
                   on_exit=["exit_standby"]),
-            Timeout(name="Context_A",
+            Timeout(name="ContextA",
                     on_enter=["enter_ContextA"],
                     on_exit=["exit_ContextA"],
                     timeout=self.session_info["ContextA_time"], #5 min; In self_admin_task program, this is just a restart signal that counts the trials doesn't really do anything. So I can update this to switch to standby
                     on_timeout=["switch_to_ContextC_from_ContextA"]),
-            Timeout(name="Context_B",
+            Timeout(name="ContextB",
                     on_enter=["enter_ContextB"],
                     on_exit=["exit_ContextB"],
                     timeout=self.session_info["ContextB_time"],
