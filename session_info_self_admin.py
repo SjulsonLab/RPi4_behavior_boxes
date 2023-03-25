@@ -32,6 +32,7 @@ session_info['max_trial_number']            = 100
 session_info['timeout_length']              = 5  # in seconds
 session_info['reward_size']					= 10  # in microliters
 session_info["lick_threshold"]              = 2
+session_info['reward_time_delay']           = 20
 # visual stimulus
 session_info["visual_stimulus"]             = False
 # session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
@@ -41,7 +42,7 @@ session_info["visual_stimulus"]             = False
 
 # task related information
 
-session_info['config']	                    = 'headfixed_walk'
+session_info['config']	                    = 'headfixed_self_admin'
 session_info['treadmill_setup'] = {}
 session_info['treadmill']             = True
 
@@ -56,7 +57,7 @@ if session_info['error_repeat']:
     session_info['error_max'] = 3
 
 # condition setup
-session_info["reward_pump"] = '1'
+session_info["reward_pump"] = '3'
 session_info['reward_size'] = 5
 
 # define timeout during each condition

@@ -82,14 +82,14 @@ try:
     # make data directory and initialize logfile
     os.makedirs(session_info['dir_name'])
     os.chdir(session_info['dir_name'])
-    session_info['file_basename'] = session_info['dir_name'] + '/' + session_info['basename']
+    file_basename = session_info['dir_name'] + '/' + session_info['basename']
 
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
         datefmt=('%H:%M:%S'),
         handlers=[
-            logging.FileHandler(session_info['file_basename'] + '.log'),
+            logging.FileHandler(file_basename + '.log'),
             logging.StreamHandler()  # sends copy of log output to screen
         ]
     )
@@ -98,8 +98,8 @@ try:
 
     # start session
     task.start_session()
-    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
-    pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
+    scipy.io.savemat(file_basename + '_session_info.mat', {'session_info': session_info})
+    pickle.dump(session_info, open(file_basename + '_session_info.pkl', "wb"))
     sleep(10)
     # loop over trials
     # Set a timer
@@ -123,15 +123,15 @@ except (KeyboardInterrupt, SystemExit):
     task.end_session()
     ic('just called end_session()')
     # save dicts to disk
-    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
-    pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
+    scipy.io.savemat(file_basename + '_session_info.mat', {'session_info': session_info})
+    pickle.dump(session_info, open(file_basename + '_session_info.pkl', "wb"))
     pygame.quit()
 
 # exit because of error
 except RuntimeError as ex:
     print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
     # save dicts to disk
-    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
-    pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
+    scipy.io.savemat(file_basename + '_session_info.mat', {'session_info': session_info})
+    pickle.dump(session_info, open(file_basename + '_session_info.pkl', "wb"))
     task.end_session()
 
