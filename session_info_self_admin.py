@@ -59,10 +59,10 @@ if session_info['error_repeat']:
 session_info["reward_pump"] = '1'
 session_info['reward_size'] = 5
 
-
 # define timeout during each condition
 session_info['initiation_timeout'] = 120  # s
 
+session_info['lever_press_interval'] = 1
 session_info['ContextA_reward_probability'] = 0.50
 session_info['ContextB_reward_probability'] = 0.25
 session_info["ContextA_time"] = 300
