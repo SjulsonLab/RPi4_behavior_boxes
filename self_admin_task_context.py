@@ -108,10 +108,10 @@ class SelfAdminTaskContext(object):
 
         self.transitions = [
             ['start_trial_logic', 'standby', 'ContextB'], # format: ['trigger', 'origin', 'destination']
-            ['switch_to_ContextC_from_ContextA', 'ContextA', 'ContextC'],
-            ['switch_to_ContextC_from_ContextB', 'ContextB', 'ContextC'],
-            ['switch_to_ContextB', 'ContextC', 'ContextB'],
-            ['switch_to_ContextA', 'ContextC', 'ContextA']
+            ['switch_to_ContextC_from_ContextA', 'ContextA', 'ContextC_from_ContextA'],
+            ['switch_to_ContextC_from_ContextB', 'ContextB', 'ContextC_from_ContextB'],
+            ['switch_to_ContextB', 'ContextC_from_ContextA', 'ContextB'],
+            ['switch_to_ContextA', 'ContextC_from_ContextB', 'ContextA']
         ]
 
         self.machine = TimedStateMachine(
