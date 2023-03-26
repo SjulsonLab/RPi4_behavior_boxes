@@ -224,7 +224,7 @@ class SelfAdminTaskContext(object):
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.sound1.on() #ACTIVATE SOUND CUE#
+        self.box.sound1.blink(1,0.5) #ACTIVATE SOUND CUE#
         
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
@@ -235,11 +235,11 @@ class SelfAdminTaskContext(object):
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.sound2.on()
+        self.box.sound1.blink(1,1.5)
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
         self.trial_running = False
-        self.box.sound2.off()  # INACTIVATE SOUND CUE#
+        self.box.sound1.off()  # INACTIVATE SOUND CUE#
         self.box.event_list.clear()
     def enter_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
