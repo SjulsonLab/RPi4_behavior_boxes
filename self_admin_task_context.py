@@ -221,7 +221,7 @@ class SelfAdminTaskContext(object):
         self.box.event_list.clear()
         self.trial_running = False
 
-    def enter_ConextA(self):
+    def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
         self.trial_running = True
         self.box.sound1.on() #ACTIVATE SOUND CUE#
