@@ -211,10 +211,6 @@ class SelfAdminTaskContext(object):
                 print('ContextC_from_ContextB_active_press')
         self.box.check_keybd()
 
-    # def start_trial_logic_funct(self):
-    #     self.start_trial_logic()
-    #     logging.info(";" + str(time.time()) + ";[transition];start_trial_called;" + str(self.error_repeat))
-
     def exit_standby(self):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
