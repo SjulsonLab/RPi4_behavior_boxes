@@ -60,7 +60,7 @@ def calibration_flush(calibration_filename, calibration_log):
 # pump = Pump()
 
 while True:
-    pump_number = int(input("Pump Number: "))  # user inputs the pump number they intend to calibrate at the moment
+    pump_number = str(input("Pump Number: "))  # user inputs the pump number they intend to calibrate at the moment
     on_duration = float(input("on_time: "))
     off_duration = float(input("off_time: "))
     pulse_time = float(input("iteration: "))
