@@ -67,11 +67,37 @@ session_info['reward_size'] = {'small': 5, 'large': 10}
 session_info['air_duration'] = 0
 session_info["vacuum_duration"] = 1
 
-# solenoid valve linear fit coefficient for each pump
-session_info["calibration_coefficient"]['1'] = [5.14939324e+00, 2.21949268e-03]  # highest power first
-session_info["calibration_coefficient"]['2'] = [5.1260094e+00, 6.0176499e-04]
-session_info["calibration_coefficient"]['3'] = [4.67286214, 0.00716271]
-session_info["calibration_coefficient"]['4'] = [4.7801934 , 0.00625645]
+solenoid_coeff = None
+def get_coefficient():
+    df_calibration = pd.read_csv("~/experiment_info/calibration_info/calibration.csv")
+    pump_coefficient = {}
+
+    for pump_num in range(1, 5):
+        df_pump = df_calibration[df_calibration['pump_number'] == pump_num]
+        mg_per_pulse = df_pump['water_weight'].div(df_pump['iteration'])
+        on_time = df_pump['on_time']
+
+        fit_calibration = np.polyfit(mg_per_pulse, on_time, 1)  # output with highest power first
+        pump_coefficient[str(pump_num)] = fit_calibration
+    return pump_coefficient
+
+try:
+    solenoid_coeff = get_coefficient()
+except error as e:
+    print(e)
+
+if solenoid_coeff:
+    session_info["calibration_coefficient"]['1'] = solenoid_coeff["1"]
+    session_info["calibration_coefficient"]['2'] = solenoid_coeff["2"]
+    session_info["calibration_coefficient"]['3'] = solenoid_coeff["3"]
+    session_info["calibration_coefficient"]['4'] = solenoid_coeff["4"]
+else:
+    print("No coefficients, generate the default")
+    # solenoid valve linear fit coefficient for each pump
+    session_info["calibration_coefficient"]['1'] = [5.14939324e+00, 2.21949268e-03]  # highest power first
+    session_info["calibration_coefficient"]['2'] = [5.1260094e+00, 6.0176499e-04]
+    session_info["calibration_coefficient"]['3'] = [4.67286214, 0.00716271]
+    session_info["calibration_coefficient"]['4'] = [4.7801934 , 0.00625645]
 
 if session_info['phase'] == 1:
     session_info['reward_size'] = {'small': 20, 'large': 20}
