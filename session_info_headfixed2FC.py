@@ -55,6 +55,14 @@ session_info['cue'] = ['LED_L', 'LED_R', 'all']
 session_info['choice'] = ['right', 'left']  # lick port
 session_info['reward'] = ['small', 'large']  # reward size
 session_info['reward_size'] = {'small': 5, 'large': 10}
+session_info['air_duration'] = 0
+session_info["vacuum_duration"] = 1
+
+# solenoid valve liear fit coefficient for each pump
+session_info["calibration_coefficient"]['1'] = [-0.30445602, 0.22461195, -0.00108027]  # highest power first
+session_info["calibration_coefficient"]['2'] = [2.66288610e-02, 1.92493509e-01, -6.65082046e-05]
+session_info["calibration_coefficient"]['3'] = [0.07929563, 0.20568105, -0.0013433]
+session_info["calibration_coefficient"]['4'] = [-0.02619048, 0.21173333, -0.00135971]
 
 if session_info['phase'] == 1:
     session_info['reward_size'] = {'small': 10, 'large': 10}
