@@ -11,11 +11,12 @@ from datetime import datetime
 import io
 from subprocess import check_output
 from gpiozero import LED
+import time
 
 datestr = str(datetime.now().strftime("%Y-%m-%d"))
 timestr = str(datetime.now().strftime('%H%M%S'))
 calibrator = str(input("Who is calibrating the pump? (Enter your name)"))
-box_number = check_output(['hostname', '-I']).decode('ascii')
+box_number = check_output(['hostname', '-I']).decode('ascii')[-5:-2]
 base_path = "/home/pi/experiment_info/calibration_info/"
 calibration_filename = base_path + "calibration_box" + str(box_number) + "_" + str(
     calibrator) + "_" + datestr + timestr + '.csv'
@@ -31,45 +32,61 @@ def calibration_flush(calibration_filename, calibration_log):
             f.write('%f, %f, %f, %f, %f, %f, %f\n' % entry)
 
 
-class Pump(object):  # specifically for calibration, different from the behavbox pump object
-    def __init__(self):
-        self.pump1 = LED(19)
-        self.pump2 = LED(20)
-        self.pump3 = LED(21)
-        self.pump4 = LED(7)
-        self.pump_air = LED(8)
-        self.pump_vacuum = LED(25)
-
-    def reward(self, which_pump, on_time, off_time, iteration):
-        if which_pump == "1":
-            self.pump1.blink(on_time, off_time, iteration)
-            print("pump1, " + str(on_time) + str(off_time) + str(iteration))
-        elif which_pump == "2":
-            self.pump2.blink(on_time, off_time, iteration)
-            print("pump2, " + str(on_time) + str(off_time) + str(iteration))
-        elif which_pump == "3":
-            self.pump3.blink(on_time, off_time, iteration)
-            print("pump3, " + str(on_time) + str(off_time) + str(iteration))
-        elif which_pump == "4":
-            self.pump4.blink(on_time, off_time, iteration)
-            print("pump4, " + str(on_time) + str(off_time) + str(iteration))
+# class Pump(object):  # specifically for calibration, different from the behavbox pump object
+#     def __init__(self):
+#         self.pump1 = LED(19)
+#         self.pump2 = LED(20)
+#         self.pump3 = LED(21)
+#         self.pump4 = LED(7)
+#         self.pump_air = LED(8)
+#         self.pump_vacuum = LED(25)
+#
+#     def reward(self, which_pump, on_time, off_time, iteration):
+#         if which_pump == "1":
+#             self.pump1.blink(on_time, off_time, iteration)
+#             print("pump1, " + str(on_time) + str(off_time) + str(iteration))
+#         elif which_pump == "2":
+#             self.pump2.blink(on_time, off_time, iteration)
+#             print("pump2, " + str(on_time) + str(off_time) + str(iteration))
+#         elif which_pump == "3":
+#             self.pump3.blink(on_time, off_time, iteration)
+#             print("pump3, " + str(on_time) + str(off_time) + str(iteration))
+#         elif which_pump == "4":
+#             self.pump4.blink(on_time, off_time, iteration)
+#             print("pump4, " + str(on_time) + str(off_time) + str(iteration))
 
 
 # initiate pump
-pump = Pump
+# pump = Pump()
 
 while True:
-    pump_number = int(input("Pump Number: "))  # user inputs the pump number they intend to calibrate at the moment
+    pump_number = str(input("Pump Number: "))  # user inputs the pump number they intend to calibrate at the moment
     on_duration = float(input("on_time: "))
     off_duration = float(input("off_time: "))
     pulse_time = float(input("iteration: "))
     weight_tube = float(input("weight_tube: "))
     # deliver the water using the pump object
-    pump.reward(pump_number, on_duration, off_duration, pulse_time)
+    # pump.reward(pump_number, on_duration, off_duration, pulse_time)
+    if pump_number == "1":
+        LED(19).blink(on_time, off_time, iteration)
+        print("pump1, " + str(on_time) + str(off_time) + str(iteration))
+    elif pump_number == "2":
+        LED(20).blink(on_time, off_time, iteration)
+        print("pump2, " + str(on_time) + str(off_time) + str(iteration))
+    elif pump_number == "3":
+        LED(21).blink(on_time, off_time, iteration)
+        print("pump3, " + str(on_time) + str(off_time) + str(iteration))
+    elif pump_number == "4":
+        LED(7).blink(on_time, off_time, iteration)
+        print("pump4, " + str(on_time) + str(off_time) + str(iteration))
+    time.sleep((on_duration+off_duration)*pulse_time + 0.1)
     print("Please go weight the container with the liquid!\n")
     weight_total = float(input("weight_total: "))
     weight_fluid = weight_total - weight_tube
-    calibration_log.append(pump_number, on_duration, off_duration, pulse_time, weight_tube, weight_total, weight_fluid)
+    calibration_log.append(
+        (pump_number, on_duration, off_duration,
+         pulse_time, weight_tube, weight_total, weight_fluid)
+    )
     abort_or_not = str(input("Abort the program?(Y/N) \n")).upper()
     if abort_or_not == 'Y':
         break
