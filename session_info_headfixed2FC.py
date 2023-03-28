@@ -4,6 +4,8 @@ from datetime import datetime
 import os
 import pysistence, collections
 import socket
+import pandas as pd
+import numpy as np
 
 # defining immutable mouse dict (once defined for a mouse, NEVER EDIT IT)
 mouse_info = pysistence.make_dict({'mouse_name': 'test',
@@ -58,6 +60,8 @@ session_info['reward_size'] = {'small': 5, 'large': 10}
 session_info['air_duration'] = 0
 session_info["vacuum_duration"] = 1
 
+""" solenoid calibration information configuration """
+
 solenoid_coeff = None
 def get_coefficient():
     df_calibration = pd.read_csv("~/experiment_info/calibration_info/calibration.csv")
@@ -77,6 +81,8 @@ try:
 except error as e:
     print(e)
 
+session_info["calibration_coefficient"] = {}
+
 if solenoid_coeff:
     session_info["calibration_coefficient"]['1'] = solenoid_coeff["1"]
     session_info["calibration_coefficient"]['2'] = solenoid_coeff["2"]
@@ -92,6 +98,7 @@ else:
 
 if session_info['phase'] == 1:
     session_info['reward_size'] = {'small': 10, 'large': 10}
+# print(session_info["calibration_coefficient"])
 
 # define timeout during each condition
 session_info['initiation_timeout'] = 120  # s

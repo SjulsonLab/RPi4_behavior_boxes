@@ -67,6 +67,8 @@ session_info['reward_size'] = {'small': 5, 'large': 10}
 session_info['air_duration'] = 0
 session_info["vacuum_duration"] = 1
 
+""" solenoid calibration information configuration """
+
 solenoid_coeff = None
 def get_coefficient():
     df_calibration = pd.read_csv("~/experiment_info/calibration_info/calibration.csv")
@@ -85,6 +87,8 @@ try:
     solenoid_coeff = get_coefficient()
 except error as e:
     print(e)
+
+session_info["calibration_coefficient"] = {}
 
 if solenoid_coeff:
     session_info["calibration_coefficient"]['1'] = solenoid_coeff["1"]
