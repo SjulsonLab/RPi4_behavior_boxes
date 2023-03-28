@@ -58,7 +58,7 @@ session_info['reward_size'] = {'small': 5, 'large': 10}
 session_info['air_duration'] = 0
 session_info["vacuum_duration"] = 1
 
-# solenoid valve liear fit coefficient for each pump
+# solenoid valve linear fit coefficient for each pump
 session_info["calibration_coefficient"]['1'] = [5.14939324e+00, 2.21949268e-03]  # highest power first
 session_info["calibration_coefficient"]['2'] = [5.1260094e+00, 6.0176499e-04]
 session_info["calibration_coefficient"]['3'] = [4.67286214, 0.00716271]
