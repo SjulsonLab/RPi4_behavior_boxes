@@ -165,7 +165,10 @@ except (KeyboardInterrupt, SystemExit):
 
 # exit because of error
 except RuntimeError as ex:
-    print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
+    print(Fore.RED + Style.BRIGHT + 'Exiting now...' + Style.RESET_ALL)
+    ic('about to call end_session()')
+    task.end_session()
+    ic('just called end_session()')
     # save dicts to disk
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
     pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
