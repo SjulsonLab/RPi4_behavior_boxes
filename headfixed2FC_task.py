@@ -139,7 +139,7 @@ class Headfixed2FCTask(object):
         self.event_name = ""
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
-        self.pump = self.box.pump(self.session_info)
+        self.pump = self.box.pump
         self.treadmill = self.box.treadmill
 
         self.distance_initiation = self.session_info['treadmill_setup']['distance_initiation']
