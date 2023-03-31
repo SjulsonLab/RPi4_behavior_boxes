@@ -142,7 +142,7 @@ class BehavBox(object):
         ###############################################################################################
         # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
         ###############################################################################################
-        self.pump = Pump()
+        # self.pump = Pump()
 
         ###############################################################################################
         # flipper strobe signal (previously called camera strobe signal)
