@@ -491,7 +491,8 @@ class BoxLED(PWMLED):
 
 
 class Pump(object):
-    def __init__(self):
+    def __init__(self, session_info):
+        self.session_info = session_info
         self.pump1 = LED(19)
         self.pump2 = LED(20)
         self.pump3 = LED(21)
