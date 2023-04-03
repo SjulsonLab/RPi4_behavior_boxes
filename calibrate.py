@@ -29,7 +29,7 @@ def calibration_flush(calibration_filename, calibration_log):
     with io.open(calibration_filename, 'w') as f:
         f.write('pump_number, on_time, off_time, iteration, weight_tube, weight_total, weight_fluid\n')
         for entry in calibration_log:
-            f.write('%f, %f, %f, %f, %f, %f, %f\n' % entry)
+            f.write('%f, %f, %f, %f, %f, %f, %f\n' % float(entry))
 
 
 class Pump(object):  # specifically for calibration, different from the behavbox pump object
@@ -79,7 +79,7 @@ while True:
     # elif pump_number == "4":
     #     LED(7).blink(on_duration, off_duration, pulse_time)
     #     print("pump4, " + str(on_duration) + str(off_duration) + str(pulse_time))
-    time.sleep((on_duration+off_duration)*pulse_time + 0.1)
+    # time.sleep((on_duration+off_duration)*pulse_time + 0.1)
     print("Please go weight the container with the liquid!\n")
     weight_total = float(input("weight_total: "))
     weight_fluid = weight_total - weight_tube
