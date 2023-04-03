@@ -78,7 +78,7 @@ def get_coefficient():
 
 try:
     solenoid_coeff = get_coefficient()
-except error as e:
+except Exception as e:
     print(e)
 
 session_info["calibration_coefficient"] = {}
