@@ -63,7 +63,7 @@ while True:
     pump_number = str(input("Pump Number: "))  # user inputs the pump number they intend to calibrate at the moment
     on_duration = float(input("on_time: "))
     off_duration = float(input("off_time: "))
-    pulse_time = float(input("iteration: "))
+    pulse_time = int(input("iteration: "))
     weight_tube = float(input("weight_tube: "))
     # deliver the water using the pump object
     pump.reward(pump_number, on_duration, off_duration, pulse_time)
