@@ -29,7 +29,7 @@ def calibration_flush(calibration_filename, calibration_log):
     with io.open(calibration_filename, 'w') as f:
         f.write('pump_number, on_time, off_time, iteration, weight_tube, weight_total, weight_fluid\n')
         for entry in calibration_log:
-            f.write('%f, %f, %f, %f, %f, %f, %f\n' % float(entry))
+            f.write('%f, %f, %f, %f, %f, %f, %f\n' % entry)
 
 
 class Pump(object):  # specifically for calibration, different from the behavbox pump object
@@ -67,19 +67,6 @@ while True:
     weight_tube = float(input("weight_tube: "))
     # deliver the water using the pump object
     pump.reward(pump_number, on_duration, off_duration, pulse_time)
-    # if pump_number == "1":
-    #     LED(19).blink(on_duration, off_duration, pulse_time)
-    #     print("pump1, " + str(on_duration) + str(off_duration) + str(pulse_time))
-    # elif pump_number == "2":
-    #     LED(20).blink(on_duration, off_duration, pulse_time)
-    #     print("pump2, " + str(on_duration) + str(off_duration) + str(pulse_time))
-    # elif pump_number == "3":
-    #     LED(21).blink(on_duration, off_duration, pulse_time)
-    #     print("pump3, " + str(on_duration) + str(off_duration) + str(pulse_time))
-    # elif pump_number == "4":
-    #     LED(7).blink(on_duration, off_duration, pulse_time)
-    #     print("pump4, " + str(on_duration) + str(off_duration) + str(pulse_time))
-    # time.sleep((on_duration+off_duration)*pulse_time + 0.1)
     print("Please go weight the container with the liquid!\n")
     weight_total = float(input("weight_total: "))
     weight_fluid = weight_total - weight_tube
