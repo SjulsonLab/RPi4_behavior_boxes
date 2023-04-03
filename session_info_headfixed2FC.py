@@ -69,7 +69,7 @@ def get_coefficient():
 
     for pump_num in range(1, 5):
         df_pump = df_calibration[df_calibration['pump_number'] == pump_num]
-        mg_per_pulse = df_pump['water_weight'].div(df_pump['iteration'])
+        mg_per_pulse = df_pump['weight_fluid'].div(df_pump['iteration'])
         on_time = df_pump['on_time']
 
         fit_calibration = np.polyfit(mg_per_pulse, on_time, 1)  # output with highest power first
