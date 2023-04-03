@@ -29,7 +29,7 @@ def calibration_flush(calibration_filename, calibration_log):
     with io.open(calibration_filename, 'w') as f:
         f.write('pump_number, on_time, off_time, iteration, weight_tube, weight_total, weight_fluid\n')
         for entry in calibration_log:
-            f.write('%f, %f, %f, %f, %f, %f, %f\n' % entry)
+            f.write('%f, %f, %f, %f, %f, %f, %f\n' % float(entry))
 
 
 class Pump(object):  # specifically for calibration, different from the behavbox pump object
