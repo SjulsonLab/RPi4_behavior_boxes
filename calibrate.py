@@ -68,17 +68,17 @@ while True:
     # deliver the water using the pump object
     # pump.reward(pump_number, on_duration, off_duration, pulse_time)
     if pump_number == "1":
-        LED(19).blink(on_time, off_time, iteration)
-        print("pump1, " + str(on_time) + str(off_time) + str(iteration))
+        LED(19).blink(on_duration, off_duration, iteration)
+        print("pump1, " + str(on_duration) + str(off_duration) + str(iteration))
     elif pump_number == "2":
-        LED(20).blink(on_time, off_time, iteration)
-        print("pump2, " + str(on_time) + str(off_time) + str(iteration))
+        LED(20).blink(on_duration, off_duration, iteration)
+        print("pump2, " + str(on_duration) + str(off_duration) + str(iteration))
     elif pump_number == "3":
-        LED(21).blink(on_time, off_time, iteration)
-        print("pump3, " + str(on_time) + str(off_time) + str(iteration))
+        LED(21).blink(on_duration, off_duration, iteration)
+        print("pump3, " + str(on_duration) + str(off_duration) + str(iteration))
     elif pump_number == "4":
-        LED(7).blink(on_time, off_time, iteration)
-        print("pump4, " + str(on_time) + str(off_time) + str(iteration))
+        LED(7).blink(on_duration, off_duration, iteration)
+        print("pump4, " + str(on_duration) + str(off_duration) + str(iteration))
     time.sleep((on_duration+off_duration)*pulse_time + 0.1)
     print("Please go weight the container with the liquid!\n")
     weight_total = float(input("weight_total: "))
