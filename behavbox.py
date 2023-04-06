@@ -104,6 +104,22 @@ class BehavBox(object):
         # there is a DIO6, but that is the same pin as the camera strobe
 
         ###############################################################################################
+        # IR detection - for nosepoke
+        ###############################################################################################
+        self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
+        self.IR_rx2 = Button(6, None, True)
+        self.IR_rx3 = Button(12, None, True)
+        self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
+        self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
+
+        # link nosepoke event detections to callbacks
+        self.IR_rx1.when_pressed = self.left_IR_entry
+        self.IR_rx2.when_pressed = self.center_IR_entry
+        self.IR_rx3.when_pressed = self.right_IR_entry
+        self.IR_rx1.when_released = self.left_IR_exit
+        self.IR_rx2.when_released = self.center_IR_exit
+        self.IR_rx3.when_released = self.right_IR_exit
+        ###############################################################################################
         # IR detection - for nosepoke detection
         ###############################################################################################
         self.lick1 = Button(26, None, True)
@@ -260,12 +276,15 @@ class BehavBox(object):
                         self.keyboard_active = False
                     elif event.key == pygame.K_1:
                         self.left_entry()
+                        self.left_IR_entry()
                         logging.info(";" + str(time.time()) + ";[action];key_pressed_left_entry()")
                     elif event.key == pygame.K_2:
                         self.center_entry()
+                        self.center_IR_entry()
                         logging.info(";" + str(time.time()) + ";[action];key_pressed_center_entry()")
                     elif event.key == pygame.K_3:
                         self.right_entry()
+                        self.right_IR_entry()
                         logging.info(";" + str(time.time()) + ";[action];key_pressed_right_entry()")
                     elif event.key == pygame.K_4:
                         self.reserved_rx1_pressed()
@@ -474,7 +493,30 @@ class BehavBox(object):
         self.event_list.append("reserved_rx2_released")
         self.interact_list.append((time.time(), "reserved_rx2_released"))
         logging.info(";" + str(time.time()) + ";[action];reserved_rx2_released")
+    def left_IR_entry(self):
+        self.event_list.append("left_IR_entry")
+        logging.info(str(time.time()) + ", left_IR_entry")
 
+    def center_IR_entry(self):
+        self.event_list.append("center_IR_entry")
+        logging.info(str(time.time()) + ", center_IR_entry")
+
+    def right_IR_entry(self):
+        self.event_list.append("right_IR_entry")
+        logging.info(str(time.time()) + ", right_IR_entry")
+
+    def left_IR_exit(self):
+        self.event_list.append("left_IR_exit")
+        logging.info(str(time.time()) + ", left_IR_exit")
+
+    def center_IR_exit(self):
+        self.event_list.append("center_IR_exit")
+        # self.cueLED2.off()
+        logging.info(str(time.time()) + ", center_IR_exit")
+
+    def right_IR_exit(self):
+        self.event_list.append("right_IR_exit")
+        logging.info(str(time.time()) + ", right_IR_exit")
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
