@@ -113,12 +113,16 @@ class BehavBox(object):
         self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
 
         # link nosepoke event detections to callbacks
-        self.IR_rx1.when_pressed = self.left_IR_entry
-        self.IR_rx2.when_pressed = self.center_IR_entry
-        self.IR_rx3.when_pressed = self.right_IR_entry
-        self.IR_rx1.when_released = self.left_IR_exit
-        self.IR_rx2.when_released = self.center_IR_exit
-        self.IR_rx3.when_released = self.right_IR_exit
+        self.IR_rx1.when_pressed = self.IR_1_entry
+        self.IR_rx2.when_pressed = self.IR_2_entry
+        self.IR_rx3.when_pressed = self.IR_3_entry
+        self.IR_rx4.when_pressed = self.IR_4_entry
+        self.IR_rx5.when_pressed = self.IR_5_entry
+        self.IR_rx1.when_released = self.IR_1_exit
+        self.IR_rx2.when_released = self.IR_2_exit
+        self.IR_rx3.when_released = self.IR_3_exit
+        self.IR_rx4.when_released = self.IR_4_exit
+        self.IR_rx5.when_released = self.IR_5_exit
         ###############################################################################################
         # IR detection - for nosepoke detection
         ###############################################################################################
@@ -493,31 +497,46 @@ class BehavBox(object):
         self.event_list.append("reserved_rx2_released")
         self.interact_list.append((time.time(), "reserved_rx2_released"))
         logging.info(";" + str(time.time()) + ";[action];reserved_rx2_released")
-    def left_IR_entry(self):
-        self.event_list.append("left_IR_entry")
-        logging.info(str(time.time()) + ", left_IR_entry")
+    def IR_1_entry(self):
+        self.event_list.append("IR_1_entry")
+        logging.info(str(time.time()) + ", IR_1_entry")
 
-    def center_IR_entry(self):
-        self.event_list.append("center_IR_entry")
-        logging.info(str(time.time()) + ", center_IR_entry")
+    def IR_2_entry(self):
+        self.event_list.append("IR_2_entry")
+        logging.info(str(time.time()) + ", IR_2_entry")
 
-    def right_IR_entry(self):
-        self.event_list.append("right_IR_entry")
-        logging.info(str(time.time()) + ", right_IR_entry")
+    def IR_3_entry(self):
+        self.event_list.append("IR_3_entry")
+        logging.info(str(time.time()) + ", IR_3_entry")
 
-    def left_IR_exit(self):
-        self.event_list.append("left_IR_exit")
-        logging.info(str(time.time()) + ", left_IR_exit")
+    def IR_4_entry(self):
+        self.event_list.append("IR_4_entry")
+        logging.info(str(time.time()) + ", IR_4_entry")
 
-    def center_IR_exit(self):
-        self.event_list.append("center_IR_exit")
+    def IR_5_entry(self):
+        self.event_list.append("IR_5_entry")
+        logging.info(str(time.time()) + ", IR_5_entry")
+
+    def IR_1_exit(self):
+        self.event_list.append("IR_1_exit")
+        logging.info(str(time.time()) + ", IR_1_exit")
+
+    def IR_2_exit(self):
+        self.event_list.append("IR_2_exit")
         # self.cueLED2.off()
-        logging.info(str(time.time()) + ", center_IR_exit")
+        logging.info(str(time.time()) + ", IR_2_exit")
 
-    def right_IR_exit(self):
-        self.event_list.append("right_IR_exit")
-        logging.info(str(time.time()) + ", right_IR_exit")
+    def IR_3_exit(self):
+        self.event_list.append("IR_3_exit")
+        logging.info(str(time.time()) + ", IR_3_exit")
 
+    def IR_4_exit(self):
+        self.event_list.append("IR_4_exit")
+        logging.info(str(time.time()) + ", IR_4_exit")
+
+    def IR_5_exit(self):
+        self.event_list.append("IR_5_exit")
+        logging.info(str(time.time()) + ", IR_5_exit")
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the
