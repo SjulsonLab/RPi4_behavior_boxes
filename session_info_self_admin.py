@@ -73,7 +73,7 @@ session_info["ContextB_time"] = 300
 session_info["ContextC_time"] = 150
 
 #code below added for two action version of the context task
-self.session_info["reward_pump1"] = '3' #update this in session_info
-self.session_info['reward_pump2'] = '1' #update this in session_info
-self.session_info["reward_size1"] = 1   #update this in session_info
-self.session_info['reward_size2'] = 1   #update this in session_info
+session_info["reward_pump1"] = '3' #update this in session_info
+session_info['reward_pump2'] = '1' #update this in session_info
+session_info["reward_size1"] = 1   #update this in session_info
+session_info['reward_size2'] = 1   #update this in session_info
