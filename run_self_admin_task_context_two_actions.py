@@ -52,7 +52,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import your task class here
-from self_admin_task_context import SelfAdminTaskContext
+from self_admin_task_context_two_actions import SelfAdminTaskContextTwoActions
 
 try:
     # load in session_info file, check that dates are correct, put in automatic
