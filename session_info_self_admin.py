@@ -66,9 +66,14 @@ session_info['reward_size'] = 5
 session_info['initiation_timeout'] = 120  # s
 
 session_info['lever_press_interval'] = 1
-session_info['ContextA_reward_probability'] = 0.50
-session_info['ContextB_reward_probability'] = 0.25
+session_info['ContextA_reward_probability'] = 1
+session_info['ContextB_reward_probability'] = 1
 session_info["ContextA_time"] = 300
 session_info["ContextB_time"] = 300
 session_info["ContextC_time"] = 150
 
+#code below added for two action version of the context task
+self.session_info["reward_pump1"] = '3' #update this in session_info
+self.session_info['reward_pump2'] = '1' #update this in session_info
+self.session_info["reward_size1"] = 1   #update this in session_info
+self.session_info['reward_size2'] = 1   #update this in session_info
