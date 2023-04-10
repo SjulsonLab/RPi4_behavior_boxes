@@ -94,7 +94,7 @@ try:
         ]
     )
 
-    task = SelfAdminTaskContext(name="self_admin_task_context", session_info=session_info)
+    task = SelfAdminTaskContextTwoActions(name="self_admin_task_context_two_actions", session_info=session_info)
 
     # start session
     task.start_session()
