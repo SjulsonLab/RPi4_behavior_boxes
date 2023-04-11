@@ -163,7 +163,7 @@ class SelfAdminTaskLeftActions(object):
         if self.state == "standby":
             pass
         elif self.state == "reward_available":
-            if self.event_name == "reserved_rx2_pressed":
+            if self.event_name == "reserved_rx1_pressed":
                 lever_pressed_time_temp = time.time()
                 lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time
                 if lever_pressed_dt >= self.lever_press_interval:
