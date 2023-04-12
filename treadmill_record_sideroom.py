@@ -118,3 +118,5 @@ try:
     scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
     print("dumping session_info")
     pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+except Exception as error_message:
+    print(str(error_message))
