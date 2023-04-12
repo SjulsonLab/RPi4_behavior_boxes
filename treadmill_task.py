@@ -49,10 +49,3 @@ class TreadmillTask(object):
         # initialize behavior box
         # self.box = behavbox_test.BehavBoxTest(self.session_info)
         self.box = behavbox.BehavBox(self.session_info)
-    # def start_session(self):
-    #     print("Start recording video")
-    #     self.box.video_start()
-    #
-    # def end_session(self):
-    #     print("Stop recording video")
-    #     self.box.video_stop()

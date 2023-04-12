@@ -41,7 +41,7 @@ try:
     full_module_name = 'session_info_' + datestr
     import sys
 
-    task_info_path = '/home/pi/experiment_info/record_task/session_info'
+    task_info_path = '/home/pi/experiment_info/treadmill_task/session_info'
     sys.path.insert(0, task_info_path)
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
@@ -86,16 +86,16 @@ try:
 # graceful exit
 except (KeyboardInterrupt, SystemExit):
     print(Fore.RED + Style.BRIGHT + 'Exiting now...' + Style.RESET_ALL)
-    task.end_session()
+    # task.end_session()
     # # save dicts to disk
-    # scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
-    # pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
-    # # pygame.quit()
+    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
+    pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
+    pygame.quit()
 
 
 # exit because of error
 except (RuntimeError) as ex:
     print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
     # # save dicts to disk
-    # scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
-    # pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
+    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
+    pickle.dump( session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )

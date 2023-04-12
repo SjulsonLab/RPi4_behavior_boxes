@@ -29,17 +29,26 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 import behavbox
+"""
+1. setup session information
+2. import the behavbox with the given session information
+3. start the task with flipper on(first) and treadmill on(second)
+4. ask user for input: how long does the recording intend to be?
+5. sleep(wait) for the set duration
+6. close the treadmill(first) and then the flipper off (second)
+7. clean up the data and store the data
 
+"""
 try:
     # load in session_info file, check that dates are correct, put in automatic
     # time and date stamps for when the experiment was run
     # There should be a session_info module corresponding to this before running this file
-
     datestr = datetime.now().strftime("%Y-%m-%d")
     timestr = datetime.now().strftime('%H%M%S')
     full_module_name = 'session_info_' + datestr
     import sys
 
+    # Make sure to create a directory with this path, otherwise there will be an access issue
     task_info_path = '/home/pi/experiment_info/treadmill_task/session_info'
     sys.path.insert(0, task_info_path)
     tempmod = importlib.import_module(full_module_name)
@@ -63,11 +72,14 @@ try:
     print("start_session")
     duration_buffer = 10  # it takes 8 seconds for the camera and the video_start function to be set up
     duration = int(input("Enter the time in seconds: ")) + duration_buffer
+
+    # start the flipper triggering
     try:
         box.flipper.flip()
     except Exception as error_message:
         print("flipper can't run\n")
         print(str(error_message))
+
     # Treadmill initiation
     try:
         box.treadmill.start()
@@ -79,18 +91,25 @@ try:
     scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
     print("dumping session_info")
     pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+
+    # run the task and wait for the set duration
     sleep(duration)
 
+    # first terminate the treadmill recording
     try:  # try to stop recording the treadmill
         box.treadmill.close()
-    except:
-        pass
-    
-    # now stop the flipper after the video stopped recording
+    except Exception as error_message:
+        print("treadmill failed to close\n")
+        print(str(error_message))
+
+    # now stop the flipper
     try:  # try to stop the flipper
         box.flipper.close()
-    except:
-        pass
+    except Exception as error_message:
+        print("flipper failed to close\n")
+        print(str(error_message))
+
+    #time buffer
     time.sleep(2)
 
     base_dir = session_info['external_storage'] + '/'
