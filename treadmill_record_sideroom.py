@@ -64,6 +64,22 @@ try:
     basename = session_info['basename']
     session_info['dir_name'] = session_info['basedir'] + "/" + session_info['basename']
 
+    IP_address_video = self.IP_address_video
+    dir_name = self.session_info['dir_name']
+    basename = self.session_info['basename']
+    file_name = dir_name + "/" + basename
+    # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
+
+    # start initiating the dumping of the session information when available
+    scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
+    print("dumping session_info")
+    pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+
+    # create directory on the external storage
+    base_dir = self.session_info['external_storage'] + '/'
+    hd_dir = base_dir + basename
+    os.mkdir(hd_dir)
+
     if session_info['manual_date'] != session_info['date']:  # check if file is updated
         print('wrong date!!')
         raise RuntimeError('manual_date field in session_info file is not updated')
@@ -91,10 +107,6 @@ try:
         print(str(error_message))
     base_dir = session_info['external_storage'] + '/'
     hd_dir = base_dir + basename
-    # start initiating the dumping of the session information when available
-    # scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
-    print("dumping session_info")
-    # pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
     # run the task and wait for the set duration
     sleep(duration)
@@ -116,8 +128,18 @@ try:
     #time buffer
     sleep(2)
 
-    # scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
+    scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
     print("dumping session_info")
-    # pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+    pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+
+    os.system(
+        "rsync -av --progress --remove-source-files ~/video/*.log "
+        + hd_dir
+    )
+
+    os.system(
+        "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/ "
+        + hd_dir
+    )
 except Exception as error_message:
     print(str(error_message))
