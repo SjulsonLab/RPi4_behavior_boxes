@@ -28,7 +28,8 @@ if debug_enable:
     ipython.magic("pdb on")
     ipython.magic("xmode Verbose")
 
-import behavbox
+import Treadmill
+from FlipperOutput import FlipperOutput
 """
 1. setup session information
 2. import the behavbox with the given session information
@@ -67,22 +68,24 @@ try:
         print('wrong date!!')
         raise RuntimeError('manual_date field in session_info file is not updated')
 
-    box = behavbox.BehavBox(session_info)
+    # box = behavbox.BehavBox(session_info)
 
     print("start_session")
     duration_buffer = 10  # it takes 8 seconds for the camera and the video_start function to be set up
     duration = int(input("Enter the time in seconds: ")) + duration_buffer
 
+    flipper = FlipperOutput(self.session_info, pin=4)
     # start the flipper triggering
     try:
-        box.flipper.flip()
+        flipper.flip()
     except Exception as error_message:
         print("flipper can't run\n")
         print(str(error_message))
 
     # Treadmill initiation
+    treadmill = Treadmill.Treadmill(self.session_info)
     try:
-        box.treadmill.start()
+        treadmill.start()
     except Exception as error_message:
         print("treadmill can't run\n")
         print(str(error_message))
@@ -97,14 +100,14 @@ try:
 
     # first terminate the treadmill recording
     try:  # try to stop recording the treadmill
-        box.treadmill.close()
+        treadmill.close()
     except Exception as error_message:
         print("treadmill failed to close\n")
         print(str(error_message))
 
     # now stop the flipper
     try:  # try to stop the flipper
-        box.flipper.close()
+        flipper.close()
     except Exception as error_message:
         print("flipper failed to close\n")
         print(str(error_message))
