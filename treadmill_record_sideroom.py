@@ -74,7 +74,7 @@ try:
     duration_buffer = 10  # it takes 8 seconds for the camera and the video_start function to be set up
     duration = int(input("Enter the time in seconds: ")) + duration_buffer
 
-    flipper = FlipperOutput(self.session_info, pin=4)
+    flipper = FlipperOutput(session_info, pin=4)
     # start the flipper triggering
     try:
         flipper.flip()
@@ -83,7 +83,7 @@ try:
         print(str(error_message))
 
     # Treadmill initiation
-    treadmill = Treadmill.Treadmill(self.session_info)
+    treadmill = Treadmill.Treadmill(session_info)
     try:
         treadmill.start()
     except Exception as error_message:
