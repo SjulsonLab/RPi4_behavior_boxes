@@ -196,7 +196,7 @@ class SelfAdminTaskContextTwoActions(object):
                         self.lever_pressed_time = lever_pressed_time_temp  # this is used for subsequent lever presses
                         self.total_reward += 1
         elif self.state == 'ContextB':
-            if self.event_name == "reserved_rx2_pressed":
+            if self.event_name == "reserved_rx1_pressed":
                 lever_pressed_time_temp = time.time()
                 lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time
                 if lever_pressed_dt >= self.lever_press_interval:
