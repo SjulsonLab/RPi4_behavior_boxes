@@ -82,8 +82,19 @@ try:
     if session_info['manual_date'] != session_info['date']:  # check if file is updated
         print('wrong date!!')
         raise RuntimeError('manual_date field in session_info file is not updated')
-
-    # box = behavbox.BehavBox(session_info)
+    # make data directory and initialize logfile
+    os.makedirs(session_info['dir_name'])
+    os.chdir(session_info['dir_name'])
+    session_info['file_basename'] = session_info['dir_name'] + '/' + session_info['basename']
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
+        datefmt=('%H:%M:%S'),
+        handlers=[
+            logging.FileHandler(session_info['file_basename'] + '.log'),
+            logging.StreamHandler()  # sends copy of log output to screen
+        ]
+    )
 
     print("start_session")
     duration_buffer = 10  # it takes 8 seconds for the camera and the video_start function to be set up
@@ -132,7 +143,7 @@ try:
     pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
     os.system(
-        "rsync -av --progress --remove-source-files ~/video/*.log "
+        "rsync -av --progress --remove-source-files ~/buffer/*.log "
         + hd_dir
     )
 
