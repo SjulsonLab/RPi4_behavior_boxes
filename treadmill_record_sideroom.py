@@ -130,7 +130,7 @@ try:
 
     scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
     print("dumping session_info")
-    pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+    pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
     os.system(
         "rsync -av --progress --remove-source-files ~/video/*.log "
