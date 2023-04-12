@@ -92,7 +92,7 @@ try:
     base_dir = session_info['external_storage'] + '/'
     hd_dir = base_dir + basename
     # start initiating the dumping of the session information when available
-    scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
+    # scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
     print("dumping session_info")
     pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
@@ -116,7 +116,7 @@ try:
     #time buffer
     time.sleep(2)
 
-    scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
+    # scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
     print("dumping session_info")
     pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 except Exception as error_message:
