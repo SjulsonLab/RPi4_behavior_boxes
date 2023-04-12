@@ -146,7 +146,10 @@ try:
         "rsync -av --progress --remove-source-files ~/buffer/*.log "
         + hd_dir
     )
-
+    os.system(
+        "rsync -av --progress --remove-source-files ~/buffer/*.csv "
+        + hd_dir
+    )
     os.system(
         "rsync -arvz --progress --remove-source-files " + session_info['dir_name'] + "/ "
         + hd_dir
