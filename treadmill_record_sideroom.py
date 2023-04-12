@@ -114,7 +114,7 @@ try:
         print(str(error_message))
 
     #time buffer
-    time.sleep(2)
+    sleep(2)
 
     # scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
     print("dumping session_info")
