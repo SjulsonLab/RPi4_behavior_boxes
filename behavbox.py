@@ -215,7 +215,7 @@ class BehavBox(object):
         try:
             pygame.init()
             print("pygame.init()")
-            self.main_display = pygame.display.set_mode((800, 600))
+            self.main_display = pygame.display.set_mode()
             print("self.main_display = pygame.display.set_mode((800, 600))")
             pygame.display.set_caption(session_info["box_name"])
             print("pygame.display.set_caption(session_info[\"box_name\"])")
