@@ -64,19 +64,18 @@ try:
     basename = session_info['basename']
     session_info['dir_name'] = session_info['basedir'] + "/" + session_info['basename']
 
-    IP_address_video = self.IP_address_video
-    dir_name = self.session_info['dir_name']
-    basename = self.session_info['basename']
+    dir_name = session_info['dir_name']
+    basename = session_info['basename']
     file_name = dir_name + "/" + basename
     # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
 
     # start initiating the dumping of the session information when available
-    scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
+    scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
     print("dumping session_info")
-    pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+    pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
     # create directory on the external storage
-    base_dir = self.session_info['external_storage'] + '/'
+    base_dir = session_info['external_storage'] + '/'
     hd_dir = base_dir + basename
     os.mkdir(hd_dir)
 
@@ -128,7 +127,7 @@ try:
     #time buffer
     sleep(2)
 
-    scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
+    scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
     print("dumping session_info")
     pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
@@ -138,7 +137,7 @@ try:
     )
 
     os.system(
-        "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/ "
+        "rsync -arvz --progress --remove-source-files " + session_info['dir_name'] + "/ "
         + hd_dir
     )
 except Exception as error_message:
