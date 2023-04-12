@@ -12,6 +12,7 @@ import importlib
 import colorama
 from colorama import Fore, Style
 import scipy.io, pickle
+import time
 from time import sleep
 
 # all modules above this line will have logging disabled
