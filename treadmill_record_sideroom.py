@@ -68,16 +68,16 @@ try:
     basename = session_info['basename']
     file_name = dir_name + "/" + basename
     # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
-
+    base_dir = session_info['external_storage'] + '/'
+    hd_dir = base_dir + basename
+    os.mkdir(hd_dir)
     # start initiating the dumping of the session information when available
     scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
     print("dumping session_info")
     pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
     # create directory on the external storage
-    base_dir = session_info['external_storage'] + '/'
-    hd_dir = base_dir + basename
-    os.mkdir(hd_dir)
+
 
     if session_info['manual_date'] != session_info['date']:  # check if file is updated
         print('wrong date!!')
