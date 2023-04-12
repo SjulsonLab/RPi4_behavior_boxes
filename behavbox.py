@@ -214,6 +214,7 @@ class BehavBox(object):
         ###############################################################################################
         try:
             pygame.init()
+            print("pygame.init()")
             self.main_display = pygame.display.set_mode((800, 600))
             pygame.display.set_caption(session_info["box_name"])
             fig, axes = plt.subplots(1, 1, )
