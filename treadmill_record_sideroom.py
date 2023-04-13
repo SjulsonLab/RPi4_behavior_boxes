@@ -154,5 +154,47 @@ try:
         "rsync -arvz --progress --remove-source-files " + session_info['dir_name'] + "/ "
         + hd_dir
     )
+# graceful exit
+except (KeyboardInterrupt, SystemExit):
+    print(Fore.RED + Style.BRIGHT + 'Exiting now...' + Style.RESET_ALL)
+    ic('about to call end_session()')
+    try:  # try to stop recording the treadmill
+        treadmill.close()
+    except Exception as error_message:
+        print("treadmill failed to close\n")
+        print(str(error_message))
+
+    # now stop the flipper
+    try:  # try to stop the flipper
+        flipper.close()
+    except Exception as error_message:
+        print("flipper failed to close\n")
+        print(str(error_message))
+
+    #time buffer
+    sleep(2)
+
+    scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': session_info})
+    print("dumping session_info")
+    pickle.dump(session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+
+    os.system(
+        "rsync -av --progress --remove-source-files ~/buffer/*.log "
+        + hd_dir
+    )
+    os.system(
+        "rsync -av --progress --remove-source-files ~/buffer/*.csv "
+        + hd_dir
+    )
+    os.system(
+        "rsync -arvz --progress --remove-source-files " + session_info['dir_name'] + "/ "
+        + hd_dir
+    )
+    ic('just called end_session()')
+    # save dicts to disk
+    scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
+    pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
+    # pygame.quit()
+
 except Exception as error_message:
     print(str(error_message))
