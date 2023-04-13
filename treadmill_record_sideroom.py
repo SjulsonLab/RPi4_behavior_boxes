@@ -117,7 +117,7 @@ try:
         print(str(error_message))
     base_dir = session_info['external_storage'] + '/'
     hd_dir = base_dir + basename
-
+    print(Fore.RED + Style.BRIGHT + 'Starting now...' + Style.RESET_ALL)
     # run the task and wait for the set duration
     sleep(duration)
 
