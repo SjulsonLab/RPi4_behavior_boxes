@@ -14,6 +14,7 @@ from colorama import Fore, Style
 import scipy.io, pickle
 import time
 from time import sleep
+from icecream import ic
 
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
