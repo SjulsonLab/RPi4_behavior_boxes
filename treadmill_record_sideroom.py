@@ -99,8 +99,9 @@ try:
 
     print("start_session")
     duration_buffer = 10  # it takes 8 seconds for the camera and the video_start function to be set up
-    duration = int(input("Enter the time in seconds: ")) + duration_buffer
-
+    # duration = int(input("Enter the time in seconds: ")) + duration_buffer
+    t_minute = int(input("Enter the time in minutes: ")) ## wll add in the session info
+    duration = 60 * t_minute + duration_buffer
     flipper = FlipperOutput(session_info, pin=4)
     # start the flipper triggering
     try:
