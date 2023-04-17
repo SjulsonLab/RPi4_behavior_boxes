@@ -159,7 +159,7 @@ class Headfixed2FCTask(object):
 
         # session_statistics
         self.total_reward = 0
-
+        self.correct_trial_in_block = 0
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
@@ -237,6 +237,7 @@ class Headfixed2FCTask(object):
                         # self.side_mice_buffer = side_mice
                         self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
                         self.total_reward += 1
+                        self.correct_trial_in_block += 1
                         self.reward_time_start = time.time()
                         print("Reward time start" + str(self.reward_time_start))
                     self.lick_count += 1
