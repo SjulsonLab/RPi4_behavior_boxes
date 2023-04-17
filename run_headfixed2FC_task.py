@@ -110,22 +110,23 @@ try:
     while time.time() < t_end:
         if block_count==0:
             block_number = session_info["block_number"] #random.randint(1, session_info["block_variety"])
+            block_count = block_count + 1
         else:
-            block_number = 3-block_number
+            block_number = 3-block_number # it's either or 1 or 2
             block_count = block_count+1
             #task.block_number = block_number
 
         #if ((block_number != 1 ) || (block_number != 2) ):
         #    print('check_block number!!!!')
         #    block_number = 1
-
-        for block in range(session_info["block_duration"]):
+        task.correct_trial_in_block = 0
+        while task.correct_trial_in_block <= session_info['block_duration']: # while total correct trial is not fullfilled
             if time.time() >= t_end:
                 print("Times up, finishing up")
                 break
             first_card = True
             task.error_count = 0
-            print("Trial " + str(block) + " \n")
+            print("Trial " + str(task.trial_number) + " \n")
             task.trial_number += 1
             print("*******************************\n")
             task.current_card = task_information.draw_card(block_number, session_info['phase'])
