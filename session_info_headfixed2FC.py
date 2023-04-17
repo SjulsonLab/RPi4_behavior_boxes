@@ -91,10 +91,10 @@ if solenoid_coeff:
 else:
     print("No coefficients, generate the default")
     # solenoid valve linear fit coefficient for each pump
-    session_info["calibration_coefficient"]['1'] = [5.14939324e+00, 2.21949268e-03]  # highest power first
-    session_info["calibration_coefficient"]['2'] = [5.1260094e+00, 6.0176499e-04]
-    session_info["calibration_coefficient"]['3'] = [4.67286214, 0.00716271]
-    session_info["calibration_coefficient"]['4'] = [4.7801934 , 0.00625645]
+    session_info["calibration_coefficient"]['1'] = [8.93273209e+00, 4.87183748e-03]  # highest power first
+    session_info["calibration_coefficient"]['2'] = [9.25818871, 0.01092451]
+    session_info["calibration_coefficient"]['3'] = [9.0, 0.0]
+    session_info["calibration_coefficient"]['4'] = [9.0, 0.0]
 
 if session_info['phase'] == 1:
     session_info['reward_size'] = {'small': 10, 'large': 10}
