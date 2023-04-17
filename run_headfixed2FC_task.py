@@ -119,8 +119,8 @@ try:
         #if ((block_number != 1 ) || (block_number != 2) ):
         #    print('check_block number!!!!')
         #    block_number = 1
-        correct_trial_in_block = 0
-        while correct_trial_in_block <= session_info['block_duration']: # while total correct trial is not fullfilled
+        task.correct_trial_in_block = 0
+        while task.correct_trial_in_block <= session_info['block_duration']: # while total correct trial is not fullfilled
             if time.time() >= t_end:
                 print("Times up, finishing up")
                 break
