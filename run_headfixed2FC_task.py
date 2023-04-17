@@ -119,14 +119,14 @@ try:
         #if ((block_number != 1 ) || (block_number != 2) ):
         #    print('check_block number!!!!')
         #    block_number = 1
-        self.correct_trial_in_block = 0
-        while self.correct_trial_in_block <= session_info['block_duration']: # while total correct trial is not fullfilled
+        task.correct_trial_in_block = 0
+        while task.correct_trial_in_block <= session_info['block_duration']: # while total correct trial is not fullfilled
             if time.time() >= t_end:
                 print("Times up, finishing up")
                 break
             first_card = True
             task.error_count = 0
-            print("Trial " + str(block) + " \n")
+            print("Trial " + str(task.trial_number) + " \n")
             task.trial_number += 1
             print("*******************************\n")
             task.current_card = task_information.draw_card(block_number, session_info['phase'])
