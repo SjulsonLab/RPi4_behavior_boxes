@@ -103,8 +103,7 @@ class SelfAdminTaskContextTwoActions(object):
                     on_enter=["enter_ContextC_from_ContextB"],
                     on_exit=["exit_ContextC_from_ContextB"],
                     timeout=self.session_info["ContextC_time"],
-                    on_timeout=["switch_to_ContextA"])
-        ]
+                    on_timeout=["switch_to_ContextA"])]
 
         self.transitions = [
             ['start_trial_logic', 'standby', 'ContextB'], # format: ['trigger', 'origin', 'destination']
@@ -222,22 +221,22 @@ class SelfAdminTaskContextTwoActions(object):
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.sound2.on() #ACTIVATE SOUND CUE#
+        self.box.sound1.blink(0.1,0.1) #ACTIVATE SOUND CUE#
         
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
         # self.pump.reward("vaccum", 0)
         self.trial_running = False
-        self.box.sound2.off()  # INACTIVATE SOUND CUE#
+        self.box.sound1.off()  # INACTIVATE SOUND CUE#
         self.box.event_list.clear()
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.sound1.on()
+        self.box.sound1.blink(0.2,0.1)
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
         self.trial_running = False
-        self.box.sound2.off()  # INACTIVATE SOUND CUE#
+        self.box.sound1.off()  # INACTIVATE SOUND CUE#
         self.box.event_list.clear()
     def enter_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
