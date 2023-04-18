@@ -141,10 +141,10 @@ class BehavBox(object):
         self.lick2.when_released = self.right_entry
         self.lick3.when_released = self.center_entry
 
-        self.reserved_rx1.when_pressed = self.reserved_rx1_pressed
-        self.reserved_rx2.when_pressed = self.reserved_rx2_pressed
-        self.reserved_rx1.when_released = self.reserved_rx1_released
-        self.reserved_rx2.when_released = self.reserved_rx2_released
+        # self.reserved_rx1.when_pressed = self.reserved_rx1_pressed
+        # self.reserved_rx2.when_pressed = self.reserved_rx2_pressed
+        # self.reserved_rx1.when_released = self.reserved_rx1_released
+        # self.reserved_rx2.when_released = self.reserved_rx2_released
 
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
@@ -290,12 +290,12 @@ class BehavBox(object):
                         self.right_entry()
                         self.right_IR_entry()
                         logging.info(";" + str(time.time()) + ";[action];key_pressed_right_entry()")
-                    elif event.key == pygame.K_4:
-                        self.reserved_rx1_pressed()
-                        logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx1_pressed()")
-                    elif event.key == pygame.K_5:
-                        self.reserved_rx2_pressed()
-                        logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx2_pressed()")
+                    # elif event.key == pygame.K_4:
+                    #     self.reserved_rx1_pressed()
+                    #     logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx1_pressed()")
+                    # elif event.key == pygame.K_5:
+                    #     self.reserved_rx2_pressed()
+                    #     logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx2_pressed()")
                     elif event.key == pygame.K_q:
                         # print("Q down: syringe pump 1 moves")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump1")
@@ -478,25 +478,25 @@ class BehavBox(object):
         self.interact_list.append((time.time(), "right_exit"))
         logging.info(";" + str(time.time()) + ";[action];right_exit")
 
-    def reserved_rx1_pressed(self):
-        self.event_list.append("reserved_rx1_pressed")
-        self.interact_list.append((time.time(), "reserved_rx1_pressed"))
-        logging.info(";" + str(time.time()) + ";[action];reserved_rx1_pressed")
-
-    def reserved_rx2_pressed(self):
-        self.event_list.append("reserved_rx2_pressed")
-        self.interact_list.append((time.time(), "reserved_rx2_pressed"))
-        logging.info(";" + str(time.time()) + ";[action];reserved_rx2_pressed")
-
-    def reserved_rx1_released(self):
-        self.event_list.append("reserved_rx1_released")
-        self.interact_list.append((time.time(), "reserved_rx1_released"))
-        logging.info(";" + str(time.time()) + ";[action];reserved_rx1_released")
-
-    def reserved_rx2_released(self):
-        self.event_list.append("reserved_rx2_released")
-        self.interact_list.append((time.time(), "reserved_rx2_released"))
-        logging.info(";" + str(time.time()) + ";[action];reserved_rx2_released")
+    # def reserved_rx1_pressed(self):
+    #     self.event_list.append("reserved_rx1_pressed")
+    #     self.interact_list.append((time.time(), "reserved_rx1_pressed"))
+    #     logging.info(";" + str(time.time()) + ";[action];reserved_rx1_pressed")
+    #
+    # def reserved_rx2_pressed(self):
+    #     self.event_list.append("reserved_rx2_pressed")
+    #     self.interact_list.append((time.time(), "reserved_rx2_pressed"))
+    #     logging.info(";" + str(time.time()) + ";[action];reserved_rx2_pressed")
+    #
+    # def reserved_rx1_released(self):
+    #     self.event_list.append("reserved_rx1_released")
+    #     self.interact_list.append((time.time(), "reserved_rx1_released"))
+    #     logging.info(";" + str(time.time()) + ";[action];reserved_rx1_released")
+    #
+    # def reserved_rx2_released(self):
+    #     self.event_list.append("reserved_rx2_released")
+    #     self.interact_list.append((time.time(), "reserved_rx2_released"))
+    #     logging.info(";" + str(time.time()) + ";[action];reserved_rx2_released")
     def IR_1_entry(self):
         self.event_list.append("IR_1_entry")
         logging.info(str(time.time()) + ", IR_1_entry")
