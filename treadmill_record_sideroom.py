@@ -104,7 +104,7 @@ try:
     t_minute = int(input("Enter the time in minutes: ")) ## wll add in the session info
     duration = 60 * t_minute + duration_buffer
     flipper = FlipperOutput(session_info, pin=4)
-    camera_trigger = LED(22)
+    camera_trigger = LED(19)
 
     # start the flipper triggering
     try:
