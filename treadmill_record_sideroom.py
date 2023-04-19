@@ -15,6 +15,7 @@ import scipy.io, pickle
 import time
 from time import sleep
 from icecream import ic
+from gpiozero import LED
 
 # all modules above this line will have logging disabled
 logging.config.dictConfig({
@@ -103,9 +104,12 @@ try:
     t_minute = int(input("Enter the time in minutes: ")) ## wll add in the session info
     duration = 60 * t_minute + duration_buffer
     flipper = FlipperOutput(session_info, pin=4)
+    camera_trigger = LED(9)
+
     # start the flipper triggering
     try:
         flipper.flip()
+        camera_trigger.blink(0.01667,0.01667)
     except Exception as error_message:
         print("flipper can't run\n")
         print(str(error_message))
@@ -133,6 +137,7 @@ try:
     # now stop the flipper
     try:  # try to stop the flipper
         flipper.close()
+        camera_trigger.off()
     except Exception as error_message:
         print("flipper failed to close\n")
         print(str(error_message))
