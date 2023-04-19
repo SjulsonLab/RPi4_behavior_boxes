@@ -16,7 +16,7 @@ logging.config.dictConfig(
 # all modules above this line will have logging disabled
 
 # import behavbox_test
-import behavbox
+import base.behavbox
 class KellyRecordTask(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
 
