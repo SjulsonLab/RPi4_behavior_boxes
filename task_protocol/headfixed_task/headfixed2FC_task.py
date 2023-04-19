@@ -70,7 +70,7 @@ class Headfixed2FCTask(object):
                 + "Warning: no session_info supplied; making fake one"
                 + Style.RESET_ALL
             )
-            from fake_session_info import fake_session_info
+            from session_info_headfixed2FC import fake_session_info
 
             self.session_info = fake_session_info
         else:
