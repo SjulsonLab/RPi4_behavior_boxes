@@ -109,7 +109,7 @@ try:
     # start the flipper triggering
     try:
         flipper.flip()
-        camera_trigger.blink(0.01667,0.01667)
+        camera_trigger.blink(0.03333,0.01)
     except Exception as error_message:
         print("flipper can't run\n")
         print(str(error_message))
