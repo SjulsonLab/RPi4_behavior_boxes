@@ -69,14 +69,19 @@ class BehavBox(object):
         except Exception as error_message:
             print("Logging error")
             print(str(error_message))
+        """static ip address"""
+        if self.session_info['network']['static'] == True:
+            from subprocess import check_output
+            IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
+            self.IP_address = IP_address
+            IP_address_video_list = list(IP_address)
+            # IP_address_video_list[-3] = "2"
+            IP_address_video_list[-1] = "2"
+            self.IP_address_video = "".join(IP_address_video_list)
+        else:
+            self.IP_address = self.session_info['network']['hostname']
+            self.IP_address_video = self.session_info['network']['hostname']
 
-        from subprocess import check_output
-        IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
-        self.IP_address = IP_address
-        IP_address_video_list = list(IP_address)
-        # IP_address_video_list[-3] = "2"
-        IP_address_video_list[-1] = "2"
-        self.IP_address_video = "".join(IP_address_video_list)
 
         ###############################################################################################
         # event list trigger by the interaction between the RPi and the animal for visualization
