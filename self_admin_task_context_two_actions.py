@@ -237,7 +237,7 @@ class SelfAdminTaskContextTwoActions(object):
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
         self.trial_running = False
-        self.box.sound2.off()  # INACTIVATE SOUND CUE#
+        self.box.sound1.off()  # INACTIVATE SOUND CUE#
         self.box.event_list.clear()
     def enter_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
