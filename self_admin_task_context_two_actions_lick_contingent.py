@@ -34,9 +34,9 @@ import matplotlib.pyplot as plt
 import matplotlib.figure as fg
 import numpy as np
 
-from IPython.display import display, HTML
-
-display(HTML("<style>.container { width:100% !important; }</style>"))
+# from IPython.display import display, HTML
+#
+# display(HTML("<style>.container { width:100% !important; }</style>"))
 
 logging.config.dictConfig(
     {
