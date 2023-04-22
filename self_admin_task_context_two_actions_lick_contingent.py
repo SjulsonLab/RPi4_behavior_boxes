@@ -46,8 +46,7 @@ logging.config.dictConfig(
 )
 # all modules above this line will have logging disabled
 
-import behavbox as box
-
+import behavbox
 
 # adding timing capability to the state machine
 @add_state_features(Timeout)
