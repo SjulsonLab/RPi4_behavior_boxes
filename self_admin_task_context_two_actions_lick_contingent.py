@@ -127,10 +127,10 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             ['switch_to_ContextA', 'ContextC_from_ContextB', 'ContextA'],
 
             ['switch_to_ContextC_from_lick_LED_ContextA', 'lick_LED_ContextA', 'Context_C_from_ContextA'],
-            ['switch_to_ContextC_from_lick_LED_ContextB', 'lick_LED_ContextB', 'Context_C_from_ContextB']
+            ['switch_to_ContextC_from_lick_LED_ContextB', 'lick_LED_ContextB', 'Context_C_from_ContextB'],
 
             ['switch_to_lick_LED_ContextA_from_ContextA', 'ContextA', 'lick_LED_ContextA'],
-            ['switch_to_lick_LED_ContextB_from_ContextB', 'ContextB', 'lick_LED_ContextB']
+            ['switch_to_lick_LED_ContextB_from_ContextB', 'ContextB', 'lick_LED_ContextB'],
 
             ['switch_to_ContextA_from_lick_LED_ContextA', 'lick_LED_ContextA', 'ContextA'],
             ['switch_to_ContextB_from_lick_LED_ContextB', 'lick_LED_ContextB', 'ContextB']
