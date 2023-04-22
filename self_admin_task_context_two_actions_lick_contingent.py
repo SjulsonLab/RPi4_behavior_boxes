@@ -46,7 +46,7 @@ logging.config.dictConfig(
 )
 # all modules above this line will have logging disabled
 
-import behavbox
+import behavbox as box
 
 
 # adding timing capability to the state machine
@@ -135,6 +135,58 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             ['switch_to_ContextA_from_lick_LED_ContextA', 'lick_LED_ContextA', 'ContextA'],
             ['switch_to_ContextB_from_lick_LED_ContextB', 'lick_LED_ContextB', 'ContextB']
         ]
+
+    self.trial_running = False
+
+    # trial statistics
+    self.innocent = True
+    self.trial_number = 0
+    self.error_count = 0
+    self.error_list = []
+    self.error_repeat = False
+    self.lever_pressed_time = 0.0
+    self.lever_press_interval = self.session_info["lever_press_interval"]
+    # self.reward_time_start = None # for reward_available state time keeping purpose
+    self.reward_time = 10  # sec. could be incorporate into the session_info; available time for reward
+    self.reward_times_up = False
+    self.reward_pump1 = self.session_info["reward_pump1"]  # update this in session_info
+    self.reward_pump2 = self.session_info['reward_pump2']  # update this in session_info
+    self.reward_size1 = self.session_info["reward_size1"]  # update this in session_info
+    self.reward_size2 = self.session_info['reward_size2']  # update this in session_info
+
+    self.active_press = 0
+    self.inactive_press = 0
+    self.timeline_active_press = []
+    self.active_press_count_list = []
+    self.timeline_inactive_press = []
+    self.inactive_press_count_list = []
+
+    self.left_poke_count = 0
+    self.right_poke_count = 0
+    self.timeline_left_poke = []
+    self.left_poke_count_list = []
+    self.timeline_right_poke = []
+    self.right_poke_count_list = []
+    self.event_name = ""
+    # initialize behavior box
+    self.box = behavbox.BehavBox(self.session_info)
+    self.pump = self.box.pump
+    self.treadmill = self.box.treadmill
+    self.right_error_entry = False
+    self.left_error_entry = False
+
+    # for refining the lick detection
+    self.lick_count = 0
+    self.side_mice_buffer = None
+    self.LED_blink = False
+    try:
+        self.lick_threshold = self.session_info["lick_threshold"]
+    except:
+        print("No lick_threshold defined in session_info. Therefore, default defined as 2 \n")
+        self.lick_threshold = 1
+
+    # session_statistics
+    self.total_reward = 0
 
     def run(self):
         if self.box.event_list:
@@ -225,57 +277,6 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             transitions=self.transitions,
             initial='standby'  # STARTS IN STANDBY MODE
         )
-        self.trial_running = False
-
-        # trial statistics
-        self.innocent = True
-        self.trial_number = 0
-        self.error_count = 0
-        self.error_list = []
-        self.error_repeat = False
-        self.lever_pressed_time = 0.0
-        self.lever_press_interval = self.session_info["lever_press_interval"]
-        # self.reward_time_start = None # for reward_available state time keeping purpose
-        self.reward_time = 10  # sec. could be incorporate into the session_info; available time for reward
-        self.reward_times_up = False
-        self.reward_pump1 = self.session_info["reward_pump1"]  # update this in session_info
-        self.reward_pump2 = self.session_info['reward_pump2']  # update this in session_info
-        self.reward_size1 = self.session_info["reward_size1"]  # update this in session_info
-        self.reward_size2 = self.session_info['reward_size2']  # update this in session_info
-
-        self.active_press = 0
-        self.inactive_press = 0
-        self.timeline_active_press = []
-        self.active_press_count_list = []
-        self.timeline_inactive_press = []
-        self.inactive_press_count_list = []
-
-        self.left_poke_count = 0
-        self.right_poke_count = 0
-        self.timeline_left_poke = []
-        self.left_poke_count_list = []
-        self.timeline_right_poke = []
-        self.right_poke_count_list = []
-        self.event_name = ""
-        # initialize behavior box
-        self.box = behavbox.BehavBox(self.session_info)
-        self.pump = self.box.pump
-        self.treadmill = self.box.treadmill
-        self.right_error_entry = False
-        self.left_error_entry = False
-
-        # for refining the lick detection
-        self.lick_count = 0
-        self.side_mice_buffer = None
-        self.LED_blink = False
-        try:
-            self.lick_threshold = self.session_info["lick_threshold"]
-        except:
-            print("No lick_threshold defined in session_info. Therefore, default defined as 2 \n")
-            self.lick_threshold = 1
-
-        # session_statistics
-        self.total_reward = 0
 
     def LED_off(self):
         logging.info(";" + str(time.time()) + ";[transition];LED_off;" + str(self.error_repeat))
