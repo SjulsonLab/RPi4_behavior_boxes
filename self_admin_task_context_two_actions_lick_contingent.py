@@ -158,8 +158,6 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
         self.reward_pump2 = self.session_info['reward_pump2']  # update this in session_info
         self.reward_size1 = self.session_info["reward_size1"]  # update this in session_info
         self.reward_size2 = self.session_info['reward_size2']  # update this in session_info
-        self.LED1 = self.session_info['LED1']
-        self.LED2 = self.session_info['LED2']
 
         self.active_press = 0
         self.inactive_press = 0
