@@ -136,6 +136,12 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             ['switch_to_ContextB_from_lick_LED_ContextB', 'lick_LED_ContextB', 'ContextB']
         ]
 
+    self.machine = TimedStateMachine(
+        model=self,
+        states=self.states,
+        transitions=self.transitions,
+        initial='standby'  # STARTS IN STANDBY MODE
+
     self.trial_running = False
 
     # trial statistics
@@ -270,12 +276,6 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             if self.state != 'ContextC_from_ContextB':  # exiting out of the nested while loop puts you in one of a few states; exiting out of the outer while loop will initiate a transition to ContextC_from_ContextB IF not already in that state from the above nested while loop
                 self.switch_to_ContextC_from_ContextB()
         self.box.check_keybd()
-
-        self.machine = TimedStateMachine(
-            model=self,
-            states=self.states,
-            transitions=self.transitions,
-            initial='standby'  # STARTS IN STANDBY MODE
         )
 
     def LED_off(self):
