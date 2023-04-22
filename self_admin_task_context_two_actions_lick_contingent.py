@@ -310,28 +310,27 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.sound1.blink(0.1, 0.1)  # ACTIVATE SOUND CUE#
+        self.box.sound2.on()  # ACTIVATE SOUND CUE#
 
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
         # self.pump.reward("vaccum", 0)
         self.trial_running = False
-        self.box.sound1.off()  # INACTIVATE SOUND CUE#
         self.box.event_list.clear()
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.sound1.blink(0.2, 0.1)
+        self.box.sound1.on()
 
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
         self.trial_running = False
-        self.box.sound1.off()  # INACTIVATE SOUND CUE#
         self.box.event_list.clear()
 
     def enter_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
+        self.box.sound2.off()  # INACTIVATE SOUND CUE#
         self.trial_running = True
 
     def exit_ContextC_from_ContextA(self):
@@ -341,6 +340,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
 
     def enter_ContextC_from_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextB;" + str(self.error_repeat))
+        self.box.sound1.off()  # INACTIVATE SOUND CUE#
         self.trial_running = True
 
     def exit_ContextC_from_ContextB(self):
