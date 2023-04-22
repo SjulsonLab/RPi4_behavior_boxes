@@ -141,10 +141,10 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
         states=self.states,
         transitions=self.transitions,
         initial='standby'  # STARTS IN STANDBY MODE
-
-    self.trial_running = False
+    )
 
     # trial statistics
+    self.trial_running = False
     self.innocent = True
     self.trial_number = 0
     self.error_count = 0
