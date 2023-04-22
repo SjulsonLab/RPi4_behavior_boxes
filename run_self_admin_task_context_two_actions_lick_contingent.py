@@ -4,15 +4,15 @@
 # In[ ]:
 
 
-#run_self_admin_task_context.task
+#run_self_admin_task_context_two_actions_lick_contingent.task
 
 #!/usr/bin/env -S ipython3 -i
 # run_self_admin_task.py
 """
 author: Mitch Farrell
 date: 2023-03-24
-name: run_self_admin_task_context.py
-goal: running the self_admin_task_context
+name: run_self_admin_task_context_two_actions_lick_contingent.py
+goal: running the self_admin_task_context_two_actions_lick_contingent
 description:
     adapted from Season's run_self_admin_task.py
 """
@@ -52,7 +52,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import your task class here
-from self_admin_task_context_two_actions import SelfAdminTaskContextTwoActions
+from self_admin_task_context_two_actions_lick_contingent import SelfAdminTaskContextTwoActionsLickContingent
 
 try:
     # load in session_info file, check that dates are correct, put in automatic
@@ -63,7 +63,7 @@ try:
     full_module_name = 'session_info_' + datestr
     import sys
 
-    session_info_path = '/home/pi/experiment_info/self_admin_task_context_two_actions/session_info/'
+    session_info_path = '/home/pi/experiment_info/self_admin_task_context_two_actions_lick_contingent/session_info/'
     sys.path.insert(0, session_info_path)
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
@@ -94,7 +94,7 @@ try:
         ]
     )
 
-    task = SelfAdminTaskContextTwoActions(name="self_admin_task_context_two_actions", session_info=session_info)
+    task = SelfAdminTaskContextTwoActionsLickContingent(name="self_admin_task_context_two_actions_lick_contingent", session_info=session_info)
 
     # start session
     task.start_session()
