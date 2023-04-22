@@ -103,15 +103,16 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                     on_timeout=['switch_to_ContextB']),
             Timeout(name="ContextC_from_ContextB",
                     on_enter=["enter_ContextC_from_ContextB"],
-                    on_exit=["exit_ContextC_from_ContextB"]
-            timeout = self.session_info['ContextC_time']),
-        State(name="lick_LED_ContextA",
-              on_enter=["enter_lick_LED_ContextA"],
-              on_exit=["exit_lick_LED_ContextA"]),
-        State(name="lick_LED_ContextB",
-              on_enter=["enter_lick_LED_ContextB"],
-              on_exit=["exit_lick_LED_ContextB"])
-        ]
+                    on_exit=["exit_ContextC_from_ContextB"],
+                    timeout = self.session_info['ContextC_time'],
+                    on_timeout=['switch_to_ContextA']),
+            State(name="lick_LED_ContextA",
+                    on_enter=["enter_lick_LED_ContextA"],
+                    on_exit=["exit_lick_LED_ContextA"]),
+            State(name="lick_LED_ContextB",
+                    on_enter=["enter_lick_LED_ContextB"],
+                    on_exit=["exit_lick_LED_ContextB"])
+                ]
 
         # create a while loop that runs if State == ContextB or lick_LED_ContextB
         # create a different while loop that runs if State == ContextA or lick_LED_ContextB
