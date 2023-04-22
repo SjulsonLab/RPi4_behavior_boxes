@@ -194,16 +194,13 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
         self.total_reward = 0
 
     def run(self):
-        if self.box.event_list:
-            self.event_name = self.box.event_list.popleft()  # have to think about whether we need more self.event_name
-        else:
-            self.event_name = ""
         if self.state == "standby":
             pass
-        elif self.state == 'ContextA':  # if in ContextB
+        elif self.state == 'ContextA':  # if in ContextA
             ContextA_time = time.time()  # assign the context switch time to this variable
             while time.time() - ContextA_time <= self.session_info['ContextA_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 self.left_error_entry = False
+                self.right_error_entry = False
                 if self.event_name == "reserved_rx1_pressed":  # if an active lever press detected
                     lever_pressed_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
                     lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time  # used to check previous rewarded lever time
@@ -211,7 +208,10 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                         self.switch_to_lick_LED_ContextA_from_ContextA()  # switches state to lick_LED state from ContextB
                         LED_on_time_plus_LED_duration = time.time() + session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
                         while ((time.time() - LED_on_time_plus_LED_duration) < session_info['LED_duration']) and (time.time() - ContextA_time <= self.session_info['ContextA_time']):
-                            self.event_name = self.box.event_list.popleft()  # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
+                            if self.box.event_list:
+                                self.event_name = self.box.event_list.popleft()
+                            else:
+                                self.event_name = '' # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
                             if self.event_name == 'right_entry' and self.right_error_entry == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
                                 if random.random() <= self.session_info['ContextA_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
                                     print('ContextA_reward_delivered')
@@ -237,6 +237,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             while time.time() - ContextB_time <= self.session_info[
                 'ContextB_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 self.right_error_entry = False
+                self.left_error_entry = False
                 if self.event_name == "reserved_rx1_pressed":  # if an active lever press detected
                     lever_pressed_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
                     lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time  # used to check previous rewarded lever time
@@ -244,7 +245,10 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                         self.switch_to_lick_LED_ContextB_from_ContextB()  # switches state to lick_LED state from ContextB
                         LED_on_time_plus_LED_duration = time.time() + session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
                         while ((time.time() - LED_on_time_plus_LED_duration) < session_info['LED_duration']) and (time.time() - ContextB_time <= self.session_info['ContextB_time']):
-                            self.event_name = self.box.event_list.popleft()  # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
+                            if self.box.event_list:
+                                self.event_name = self.box.event_list.popleft()
+                            else:
+                                self.event_name = ''  # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
                             if self.event_name == 'left_entry' and self.left_error_entry == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
                                 if random.random() <= self.session_info[
                                     'ContextB_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
@@ -266,6 +270,8 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                     pass
             if self.state != 'ContextC_from_ContextB':  # exiting out of the nested while loop puts you in one of a few states; exiting out of the outer while loop will initiate a transition to ContextC_from_ContextB IF not already in that state from the above nested while loop
                 self.switch_to_ContextC_from_ContextB()
+        else:
+            pass
         self.box.check_keybd()
 
     def LED_off(self):
