@@ -233,7 +233,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                                 self.left_entry_error = True  # need a boolean to say whether a right_entry occurred during the current LED block
                         if (time.time() - ContextA_time) >= self.session_info['ContextA_time']:
                             self.switch_to_ContextC_from_lick_LED_ContextA()
-                        elif (time.time() - LED_on_time_plus_LED_duration) > self.session_info['LED_duration']:
+                        elif (time.time() - self.LED_on_time_plus_LED_duration) > self.session_info['LED_duration']:
                             self.switch_to_ContextA_from_lick_LED_ContextA()
                     else:
                         pass
@@ -277,7 +277,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                                 self.right_entry_error = True #in the above if X and Y statement, this prevents reward from being dispensed if a right entry occurs during the LED period
                         if (time.time() - ContextB_time) >= self.session_info['ContextB_time']:
                             self.switch_to_ContextC_from_lick_LED_ContextB()
-                        elif (time.time() - LED_on_time_plus_LED_duration) > self.session_info['LED_duration']:
+                        elif (time.time() - self.LED_on_time_plus_LED_duration) > self.session_info['LED_duration']:
                             self.switch_to_ContextB_from_lick_LED_ContextB()
                     else:
                         pass
