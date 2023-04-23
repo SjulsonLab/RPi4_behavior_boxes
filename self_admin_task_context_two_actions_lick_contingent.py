@@ -181,8 +181,8 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
         self.box = behavbox.BehavBox(self.session_info)
         self.pump = self.box.pump
         self.treadmill = self.box.treadmill
-        self.right_error_entry = False
-        self.left_error_entry = False
+        self.right_entry_error = False
+        self.left_entry_error = False
         # for refining the lick detection
         self.lick_count = 0
         self.side_mice_buffer = None
@@ -203,8 +203,8 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             self.trial_running = False
             self.ContextA_time = time.time()  # assign the context switch time to this variable
             while time.time() - self.ContextA_time <= self.session_info['ContextA_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
-                self.right_error_entry = False
-                self.left_error_entry = False
+                self.right_entry_error = False
+                self.left_entry_error = False
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
@@ -220,7 +220,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                                 self.event_name = self.box.event_list.popleft()
                             else:
                                 self.event_name = '' # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
-                            if self.event_name == 'right_entry' and self.left_error_entry == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
+                            if self.event_name == 'right_entry' and self.left_entry_error == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
                                 print(";" + str(time.time()) + ";[action/transition];right_entry_reward_delivery_LEDs_off;")  # prints if first entry is right
                                 if random.random() <= self.session_info['ContextA_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
                                     print('ContextA_reward_delivered')
@@ -248,8 +248,8 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             self.trial_running = False
             self.ContextB_time = time.time()  # assign the context switch time to this variable
             while time.time() - self.ContextB_time <= self.session_info['ContextB_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
-                self.right_error_entry = False
-                self.left_error_entry = False
+                self.right_entry_error = False
+                self.left_entry_error = False
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
@@ -265,7 +265,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                                 self.event_name = self.box.event_list.popleft()
                             else:
                                 self.event_name = ''  # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
-                            if self.event_name == 'left_entry' and self.right_error_entry == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
+                            if self.event_name == 'left_entry' and self.right_entry_error == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
                                 print(";" + str(time.time()) + ";[action/transition];left_entry_reward_delivery_LEDs_off;") #prints if first entry is left
                                 if random.random() <= self.session_info['ContextB_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
                                     print('ContextB_reward_delivered')
