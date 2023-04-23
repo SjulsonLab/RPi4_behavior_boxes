@@ -211,8 +211,8 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                     lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time  # used to check previous rewarded lever time
                     if lever_pressed_dt >= self.lever_press_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
                         self.switch_to_lick_LED_ContextA_from_ContextA()  # switches state to lick_LED state from ContextB
-                        LED_on_time_plus_LED_duration = time.time() + session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
-                        while ((time.time() - LED_on_time_plus_LED_duration) < session_info['LED_duration']) and (time.time() - ContextA_time <= self.session_info['ContextA_time']):
+                        LED_on_time_plus_LED_duration = time.time() + self.session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
+                        while ((time.time() - LED_on_time_plus_LED_duration) < self.session_info['LED_duration']) and (time.time() - ContextA_time <= self.session_info['ContextA_time']):
                             if self.box.event_list:
                                 self.event_name = self.box.event_list.popleft()
                             else:
@@ -229,7 +229,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                                 self.left_entry_error = True  # need a boolean to say whether a right_entry occurred during the current LED block
                         if (time.time() - ContextA_time) >= self.session_info['ContextA_time']:
                             self.switch_to_ContextC_from_lick_LED_ContextB()
-                        elif (time.time() - LED_on_time_plus_LED_duration) > session_info['LED_duration']:
+                        elif (time.time() - LED_on_time_plus_LED_duration) > self.session_info['LED_duration']:
                             self.switch_to_ContextB_from_lick_LED_ContextB()
                     else:
                         pass
@@ -273,7 +273,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                                 self.right_entry_error = True  # need a boolean to say whether a right_entry occurred during the current LED block
                         if (time.time() - ContextB_time) >= self.session_info['ContextB_time']:
                             self.switch_to_ContextC_from_lick_LED_ContextB()
-                        elif (time.time() - LED_on_time_plus_LED_duration) > session_info['LED_duration']:
+                        elif (time.time() - LED_on_time_plus_LED_duration) > self.session_info['LED_duration']:
                             self.switch_to_ContextB_from_lick_LED_ContextB()
                     else:
                         pass
