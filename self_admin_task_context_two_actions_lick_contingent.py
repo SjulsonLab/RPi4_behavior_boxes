@@ -221,7 +221,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                             else:
                                 self.event_name = '' # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
                             if self.event_name == 'right_entry' and self.left_entry_error == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
-                                print(";" + str(time.time()) + ";[action/transition];right_entry_reward_delivery_LEDs_off;")  # prints if first entry is right
+                                logging.info(";" + str(time.time()) + ";[transition];right_entry_reward_delivery_LEDs_off;" + str(self.error_repeat))  # first incorrect lick turns off LEDs
                                 if random.random() <= self.session_info['ContextA_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
                                     print('ContextA_reward_delivered')
                                     self.pump.reward(self.reward_pump1, self.reward_size1) # reward delivery based on pump number and reward size
@@ -230,7 +230,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                                     self.switch_to_ContextA_from_lick_LED_ContextA()  # does this need a conditional statement? or can this just be as it is
                             elif self.event_name == 'left_entry':
                                 if self.left_entry_error == False:
-                                    print(";" + str(time.time()) + ";[action/transition];left_entry_error_LEDs_off;") #first incorrect lick turns off LEDs
+                                    logging.info(";" + str(time.time()) + ";[transition];left_entry_error_LEDs_off;" + str(self.error_repeat))  # first incorrect lick turns off LEDs
                                 self.box.cueLED1.off()  # don't switch the state; but need to turn the LEDs off
                                 self.box.cueLED2.off()
                                 self.left_entry_error = True  # need a boolean to say whether a right_entry occurred during the current LED block
@@ -266,7 +266,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                             else:
                                 self.event_name = ''  # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
                             if self.event_name == 'left_entry' and self.right_entry_error == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
-                                print(";" + str(time.time()) + ";[action/transition];left_entry_reward_delivery_LEDs_off;") #prints if first entry is left
+                                logging.info(";" + str(time.time()) + ";[transition];left_entry_reward_delivery_LEDs_off;" + str(self.error_repeat))  # first incorrect lick turns off LEDs
                                 if random.random() <= self.session_info['ContextB_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
                                     print('ContextB_reward_delivered')
                                     self.pump.reward(self.reward_pump2, self.reward_size2)  # reward delivery based on pump number and reward size
@@ -275,7 +275,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                                     self.switch_to_ContextB_from_lick_LED_ContextB()
                             elif self.event_name == 'right_entry':
                                 if self.right_entry_error == False:
-                                    print(";" + str(time.time()) + ";[action/transition];right_entry_error_LEDs_off;") #first incorrect lick turns off LEDs
+                                    logging.info(";" + str(time.time()) + ";[transition];right_entry_error_LEDs_off;" + str(self.error_repeat)) #first incorrect lick turns off LEDs
                                 self.box.cueLED1.off()  # don't switch the state; but need to turn the LEDs off
                                 self.box.cueLED2.off()
                                 self.right_entry_error = True #in the above if X and Y statement, this prevents reward from being dispensed if a right entry occurs during the LED period
