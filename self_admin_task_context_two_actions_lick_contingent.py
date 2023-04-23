@@ -259,7 +259,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                     if lever_pressed_dt >= self.lever_press_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
                         self.switch_to_lick_LED_ContextB_from_ContextB()  # switches state to lick_LED state from ContextB
                         self.LED_on_time_plus_LED_duration = time.time() + self.session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
-                        while ((self.LED_on_time_plus_LED_duration - time.time()) > 0) < self.session_info['LED_duration']) and (time.time() - ContextB_time <= self.session_info['ContextB_time']) and (self.state == 'lick_LED_ContextB'):
+                        while ((self.LED_on_time_plus_LED_duration - time.time()) > 0) and (time.time() - ContextB_time <= self.session_info['ContextB_time']) and (self.state == 'lick_LED_ContextB'):
                             if self.box.event_list:
                                 self.event_name = self.box.event_list.popleft()
                             else:
