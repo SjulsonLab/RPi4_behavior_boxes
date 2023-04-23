@@ -125,8 +125,8 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             ['switch_to_ContextB', 'ContextC_from_ContextA', 'ContextB'],
             ['switch_to_ContextA', 'ContextC_from_ContextB', 'ContextA'],
 
-            ['switch_to_ContextC_from_lick_LED_ContextA', 'lick_LED_ContextA', 'Context_C_from_ContextA'],
-            ['switch_to_ContextC_from_lick_LED_ContextB', 'lick_LED_ContextB', 'Context_C_from_ContextB'],
+            ['switch_to_ContextC_from_lick_LED_ContextA', 'lick_LED_ContextA', 'ContextC_from_ContextA'],
+            ['switch_to_ContextC_from_lick_LED_ContextB', 'lick_LED_ContextB', 'ContextC_from_ContextB'],
 
             ['switch_to_lick_LED_ContextA_from_ContextA', 'ContextA', 'lick_LED_ContextA'],
             ['switch_to_lick_LED_ContextB_from_ContextB', 'ContextB', 'lick_LED_ContextB'],
@@ -226,6 +226,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                                     self.switch_to_ContextC_from_lick_LED_ContextA()  # does this need a conditional statement? or can this just be as it is
                             elif self.event_name == 'left_entry':
                                 self.box.cueLED1.off()  # don't switch the state; but need to turn the cue off
+                                self.box.cueLED2.off()
                                 self.left_entry_error = True  # need a boolean to say whether a right_entry occurred during the current LED block
                         if (time.time() - ContextA_time) >= self.session_info['ContextA_time']:
                             self.switch_to_ContextC_from_lick_LED_ContextB()
@@ -255,21 +256,22 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                     if lever_pressed_dt >= self.lever_press_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
                         self.switch_to_lick_LED_ContextB_from_ContextB()  # switches state to lick_LED state from ContextB
                         LED_on_time_plus_LED_duration = time.time() + self.session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
-                        while ((time.time() - LED_on_time_plus_LED_duration) < self.session_info['LED_duration']) and (time.time() - ContextB_time <= self.session_info['ContextB_time']):
+                        while ((time.time() - LED_on_time_plus_LED_duration) < self.session_info['LED_duration']) and (time.time() - ContextB_time <= self.session_info['ContextB_time']) and (self.state == 'lick_LED_ContextB'):
                             if self.box.event_list:
                                 self.event_name = self.box.event_list.popleft()
                             else:
                                 self.event_name = ''  # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
-                            if self.event_name == 'left_entry' and self.left_error_entry == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
+                            if self.event_name == 'left_entry' and self.right_error_entry == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
                                 if random.random() <= self.session_info['ContextB_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
                                     print('ContextB_reward_delivered')
                                     self.pump.reward(self.reward_pump2, self.reward_size2)  # reward delivery based on pump number and reward size
                                     self.lever_pressed_time = lever_pressed_time_temp  # this is used for subsequent lever presses
                                     self.total_reward += 1
-                                    self.switch_to_ContextC_from_lick_LED_ContextB()  # does this need a conditional statement? or can this just be as it is
+                                    self.switch_to_ContextB_from_lick_LED_ContextB()
                             elif self.event_name == 'right_entry':
                                 self.box.cueLED1.off()  # don't switch the state; but need to turn the cue off
-                                self.right_entry_error = True  # need a boolean to say whether a right_entry occurred during the current LED block
+                                self.box.cueLED2.off()
+                                self.right_entry_error = True #in the above if X and Y statement, this prevents reward from being dispensed if a right entry occurs during the LED period
                         if (time.time() - ContextB_time) >= self.session_info['ContextB_time']:
                             self.switch_to_ContextC_from_lick_LED_ContextB()
                         elif (time.time() - LED_on_time_plus_LED_duration) > self.session_info['LED_duration']:
