@@ -202,6 +202,10 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             while time.time() - ContextA_time <= self.session_info['ContextA_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 self.left_error_entry = False
                 self.right_error_entry = False
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
                 if self.event_name == "reserved_rx1_pressed":  # if an active lever press detected
                     lever_pressed_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
                     lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time  # used to check previous rewarded lever time
@@ -235,12 +239,17 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                 self.switch_to_ContextC_from_ContextB()
         elif self.state == 'ContextB':  # if in ContextB
             self.trial_running = False
+            print('in ContextB loop')
             ContextB_time = time.time()  # assign the context switch time to this variable
-            while time.time() - ContextB_time <= self.session_info[
-                'ContextB_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
+            while time.time() - ContextB_time <= self.session_info['ContextB_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 self.right_error_entry = False
                 self.left_error_entry = False
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
                 if self.event_name == "reserved_rx1_pressed":  # if an active lever press detected
+                    print('active press within ContextB loop')
                     lever_pressed_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
                     lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time  # used to check previous rewarded lever time
                     if lever_pressed_dt >= self.lever_press_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
