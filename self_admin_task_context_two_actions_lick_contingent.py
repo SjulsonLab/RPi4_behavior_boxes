@@ -197,6 +197,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
         if self.state == "standby":
             pass
         elif self.state == 'ContextA':  # if in ContextA
+            self.trial_running = False
             ContextA_time = time.time()  # assign the context switch time to this variable
             while time.time() - ContextA_time <= self.session_info['ContextA_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 self.left_error_entry = False
@@ -233,6 +234,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             if self.state != 'ContextC_from_ContextB':  # exiting out of the nested while loop puts you in one of a few states; exiting out of the outer while loop will initiate a transition to ContextC_from_ContextB IF not already in that state from the above nested while loop
                 self.switch_to_ContextC_from_ContextB()
         elif self.state == 'ContextB':  # if in ContextB
+            self.trial_running = False
             ContextB_time = time.time()  # assign the context switch time to this variable
             while time.time() - ContextB_time <= self.session_info[
                 'ContextB_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
@@ -276,31 +278,26 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
 
     def LED_off(self):
         logging.info(";" + str(time.time()) + ";[transition];LED_off;" + str(self.error_repeat))
-        self.trial_running = True
         self.box.cueLED1.off()  # turn on LED which signals lick choice available
         self.box.cueLED2.off()
 
     def enter_lick_LED_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_lick_LED_ContextA;" + str(self.error_repeat))
-        self.trial_running = True
         self.box.cueLED1.on()  # turn on LED which signals lick choice available
         self.box.cueLED2.on()
 
     def exit_lick_LED_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_lick_LED_ContextA;" + str(self.error_repeat))
-        self.trial_running = True
         self.box.cueLED1.off()  # turn on LED which signals lick choice available
         self.box.cueLED2.off()
 
     def enter_lick_LED_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_lick_LED_ContextB;" + str(self.error_repeat))
-        self.trial_running = True
         self.box.cueLED1.on()  # turn on LED which signals lick choice available
         self.box.cueLED2.on()
 
     def exit_lick_LED_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_lick_LED_ContextB;" + str(self.error_repeat))
-        self.trial_running = True
         self.box.cueLED1.off()  # turn on LED which signals lick choice available
         self.box.cueLED2.off()
 
@@ -308,47 +305,40 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.trial_running = False
 
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
-        self.trial_running = True
         self.box.sound2.on()  # ACTIVATE SOUND CUE#
+        self.trial_running = True
 
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
         # self.pump.reward("vaccum", 0)
-        self.trial_running = False
         self.box.event_list.clear()
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
-        self.trial_running = True
         self.box.sound1.on()
+        self.trial_running = True
 
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
-        self.trial_running = False
         self.box.event_list.clear()
 
     def enter_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
         self.box.sound2.off()  # INACTIVATE SOUND CUE#
-        self.trial_running = True
 
     def exit_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextA;" + str(self.error_repeat))
-        self.trial_running = False
         self.box.event_list.clear()
 
     def enter_ContextC_from_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextB;" + str(self.error_repeat))
         self.box.sound1.off()  # INACTIVATE SOUND CUE#
-        self.trial_running = True
 
     def exit_ContextC_from_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextB;" + str(self.error_repeat))
-        self.trial_running = False
         self.box.event_list.clear()
 
     def update_plot(self):
