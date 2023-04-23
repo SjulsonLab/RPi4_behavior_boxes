@@ -254,15 +254,14 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                     lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time  # used to check previous rewarded lever time
                     if lever_pressed_dt >= self.lever_press_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
                         self.switch_to_lick_LED_ContextB_from_ContextB()  # switches state to lick_LED state from ContextB
-                        LED_on_time_plus_LED_duration = time.time() + session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
-                        while ((time.time() - LED_on_time_plus_LED_duration) < session_info['LED_duration']) and (time.time() - ContextB_time <= self.session_info['ContextB_time']):
+                        LED_on_time_plus_LED_duration = time.time() + self.session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
+                        while ((time.time() - LED_on_time_plus_LED_duration) < self.session_info['LED_duration']) and (time.time() - ContextB_time <= self.session_info['ContextB_time']):
                             if self.box.event_list:
                                 self.event_name = self.box.event_list.popleft()
                             else:
                                 self.event_name = ''  # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
                             if self.event_name == 'left_entry' and self.left_error_entry == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
-                                if random.random() <= self.session_info[
-                                    'ContextB_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
+                                if random.random() <= self.session_info['ContextB_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
                                     print('ContextB_reward_delivered')
                                     self.pump.reward(self.reward_pump2, self.reward_size2)  # reward delivery based on pump number and reward size
                                     self.lever_pressed_time = lever_pressed_time_temp  # this is used for subsequent lever presses
