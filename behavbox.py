@@ -99,8 +99,8 @@ class BehavBox(object):
         # DIO 1 and 2 are reserved for the audio board
         ###############################################################################################
         # self.DIO3 = LED(9)  # reserved for vacuum function
-        self.DIO4 = LED(10)
-        self.DIO5 = LED(11)
+        # self.DIO4 = LED(10)
+        # self.DIO5 = LED(11)
         # there is a DIO6, but that is the same pin as the camera strobe
 
         ###############################################################################################
@@ -129,9 +129,10 @@ class BehavBox(object):
         self.lick1 = Button(26, None, True)
         self.lick2 = Button(27, None, True)
         self.lick3 = Button(15, None, True)
-        #self.reserved_rx1 = Button(13, None, True)  # for mitch
-        #self.reserved_rx2 = Button(16, None, True)  # for mitch
-        #
+
+        self.reserved_rx1 = Button(10, None, True)#Button(13, None, True)  # for mitch
+        self.reserved_rx2 = Button(11, None, True)#Button(16, None, True)  # for mitch
+
         # # link nosepoke event detections to callbacks
         self.lick1.when_pressed = self.left_exit
         self.lick2.when_pressed = self.right_exit
@@ -214,8 +215,11 @@ class BehavBox(object):
         ###############################################################################################
         try:
             pygame.init()
-            self.main_display = pygame.display.set_mode((800, 600))
+            print("pygame.init()")
+            self.main_display = pygame.display.set_mode()
+            print("self.main_display = pygame.display.set_mode((800, 600))")
             pygame.display.set_caption(session_info["box_name"])
+            print("pygame.display.set_caption(session_info[\"box_name\"])")
             fig, axes = plt.subplots(1, 1, )
             axes.plot()
             self.check_plot(fig)
