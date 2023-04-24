@@ -345,6 +345,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
     def enter_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
         self.box.sound2.off()  # INACTIVATE SOUND CUE#
+        self.trial_running = False
 
     def exit_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextA;" + str(self.error_repeat))
@@ -353,6 +354,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
     def enter_ContextC_from_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextB;" + str(self.error_repeat))
         self.box.sound1.off()  # INACTIVATE SOUND CUE#
+        self.trial_running = False
 
     def exit_ContextC_from_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextB;" + str(self.error_repeat))
