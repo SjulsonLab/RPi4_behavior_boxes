@@ -132,7 +132,9 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
             ['switch_to_lick_LED_ContextB_from_ContextB', 'ContextB', 'lick_LED_ContextB'],
 
             ['switch_to_ContextA_from_lick_LED_ContextA', 'lick_LED_ContextA', 'ContextA'],
-            ['switch_to_ContextB_from_lick_LED_ContextB', 'lick_LED_ContextB', 'ContextB']
+            ['switch_to_ContextB_from_lick_LED_ContextB', 'lick_LED_ContextB', 'ContextB'],
+
+            ['end_task', ['lick_LED_ContextA','lick_LED_ContextB','ContextA','ContextB','ContextC_from_ContextA','ContextC_from_ContextB'], 'standby']
         ]
 
         self.machine = TimedStateMachine(
