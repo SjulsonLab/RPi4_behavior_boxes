@@ -111,7 +111,8 @@ class SelfAdminTaskContextTwoActions(object):
             ['switch_to_ContextC_from_ContextA', 'ContextA', 'ContextC_from_ContextA'],
             ['switch_to_ContextC_from_ContextB', 'ContextB', 'ContextC_from_ContextB'],
             ['switch_to_ContextB', 'ContextC_from_ContextA', 'ContextB'],
-            ['switch_to_ContextA', 'ContextC_from_ContextB', 'ContextA']
+            ['switch_to_ContextA', 'ContextC_from_ContextB', 'ContextA'],
+            ['end_task', ['ContextC_from_ContextB','ContextC_from_ContextA','ContextA','ContextB'], 'standby']
         ]
 
         self.machine = TimedStateMachine(
