@@ -3,7 +3,6 @@
 
 # In[ ]:
 
-
 # python3: self_admin_task_context.py
 """
 author: Mitch Farrell
@@ -49,7 +48,7 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class SelfAdminTaskContextTwoActions(object):
+class ForagingTask(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
@@ -84,9 +83,9 @@ class SelfAdminTaskContextTwoActions(object):
         self.states = [
             State(name='standby',
                   on_exit=["exit_standby"]),
-            Timeout(name="ContextA",
-                    on_enter=["enter_ContextA"],
-                    on_exit=["exit_ContextA"],
+            Timeout(name="right_patch",
+                    on_enter=["enter_right_patch"],
+                    on_exit=["exit_right_patch"],
                     timeout=self.session_info["ContextA_time"], #5 min; In self_admin_task program, this is just a restart signal that counts the trials doesn't really do anything. So I can update this to switch to standby
                     on_timeout=["switch_to_ContextC_from_ContextA"]),
             Timeout(name="ContextB",
@@ -223,18 +222,18 @@ class SelfAdminTaskContextTwoActions(object):
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.sound2.on() #ACTIVATE SOUND CUE#
-        
+        self.box.sound1.blink(0.1,0.1) #ACTIVATE SOUND CUE#
+
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
         # self.pump.reward("vaccum", 0)
         self.trial_running = False
-        self.box.sound2.off()  # INACTIVATE SOUND CUE#
+        self.box.sound1.off()  # INACTIVATE SOUND CUE#
         self.box.event_list.clear()
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.sound1.on()
+        self.box.sound1.blink(0.2,0.1)
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
         self.trial_running = False
