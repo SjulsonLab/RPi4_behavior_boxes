@@ -82,5 +82,6 @@ session_info['LED_duration'] = 5
 
 session_info['FR_before_patch_switch'] = 3
 session_info["lick_interval"] = 5
+session_info['travel_time'] = 10
 
 

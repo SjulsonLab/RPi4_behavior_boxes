@@ -51,7 +51,6 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-
 class ForageTask(object):
     # Define states. States where the animals is waited to make their decision
 
@@ -147,8 +146,6 @@ class ForageTask(object):
         self.reward_times_up = False
         self.reward_pump1 = self.session_info["reward_pump1"]  # update this in session_info
         self.reward_pump2 = self.session_info['reward_pump2']  # update this in session_info
-        self.reward_size1 = self.session_info["reward_size1"]  # update this in session_info
-        self.reward_size2 = self.session_info['reward_size2']  # update this in session_info
 
         self.ContextA_time = 0
         self.ContextB_time = 0
@@ -197,6 +194,7 @@ class ForageTask(object):
         if self.state == "standby":
             pass
         elif self.state == 'right_patch':  # if in ContextA
+            self.trial_running = False
             self.right_licks = 0
             self.left_licks = 0
             self.reward_size_var = 0
@@ -218,11 +216,12 @@ class ForageTask(object):
                         self.lick_time = lick_time_temp  # this is used for subsequent lever presses
                 elif self.event_name == 'left_entry':
                     self.left_licks += 1
-                    if self.left_licks >= self.session_info['FR_before_patch_switch']:
+                    if self.left_licks >= self.session_info['FR_before_patch_switch'] and self.reward_size_var != 0:
                         self.switch_to_travel_to_left_patch() #initiates travel
                     else:
                         pass
         elif self.state == 'left_patch':  # if in ContextA
+            self.trial_running = False
             self.right_licks = 0
             self.left_licks = 0
             self.reward_size_var = 0
@@ -244,59 +243,41 @@ class ForageTask(object):
                         self.lick_time = lick_time_temp  # this is used for subsequent lever presses
                 elif self.event_name == 'right_entry':
                     self.right_licks += 1
-                    if self.left_licks >= self.session_info['FR_before_patch_switch']:
+                    if self.left_licks >= self.session_info['FR_before_patch_switch'] and self.reward_size_var != 0:
                         self.switch_to_travel_to_right_patch() #initiates travel
                     else:
                         pass
 
     def exit_standy(self):
-
+        logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
     def enter_right_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(self.error_repeat))
+        self.box.cueLED1.on()  # turn on LED which signals lick choice available
+        self.trial_running = True
     def exit_right_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_right_patch;" + str(self.error_repeat))
+        self.box.cueLED1.off()  # turn on LED which signals lick choice available
 
     def enter_left_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(self.error_repeat))
+        self.box.cueLED2.on()
+        self.trial_running = True
     def exit_left_patch(self):
-
+        logging.info(";" + str(time.time()) + ";[transition];exit_left_patch;" + str(self.error_repeat))
+        self.box.cueLED2.off()
 
     def enter_travel_to_right_patch(self):
-    def enter_travel_to_right_patch(self):
-
-    def enter_ContextA(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
-        self.box.sound2.on()  # ACTIVATE SOUND CUE#
-        self.trial_running = True
-
-    def exit_ContextA(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
-        # self.pump.reward("vaccum", 0)
-        self.box.event_list.clear()
-
-    def enter_ContextB(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];enter_travel_to_right_patch;" + str(self.error_repeat))
         self.box.sound1.on()
-        self.trial_running = True
-
-    def exit_ContextB(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
-        self.box.event_list.clear()
-
-    def enter_ContextC_from_ContextA(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
-        self.box.sound2.off()  # INACTIVATE SOUND CUE#
-        self.trial_running = False
-
-    def exit_ContextC_from_ContextA(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextA;" + str(self.error_repeat))
-        self.box.event_list.clear()
-
-    def enter_ContextC_from_ContextB(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextB;" + str(self.error_repeat))
-        self.box.sound1.off()  # INACTIVATE SOUND CUE#
-        self.trial_running = False
-
-    def exit_ContextC_from_ContextB(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextB;" + str(self.error_repeat))
-        self.box.event_list.clear()
+    def exit_travel_to_right_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_travel_to_right_patch;" + str(self.error_repeat))
+        self.box.sound1.off()
+    def enter_travel_to_left_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_travel_to_left_patch;" + str(self.error_repeat))
+        self.box.sound1.on()
+    def exit_travel_to_left_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_travel_to_left_patch;" + str(self.error_repeat))
+        self.box.sound1.off()
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
