@@ -140,8 +140,8 @@ class ForageTask(object):
         self.error_count = 0
         self.error_list = []
         self.error_repeat = False
-        self.lever_pressed_time = 0.0
-        self.lever_press_interval = self.session_info["lever_press_interval"]
+        self.lick_time = 0.0
+        self.lick_interval = self.session_info["lick_interval"]
         # self.reward_time_start = None # for reward_available state time keeping purpose
         self.reward_time = 10  # sec. could be incorporate into the session_info; available time for reward
         self.reward_times_up = False
@@ -186,133 +186,80 @@ class ForageTask(object):
 
         # session_statistics
         self.total_reward = 0
+        self.right_licks = 0
+        self.left_licks = 0
+        self.reward_size_var = 0
+        self.reward_size_index = 0
+        self.right_patch_rewards = [5,4,3,2,1,0]
+        self.left_patch_rewards = [5,4,3,2,1,0]
 
     def run(self):
         if self.state == "standby":
             pass
-        elif self.state == 'ContextA':  # if in ContextA
-            self.trial_running = False
-            self.ContextA_time = time.time()  # assign the context switch time to this variable
-            while time.time() - self.ContextA_time <= self.session_info['ContextA_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
-                self.right_entry_error = False
-                self.left_entry_error = False
+        elif self.state == 'right_patch':  # if in ContextA
+            self.right_licks = 0
+            self.left_licks = 0
+            self.reward_size_var = 0
+            self.reward_size_index = 0
+            while self.state == 'right_patch':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
                     self.event_name = ''
-                if self.event_name == "reserved_rx1_pressed":  # if an active lever press detected
-                    lever_pressed_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
-                    lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time  # used to check previous rewarded lever time
-                    if lever_pressed_dt >= self.lever_press_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
-                        self.switch_to_lick_LED_ContextA_from_ContextA()  # switches state to lick_LED state from ContextB
-                        self.LED_on_time_plus_LED_duration = time.time() + self.session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
-                        while (time.time() - self.LED_on_time_plus_LED_duration < 0) and (time.time() - self.ContextA_time <= self.session_info['ContextA_time']) and (self.state == 'lick_LED_ContextA'):
-                            if self.box.event_list:
-                                self.event_name = self.box.event_list.popleft()
-                            else:
-                                self.event_name = '' # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
-                            if self.event_name == 'right_entry' and self.left_entry_error == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
-                                logging.info(";" + str(time.time()) + ";[transition];right_entry_reward_delivery_LEDs_off;" + str(self.error_repeat))  # first incorrect lick turns off LEDs
-                                if random.random() <= self.session_info['ContextA_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
-                                    print('ContextA_reward_delivered')
-                                    self.pump.reward(self.reward_pump1, self.reward_size1) # reward delivery based on pump number and reward size
-                                    self.lever_pressed_time = lever_pressed_time_temp  # this is used for subsequent lever presses
-                                    self.total_reward += 1
-                                    self.switch_to_ContextA_from_lick_LED_ContextA()  # does this need a conditional statement? or can this just be as it is
-                            elif self.event_name == 'left_entry':
-                                if self.left_entry_error == False:
-                                    logging.info(";" + str(time.time()) + ";[transition];left_entry_error_LEDs_off;" + str(self.error_repeat))  # first incorrect lick turns off LEDs
-                                self.box.cueLED1.off()  # don't switch the state; but need to turn the LEDs off
-                                self.box.cueLED2.off()
-                                self.left_entry_error = True  # need a boolean to say whether a right_entry occurred during the current LED block
-                        if (time.time() - self.ContextA_time) >= self.session_info['ContextA_time']:
-                            self.switch_to_ContextC_from_lick_LED_ContextA()
-                        elif self.state != 'ContextA':
-                            self.switch_to_ContextA_from_lick_LED_ContextA()
+                if self.event_name == "right_entry":  # if an active lever press detected
+                    lick_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
+                    lick_dt = lick_time_temp - self.lick_time  # used to check previous rewarded lever time
+                    if lick_dt >= self.lick_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
+                        if self.reward_size_var > 5:
+                            self.reward_size_index = 5
+                        self.pump.reward(self.reward_pump1, self.right_patch_rewards[self.reward_size_index])  # reward delivery based on pump number and reward size
+                        self.reward_size_var +=1
+                        self.reward_size_index +=1
+                        self.lick_time = lick_time_temp  # this is used for subsequent lever presses
+                elif self.event_name == 'left_entry':
+                    self.left_licks += 1
+                    if self.left_licks >= self.session_info['FR_before_patch_switch']:
+                        self.switch_to_travel_to_left_patch() #initiates travel
                     else:
                         pass
-                else:
-                    pass
-            if self.state != 'ContextC_from_ContextA':  # exiting out of the nested while loop puts you in one of a few states; exiting out of the outer while loop will initiate a transition to ContextC_from_ContextB IF not already in that state from the above nested while loop
-                self.switch_to_ContextC_from_ContextA()
-        elif self.state == 'ContextB':  # if in ContextB
-            self.trial_running = False
-            self.ContextB_time = time.time()  # assign the context switch time to this variable
-            while time.time() - self.ContextB_time <= self.session_info['ContextB_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
-                self.right_entry_error = False
-                self.left_entry_error = False
+        elif self.state == 'left_patch':  # if in ContextA
+            self.right_licks = 0
+            self.left_licks = 0
+            self.reward_size_var = 0
+            self.reward_size_index = 0
+            while self.state == 'left_patch':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
                     self.event_name = ''
-                if self.event_name == "reserved_rx1_pressed":  # if an active lever press detected
-                    lever_pressed_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
-                    lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time  # used to check previous rewarded lever time
-                    if lever_pressed_dt >= self.lever_press_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
-                        self.switch_to_lick_LED_ContextB_from_ContextB()  # switches state to lick_LED state from ContextB
-                        self.LED_on_time_plus_LED_duration = time.time() + self.session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
-                        while (time.time() - self.LED_on_time_plus_LED_duration < 0) and (time.time() - self.ContextB_time <= self.session_info['ContextB_time']) and (self.state == 'lick_LED_ContextB'):
-                            if self.box.event_list:
-                                self.event_name = self.box.event_list.popleft()
-                            else:
-                                self.event_name = ''  # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
-                            if self.event_name == 'left_entry' and self.right_entry_error == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
-                                logging.info(";" + str(time.time()) + ";[transition];left_entry_reward_delivery_LEDs_off;" + str(self.error_repeat))  # first incorrect lick turns off LEDs
-                                if random.random() <= self.session_info['ContextB_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
-                                    print('ContextB_reward_delivered')
-                                    self.pump.reward(self.reward_pump2, self.reward_size2)  # reward delivery based on pump number and reward size
-                                    self.lever_pressed_time = lever_pressed_time_temp  # this is used for subsequent lever presses
-                                    self.total_reward += 1
-                                    self.switch_to_ContextB_from_lick_LED_ContextB()
-                            elif self.event_name == 'right_entry':
-                                if self.right_entry_error == False:
-                                    logging.info(";" + str(time.time()) + ";[transition];right_entry_error_LEDs_off;" + str(self.error_repeat)) #first incorrect lick turns off LEDs
-                                self.box.cueLED1.off()  # don't switch the state; but need to turn the LEDs off
-                                self.box.cueLED2.off()
-                                self.right_entry_error = True #in the above if X and Y statement, this prevents reward from being dispensed if a right entry occurs during the LED period
-                        if (time.time() - self.ContextB_time) >= self.session_info['ContextB_time']:
-                            self.switch_to_ContextC_from_lick_LED_ContextB()
-                        elif self.state != 'ContextB':
-                            self.switch_to_ContextB_from_lick_LED_ContextB()
+                if self.event_name == "left_entry":  # if an active lever press detected
+                    lick_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
+                    lick_dt = lick_time_temp - self.lick_time  # used to check previous rewarded lever time
+                    if lick_dt >= self.lick_time:  # if the last rewarded press occurred more than 1s ago, then turn LED on
+                        if self.reward_size_var > 5:
+                            self.reward_size_index = 5
+                        self.pump.reward(self.reward_pump1, self.right_patch_rewards[self.reward_size_index])  # reward delivery based on pump number and reward size
+                        self.reward_size_var +=1
+                        self.reward_size_index +=1
+                        self.lick_time = lick_time_temp  # this is used for subsequent lever presses
+                elif self.event_name == 'right_entry':
+                    self.right_licks += 1
+                    if self.left_licks >= self.session_info['FR_before_patch_switch']:
+                        self.switch_to_travel_to_right_patch() #initiates travel
                     else:
                         pass
-                else:
-                    pass
-            if self.state != 'ContextC_from_ContextB':  # exiting out of the nested while loop puts you in one of a few states; exiting out of the outer while loop will initiate a transition to ContextC_from_ContextB IF not already in that state from the above nested while loop
-                self.switch_to_ContextC_from_ContextB()
-        else:
-            pass
-        self.box.check_keybd()
 
-    def LED_off(self):
-        logging.info(";" + str(time.time()) + ";[transition];LED_off;" + str(self.error_repeat))
-        self.box.cueLED1.off()  # turn on LED which signals lick choice available
-        self.box.cueLED2.off()
+    def exit_standy(self):
 
-    def enter_lick_LED_ContextA(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_lick_LED_ContextA;" + str(self.error_repeat))
-        self.box.cueLED1.on()  # turn on LED which signals lick choice available
-        self.box.cueLED2.on()
+    def enter_right_patch(self):
+    def exit_right_patch(self):
 
-    def exit_lick_LED_ContextA(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_lick_LED_ContextA;" + str(self.error_repeat))
-        self.box.cueLED1.off()  # turn on LED which signals lick choice available
-        self.box.cueLED2.off()
+    def enter_left_patch(self):
+    def exit_left_patch(self):
 
-    def enter_lick_LED_ContextB(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_lick_LED_ContextB;" + str(self.error_repeat))
-        self.box.cueLED1.on()  # turn on LED which signals lick choice available
-        self.box.cueLED2.on()
 
-    def exit_lick_LED_ContextB(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_lick_LED_ContextB;" + str(self.error_repeat))
-        self.box.cueLED1.off()  # turn on LED which signals lick choice available
-        self.box.cueLED2.off()
-
-    def exit_standby(self):
-        # self.error_repeat = False
-        logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
-        self.box.event_list.clear()
+    def enter_travel_to_right_patch(self):
+    def enter_travel_to_right_patch(self):
 
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))

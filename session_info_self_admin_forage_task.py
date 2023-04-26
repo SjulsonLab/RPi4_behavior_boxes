@@ -80,4 +80,7 @@ session_info['reward_size2'] = 1   #update this in session_info
 
 session_info['LED_duration'] = 5
 
+session_info['FR_before_patch_switch'] = 3
+session_info["lick_interval"] = 5
+
 

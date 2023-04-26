@@ -48,7 +48,7 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class ForagingTask(object):
+class SelfAdminTaskContextTwoActions(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
@@ -83,16 +83,16 @@ class ForagingTask(object):
         self.states = [
             State(name='standby',
                   on_exit=["exit_standby"]),
-            Timeout(name="right_patch",
-                    on_enter=["enter_right_patch"],
-                    on_exit=["exit_right_patch"],
-                    timeout=self.session_info["ContextA_time"], #5 min; In self_admin_task program, this is just a restart signal that counts the trials doesn't really do anything. So I can update this to switch to standby
-                    on_timeout=["switch_to_ContextC_from_ContextA"]),
             Timeout(name="ContextB",
                     on_enter=["enter_ContextB"],
                     on_exit=["exit_ContextB"],
-                    timeout=self.session_info["ContextB_time"],
+                    timeout=self.session_info["ContextB_time"], #5 min; In self_admin_task program, this is just a restart signal that counts the trials doesn't really do anything. So I can update this to switch to standby
                     on_timeout=["switch_to_ContextC_from_ContextB"]),
+            Timeout(name="ContextA",
+                    on_enter=["enter_ContextA"],
+                    on_exit=["exit_ContextA"],
+                    timeout=self.session_info["ContextA_time"],
+                    on_timeout=["switch_to_ContextC_from_ContextA"]),
             Timeout(name="ContextC_from_ContextA",
                     on_enter=["enter_ContextC_from_ContextA"],
                     on_exit=["exit_ContextC_from_ContextA"],
