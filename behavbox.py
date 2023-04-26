@@ -213,45 +213,48 @@ class BehavBox(object):
         ###############################################################################################
         # pygame window setup and keystroke handler
         ###############################################################################################
-        try:
-            pygame.init()
-            print("pygame.init()")
-            self.main_display = pygame.display.set_mode()
-            print("self.main_display = pygame.display.set_mode((800, 600))")
-            pygame.display.set_caption(session_info["box_name"])
-            print("pygame.display.set_caption(session_info[\"box_name\"])")
-            fig, axes = plt.subplots(1, 1, )
-            axes.plot()
-            self.check_plot(fig)
-            print(
-                "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
-            )
-            print("must be in the foreground. Keys are as follows:\n")
-            print(
-                Fore.YELLOW
-                + "         1: left poke            2: center poke            3: right poke"
-            )
-            print(
-                "         Q: pump_1            W: pump_2            E: pump_3            R: pump_4"
-            )
-            print(
-                Fore.CYAN
-                + "                       Esc: close key capture window\n"
-                + Style.RESET_ALL
-            )
-            print(
-                Fore.GREEN
-                + Style.BRIGHT
-                + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
-                + Fore.RED
-                + "ONCE\n"
-                + Style.RESET_ALL
-            )
+        if self.session_info['pygame']:
+            try:
+                pygame.init()
+                print("pygame.init()")
+                self.main_display = pygame.display.set_mode()
+                print("self.main_display = pygame.display.set_mode((800, 600))")
+                pygame.display.set_caption(session_info["box_name"])
+                print("pygame.display.set_caption(session_info[\"box_name\"])")
+                fig, axes = plt.subplots(1, 1, )
+                axes.plot()
+                self.check_plot(fig)
+                print(
+                    "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
+                )
+                print("must be in the foreground. Keys are as follows:\n")
+                print(
+                    Fore.YELLOW
+                    + "         1: left poke            2: center poke            3: right poke"
+                )
+                print(
+                    "         Q: pump_1            W: pump_2            E: pump_3            R: pump_4"
+                )
+                print(
+                    Fore.CYAN
+                    + "                       Esc: close key capture window\n"
+                    + Style.RESET_ALL
+                )
+                print(
+                    Fore.GREEN
+                    + Style.BRIGHT
+                    + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
+                    + Fore.RED
+                    + "ONCE\n"
+                    + Style.RESET_ALL
+                )
 
-            self.keyboard_active = True
-        except Exception as error_message:
-            print("pygame issue\n")
-            print(str(error_message))
+                self.keyboard_active = True
+            except Exception as error_message:
+                print("pygame issue\n")
+                print(str(error_message))
+            else:
+                pass
     ###############################################################################################
     # check for data visualization - uses pygame window to show behavior progress
     ###############################################################################################

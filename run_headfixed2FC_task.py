@@ -171,7 +171,8 @@ except (KeyboardInterrupt, SystemExit):
     # save dicts to disk
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
     pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
-    pygame.quit()
+    if task.session_info['pygame']:
+        pygame.quit()
 
 # exit because of error
 except RuntimeError as ex:
