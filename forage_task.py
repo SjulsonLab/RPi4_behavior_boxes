@@ -199,6 +199,7 @@ class ForageTask(object):
             self.left_licks = 0
             self.reward_size_var = 0
             self.reward_size_index = 0
+            self.box.event_list.clear()
             while self.state == 'right_patch':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
@@ -226,6 +227,7 @@ class ForageTask(object):
             self.left_licks = 0
             self.reward_size_var = 0
             self.reward_size_index = 0
+            self.box.event_list.clear()
             while self.state == 'left_patch':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
