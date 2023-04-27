@@ -58,7 +58,7 @@ class Treadmill(object):
         self._running = False
 
         self.treadmill_log = []
-        self.delay = 0.3
+        self.delay = 0.01 # second
 
         self.distance_bit = None
         self.distance_cm = None
