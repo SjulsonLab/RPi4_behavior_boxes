@@ -211,8 +211,8 @@ class ForageTask(object):
                         if self.reward_size_var > 5:
                             self.reward_size_index = 5
                         self.pump.reward(self.reward_pump1, self.right_patch_rewards[self.reward_size_index])  # reward delivery based on pump number and reward size
-                        self.reward_size_var +=1
-                        self.reward_size_index +=1
+                        self.reward_size_var += 1
+                        self.reward_size_index += 1
                         self.lick_time = lick_time_temp  # this is used for subsequent lever presses
                 elif self.event_name == 'left_entry':
                     self.left_licks += 1
@@ -234,10 +234,10 @@ class ForageTask(object):
                 if self.event_name == "left_entry":  # if an active lever press detected
                     lick_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
                     lick_dt = lick_time_temp - self.lick_time  # used to check previous rewarded lever time
-                    if lick_dt >= self.lick_time:  # if the last rewarded press occurred more than 1s ago, then turn LED on
+                    if lick_dt >= self.lick_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
                         if self.reward_size_var > 5:
                             self.reward_size_index = 5
-                        self.pump.reward(self.reward_pump1, self.right_patch_rewards[self.reward_size_index])  # reward delivery based on pump number and reward size
+                        self.pump.reward(self.reward_pump1, self.left_patch_rewards[self.reward_size_index])  # reward delivery based on pump number and reward size
                         self.reward_size_var +=1
                         self.reward_size_index +=1
                         self.lick_time = lick_time_temp  # this is used for subsequent lever presses
