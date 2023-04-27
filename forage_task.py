@@ -210,7 +210,7 @@ class ForageTask(object):
                     if lick_dt >= self.lick_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
                         if self.reward_size_var > 5:
                             self.reward_size_index = 5
-                        self.pump.reward(self.reward_pump1, self.right_patch_rewards[self.reward_size_index])  # reward delivery based on pump number and reward size
+                        self.pump.reward(self.reward_pump2, self.right_patch_rewards[self.reward_size_index])  # reward delivery based on pump number and reward size
                         self.reward_size_var += 1
                         self.reward_size_index += 1
                         self.lick_time = lick_time_temp  # this is used for subsequent lever presses
@@ -252,19 +252,19 @@ class ForageTask(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
     def enter_right_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(self.error_repeat))
-        self.box.cueLED1.on()  # turn on LED which signals lick choice available
+        self.box.cueLED2.on()  # turn on LED which signals lick choice available
         self.trial_running = True
     def exit_right_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_right_patch;" + str(self.error_repeat))
-        self.box.cueLED1.off()  # turn on LED which signals lick choice available
+        self.box.cueLED2.off()  # turn on LED which signals lick choice available
 
     def enter_left_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(self.error_repeat))
-        self.box.cueLED2.on()
+        self.box.cueLED1.on()
         self.trial_running = True
     def exit_left_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_left_patch;" + str(self.error_repeat))
-        self.box.cueLED2.off()
+        self.box.cueLED1.off()
 
     def enter_travel_to_right_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_travel_to_right_patch;" + str(self.error_repeat))
