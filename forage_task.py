@@ -216,7 +216,8 @@ class ForageTask(object):
                         self.reward_size_index += 1
                         self.lick_time = lick_time_temp  # this is used for subsequent lever presses
                 elif self.event_name == 'left_entry':
-                    self.left_licks += 1
+                    if self.reward_size_var != 0:
+                        self.left_licks += 1
                     if self.left_licks >= self.session_info['FR_before_patch_switch'] and self.reward_size_var != 0:
                         self.switch_to_travel_to_left_patch() #initiates travel
                     else:
@@ -244,7 +245,8 @@ class ForageTask(object):
                         self.reward_size_index +=1
                         self.lick_time = lick_time_temp  # this is used for subsequent lever presses
                 elif self.event_name == 'right_entry':
-                    self.right_licks += 1
+                    if self.reward_size_var != 0:
+                        self.right_licks += 1
                     if self.right_licks >= self.session_info['FR_before_patch_switch'] and self.reward_size_var != 0:
                         self.switch_to_travel_to_right_patch() #initiates travel
                     else:
