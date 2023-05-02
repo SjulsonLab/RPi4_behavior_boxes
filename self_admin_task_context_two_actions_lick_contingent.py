@@ -233,8 +233,8 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                             elif self.event_name == 'left_entry':
                                 if self.left_entry_error == False:
                                     logging.info(";" + str(time.time()) + ";[transition];left_entry_error_LEDs_off;" + str(self.error_repeat))  # first incorrect lick turns off LEDs
-                                self.box.cueLED1.off()  # don't switch the state; but need to turn the LEDs off
-                                self.box.cueLED2.off()
+                                #self.box.cueLED1.off()  # don't switch the state; but need to turn the LEDs off
+                                #self.box.cueLED2.off()
                                 self.left_entry_error = True  # need a boolean to say whether a right_entry occurred during the current LED block
                         if (time.time() - self.ContextA_time) >= self.session_info['ContextA_time']:
                             self.switch_to_ContextC_from_lick_LED_ContextA()
@@ -278,8 +278,8 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
                             elif self.event_name == 'right_entry':
                                 if self.right_entry_error == False:
                                     logging.info(";" + str(time.time()) + ";[transition];right_entry_error_LEDs_off;" + str(self.error_repeat)) #first incorrect lick turns off LEDs
-                                self.box.cueLED1.off()  # don't switch the state; but need to turn the LEDs off
-                                self.box.cueLED2.off()
+                                #self.box.cueLED1.off()  # don't switch the state; but need to turn the LEDs off
+                                #self.box.cueLED2.off()
                                 self.right_entry_error = True #in the above if X and Y statement, this prevents reward from being dispensed if a right entry occurs during the LED period
                         if (time.time() - self.ContextB_time) >= self.session_info['ContextB_time']:
                             self.switch_to_ContextC_from_lick_LED_ContextB()
@@ -297,28 +297,28 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
 
     def LED_off(self):
         logging.info(";" + str(time.time()) + ";[transition];LED_off;" + str(self.error_repeat))
-        self.box.cueLED1.off()  # turn on LED which signals lick choice available
-        self.box.cueLED2.off()
+        #self.box.cueLED1.off()  # turn on LED which signals lick choice available
+        #self.box.cueLED2.off()
 
     def enter_lick_LED_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_lick_LED_ContextA;" + str(self.error_repeat))
-        self.box.cueLED1.on()  # turn on LED which signals lick choice available
-        self.box.cueLED2.on()
+        #self.box.cueLED1.on()  # turn on LED which signals lick choice available
+        #self.box.cueLED2.on()
 
     def exit_lick_LED_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_lick_LED_ContextA;" + str(self.error_repeat))
-        self.box.cueLED1.off()  # turn on LED which signals lick choice available
-        self.box.cueLED2.off()
+        #self.box.cueLED1.off()  # turn on LED which signals lick choice available
+        #self.box.cueLED2.off()
 
     def enter_lick_LED_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_lick_LED_ContextB;" + str(self.error_repeat))
-        self.box.cueLED1.on()  # turn on LED which signals lick choice available
-        self.box.cueLED2.on()
+        #self.box.cueLED1.on()  # turn on LED which signals lick choice available
+        #self.box.cueLED2.on()
 
     def exit_lick_LED_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_lick_LED_ContextB;" + str(self.error_repeat))
-        self.box.cueLED1.off()  # turn on LED which signals lick choice available
-        self.box.cueLED2.off()
+        #self.box.cueLED1.off()  # turn on LED which signals lick choice available
+        #self.box.cueLED2.off()
 
     def exit_standby(self):
         # self.error_repeat = False
@@ -327,22 +327,25 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
 
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
-        self.box.sound2.on()  # ACTIVATE SOUND CUE#
+        self.box.sound1.blink(0.1,0.1)  # ACTIVATE SOUND CUE#
         self.trial_running = True
 
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
         # self.pump.reward("vaccum", 0)
+        self.box.sound1.off()
         self.box.event_list.clear()
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
-        self.box.sound1.on()
+        self.box.sound1.blink(0.2,0.1)
         self.trial_running = True
 
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
+        self.box.sound1.off()
         self.box.event_list.clear()
+
 
     def enter_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
