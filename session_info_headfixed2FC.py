@@ -55,6 +55,7 @@ session_info['cue'] = ['LED_L', 'LED_R', 'all']
 session_info['choice'] = ['right', 'left']  # lick port
 session_info['reward'] = ['small', 'large']  # reward size
 session_info['reward_size'] = {'small': 5, 'large': 10}
+session_info['reward_deviation'] = 1
 
 if session_info['phase'] == 1:
     session_info['reward_size'] = {'small': 10, 'large': 10}

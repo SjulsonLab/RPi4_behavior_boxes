@@ -205,7 +205,6 @@ class Headfixed2FCTask(object):
                         self.restart()
             # first detect the lick signal:
             cue_state = self.current_card[0]
-            # side_choice = self.current_card[2]
             side_mice = None
             if self.event_name == "left_entry":
                 side_mice = 'left'
@@ -222,34 +221,32 @@ class Headfixed2FCTask(object):
                 if cue_state == 'all':
                     side_choice = side_mice
                     if side_choice == 'left':
-                        reward_size = self.current_card[2][0]
+                        reward_size = random.uniform(self.current_card[2][0] - self.session_info['reward_deviation'],
+                                                     self.current_card[2][0] + self.session_info['reward_deviation'])
                         pump_num = self.current_card[3][0]
                     elif side_choice == 'right':
-                        reward_size = self.current_card[2][1]
+                        reward_size = random.uniform(self.current_card[2][1] - self.session_info['reward_deviation'],
+                                                     self.current_card[2][1] + self.session_info['reward_deviation'])
                         pump_num = self.current_card[3][1]
                 else:
                     side_choice = self.current_card[1]
-                    reward_size = self.current_card[2]
+                    reward_size = random.uniform(self.current_card[2] - self.session_info['reward_deviation'],
+                                                 self.current_card[2] + self.session_info['reward_deviation'])
                     pump_num = self.current_card[3]
                 if side_mice == side_choice:  # if the animal chose correctly
                     print("Number of lick detected: " + str(self.lick_count))
                     if self.lick_count == 0:  # if this is the first lick
-                        # self.side_mice_buffer = side_mice
-                        self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
+                        self.pump.reward(pump_num, reward_size)
                         self.total_reward += 1
                         self.correct_trial_in_block += 1
                         self.reward_time_start = time.time()
                         print("Reward time start" + str(self.reward_time_start))
                     self.lick_count += 1
-
                 elif self.side_mice_buffer:
                     if self.lick_count == 0:
                         self.check_cue('sound2')
                         self.wrong_choice_error = True
                         self.restart()
-                    #else:  # wrong side - wrong_choice error
-                    #    self.multiple_choice_error = True
-                    #    self.restart()
 
         # look for keystrokes
         self.box.check_keybd()
@@ -331,11 +328,6 @@ class Headfixed2FCTask(object):
             self.error_repeat = True
             self.error_list.append('wrong_choice_error')
             self.wrong_choice_error = False
-        #elif self.multiple_choice_error:
-        #    logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
-        #    self.error_repeat = False
-        #    self.error_list.append('multiple_choice_error')
-        #    self.multiple_choice_error = False
         elif self.lick_count == 0:
             logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
             self.error_repeat = True
@@ -361,15 +353,12 @@ class Headfixed2FCTask(object):
             self.box.cueLED2.on()
             logging.info(";" + str(time.time()) + ";[cue];cueLED_R_on;" + str(self.error_repeat))
         elif cue =='all':
-            #self.box.cueLED1.blink(0.2, 0.1)
             self.box.cueLED1.on()
             self.box.cueLED2.on()
             logging.info(";" + str(time.time()) + ";[cue];LED_L+R_on; " + str(self.error_repeat))
 
     def cue_off(self, cue):
         if cue == 'all':
-            #self.box.sound1.off()
-            #self.box.sound2.off()
             self.box.cueLED1.off()
             self.box.cueLED2.off()
         elif cue == 'sound1':
@@ -380,7 +369,6 @@ class Headfixed2FCTask(object):
             logging.info(";" + str(time.time()) + ";[cue];cue_sound2_off;" + str(self.error_repeat))
         elif cue == 'LED_L':
             self.box.cueLED1.off()
-            #self.LED_blink = False
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_off;" + str(self.error_repeat))
         elif cue == 'LED_R':
             self.box.cueLED2.off()
@@ -406,8 +394,6 @@ class Headfixed2FCTask(object):
         ticks = range(len(counts))
         fig, ax = plt.subplots(1, 1, )
         ax.bar(ticks, counts, align='center', tick_label=labels)
-        # plt.xticks(ticks, labels)
-        # plt.title(session_name)
         ax = plt.gca()
         ax.set_xticks(ticks, labels)
         ax.set_xticklabels(labels=labels, rotation=70)
