@@ -221,17 +221,20 @@ class Headfixed2FCTask(object):
                 if cue_state == 'all':
                     side_choice = side_mice
                     if side_choice == 'left':
-                        reward_size = random.uniform(self.current_card[2][0] - self.session_info['reward_deviation'],
-                                                     self.current_card[2][0] + self.session_info['reward_deviation'])
+                        left_reward = self.session_info['reward_size'][self.current_card[2][0]]
+                        reward_size = random.uniform(left_reward - self.session_info['reward_deviation'],
+                                                     left_reward + self.session_info['reward_deviation'])
                         pump_num = self.current_card[3][0]
                     elif side_choice == 'right':
-                        reward_size = random.uniform(self.current_card[2][1] - self.session_info['reward_deviation'],
-                                                     self.current_card[2][1] + self.session_info['reward_deviation'])
+                        right_reward = self.session_info['reward_size'][self.current_card[2][1]]
+                        reward_size = random.uniform(right_reward - self.session_info['reward_deviation'],
+                                                     right_reward + self.session_info['reward_deviation'])
                         pump_num = self.current_card[3][1]
                 else:
                     side_choice = self.current_card[1]
-                    reward_size = random.uniform(self.current_card[2] - self.session_info['reward_deviation'],
-                                                 self.current_card[2] + self.session_info['reward_deviation'])
+                    forced_reward = self.session_info['reward_size'][self.current_card[2]]
+                    reward_size = random.uniform(forced_reward - self.session_info['reward_deviation'],
+                                                 forced_reward + self.session_info['reward_deviation'])
                     pump_num = self.current_card[3]
                 if side_mice == side_choice:  # if the animal chose correctly
                     print("Number of lick detected: " + str(self.lick_count))
