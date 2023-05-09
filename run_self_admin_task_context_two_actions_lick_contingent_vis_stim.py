@@ -94,7 +94,7 @@ try:
         ]
     )
 
-    task = SelfAdminTaskContextTwoActionsLickContingent(name="self_admin_task_context_two_actions_lick_contingent", session_info=session_info)
+    task = SelfAdminTaskContextTwoActionsLickContingentVisStim(name="self_admin_task_context_two_actions_lick_contingent_vis_stim", session_info=session_info)
 
     # start session
     task.start_session()
