@@ -311,7 +311,7 @@ class ForageTask(object):
         self.session_duration = 3600  # minutes
         self.num_time_bins = 12
         self.bins_list = [self.session_start_time]
-        for i in range(self.num_time_bins):
+        for i in range(self.num_time_bins+1):
             self.bins_list.append(self.bins_list[i] + (self.session_duration / self.num_time_bins))
     def enter_right_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(self.error_repeat))
