@@ -146,12 +146,6 @@ class ForageTask(object):
             )
 
     # trial statistics
-        self.session_start_time = time.time()
-        self.session_duration = 3600  # minutes
-        self.num_time_bins = 12
-        self.bins_list = [self.session_start_time]
-        for i in range(self.num_time_bins):
-            self.bins_list.append(self.bins_list[i] + (self.session_duration/self.num_time_bins))
         self.bin_index = 0
         self.selection_made = False
         self.patch_long = True
@@ -313,7 +307,12 @@ class ForageTask(object):
                         pass
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
-
+        self.session_start_time = time.time()
+        self.session_duration = 3600  # minutes
+        self.num_time_bins = 12
+        self.bins_list = [self.session_start_time]
+        for i in range(self.num_time_bins):
+            self.bins_list.append(self.bins_list[i] + (self.session_duration / self.num_time_bins))
     def enter_right_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(self.error_repeat))
         self.box.cueLED2.on()  # turn on LED which signals lick choice available
