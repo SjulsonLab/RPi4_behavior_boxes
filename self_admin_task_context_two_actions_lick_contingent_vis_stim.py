@@ -334,6 +334,7 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
 
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
+        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
         # self.pump.reward("vaccum", 0)
         self.box.event_list.clear()
 
@@ -346,24 +347,29 @@ class SelfAdminTaskContextTwoActionsLickContingent(object):
 
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
+        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
         self.box.event_list.clear()
 
     def enter_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
+        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
         self.box.sound2.off()  # INACTIVATE SOUND CUE#
         self.trial_running = False
 
     def exit_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextA;" + str(self.error_repeat))
+        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
         self.box.event_list.clear()
 
     def enter_ContextC_from_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextB;" + str(self.error_repeat))
+        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
         self.box.sound1.off()  # INACTIVATE SOUND CUE#
         self.trial_running = False
 
     def exit_ContextC_from_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextB;" + str(self.error_repeat))
+        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
         self.box.event_list.clear()
 
     def update_plot(self):
