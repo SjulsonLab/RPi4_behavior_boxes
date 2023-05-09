@@ -243,19 +243,17 @@ class ForageTask(object):
                     if self.left_licks >= self.session_info['FR_before_patch_switch'] and self.reward_size_var != 0:
                         self.selection_made = False
                         while not self.selection_made:
-                            if (time.time() >= self.bins_list[self.bin_index] and time.time() <= self.bins_list[self.bin_index+1]) and self.bin_index % 2 == 0:
+                            if (time.time() > self.bins_list[self.bin_index] and time.time() <= self.bins_list[self.bin_index+1]) and self.bin_index % 2 == 0:
                                 if self.patch_long:
                                     self.switch_to_travel_to_left_patch_long()
                                     self.selection_made = True
                                 elif not self.patch_long:
                                     self.switch_to_travel_to_left_patch_long()
-                                    self.bin_index += 1
                                     self.patch_long = True
                                     self.selection_made = True
-                            elif (time.time() >= self.bins_list[self.bin_index] and time.time() <= self.bins_list[self.bin_index+1]) and self.bin_index % 2 == 1:
+                            elif (time.time() > self.bins_list[self.bin_index] and time.time() <= self.bins_list[self.bin_index+1]) and self.bin_index % 2 == 1:
                                 if self.patch_long:
                                     self.switch_to_travel_to_left_patch_short()
-                                    self.bin_index += 1
                                     self.patch_long = False
                                     self.selection_made = True
                                 elif not self.patch_long:
@@ -293,19 +291,17 @@ class ForageTask(object):
                     if self.right_licks >= self.session_info['FR_before_patch_switch'] and self.reward_size_var != 0:
                         self.selection_made = False
                         while not self.selection_made:
-                            if (time.time() >= self.bins_list[self.bin_index] and time.time() <= self.bins_list[self.bin_index + 1]) and self.bin_index % 2 == 0:
+                            if (time.time() > self.bins_list[self.bin_index] and time.time() <= self.bins_list[self.bin_index + 1]) and self.bin_index % 2 == 0:
                                 if self.patch_long:
                                     self.switch_to_travel_to_right_patch_long()
                                     self.selection_made = True
                                 elif not self.patch_long:
                                     self.switch_to_travel_to_right_patch_long()
-                                    self.bin_index += 1
                                     self.patch_long = True
                                     self.selection_made = True
-                            elif (time.time() >= self.bins_list[self.bin_index] and time.time() <= self.bins_list[self.bin_index + 1]) and self.bin_index % 2 == 1:
+                            elif (time.time() > self.bins_list[self.bin_index] and time.time() <= self.bins_list[self.bin_index + 1]) and self.bin_index % 2 == 1:
                                 if self.patch_long:
                                     self.switch_to_travel_to_right_patch_short()
-                                    self.bin_index += 1
                                     self.patch_long = False
                                     self.selection_made = True
                                 elif not self.patch_long:
