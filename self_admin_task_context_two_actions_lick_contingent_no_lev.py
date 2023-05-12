@@ -213,14 +213,14 @@ class SelfAdminTaskContextTwoActionsLickContingentNoLev(object):
                 entry_time_temp = time.time()
                 entry_dt = entry_time_temp - self.entry_time
                 if entry_dt >= self.entry_interval:
-                    print('ContextB_reward_delivered_right_large')
+                    print('ContextB_reward_delivered_left_large')
                     self.pump.reward(self.reward_pump2,self.reward_size3)
                     self.entry_time = entry_time_temp
             elif self.event_name == 'right_entry':
                 entry_time_temp = time.time()
                 entry_dt = entry_time_temp - self.entry_time
                 if entry_dt >= self.entry_interval:
-                    print('ContextB_reward_delivered_left_small')
+                    print('ContextB_reward_delivered_right_small')
                     self.pump.reward(self.reward_pump1,self.reward_size4)
                     self.entry_time = entry_time_temp
         self.box.check_keybd()
