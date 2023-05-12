@@ -1,0 +1,282 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
+# python3: self_admin_task_context.py
+"""
+author: Mitch Farrell
+date: 2023-04-22
+name: self_admin_task_context_two_actions_lick_contingent.py
+goal: expand self-admin task to include contextual/probabilistic components, with two lick actions, and reward contingent on lick
+description:
+    6 blocks; BCAC (5 min for B and A; 2.5 min for C); x% probability of reward in A, y% probability of reward in B
+"""
+import importlib
+from transitions import Machine
+from transitions import State
+from transitions.extensions.states import add_state_features, Timeout
+import pysistence, collections
+from icecream import ic
+import logging
+import time
+from datetime import datetime
+import os
+from gpiozero import PWMLED, LED, Button
+from colorama import Fore, Style
+import logging.config
+from time import sleep
+import random
+import threading
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.figure as fg
+import numpy as np
+
+# from IPython.display import display, HTML
+#
+# display(HTML("<style>.container { width:100% !important; }</style>"))
+
+logging.config.dictConfig(
+    {
+        "version": 1,
+        "disable_existing_loggers": True,
+    }
+)
+# all modules above this line will have logging disabled
+
+import behavbox
+
+# adding timing capability to the state machine
+@add_state_features(Timeout)
+class TimedStateMachine(Machine):
+    pass
+
+
+class SelfAdminTaskContextTwoActionsLickContingentNoLev(object):
+    # Define states. States where the animals is waited to make their decision
+
+    def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
+
+        # if no name or session, make fake ones (for testing purposes)
+        if kwargs.get("name", None) is None:
+            self.name = "name"
+            print(
+                Fore.RED
+                + Style.BRIGHT
+                + "Warning: no name supplied; making fake one"
+                + Style.RESET_ALL
+            )
+        else:
+            self.name = kwargs.get("name", None)
+
+        if kwargs.get("session_info", None) is None:
+            print(
+                Fore.RED
+                + Style.BRIGHT
+                + "Warning: no session_info supplied; making fake one"
+                + Style.RESET_ALL
+            )
+            from fake_session_info import fake_session_info
+
+            self.session_info = fake_session_info
+        else:
+            self.session_info = kwargs.get("session_info", None)
+        ic(self.session_info)
+
+        # initialize the state machine
+        self.states = [
+            State(name='standby',
+                  on_exit=["exit_standby"]),
+            State(name="ContextA",
+                  on_enter=["enter_ContextA"],
+                  on_exit=["exit_ContextA"]),
+            State(name="ContextB",
+                  on_enter=["enter_ContextB"],
+                  on_exit=["exit_ContextB"]),
+            Timeout(name="ContextC_from_ContextA",
+                    on_enter=["enter_ContextC_from_ContextA"],
+                    on_exit=["exit_ContextC_from_ContextA"],
+                    timeout=self.session_info['ContextC_time'],
+                    on_timeout=['switch_to_ContextB']),
+            Timeout(name="ContextC_from_ContextB",
+                    on_enter=["enter_ContextC_from_ContextB"],
+                    on_exit=["exit_ContextC_from_ContextB"],
+                    timeout = self.session_info['ContextC_time'],
+                    on_timeout=['switch_to_ContextA'])]
+
+        self.transitions = [
+            ['start_trial_logic', 'standby', 'ContextB'],  # format: ['trigger', 'origin', 'destination']
+
+            ['switch_to_ContextC_from_ContextA', 'ContextA', 'ContextC_from_ContextA'],
+            ['switch_to_ContextC_from_ContextB', 'ContextB', 'ContextC_from_ContextB'],
+
+            ['switch_to_ContextB', 'ContextC_from_ContextA', 'ContextB'],
+            ['switch_to_ContextA', 'ContextC_from_ContextB', 'ContextA'],
+
+            ['end_task', ['ContextA','ContextB','ContextC_from_ContextA','ContextC_from_ContextB'], 'standby']
+        ]
+
+        self.machine = TimedStateMachine(
+            model=self,
+            states=self.states,
+            transitions=self.transitions,
+            initial='standby'  # STARTS IN STANDBY MODE
+            )
+
+    # trial statistics
+        self.trial_running = False
+        self.innocent = True
+        self.trial_number = 0
+        self.error_count = 0
+        self.error_list = []
+        self.error_repeat = False
+        self.entry_time = 0.0
+        self.entry_interval = self.session_info["entry_interval"] #update lever_press_interval to entry_interval--make this 3s instead of 1s
+        self.reward_time = 10
+        self.reward_times_up = False
+        self.reward_pump1 = self.session_info["reward_pump1"]
+        self.reward_pump2 = self.session_info['reward_pump2']
+
+        self.reward_size1 = self.session_info["reward_size1"] #large, right
+        self.reward_size2 = self.session_info['reward_size2'] #small, left
+        self.reward_size3 = self.session_info['reward_size3'] #large, left
+        self.reward_size4 = self.session_info['reward_size4'] #small, right
+
+        self.ContextA_time = 0
+        self.ContextB_time = 0
+
+        self.active_press = 0
+        self.inactive_press = 0
+        self.timeline_active_press = []
+        self.active_press_count_list = []
+        self.timeline_inactive_press = []
+        self.inactive_press_count_list = []
+
+        self.left_poke_count = 0
+        self.right_poke_count = 0
+        self.timeline_left_poke = []
+        self.left_poke_count_list = []
+        self.timeline_right_poke = []
+        self.right_poke_count_list = []
+        self.event_name = ""
+        # initialize behavior box
+        self.box = behavbox.BehavBox(self.session_info)
+        self.pump = self.box.pump
+        self.treadmill = self.box.treadmill
+        # for refining the lick detection
+        self.lick_count = 0
+        self.side_mice_buffer = None
+        self.LED_blink = False
+        try:
+            self.lick_threshold = self.session_info["lick_threshold"]
+        except:
+            print("No lick_threshold defined in session_info. Therefore, default defined as 2 \n")
+            self.lick_threshold = 1
+
+        # session_statistics
+        self.total_reward = 0
+
+    def run(self):
+        if self.state == "standby":
+            pass
+        elif self.state == 'ContextA':
+            self.trial_running = False
+            self.ContextA_time = time.time()
+            while time.time() - self.ContextA_time <= self.session_info['ContextA_time']:
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
+                if self.event_name == "right_entry":
+                    entry_time_temp = time.time() #current time
+                    entry_dt = entry_time_temp - self.entry_time #current entry time minus the previous entry time
+                    if entry_dt >= self.entry_interval: #if the previous entry is greater than or equal to 3 seconds, then deliver a reward
+                        print('ContextA_reward_delivered_right_large')
+                        self.pump.reward(self.reward_pump1,self.reward_size1)
+                        self.entry_time = entry_time_temp
+                elif self.event_name == 'left_entry':
+                    entry_time_temp = time.time()
+                    entry_dt = entry_time_temp - self.entry_time
+                    if entry_dt >= self.entry_interval:
+                        print('ContextA_reward_delivered_left_small')
+                        self.pump.reward(self.reward_pump2, self.reward_size2)
+                        self.entry_time = entry_time_temp
+        elif self.state == 'ContextB':
+            self.trial_running = False
+            self.ContextB_time = time.time()
+            while time.time() - self.ContextB_time <= self.session_info['ContextB_time']:
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
+                if self.event_name == "left_entry":
+                    entry_time_temp = time.time()
+                    entry_dt = entry_time_temp - self.entry_time
+                    if entry_dt >= self.entry_interval:
+                        print('ContextB_reward_delivered_right_large')
+                        self.pump.reward(self.reward_pump2,self.reward_size3)
+                        self.entry_time = entry_time_temp
+                elif self.event_name == 'right_entry':
+                    entry_time_temp = time.time()
+                    entry_dt = entry_time_temp - self.entry_time
+                    if entry_dt >= self.entry_interval:
+                        print('ContextB_reward_delivered_left_small')
+                        self.pump.reward(self.reward_pump1,self.reward_size4)
+                        self.entry_time = entry_time_temp
+        self.box.check_keybd()
+    def exit_standby(self):
+        # self.error_repeat = False
+        logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
+        self.box.event_list.clear()
+
+    def enter_ContextA(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
+        self.box.sound1.blink(0.1,0.1)  # ACTIVATE SOUND CUE#
+        self.trial_running = True
+
+    def exit_ContextA(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
+        self.box.event_list.clear()
+
+    def enter_ContextB(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
+        self.box.sound1.blink(0.2,0.1)
+        self.trial_running = True
+
+    def exit_ContextB(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
+        self.box.event_list.clear()
+
+    def enter_ContextC_from_ContextA(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
+        self.box.sound1.off()  # INACTIVATE SOUND CUE#
+        self.trial_running = False
+
+    def exit_ContextC_from_ContextA(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextA;" + str(self.error_repeat))
+        self.box.event_list.clear()
+
+    def enter_ContextC_from_ContextB(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextB;" + str(self.error_repeat))
+        self.box.sound1.off()  # INACTIVATE SOUND CUE#
+        self.trial_running = False
+
+    def exit_ContextC_from_ContextB(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextB;" + str(self.error_repeat))
+        self.box.event_list.clear()
+
+    ########################################################################
+    # methods to start and end the behavioral session
+    ########################################################################
+
+    def start_session(self):
+        ic("TODO: start video")
+        self.box.video_start()
+
+    def end_session(self):
+        ic("TODO: stop video")
+        self.update_plot_choice(save_fig=True)
+        self.box.video_stop()
+
