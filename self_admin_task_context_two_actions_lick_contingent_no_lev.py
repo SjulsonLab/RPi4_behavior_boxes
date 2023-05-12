@@ -89,12 +89,16 @@ class SelfAdminTaskContextTwoActionsLickContingentNoLev(object):
         self.states = [
             State(name='standby',
                   on_exit=["exit_standby"]),
-            State(name="ContextA",
+            Timeout(name="ContextA",
                   on_enter=["enter_ContextA"],
-                  on_exit=["exit_ContextA"]),
-            State(name="ContextB",
+                  on_exit=["exit_ContextA"],
+                  timeout = self.session_info['ContextA_time'],
+                  on_timeout = ['switch_to_ContextC_from_ContextA']),
+            Timeout(name="ContextB",
                   on_enter=["enter_ContextB"],
-                  on_exit=["exit_ContextB"]),
+                  on_exit=["exit_ContextB"],
+                  timeout=self.session_info['ContextB_time'],
+                  on_timeout=['switch_to_ContextC_from_ContextB']),
             Timeout(name="ContextC_from_ContextA",
                     on_enter=["enter_ContextC_from_ContextA"],
                     on_exit=["exit_ContextC_from_ContextA"],
@@ -182,50 +186,45 @@ class SelfAdminTaskContextTwoActionsLickContingentNoLev(object):
         if self.state == "standby":
             pass
         elif self.state == 'ContextA':
-            self.trial_running = False
-            self.ContextA_time = time.time()
-            while time.time() - self.ContextA_time <= self.session_info['ContextA_time']:
-                if self.box.event_list:
-                    self.event_name = self.box.event_list.popleft()
-                else:
-                    self.event_name = ''
-                if self.event_name == "right_entry":
-                    entry_time_temp = time.time() #current time
-                    entry_dt = entry_time_temp - self.entry_time #current entry time minus the previous entry time
-                    if entry_dt >= self.entry_interval: #if the previous entry is greater than or equal to 3 seconds, then deliver a reward
-                        print('ContextA_reward_delivered_right_large')
-                        self.pump.reward(self.reward_pump1,self.reward_size1)
-                        self.entry_time = entry_time_temp
-                elif self.event_name == 'left_entry':
-                    entry_time_temp = time.time()
-                    entry_dt = entry_time_temp - self.entry_time
-                    if entry_dt >= self.entry_interval:
-                        print('ContextA_reward_delivered_left_small')
-                        self.pump.reward(self.reward_pump2, self.reward_size2)
-                        self.entry_time = entry_time_temp
+            if self.box.event_list:
+                self.event_name = self.box.event_list.popleft()
+            else:
+                self.event_name = ''
+            if self.event_name == "right_entry":
+                entry_time_temp = time.time() #current time
+                entry_dt = entry_time_temp - self.entry_time #current entry time minus the previous entry time
+                if entry_dt >= self.entry_interval: #if the previous entry is greater than or equal to 3 seconds, then deliver a reward
+                    print('ContextA_reward_delivered_right_large')
+                    self.pump.reward(self.reward_pump1,self.reward_size1)
+                    self.entry_time = entry_time_temp
+            elif self.event_name == 'left_entry':
+                entry_time_temp = time.time()
+                entry_dt = entry_time_temp - self.entry_time
+                if entry_dt >= self.entry_interval:
+                    print('ContextA_reward_delivered_left_small')
+                    self.pump.reward(self.reward_pump2, self.reward_size2)
+                    self.entry_time = entry_time_temp
         elif self.state == 'ContextB':
-            self.trial_running = False
-            self.ContextB_time = time.time()
-            while time.time() - self.ContextB_time <= self.session_info['ContextB_time']:
-                if self.box.event_list:
-                    self.event_name = self.box.event_list.popleft()
-                else:
-                    self.event_name = ''
-                if self.event_name == "left_entry":
-                    entry_time_temp = time.time()
-                    entry_dt = entry_time_temp - self.entry_time
-                    if entry_dt >= self.entry_interval:
-                        print('ContextB_reward_delivered_right_large')
-                        self.pump.reward(self.reward_pump2,self.reward_size3)
-                        self.entry_time = entry_time_temp
-                elif self.event_name == 'right_entry':
-                    entry_time_temp = time.time()
-                    entry_dt = entry_time_temp - self.entry_time
-                    if entry_dt >= self.entry_interval:
-                        print('ContextB_reward_delivered_left_small')
-                        self.pump.reward(self.reward_pump1,self.reward_size4)
-                        self.entry_time = entry_time_temp
+            if self.box.event_list:
+                self.event_name = self.box.event_list.popleft()
+            else:
+                self.event_name = ''
+            if self.event_name == "left_entry":
+                entry_time_temp = time.time()
+                entry_dt = entry_time_temp - self.entry_time
+                if entry_dt >= self.entry_interval:
+                    print('ContextB_reward_delivered_right_large')
+                    self.pump.reward(self.reward_pump2,self.reward_size3)
+                    self.entry_time = entry_time_temp
+            elif self.event_name == 'right_entry':
+                entry_time_temp = time.time()
+                entry_dt = entry_time_temp - self.entry_time
+                if entry_dt >= self.entry_interval:
+                    print('ContextB_reward_delivered_left_small')
+                    self.pump.reward(self.reward_pump1,self.reward_size4)
+                    self.entry_time = entry_time_temp
         self.box.check_keybd()
+
     def exit_standby(self):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
@@ -233,11 +232,12 @@ class SelfAdminTaskContextTwoActionsLickContingentNoLev(object):
 
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
-        self.box.sound1.blink(0.1,0.1)  # ACTIVATE SOUND CUE#
+        self.box.sound1.blink(0.1,0.1)
         self.trial_running = True
 
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
+        self.box.sound1.off()
         self.box.event_list.clear()
 
     def enter_ContextB(self):
@@ -247,11 +247,11 @@ class SelfAdminTaskContextTwoActionsLickContingentNoLev(object):
 
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
+        self.box.sound1.off()
         self.box.event_list.clear()
 
     def enter_ContextC_from_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
-        self.box.sound1.off()  # INACTIVATE SOUND CUE#
         self.trial_running = False
 
     def exit_ContextC_from_ContextA(self):
@@ -266,6 +266,68 @@ class SelfAdminTaskContextTwoActionsLickContingentNoLev(object):
     def exit_ContextC_from_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextB;" + str(self.error_repeat))
         self.box.event_list.clear()
+
+    def update_plot(self):
+        fig, axes = plt.subplots(1, 1, )
+        axes.plot([1, 2], [1, 2], color='green', label='test')
+        self.box.check_plot(fig)
+
+    def update_plot_error(self):
+        error_event = self.error_list
+        labels, counts = np.unique(error_event, return_counts=True)
+        ticks = range(len(counts))
+        fig, ax = plt.subplots(1, 1, )
+        ax.bar(ticks, counts, align='center', tick_label=labels)
+        # plt.xticks(ticks, labels)
+        # plt.title(session_name)
+        ax = plt.gca()
+        ax.set_xticks(ticks, labels)
+        ax.set_xticklabels(labels=labels, rotation=70)
+
+        self.box.check_plot(fig)
+
+    def update_plot_choice(self, save_fig=False):
+        trajectory_active = self.left_poke_count_list
+        time_active = self.timeline_left_poke
+        trajectory_inactive = self.right_poke_count_list
+        time_inactive = self.timeline_right_poke
+        fig, ax = plt.subplots(1, 1, )
+        print(type(fig))
+
+        ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
+        ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
+        if save_fig:
+            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
+                'basename'] + "_lever_choice_plot" + '.png')
+        self.box.check_plot(fig)
+
+    def integrate_plot(self, save_fig=False):
+
+        fig, ax = plt.subplots(2, 1)
+
+        trajectory_left = self.active_press
+        time_active_press = self.timeline_active_press
+        trajectory_right = self.right_poke_count_list
+        time_inactive_press = self.timeline_inactive_press
+        print(type(fig))
+
+        ax[0].plot(time_active_press, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
+        ax[0].plot(time_inactive_press, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
+
+        error_event = self.error_list
+        labels, counts = np.unique(error_event, return_counts=True)
+        ticks = range(len(counts))
+        ax[1].bar(ticks, counts, align='center', tick_label=labels)
+        # plt.xticks(ticks, labels)
+        # plt.title(session_name)
+        ax[1] = plt.gca()
+        ax[1].set_xticks(ticks, labels)
+        ax[1].set_xticklabels(labels=labels, rotation=70)
+
+        if save_fig:
+            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
+                'basename'] + "_summery" + '.png')
+        self.box.check_plot(fig)
 
     ########################################################################
     # methods to start and end the behavioral session
