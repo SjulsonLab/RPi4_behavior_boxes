@@ -216,21 +216,21 @@ class ForageTask(object):
             self.reward_size_var = 0
             self.reward_size_index = 0
             self.box.event_list.clear()
-            while self.state == 'right_patch':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
+            while self.state == 'right_patch':
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
                     self.event_name = ''
-                if self.event_name == "right_entry":  # if an active lever press detected
-                    lick_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
-                    lick_dt = lick_time_temp - self.lick_time  # used to check previous rewarded lever time
-                    if lick_dt >= self.lick_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
+                if self.event_name == "right_entry":
+                    lick_time_temp = time.time()
+                    lick_dt = lick_time_temp - self.lick_time
+                    if lick_dt >= self.lick_interval:
                         if self.reward_size_var > 5:
                             self.reward_size_index = 5
-                        self.pump.reward(self.reward_pump2, self.right_patch_rewards[self.reward_size_index])  # reward delivery based on pump number and reward size
+                        self.pump.reward(self.reward_pump2, self.right_patch_rewards[self.reward_size_index])
                         self.reward_size_var += 1
                         self.reward_size_index += 1
-                        self.lick_time = lick_time_temp  # this is used for subsequent lever presses
+                        self.lick_time = lick_time_temp
                 elif self.event_name == 'left_entry':
                     if self.reward_size_var != 0:
                         self.left_licks += 1
@@ -241,41 +241,45 @@ class ForageTask(object):
                                 if self.patch_long:
                                     self.switch_to_travel_to_left_patch_long()
                                     self.selection_made = True
+                                    self.lick_time = 0 #resets lick_time upon traveling to a new patch; prevents a reward late in previous patch from delaying reward delivery upon entering a new patch after a short travel time
                                 elif not self.patch_long:
                                     self.switch_to_travel_to_left_patch_long()
                                     self.patch_long = True
                                     self.selection_made = True
+                                    self.lick_time = 0
                             elif (time.time() > self.bins_list[self.bin_index] and time.time() <= self.bins_list[self.bin_index+1]) and self.bin_index % 2 == 1:
                                 if self.patch_long:
                                     self.switch_to_travel_to_left_patch_short()
                                     self.patch_long = False
                                     self.selection_made = True
+                                    self.lick_time = 0
                                 elif not self.patch_long:
                                     self.switch_to_travel_to_left_patch_short()
                                     self.selection_made = True
+                                    self.lick_time = 0
                             else:
                                 self.bin_index += 1
                     else:
                         pass
-        elif self.state == 'left_patch':  # if in ContextA
+        elif self.state == 'left_patch':
             self.trial_running = False
             self.right_licks = 0
             self.left_licks = 0
             self.reward_size_var = 0
             self.reward_size_index = 0
             self.box.event_list.clear()
-            while self.state == 'left_patch':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
+            while self.state == 'left_patch':
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
                     self.event_name = ''
-                if self.event_name == "left_entry":  # if an active lever press detected
-                    lick_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
-                    lick_dt = lick_time_temp - self.lick_time  # used to check previous rewarded lever time
-                    if lick_dt >= self.lick_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
+                if self.event_name == "left_entry":
+                    lick_time_temp = time.time()
+                    lick_dt = lick_time_temp - self.lick_time
+                    if lick_dt >= self.lick_interval:
                         if self.reward_size_var > 5:
                             self.reward_size_index = 5
-                        self.pump.reward(self.reward_pump1, self.left_patch_rewards[self.reward_size_index])  # reward delivery based on pump number and reward size
+                        self.pump.reward(self.reward_pump1, self.left_patch_rewards[self.reward_size_index])
                         self.reward_size_var +=1
                         self.reward_size_index +=1
                         self.lick_time = lick_time_temp  # this is used for subsequent lever presses
@@ -289,18 +293,22 @@ class ForageTask(object):
                                 if self.patch_long:
                                     self.switch_to_travel_to_right_patch_long()
                                     self.selection_made = True
+                                    self.lick_time = 0
                                 elif not self.patch_long:
                                     self.switch_to_travel_to_right_patch_long()
                                     self.patch_long = True
                                     self.selection_made = True
+                                    self.lick_time = 0
                             elif (time.time() > self.bins_list[self.bin_index] and time.time() <= self.bins_list[self.bin_index + 1]) and self.bin_index % 2 == 1:
                                 if self.patch_long:
                                     self.switch_to_travel_to_right_patch_short()
                                     self.patch_long = False
                                     self.selection_made = True
+                                    self.lick_time = 0
                                 elif not self.patch_long:
                                     self.switch_to_travel_to_right_patch_short()
                                     self.selection_made = True
+                                    self.lick_time = 0
                             else:
                                 self.bin_index += 1
                     else:
