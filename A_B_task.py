@@ -323,7 +323,7 @@ class A_B_task(object):
                             self.prior_reward_time = time.time()
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
-                            self.LED_bool = False
+                            self.LED_bool = False #updated
 
     def transition_to_ContextA(self):  # function applied during context change
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
