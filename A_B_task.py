@@ -212,7 +212,6 @@ class A_B_task(object):
         self.error_list = []
         self.error_repeat = False
         self.entry_time = 0.0
-        self.entry_interval = self.session_info["entry_interval"] #update lever_press_interval to entry_interval--make this 3s instead of 1s
         self.reward_time = 10
         self.reward_times_up = False
         self.reward_pump1 = self.session_info["reward_pump1"]
