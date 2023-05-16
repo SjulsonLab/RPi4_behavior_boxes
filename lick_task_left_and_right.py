@@ -208,11 +208,11 @@ class LickTaskLeftandRight(object):
     def enter_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_timeout" + str(self.error_repeat))
         self.trial_running = False
-        self.box.sound2.on()
+        self.box.sound1.on()
         self.box.event_list.clear()
     def exit_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
-        self.box.sound2.off()
+        self.box.sound1.off()
         self.box.event_list.clear()
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )

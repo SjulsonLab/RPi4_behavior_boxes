@@ -197,16 +197,8 @@ class A_B_task(object):
                     on_timeout=['switch_to_ContextA/B'])]
 
         self.transitions = [
-            ['start_trial_logic', 'standby', 'ContextB', conditions='transition_to_ContextB'],  # format: ['trigger', 'origin', 'destination']
-            ['start_trial_logic', 'standby', 'ContextA', conditions='transition_to_ContextA'],
-
             ['switch_to_intercontext_interval', ['ContextA','ContextB'], 'intercontext_interval'],
-
-            ['switch_to_ContextA/B', 'intercontext_interval', 'ContextB',conditions='transition_to_ContextB'],
-            ['switch_to_ContextA/B', 'intercontext_interval', 'ContextA',conditions='transition_to_ContextA'],
-
-            ['end_task', ['ContextA','ContextB','intercontext_interval'], 'standby']
-        ]
+            ['end_task', ['ContextA','ContextB','intercontext_interval'], 'standby']]
 
         self.machine = TimedStateMachine(
             model=self,
@@ -214,6 +206,11 @@ class A_B_task(object):
             transitions=self.transitions,
             initial='standby'  # STARTS IN STANDBY MODE
             )
+
+        self.machine.add_transition('start_trial_logic', 'standby', 'ContextB', conditions='transition_to_ContextB')
+        self.machine.add_transition('start_trial_logic', 'standby', 'ContextA', conditions='transition_to_ContextA')
+        self.machine.add_transition('switch_to_ContextA/B', 'intercontext_interval', 'ContextB',conditions='transition_to_ContextB')
+        self.machine.add_transition('switch_to_ContextA/B', 'intercontext_interval', 'ContextA', conditions = 'transition_to_ContextA')
 
     # trial statistics
         self.trial_counter = 0
