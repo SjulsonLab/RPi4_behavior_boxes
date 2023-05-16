@@ -207,6 +207,8 @@ class A_B_task(object):
     # trial statistics
         self.trial_counter = 0
         self.random_ITI = random.randint(2, 4)
+        self.LED_delay_time = 0.3
+        self.LED_on_time = 0
         self.trial_running = False
         self.innocent = True
         self.trial_number = 0
@@ -271,6 +273,7 @@ class A_B_task(object):
                     if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI: #first trial after entering the state
                         self.box.cueLED1.on()
                         self.box.cueLED2.on()
+                        self.LED_on_time = time.time()
                         self.LED_bool = True
                         self.box.event_list.clear()
                     while self.LED_bool and time.time() - self.ContextA_time <= self.full_task_names_and_times[self.trial_counter][1]:
@@ -278,7 +281,7 @@ class A_B_task(object):
                             self.event_name = self.box.event_list.popleft()
                         else:
                             self.event_name = ''
-                        if self.event_name == "left_entry":
+                        if self.event_name == "left_entry" and time.time() - self.LED_on_time > self.LED_delay_time:
                             self.box.cueLED1.off()
                             self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump2, self.reward_size2)
@@ -286,7 +289,7 @@ class A_B_task(object):
                             self.random_ITI = random.randint(2,4) #2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False
-                        elif self.event_name == 'right_entry':
+                        elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
                             self.box.cueLED1.off()
                             self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump1, self.reward_size1)
@@ -303,6 +306,7 @@ class A_B_task(object):
                 if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:  # first trial after entering the state
                     self.box.cueLED1.on()
                     self.box.cueLED2.on()
+                    self.LED_on_time = time.time()
                     self.LED_bool = True
                     self.box.event_list.clear()
                     while self.LED_bool and time.time() - self.ContextB_time <= self.full_task_names_and_times[self.trial_counter][1]:
@@ -310,7 +314,7 @@ class A_B_task(object):
                             self.event_name = self.box.event_list.popleft()
                         else:
                             self.event_name = ''
-                        if self.event_name == "left_entry":
+                        if self.event_name == "left_entry" and time.time() - self.LED_on_time > self.LED_delay_time:
                             self.box.cueLED1.off()
                             self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump2, self.reward_size3)
@@ -318,7 +322,7 @@ class A_B_task(object):
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False
-                        elif self.event_name == 'right_entry':
+                        elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
                             self.box.cueLED1.off()
                             self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump1, self.reward_size4)
