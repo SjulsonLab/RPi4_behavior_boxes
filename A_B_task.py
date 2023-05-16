@@ -107,7 +107,7 @@ class A_B_task(object):
             if self.Context_order_list[i] == 0:
                 self.temp_ContextA_var = self.ContextA_time_temp.pop()
                 self.Context_timing_list.append(self.temp_ContextA_var)
-            if self.Ctempontext_order_list[i] == 1:
+            if self.Context_order_list[i] == 1:
                 self.temp_ContextB_var = self.ContextB_time_temp.pop()
                 self.Context_timing_list.append(self.temp_ContextB_var)
             i += 1
