@@ -51,104 +51,95 @@ class TimedStateMachine(Machine):
     pass
 
 class A_B_task(object):
-    self.ContextA_time = [40, 50, 60, 70, 80]
-    self.ContextB_time = [40, 50, 60, 70, 80]
-    self.intercontext_interval_time = [20, 25, 30, 35, 40]
+    def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
+        self.ContextA_time = [40, 50, 60, 70, 80]
+        self.ContextB_time = [40, 50, 60, 70, 80]
+        self.intercontext_interval_time = [20, 25, 30, 35, 40]
 
-    # used to create the Context_order_list (40 elements, 0s and 1s, no three in a row)
-    self.random_list = []
-    while self.random_list.count(0) != 20 and self.random_list.count(1) != 20:
+        # used to create the Context_order_list (40 elements, 0s and 1s, no three in a row)
         self.random_list = []
-        i = 0
-        for p in range(40):
-            k = random.randint(0, 1)
-            try:
-                if (self.random_list[i - 1] == 1 and self.random_list[i - 2] == 1):
-                    self.random_list.append(0)
-                    i += 1
-                elif (self.random_list[i - 1] == 0 and self.random_list[i - 2] == 0):
-                    self.random_list.append(1)
-                    i += 1
-                else:
+        while self.random_list.count(0) != 20 and self.random_list.count(1) != 20:
+            self.random_list = []
+            i = 0
+            for p in range(40):
+                k = random.randint(0, 1)
+                try:
+                    if (self.random_list[i - 1] == 1 and self.random_list[i - 2] == 1):
+                        self.random_list.append(0)
+                        i += 1
+                    elif (self.random_list[i - 1] == 0 and self.random_list[i - 2] == 0):
+                        self.random_list.append(1)
+                        i += 1
+                    else:
+                        self.random_list.append(k)
+                        i += 1
+                except:
                     self.random_list.append(k)
                     i += 1
-            except:
-                self.random_list.append(k)
-                i += 1
-    self.Context_order_list = self.random_list
-    self.Context_order_list_names = self.Context_order_list.copy()
+        self.Context_order_list = self.random_list
+        self.Context_order_list_names = self.Context_order_list.copy()
 
-    for idx, element in enumerate(self.Context_order_list_names):
-        if element == 0:
-            self.Context_order_list_names[idx] = 'ContextA'
-        elif element == 1:
-            self.Context_order_list_names[idx] = 'ContextB'
+        for idx, element in enumerate(self.Context_order_list_names):
+            if element == 0:
+                self.Context_order_list_names[idx] = 'ContextA'
+            elif element == 1:
+                self.Context_order_list_names[idx] = 'ContextB'
 
-    self.full_task_list_names = []
-    self.temp = [(self.full_task_list_names.append(self.Context_order_list_names[i]),
-                  self.full_task_list_names.append('intercontext_interval')) for i in
-                 range(len(self.Context_order_list_names))]
+        self.full_task_list_names = []
+        self.temp = [(self.full_task_list_names.append(self.Context_order_list_names[i]),
+                      self.full_task_list_names.append('intercontext_interval')) for i in
+                     range(len(self.Context_order_list_names))]
 
-    self.ContextA_time_temp = self.ContextA_time
-    self.ContextB_time_temp = self.ContextB_time
-    random.shuffle(self.ContextA_time_temp)
-    random.shuffle(self.ContextB_time_temp)
+        self.ContextA_time_temp = self.ContextA_time
+        self.ContextB_time_temp = self.ContextB_time
+        random.shuffle(self.ContextA_time_temp)
+        random.shuffle(self.ContextB_time_temp)
 
-    i = 0
-    self.Context_timing_list = []
-    while len(self.Context_timing_list) < 40:
-        if len(self.ContextA_time_temp) == 0:
-            self.ContextA_time_temp = [40, 50, 60, 70, 80]
-            random.shuffle(self.ContextA_time_temp)
-        if len(self.ContextB_time_temp) == 0:
-            self.ContextB_time_temp = [40, 50, 60, 70, 80]
-            random.shuffle(self.ContextB_time_temp)
-        if self.Context_order_list[i] == 0:
-            self.temp_ContextA_var = self.ContextA_time_temp.pop()
-            self.Context_timing_list.append(self.temp_ContextA_var)
-        if self.Ctempontext_order_list[i] == 1:
-            self.temp_ContextB_var = self.ContextB_time_temp.pop()
-            self.Context_timing_list.append(self.temp_ContextB_var)
-        i += 1
+        i = 0
+        self.Context_timing_list = []
+        while len(self.Context_timing_list) < 40:
+            if len(self.ContextA_time_temp) == 0:
+                self.ContextA_time_temp = [40, 50, 60, 70, 80]
+                random.shuffle(self.ContextA_time_temp)
+            if len(self.ContextB_time_temp) == 0:
+                self.ContextB_time_temp = [40, 50, 60, 70, 80]
+                random.shuffle(self.ContextB_time_temp)
+            if self.Context_order_list[i] == 0:
+                self.temp_ContextA_var = self.ContextA_time_temp.pop()
+                self.Context_timing_list.append(self.temp_ContextA_var)
+            if self.Ctempontext_order_list[i] == 1:
+                self.temp_ContextB_var = self.ContextB_time_temp.pop()
+                self.Context_timing_list.append(self.temp_ContextB_var)
+            i += 1
 
-    # generates a random list of intercontext intervals with 8 of each duration
-    self.intercontext_interval_list = []
-    random.shuffle(self.intercontext_interval_time)
+        # generates a random list of intercontext intervals with 8 of each duration
+        self.intercontext_interval_list = []
+        random.shuffle(self.intercontext_interval_time)
 
-    while len(self.intercontext_interval_list) < 40:
-        if len(self.intercontext_interval_time) == 0:
-            self.intercontext_interval_time = [20, 25, 30, 35, 40]
-            random.shuffle(self.intercontext_interval_time)
-        self.temp_intercontext_interval_time = self.intercontext_interval_time.pop()
-        self.intercontext_interval_list.append(self.temp_intercontext_interval_time)
-        i += 1
+        while len(self.intercontext_interval_list) < 40:
+            if len(self.intercontext_interval_time) == 0:
+                self.intercontext_interval_time = [20, 25, 30, 35, 40]
+                random.shuffle(self.intercontext_interval_time)
+            self.temp_intercontext_interval_time = self.intercontext_interval_time.pop()
+            self.intercontext_interval_list.append(self.temp_intercontext_interval_time)
+            i += 1
 
-    # interleaves the Context list with intercontext interval lists to create a full session (note that a context initiates the session)
-    self.full_task_list = []
-    temp_list = [
-        (self.full_task_list.append(self.Context_timing_list[i]),
-         self.full_task_list.append(self.intercontext_interval_list[i])) for i in range(len(self.Context_timing_list))]
+        # interleaves the Context list with intercontext interval lists to create a full session (note that a context initiates the session)
+        self.full_task_list = []
+        temp_list = [
+            (self.full_task_list.append(self.Context_timing_list[i]),
+             self.full_task_list.append(self.intercontext_interval_list[i])) for i in
+            range(len(self.Context_timing_list))]
 
-    # Creates nested list containing the states and their respective durations
-    self.full_task_names_and_times = []
-    temp = [self.full_task_names_and_times.append([self.full_task_list_names[i], self.full_task_list[i]]) for i in
-            range(len(self.full_task_list_names))]
+        # Creates nested list containing the states and their respective durations
+        self.full_task_names_and_times = []
+        temp = [self.full_task_names_and_times.append([self.full_task_list_names[i], self.full_task_list[i]]) for i in
+                range(len(self.full_task_list_names))]
 
-    print(f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
+        print(
+            f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
 
-    self.trial_counter = 0  # keeps track of current trial
-
-    def transition_to_ContextA(self): #function applied during context change
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
-            return True
-        else:
-            return False
-    def transition_to_ContextB(self): #function applied during context change
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
-            return True
-        else:
-            return False
-    def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
+        self.trial_counter = 0  # keeps track of current trial
 
         # if no name or session, make fake ones (for testing purposes)
         if kwargs.get("name", None) is None:
@@ -329,6 +320,18 @@ class A_B_task(object):
                             self.prior_reward_time = time.time()
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
+
+    def transition_to_ContextA(self):  # function applied during context change
+        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
+            return True
+        else:
+            return False
+
+    def transition_to_ContextB(self):  # function applied during context change
+        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
+            return True
+        else:
+            return False
 
     def exit_standby(self):
         # self.error_repeat = False
