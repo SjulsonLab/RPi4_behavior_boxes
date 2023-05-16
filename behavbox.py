@@ -506,7 +506,7 @@ class Pump(object):
         # coefficient_1 = coefficient_fit[-1]
         # coefficient_2 = coefficient_fit[-2]
         # coefficient_3 = coefficient_fit[-3] - reward_size
-        tube_fit = 0.11609 # ml/s
+        tube_fit = 0.13 # ml/s
         # discriminant = coefficient_2 ** 2 - 4 * coefficient_1 * coefficient_3
         # # find solution, i.e. duration of pulse, by calculating the solution for the quadratic equation
         # solution = np.array([(-coefficient_2 + np.sqrt(discriminant)) / (2 * coefficient_1),
