@@ -140,6 +140,7 @@ class A_B_task(object):
         # print(f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
 
         self.trial_counter = 0  # keeps track of current trial
+        logging.info(";" + str(time.time()) + ";[transition];next_context_duration;" + str(self.full_task_names_and_times[self.trial_counter][1]))
 
         # if no name or session, make fake ones (for testing purposes)
         if kwargs.get("name", None) is None:
@@ -342,7 +343,6 @@ class A_B_task(object):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.trial_counter+=1
 
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
@@ -354,8 +354,11 @@ class A_B_task(object):
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
         self.box.sound1.off()
+        self.box.cueLED1.off()
+        self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter+=1
+        logging.info(";" + str(time.time()) + ";[transition];next_context_duration;" + str(self.full_task_names_and_times[self.trial_counter][1]))
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
@@ -367,8 +370,11 @@ class A_B_task(object):
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
         self.box.sound1.off()
+        self.box.cueLED1.off()
+        self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter += 1
+        logging.info(";" + str(time.time()) + ";[transition];next_context_duration;" + str(self.full_task_names_and_times[self.trial_counter][1]))
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
@@ -379,6 +385,7 @@ class A_B_task(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
         self.box.event_list.clear()
         self.trial_counter += 1
+        logging.info(";" + str(time.time()) + ";[transition];next_context_duration;" + str(self.full_task_names_and_times[self.trial_counter][1]))
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
