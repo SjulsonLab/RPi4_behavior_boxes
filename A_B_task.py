@@ -267,7 +267,7 @@ class A_B_task(object):
             self.prior_reward_time = 0
             while time.time() - self.ContextA_time <= self.full_task_names_and_times[self.trial_counter][1] and self.state == 'ContextA':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 if not self.LED_bool:
-                    if  time.time() - self.prior_reward_time > self.random_ITI:
+                    if time.time() - self.prior_reward_time > self.random_ITI:
                         self.box.cueLED1.on()
                         self.box.cueLED2.on()
                         self.LED_bool = True
@@ -283,6 +283,7 @@ class A_B_task(object):
                             self.prior_reward_time = time.time()
                             self.random_ITI = random.randint(2,4) #2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
+                            self.LED_bool = False
                         elif self.event_name == 'right_entry':
                             self.box.cueLED1.off()
                             self.box.cueLED2.off()
@@ -290,6 +291,7 @@ class A_B_task(object):
                             self.prior_reward_time = time.time()
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
+                            self.LED_bool = False
         elif self.state == 'ContextB':
             self.trial_running = False
             self.ContextB_time = time.time()  # assign the context switch time to this variable
@@ -313,6 +315,7 @@ class A_B_task(object):
                             self.prior_reward_time = time.time()
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
+                            self.LED_bool = False
                         elif self.event_name == 'right_entry':
                             self.box.cueLED1.off()
                             self.box.cueLED2.off()
@@ -320,6 +323,7 @@ class A_B_task(object):
                             self.prior_reward_time = time.time()
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
+                            self.LED_bool = False
 
     def transition_to_ContextA(self):  # function applied during context change
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
