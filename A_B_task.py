@@ -271,6 +271,7 @@ class A_B_task(object):
                         self.box.cueLED1.on()
                         self.box.cueLED2.on()
                         self.LED_bool = True
+                        self.box.event_list.clear()
                     while self.LED_bool and time.time() - self.ContextA_time <= self.full_task_names_and_times[self.trial_counter][1]:
                         if self.box.event_list:
                             self.event_name = self.box.event_list.popleft()
@@ -302,6 +303,7 @@ class A_B_task(object):
                     self.box.cueLED1.on()
                     self.box.cueLED2.on()
                     self.LED_bool = True
+                    self.box.event_list.clear()
                     while self.LED_bool and time.time() - self.ContextB_time <= self.full_task_names_and_times[self.trial_counter][1]:
                         if self.box.event_list:
                             self.event_name = self.box.event_list.popleft()
