@@ -360,6 +360,7 @@ class A_B_task(object):
         self.box.sound1.off()
         self.box.cueLED1.off()
         self.box.cueLED2.off()
+        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
         self.box.event_list.clear()
         self.trial_counter+=1
         logging.info(";" + str(time.time()) + ";[transition];next_context_duration;" + str(self.full_task_names_and_times[self.trial_counter][1]))
@@ -376,6 +377,7 @@ class A_B_task(object):
         self.box.sound1.off()
         self.box.cueLED1.off()
         self.box.cueLED2.off()
+        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
         self.box.event_list.clear()
         self.trial_counter += 1
         logging.info(";" + str(time.time()) + ";[transition];next_context_duration;" + str(self.full_task_names_and_times[self.trial_counter][1]))
