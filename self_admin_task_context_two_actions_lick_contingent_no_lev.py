@@ -3,15 +3,11 @@
 
 # In[ ]:
 
-
-# python3: self_admin_task_context.py
+# python3: self_admin_task_context_two_actions_lick_contingent_no_lev.py
 """
 author: Mitch Farrell
-date: 2023-04-22
-name: self_admin_task_context_two_actions_lick_contingent.py
-goal: expand self-admin task to include contextual/probabilistic components, with two lick actions, and reward contingent on lick
-description:
-    6 blocks; BCAC (5 min for B and A; 2.5 min for C); x% probability of reward in A, y% probability of reward in B
+date: 2023-05-15
+name: self_admin_task_context_two_actions_lick_contingent_no_lev.py
 """
 import importlib
 from transitions import Machine
@@ -181,6 +177,174 @@ class SelfAdminTaskContextTwoActionsLickContingentNoLev(object):
 
         # session_statistics
         self.total_reward = 0
+
+
+
+
+
+    def run(self):
+        if self.state == "standby":
+            pass
+        elif self.state == 'ContextA':  # if in ContextA
+            self.trial_running = False
+            self.ContextA_time = time.time()  # assign the context switch time to this variable
+            while time.time() - self.ContextA_time <= self.session_info['ContextA_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
+                self.right_entry_error = False
+                self.left_entry_error = False
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
+                if self.event_name == "reserved_rx1_pressed":  # if an active lever press detected
+                    lever_pressed_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
+                    lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time  # used to check previous rewarded lever time
+                    if lever_pressed_dt >= self.lever_press_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
+                        self.switch_to_lick_LED_ContextA_from_ContextA()  # switches state to lick_LED state from ContextB
+                        self.LED_on_time_plus_LED_duration = time.time() + self.session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
+                        while (time.time() - self.LED_on_time_plus_LED_duration < 0) and (time.time() - self.ContextA_time <= self.session_info['ContextA_time']) and (self.state == 'lick_LED_ContextA'):
+                            if self.box.event_list:
+                                self.event_name = self.box.event_list.popleft()
+                            else:
+                                self.event_name = '' # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
+                            if self.event_name == 'right_entry' and self.left_entry_error == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
+                                if random.random() <= self.session_info['ContextA_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
+                                    print('ContextA_reward_delivered_right_large')
+                                    self.pump.reward(self.reward_pump1, self.reward_size1) # reward delivery based on pump number and reward size
+                                    self.lever_pressed_time = lever_pressed_time_temp  # this is used for subsequent lever presses
+                                    self.total_reward += 1
+                                    self.switch_to_ContextA_from_lick_LED_ContextA()  # does this need a conditional statement? or can this just be as it is
+                            elif self.event_name == 'left_entry':
+                                if self.left_entry_error == False:
+                                    print('ContextA_reward_delivered_left_small')
+                                    self.pump.reward(self.reward_pump2, self.reward_size2)  # reward delivery based on pump number and reward size
+                                    self.lever_pressed_time = lever_pressed_time_temp  # this is used for subsequent lever presses
+                                    self.total_reward += 1
+                                    self.switch_to_ContextA_from_lick_LED_ContextA()
+                                #self.box.cueLED1.off()  # don't switch the state; but need to turn the LEDs off
+                                #self.box.cueLED2.off()
+                                self.left_entry_error = True  # need a boolean to say whether a right_entry occurred during the current LED block
+                        if (time.time() - self.ContextA_time) >= self.session_info['ContextA_time']:
+                            self.switch_to_ContextC_from_lick_LED_ContextA()
+                        elif self.state != 'ContextA':
+                            self.switch_to_ContextA_from_lick_LED_ContextA()
+                    else:
+                        pass
+                else:
+                    pass
+            if self.state != 'ContextC_from_ContextA':  # exiting out of the nested while loop puts you in one of a few states; exiting out of the outer while loop will initiate a transition to ContextC_from_ContextB IF not already in that state from the above nested while loop
+                self.switch_to_ContextC_from_ContextA()
+        elif self.state == 'ContextB':  # if in ContextB
+            self.trial_running = False
+            self.ContextB_time = time.time()  # assign the context switch time to this variable
+            while time.time() - self.ContextB_time <= self.session_info['ContextB_time']:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
+                self.right_entry_error = False
+                self.left_entry_error = False
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
+                if self.event_name == "reserved_rx1_pressed":  # if an active lever press detected
+                    lever_pressed_time_temp = time.time()  # assign the current lever press to the current time; used to prevent repeated presses
+                    lever_pressed_dt = lever_pressed_time_temp - self.lever_pressed_time  # used to check previous rewarded lever time
+                    if lever_pressed_dt >= self.lever_press_interval:  # if the last rewarded press occurred more than 1s ago, then turn LED on
+                        self.switch_to_lick_LED_ContextB_from_ContextB()  # switches state to lick_LED state from ContextB
+                        self.LED_on_time_plus_LED_duration = time.time() + self.session_info['LED_duration']  # add this to session info; dicates how long the LED will remain on in the absence of a lick
+                        while (time.time() - self.LED_on_time_plus_LED_duration < 0) and (time.time() - self.ContextB_time <= self.session_info['ContextB_time']) and (self.state == 'lick_LED_ContextB'):
+                            if self.box.event_list:
+                                self.event_name = self.box.event_list.popleft()
+                            else:
+                                self.event_name = ''  # while loop states the current time the LED time hasn't elapsed AND ContextB_duration hasn't elapsed
+                            if self.event_name == 'left_entry' and self.right_entry_error == False:  # if left entry detected, and there wasn't already a right_entry during this LED period
+                                if random.random() <= self.session_info['ContextB_reward_probability']:  # randomly dispense reward based on the ContextB_reward_probability
+                                    print('ContextB_reward_delivered_left_large')
+                                    self.pump.reward(self.reward_pump2, self.reward_size3)  # reward delivery based on pump number and reward size
+                                    self.lever_pressed_time = lever_pressed_time_temp  # this is used for subsequent lever presses
+                                    self.total_reward += 1
+                                    self.switch_to_ContextB_from_lick_LED_ContextB()
+                            elif self.event_name == 'right_entry':
+                                if self.right_entry_error == False:
+                                    print('ContextB_reward_delivered_right_small')
+                                    self.pump.reward(self.reward_pump1,self.reward_size4)  # reward delivery based on pump number and reward size
+                                    self.lever_pressed_time = lever_pressed_time_temp  # this is used for subsequent lever presses
+                                    self.total_reward += 1
+                                    self.switch_to_ContextB_from_lick_LED_ContextB()
+                                #self.box.cueLED1.off()  # don't switch the state; but need to turn the LEDs off
+                                #self.box.cueLED2.off()
+                                self.right_entry_error = True #in the above if X and Y statement, this prevents reward from being dispensed if a right entry occurs during the LED period
+                        if (time.time() - self.ContextB_time) >= self.session_info['ContextB_time']:
+                            self.switch_to_ContextC_from_lick_LED_ContextB()
+                        elif self.state != 'ContextB':
+                            self.switch_to_ContextB_from_lick_LED_ContextB()
+                    else:
+                        pass
+                else:
+                    pass
+            if self.state != 'ContextC_from_ContextB':  # exiting out of the nested while loop puts you in one of a few states; exiting out of the outer while loop will initiate a transition to ContextC_from_ContextB IF not already in that state from the above nested while loop
+                self.switch_to_ContextC_from_ContextB()
+        else:
+            pass
+        self.box.check_keybd()
+
+
+
+    def exit_standby(self):
+        # self.error_repeat = False
+        logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
+        self.box.event_list.clear()
+
+    def enter_ContextA(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
+        self.box.sound2.blink(0.1, 0.1)
+        self.sound_on = True
+        self.trial_running = True
+
+    def exit_ContextA(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
+        # self.box.sound2.off()
+        self.box.event_list.clear()
+
+    def enter_ContextB(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
+        self.box.sound2.blink(0.2, 0.1)
+        self.sound_on = True
+        self.trial_running = True
+
+    def exit_ContextB(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
+        # self.box.sound2.off()
+        self.box.event_list.clear()
+
+    def enter_ContextC_from_ContextA(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextA;" + str(self.error_repeat))
+        self.trial_running = False
+
+    def exit_ContextC_from_ContextA(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextA;" + str(self.error_repeat))
+        self.box.event_list.clear()
+
+    def enter_ContextC_from_ContextB(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_ContextC_from_ContextB;" + str(self.error_repeat))
+        self.box.sound1.off()  # INACTIVATE SOUND CUE#
+        self.trial_running = False
+
+    def exit_ContextC_from_ContextB(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_ContextC_from_ContextB;" + str(self.error_repeat))
+        self.box.event_list.clear()
+
+    #Maybe don't make these additional states??
+    def enter_lick_LED_ContextA(self):
+        LEDON
+    def exit_lick_LED_ContextA(self):
+        LEDOFF
+    def enter_lick_LED_ContextB(self):
+        LEDON
+    def exit_lick_LED_ContextB(self):
+        LEDOFF
+
+
+
+
+
 
     def run(self):
         if self.state == "standby":
