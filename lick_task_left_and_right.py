@@ -88,7 +88,7 @@ class LickTaskLeftandRight(object):
                   on_exit=["exit_standby"]),
             State(name="reward_available",
                   on_enter=["enter_reward_available"],
-                  on_exit=["_exit_reward_available"]),
+                  on_exit=["exit_reward_available"]),
             Timeout(name='timeout',
                     on_enter=['enter_timeout'],
                     on_exit=['exit_timeout'],
