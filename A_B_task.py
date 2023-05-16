@@ -269,12 +269,12 @@ class A_B_task(object):
     def run(self):
         if self.state == "standby":
             pass
-        elif self.state == 'ContextA':  # if in ContextA
+        elif self.state == 'ContextA':
             self.trial_running = False
             self.ContextA_time = time.time()  # assign the context switch time to this variable
             self.LED_bool = False
             self.prior_reward_time = 0
-            while time.time() - self.ContextA_time <= self.full_task_names_and_times[self.trial_counter][1] and self.state == 'ContextA:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
+            while time.time() - self.ContextA_time <= self.full_task_names_and_times[self.trial_counter][1] and self.state == 'ContextA':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 if not self.LED_bool:
                     if  time.time - self.prior_reward_time > self.random_ITI:
                         self.box.cueLED1.on()
@@ -299,7 +299,7 @@ class A_B_task(object):
                             self.prior_reward_time = time.time()
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
-        elif self.state == 'ContextB':  # if in ContextA
+        elif self.state == 'ContextB':
             self.trial_running = False
             self.ContextB_time = time.time()  # assign the context switch time to this variable
             self.LED_bool = False
