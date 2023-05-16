@@ -101,7 +101,7 @@ class LickTaskLeftandRight(object):
             ['switch_to_standby', 'reward_available', 'standby'],
             ['switch_to_reward_available', ['standby','timeout'], 'reward_available'],
 
-            ['switch_to_timeout', 'rewward_available', 'timeout']]
+            ['switch_to_timeout', 'reward_available', 'timeout']]
 
         self.machine = TimedStateMachine(
             model=self,
