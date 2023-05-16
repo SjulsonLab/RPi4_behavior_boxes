@@ -175,7 +175,7 @@ class A_B_task(object):
                   on_enter=["enter_ContextA"],
                   on_exit=["exit_ContextA"],
                   timeout = self.full_task_names_and_times[self.trial_counter][1],
-                  on_timeout = ['switch_intercontext_interval']),
+                  on_timeout = ['switch_to_intercontext_interval']),
             Timeout(name="ContextB",
                   on_enter=["enter_ContextB"],
                   on_exit=["exit_ContextB"],
@@ -266,7 +266,7 @@ class A_B_task(object):
             self.prior_reward_time = 0
             while time.time() - self.ContextA_time <= self.full_task_names_and_times[self.trial_counter][1] and self.state == 'ContextA':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 if not self.LED_bool:
-                    if  time.time - self.prior_reward_time > self.random_ITI:
+                    if  time.time() - self.prior_reward_time > self.random_ITI:
                         self.box.cueLED1.on()
                         self.box.cueLED2.on()
                         self.LED_bool = True
@@ -296,7 +296,7 @@ class A_B_task(object):
             self.prior_reward_time = 0
             while time.time() - self.ContextB_time <= self.full_task_names_and_times[self.trial_counter][1] and self.state == 'ContextB':
                 if not self.LED_bool:
-                    if time.time - self.prior_reward_time > self.random_ITI:
+                    if time.time() - self.prior_reward_time > self.random_ITI:
                         self.box.cueLED1.on()
                         self.box.cueLED2.on()
                         self.LED_bool = True
