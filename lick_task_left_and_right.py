@@ -99,7 +99,9 @@ class LickTaskLeftandRight(object):
             ['start_trial_logic', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
 
             ['switch_to_standby', 'reward_available', 'standby'],
-            ['switch_to_reward_available', ['standby','timeout'], 'reward_available']]
+            ['switch_to_reward_available', ['standby','timeout'], 'reward_available'],
+
+            ['switch_to_timeout', 'rewward_available', 'timeout']]
 
         self.machine = TimedStateMachine(
             model=self,
@@ -182,6 +184,7 @@ class LickTaskLeftandRight(object):
                 if entry_dt >= self.entry_interval:
                     self.pump.reward(self.reward_pump2, self.reward_size2)
                     self.entry_time = entry_time_temp
+                    self.switch_to_timeout()
         self.box.check_keybd()
 
     def enter_standby(self):
