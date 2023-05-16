@@ -267,7 +267,7 @@ class A_B_task(object):
             self.prior_reward_time = 0
             while time.time() - self.ContextA_time <= self.full_task_names_and_times[self.trial_counter][1] and self.state == 'ContextA':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 if not self.LED_bool:
-                    if time.time() - self.prior_reward_time > self.random_ITI:
+                    if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI: #first trial after entering the state
                         self.box.cueLED1.on()
                         self.box.cueLED2.on()
                         self.LED_bool = True
@@ -298,11 +298,10 @@ class A_B_task(object):
             self.LED_bool = False
             self.prior_reward_time = 0
             while time.time() - self.ContextB_time <= self.full_task_names_and_times[self.trial_counter][1] and self.state == 'ContextB':
-                if not self.LED_bool:
-                    if time.time() - self.prior_reward_time > self.random_ITI:
-                        self.box.cueLED1.on()
-                        self.box.cueLED2.on()
-                        self.LED_bool = True
+                if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:  # first trial after entering the state
+                    self.box.cueLED1.on()
+                    self.box.cueLED2.on()
+                    self.LED_bool = True
                     while self.LED_bool and time.time() - self.ContextB_time <= self.full_task_names_and_times[self.trial_counter][1]:
                         if self.box.event_list:
                             self.event_name = self.box.event_list.popleft()
@@ -371,7 +370,7 @@ class A_B_task(object):
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
-        self.box.visualstim.display_greyscale(0)
+        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
         self.trial_running = False
 
     def exit_intercontext_interval(self):
