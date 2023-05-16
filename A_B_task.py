@@ -205,6 +205,7 @@ class A_B_task(object):
 
     # trial statistics
         self.trial_counter = 0
+        self.random_ITI = random.randint(2, 4)
         self.trial_running = False
         self.innocent = True
         self.trial_number = 0
