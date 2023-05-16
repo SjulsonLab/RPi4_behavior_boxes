@@ -136,8 +136,8 @@ class A_B_task(object):
         temp = [self.full_task_names_and_times.append([self.full_task_list_names[i], self.full_task_list[i]]) for i in
                 range(len(self.full_task_list_names))]
 
-        print(
-            f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
+        logging.info(self.full_task_names_and_times)
+        # print(f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
 
         self.trial_counter = 0  # keeps track of current trial
 
@@ -372,7 +372,7 @@ class A_B_task(object):
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
-        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
+        self.box.visualstim.display_greyscale(0)
         self.trial_running = False
 
     def exit_intercontext_interval(self):
