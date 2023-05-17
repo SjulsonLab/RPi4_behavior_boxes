@@ -178,13 +178,13 @@ class LickTaskLeftandRight(object):
                     self.pump.reward(self.reward_pump1,self.reward_size1)
                     self.entry_time = entry_time_temp
                     self.switch_to_timeout()
-            elif self.event_name == 'left_entry':
-                entry_time_temp = time.time()
-                entry_dt = entry_time_temp - self.entry_time
-                if entry_dt >= self.entry_interval:
-                    self.pump.reward(self.reward_pump2, self.reward_size2)
-                    self.entry_time = entry_time_temp
-                    self.switch_to_timeout()
+            # elif self.event_name == 'left_entry':
+            #     entry_time_temp = time.time()
+            #     entry_dt = entry_time_temp - self.entry_time
+            #     if entry_dt >= self.entry_interval:
+            #         self.pump.reward(self.reward_pump2, self.reward_size2)
+            #         self.entry_time = entry_time_temp
+            #         self.switch_to_timeout()
         self.box.check_keybd()
 
     def enter_standby(self):
