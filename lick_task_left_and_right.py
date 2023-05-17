@@ -196,7 +196,7 @@ class LickTaskLeftandRight(object):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.box.cueLED1.on()
+        self.box.cueLED2.on()
 
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
@@ -289,5 +289,5 @@ class LickTaskLeftandRight(object):
         ic("TODO: stop video")
         self.update_plot_choice(save_fig=True)
         self.box.video_stop()
-        self.box.cueLED1.off()
+        self.box.cueLED2.off()
 
