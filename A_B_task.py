@@ -266,7 +266,7 @@ class A_B_task(object):
             pass
         elif self.state == 'ContextA':
             self.trial_running = False
-            self.ContextA_time = time.time()  # assign the context switch time to this variable
+            self.ContextA_time = time.time()
             self.LED_bool = False
             self.prior_reward_time = 0
             while time.time() - self.ContextA_time <= self.full_task_names_and_times[self.trial_counter][1] and self.state == 'ContextA':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
@@ -332,13 +332,20 @@ class A_B_task(object):
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False #updated
 
-    def transition_to_ContextA(self):  # function applied during context change
+        #look at exactly where the rpg gratings are pulled from (~/gratings/contexta/contexta_40??)
+        #for a given visual stimulus; I'll need to pull the visual stimulus file that corresponds
+        #with the list under visual_gratings in the session_info file
+        #session_info[visual_gratings] = [contexta40, contexta50, contexta60, contexta70, contexta80,
+                                        #contextb40, contextb50, contextb60, contextb70, contextb80]
+        #this is a 10D list that I can pull depending on the duration of the associated contextA or contextB
+
+    def transition_to_ContextA(self):  # function applied during all context changes
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             return True
         else:
             return False
 
-    def transition_to_ContextB(self):  # function applied during context change
+    def transition_to_ContextB(self):  # function applied during all context changes
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
             return True
         else:
@@ -352,8 +359,16 @@ class A_B_task(object):
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
         self.box.sound1.blink(0.1, 0.1)
-        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0]) #vertical visual stimulus
-        # self.sound_on = True
+        if self.full_task_names_and_times[self.trial_counter][1] == 40:
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
+        elif self.full_task_names_and_times[self.trial_counter][1] == 50:
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[1])
+        elif self.full_task_names_and_times[self.trial_counter][1] == 60:
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[2])
+        elif self.full_task_names_and_times[self.trial_counter][1] == 70:
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[3])
+        elif self.full_task_names_and_times[self.trial_counter][1] == 80:
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)4)
         self.trial_running = True
 
     def exit_ContextA(self):
@@ -361,7 +376,6 @@ class A_B_task(object):
         self.box.sound1.off()
         self.box.cueLED1.off()
         self.box.cueLED2.off()
-        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
         self.box.event_list.clear()
         self.trial_counter+=1
         logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
@@ -370,8 +384,16 @@ class A_B_task(object):
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
         self.box.sound1.blink(0.2, 0.1)
-        self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[1]) #horizontal visual stimulus
-        # self.sound_on = True
+        if self.full_task_names_and_times[self.trial_counter][1] == 40:
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5])
+        elif self.full_task_names_and_times[self.trial_counter][1] == 50:
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[6])
+        elif self.full_task_names_and_times[self.trial_counter][1] == 60:
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[7])
+        elif self.full_task_names_and_times[self.trial_counter][1] == 70:
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[8])
+        elif self.full_task_names_and_times[self.trial_counter][1] == 80:
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[9])
         self.trial_running = True
 
     def exit_ContextB(self):
@@ -379,7 +401,6 @@ class A_B_task(object):
         self.box.sound1.off()
         self.box.cueLED1.off()
         self.box.cueLED2.off()
-        self.box.visualstim.display_greyscale(self.session_info["gray_level"])
         self.box.event_list.clear()
         self.trial_counter += 1
         logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
