@@ -360,15 +360,15 @@ class A_B_task(object):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
         self.box.sound1.blink(0.1, 0.1)
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0])
+            self.box.visualstim.show_grating(self.box.visualstim.gratings[0])
         elif self.full_task_names_and_times[self.trial_counter][1] == 50:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[1])
+            self.box.visualstim.show_grating(self.box.visualstim.gratings[1])
         elif self.full_task_names_and_times[self.trial_counter][1] == 60:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[2])
+            self.box.visualstim.show_grating(self.box.visualstim.gratings[2])
         elif self.full_task_names_and_times[self.trial_counter][1] == 70:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[3])
+            self.box.visualstim.show_grating(self.box.visualstim.gratings[3])
         elif self.full_task_names_and_times[self.trial_counter][1] == 80:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[4])
+            self.box.visualstim.show_grating(self.box.visualstim.gratings[4])
         self.trial_running = True
 
     def exit_ContextA(self):
@@ -385,15 +385,15 @@ class A_B_task(object):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
         self.box.sound1.blink(0.2, 0.1)
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5])
+            self.box.visualstim.show_grating(self.box.visualstim.gratings[5])
         elif self.full_task_names_and_times[self.trial_counter][1] == 50:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[6])
+            self.box.visualstim.show_grating(self.box.visualstim.gratings[6])
         elif self.full_task_names_and_times[self.trial_counter][1] == 60:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[7])
+            self.box.visualstim.show_grating(self.box.visualstim.gratings[7])
         elif self.full_task_names_and_times[self.trial_counter][1] == 70:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[8])
+            self.box.visualstim.show_grating(self.box.visualstim.gratings[8])
         elif self.full_task_names_and_times[self.trial_counter][1] == 80:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[9])
+            self.box.visualstim.show_grating(self.box.visualstim.gratings[9])
         self.trial_running = True
 
     def exit_ContextB(self):
