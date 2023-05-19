@@ -368,7 +368,7 @@ class A_B_task(object):
         elif self.full_task_names_and_times[self.trial_counter][1] == 70:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[3])
         elif self.full_task_names_and_times[self.trial_counter][1] == 80:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)4)
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[4])
         self.trial_running = True
 
     def exit_ContextA(self):
