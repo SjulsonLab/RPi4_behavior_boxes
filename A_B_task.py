@@ -351,10 +351,10 @@ class A_B_task(object):
             return False
     def transition_to_ContextB(self):
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
-                return True
-                self.trial_counter += 1
-            else:
-                return False
+            return True
+            self.trial_counter += 1
+        else:
+            return False
 
     def exit_standby(self):
         # self.error_repeat = False
