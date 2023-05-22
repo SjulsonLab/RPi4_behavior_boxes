@@ -382,6 +382,7 @@ class A_B_task(object):
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.event_list.clear()
+        self.trial_counter += 1
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
@@ -408,9 +409,9 @@ class A_B_task(object):
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.event_list.clear()
+        self.trial_counter += 1
 
     def enter_intercontext_interval(self):
-        self.trial_counter += 1
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
