@@ -413,7 +413,7 @@ class A_B_task(object):
         self.trial_running = False
         # time.sleep(0.2)
         # self.box.visualstim.display_greyscale(0)
-        visualstim.myscreen.display_greyscale(self.session_info["gray_level"]["black"])
+        self.box.visualstim.myscreen.display_greyscale(self.session_info["gray_level"]["black"])
 
     def exit_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
