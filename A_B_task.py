@@ -200,8 +200,8 @@ class A_B_task(object):
             initial='standby'
             )
 
-        self.machine.add_transition('start_trial_logic', 'standby', 'ContextB', conditions='transition_to_ContextB')
-        self.machine.add_transition('start_trial_logic', 'standby', 'ContextA', conditions='transition_to_ContextA')
+        self.machine.add_transition('start_trial_logic', 'standby', 'ContextB', conditions='start_in_ContextA')
+        self.machine.add_transition('start_trial_logic', 'standby', 'ContextA', conditions='start_in_ContextB')
         self.machine.add_transition('switch_to_ContextA/B', 'intercontext_interval', 'ContextB',conditions='transition_to_ContextB')
         self.machine.add_transition('switch_to_ContextA/B', 'intercontext_interval', 'ContextA', conditions = 'transition_to_ContextA')
 
@@ -330,28 +330,31 @@ class A_B_task(object):
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False
-
-    def transition_to_ContextA(self):  # function applied during all context changes
-        if self.trial_counter == 0: #first trial
-            if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
-                return True
-            else:
-                return False
-        elif self.full_task_names_and_times[self.trial_counter-1][0] == 'ContextA':
+    def start_in_ContextA(self):
+        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             return True
+            self.trial_counter += 1
+        else:
+            return False
+    def start_in_ContextB(self):
+        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
+            return True
+            self.trial_counter += 1
         else:
             return False
 
-    def transition_to_ContextB(self):  # function applied during all context changes
-        if self.trial_counter == 0: #first trial
-            if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
-                return True
-            else:
-                return False
-        elif self.full_task_names_and_times[self.trial_counter - 1][0] == 'ContextB':
+    def transition_to_ContextA(self):
+        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             return True
+            self.trial_counter += 1
         else:
             return False
+    def transition_to_ContextB(self):
+        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
+                return True
+                self.trial_counter += 1
+            else:
+                return False
 
     def exit_standby(self):
         # self.error_repeat = False
@@ -371,7 +374,6 @@ class A_B_task(object):
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[3],0)
         elif self.full_task_names_and_times[self.trial_counter][1] == 80:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[4],0)
-        self.trial_counter += 1
         self.trial_running = True
 
     def exit_ContextA(self):
@@ -380,6 +382,7 @@ class A_B_task(object):
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.event_list.clear()
+        # self.trial_counter += 1
         logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +  str(self.full_task_names_and_times[self.trial_counter][1]))
 
@@ -396,7 +399,6 @@ class A_B_task(object):
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[8],0)
         elif self.full_task_names_and_times[self.trial_counter][1] == 80:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[9],0)
-        self.trial_counter += 1
         self.trial_running = True
 
     def exit_ContextB(self):
@@ -405,13 +407,14 @@ class A_B_task(object):
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.event_list.clear()
+        # self.trial_counter += 1
         logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' + str(self.full_task_names_and_times[self.trial_counter][1]))
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
-        self.trial_running = False
         self.trial_counter += 1
+        self.trial_running = False
 
     def exit_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
