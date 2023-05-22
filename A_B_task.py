@@ -344,13 +344,13 @@ class A_B_task(object):
     def transition_to_ContextA(self):
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             return True
-            self.trial_counter += 1
+            # self.trial_counter += 1
         else:
             return False
     def transition_to_ContextB(self):
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             return True
-            self.trial_counter += 1
+            # self.trial_counter += 1
         else:
             return False
 
@@ -362,6 +362,9 @@ class A_B_task(object):
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
         self.box.sound1.blink(0.1, 0.1)
+        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
+                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
+                     str(self.full_task_names_and_times[self.trial_counter][1]))
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
         elif self.full_task_names_and_times[self.trial_counter][1] == 50:
@@ -381,12 +384,13 @@ class A_B_task(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         # self.trial_counter += 1
-        logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
-                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +  str(self.full_task_names_and_times[self.trial_counter][1]))
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
         self.box.sound1.blink(0.2, 0.1)
+        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
+                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
+                     str(self.full_task_names_and_times[self.trial_counter][1]))
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
         elif self.full_task_names_and_times[self.trial_counter][1] == 50:
@@ -406,20 +410,18 @@ class A_B_task(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         # self.trial_counter += 1
-        logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
-                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' + str(self.full_task_names_and_times[self.trial_counter][1]))
 
     def enter_intercontext_interval(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
         self.trial_counter += 1
+        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
+                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
+                     str(self.full_task_names_and_times[self.trial_counter][1]))
         self.trial_running = False
 
     def exit_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
         self.box.event_list.clear()
-        logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
-                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +  str(self.full_task_names_and_times[self.trial_counter][1]))
-
+        self.trial_counter += 1
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
