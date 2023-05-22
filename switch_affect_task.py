@@ -50,7 +50,7 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class ForageTask(object):
+class SwitchAffectTask(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
@@ -81,19 +81,6 @@ class ForageTask(object):
             self.session_info = kwargs.get("session_info", None)
         ic(self.session_info)
 
-        # initialize the state machine
-        #states:
-            #left state
-            #right state
-            #context stimulus representing current values of left and right states
-            #this could be two states that are conditional, or could be 4 states (left hi, right lo and left and right same)
-
-            #one contextual stimulus signals left and right values are identical (tone?)
-            #other contecxtual stimulus signals left and right are different (white noise)
-            #light signals which state is currently active; whereas in the foraging task, animals volitionally switch
-            #beteween patches; in this task animals are transported between patches
-
-
         self.states = [
             State(name='standby',
                   on_exit=["exit_standby"]),
@@ -123,12 +110,6 @@ class ForageTask(object):
 
             ['end_task', ['right_equiv','left_equiv','right_diff','left_diff'], 'standby']]
 
-            #what's the duration of a given interval? depend on number of rewards earned?; when's the swtich happen exactly??
-            #question is how many rewards? don't want to switch  (in general) as soon as a reward is collected in a given state
-            #solutions to this could be state switches only arise after x seconds after a reward collection??
-            #could just be timed such that rewards do not impact the transition structure
-            #
-
         self.machine = TimedStateMachine(
             model=self,
             states=self.states,
@@ -137,6 +118,11 @@ class ForageTask(object):
             )
 
     # trial statistics
+        self.first_state = False
+        self.equiv_bool = True
+        self.random_num_rew = 0
+        self.random_num_switches = 0
+        self.rewards_earned = 0
         self.bin_index = 0
         self.selection_made = False
         self.patch_long = True
@@ -151,8 +137,8 @@ class ForageTask(object):
         # self.reward_time_start = None # for reward_available state time keeping purpose
         self.reward_time = 10  # sec. could be incorporate into the session_info; available time for reward
         self.reward_times_up = False
-        self.reward_pump1 = self.session_info["reward_pump1"]  # update this in session_info
-        self.reward_pump2 = self.session_info['reward_pump2']  # update this in session_info
+        self.reward_pump1 = self.session_info["reward_pump1"]
+        self.reward_pump2 = self.session_info['reward_pump2']
 
         self.reward_size1 = self.session_info["equiv_reward_size"] = 3 #?
         self.reward_size2 = self.session_info['left_diff_reward_size'] = 5 #?
@@ -196,19 +182,22 @@ class ForageTask(object):
         self.total_reward = 0
         self.right_licks = 0
         self.left_licks = 0
-        self.reward_size_var = 0
-        self.reward_size_index = 0
-        self.right_patch_rewards = [3,2.5,2.0,1.5,1.0,0]
-        self.left_patch_rewards = [3,2.5,2.0,1.5,1.0,0]
 
     def run(self):
         if self.state == "standby":
             pass
-        elif self.state == 'right_equiv':  # if in ContextA
+        elif self.state == 'right_equiv':
             self.trial_running = False
             self.box.cueLED1.on()
             self.box.event_list.clear()
+            self.rewards_earned = 0
+            self.random_num_rew = random.randint(2, 5)
             while self.state == 'right_equiv':
+                if self.rewards_earned == self.random_num_rew:
+                    if self.num_switches >= self.random_num_switch:
+                        self.switch_to_left_diff()
+                    else:
+                        self.switch_to_left_equiv()
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
@@ -218,12 +207,20 @@ class ForageTask(object):
                     lick_dt = lick_time_temp - self.lick_time
                     if lick_dt >= self.lick_interval:
                         self.pump.reward(self.reward_pump2, self.session_info["equiv_reward_size"])
+                        self.rewards_earned += 1
                         self.lick_time = lick_time_temp
         elif self.state == 'left_equiv':
             self.trial_running = False
             self.box.cueLED2.on()
             self.box.event_list.clear()
+            self.rewards_earned = 0
+            self.random_num_rew = random.randint(2, 5)
             while self.state == 'left_equiv':
+                if self.rewards_earned == self.random_num_rew:
+                    if self.num_switches >= self.random_num_switch:
+                        self.switch_to_right_diff()
+                    else:
+                        self.switch_to_right_equiv()
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
@@ -232,48 +229,125 @@ class ForageTask(object):
                     lick_time_temp = time.time()
                     lick_dt = lick_time_temp - self.lick_time
                     if lick_dt >= self.lick_interval:
-                        self.pump.reward(self.reward_pump2, self.session_info["equiv_reward_size"])
+                        self.pump.reward(self.reward_pump1, self.session_info["equiv_reward_size"])
+                        self.rewards_earned += 1
                         self.lick_time = lick_time_temp
         elif self.state == 'right_diff':
-
-
-
+            self.trial_running = False
+            self.box.cueLED1.on()
+            self.box.event_list.clear()
+            self.rewards_earned = 0
+            self.random_num_rew = random.randint(2, 5)
+            while self.state == 'right_diff':
+                if self.rewards_earned == self.random_num_rew:
+                    if self.num_switches >= self.random_num_switch:
+                        self.switch_to_left_equiv()
+                    else:
+                        self.switch_to_left_diff()
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
+                if self.event_name == "right_entry":
+                    lick_time_temp = time.time()
+                    lick_dt = lick_time_temp - self.lick_time
+                    if lick_dt >= self.lick_interval:
+                        self.pump.reward(self.reward_pump2, self.session_info["right_diff_reward_size"])
+                        self.rewards_earned += 1
+                        self.lick_time = lick_time_temp
         elif self.state == 'left_diff':
-
-
-
-
+            self.trial_running = False
+            self.box.cueLED1.on()
+            self.box.event_list.clear()
+            self.rewards_earned = 0
+            self.random_num_rew = random.randint(2, 5)
+            while self.state == 'right_diff':
+                if self.rewards_earned == self.random_num_rew:
+                    if self.num_switches >= self.random_num_switch:
+                        self.switch_to_left_equiv()
+                    else:
+                        self.switch_to_left_diff()
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
+                if self.event_name == "right_entry":
+                    lick_time_temp = time.time()
+                    lick_dt = lick_time_temp - self.lick_time
+                    if lick_dt >= self.lick_interval:
+                        self.pump.reward(self.reward_pump1, self.session_info["left_diff_reward_size"])
+                        self.rewards_earned += 1
+                        self.lick_time = lick_time_temp
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
+        self.first_state = True
 
     def enter_right_equiv(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_right_equiv;" + str(self.error_repeat))
+        self.trial_running = True
+        if self.first_state:
+            self.equiv_bool = True
+        if self.equiv_bool == True and not self.first_state:
+            self.num_switches += 1
+        elif self.equiv_bool == False:
+            self.num_switches = 0
+            self.random_num_switch = random.randint(2, 5)
+            self.equiv_bool = True
+        if self.first_state:
+            self.first_state = False
 
     def exit_right_equiv(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_right_equiv;" + str(self.error_repeat))
-
+        self.box.cueLED1.off()
+        self.box.event_list.clear()
 
     def enter_left_equiv(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_left_equiv;" + str(self.error_repeat))
-
+        self.trial_running = True
+        if self.equiv_bool == True:
+            self.num_switches += 1
+        elif self.equiv_bool == False:
+            self.num_switches = 0
+            self.random_num_switch = random.randint(2, 5)
+            self.equiv_bool = True
     def exit_left_equiv(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_left_equiv;" + str(self.error_repeat))
-
+        self.box.cueLED2.off()
+        self.box.event_list.clear()
 
     def enter_right_diff(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_right_diff;" + str(self.error_repeat))
-
+        self.trial_running = True
+        if self.first_state:
+            self.equiv_bool = False
+        if self.equiv_bool == False and not self.first_state:
+            self.num_switches += 1
+        elif self.equiv_bool == True:
+            self.num_switches = 0
+            self.random_num_switch = random.randint(2, 5)
+            self.equiv_bool = False
+        if self.first_state:
+            self.first_state = False
     def exit_right_diff(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_right_diff;" + str(self.error_repeat))
-
+        self.box.cueLED2.off()
+        self.box.event_list.clear()
 
     def enter_left_diff(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_left_diff;" + str(self.error_repeat))
+        self.trial_running = True
+        if self.equiv_bool == False:
+            self.num_switches += 1
+        elif self.equiv_bool == True:
+            self.num_switches = 0
+            self.random_num_switch = random.randint(2, 5)
+            self.equiv_bool = False
 
     def exit_left_diff(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_left_diff;" + str(self.error_repeat))
-
+        self.box.cueLED2.off()
+        self.box.event_list.clear()
 
 
 

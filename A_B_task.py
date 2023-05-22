@@ -43,7 +43,6 @@ logging.config.dictConfig(
 # all modules above this line will have logging disabled
 
 import behavbox
-import random
 
 # adding timing capability to the state machine
 @add_state_features(Timeout)
@@ -331,13 +330,6 @@ class A_B_task(object):
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False #updated
-
-        #look at exactly where the rpg gratings are pulled from (~/gratings/contexta/contexta_40??)
-        #for a given visual stimulus; I'll need to pull the visual stimulus file that corresponds
-        #with the list under visual_gratings in the session_info file
-        #session_info[visual_gratings] = [contexta40, contexta50, contexta60, contexta70, contexta80,
-                                        #contextb40, contextb50, contextb60, contextb70, contextb80]
-        #this is a 10D list that I can pull depending on the duration of the associated contextA or contextB
 
     def transition_to_ContextA(self):  # function applied during all context changes
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
