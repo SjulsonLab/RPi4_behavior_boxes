@@ -333,13 +333,11 @@ class A_B_task(object):
     def start_in_ContextA(self):
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             return True
-            self.trial_counter += 1
         else:
             return False
     def start_in_ContextB(self):
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
             return True
-            self.trial_counter += 1
         else:
             return False
 
