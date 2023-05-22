@@ -139,7 +139,7 @@ class A_B_task(object):
         logging.info(self.full_task_names_and_times)
         # print(f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
 
-        self.trial_counter = -1  # keeps track of current trial
+        self.trial_counter = 0  # keeps track of current trial
         logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + str(self.full_task_names_and_times[self.trial_counter][1]))
 
@@ -349,9 +349,9 @@ class A_B_task(object):
 
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
-        self.trial_counter += 1
+        if self.trial_counter =! 0:
+            self.trial_counter += 1
         self.box.sound1.blink(0.1, 0.1)
-        print(list(self.box.visualstim.gratings))
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
         elif self.full_task_names_and_times[self.trial_counter][1] == 50:
@@ -371,13 +371,13 @@ class A_B_task(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
-                     str(self.full_task_names_and_times[self.trial_counter][0]) + str(self.full_task_names_and_times[self.trial_counter][1]))
+                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +  str(self.full_task_names_and_times[self.trial_counter][1]))
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
-        self.trial_counter += 1
+        if self.trial_counter =! 0:
+            self.trial_counter += 1
         self.box.sound1.blink(0.2, 0.1)
-        print(list(self.box.visualstim.gratings))
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
         elif self.full_task_names_and_times[self.trial_counter][1] == 50:
@@ -397,7 +397,7 @@ class A_B_task(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
-                     str(self.full_task_names_and_times[self.trial_counter][0]) + str(self.full_task_names_and_times[self.trial_counter][1]))
+                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' + str(self.full_task_names_and_times[self.trial_counter][1]))
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
@@ -408,7 +408,7 @@ class A_B_task(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
         self.box.event_list.clear()
         logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
-                     str(self.full_task_names_and_times[self.trial_counter][0]) + str(self.full_task_names_and_times[self.trial_counter][1]))
+                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +  str(self.full_task_names_and_times[self.trial_counter][1]))
 
 
     def update_plot(self):
