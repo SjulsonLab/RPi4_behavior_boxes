@@ -22,7 +22,7 @@ class VisualStim(object):
         self.session_info = session_info
         self.gratings = OrderedDict()
         self.myscreen = rpg.Screen()
-        self.myscreen.display_greyscale(self.session_info["gray_level"])
+        self.myscreen.display_greyscale(self.session_info["gray_level"]["default"])
         logging.info(";" + str(time.time()) + ";[initialization];screen_opened")
         self.load_session_gratings()
 
@@ -72,7 +72,7 @@ class VisualStim(object):
         self.myscreen.display_grating(self.gratings[grating_name])
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_off")
         self.myscreen.display_greyscale(
-            self.session_info["gray_level"]
+            self.session_info["gray_level"][grating_name]
         )  # reset the screen to neutral gray
         logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
 
