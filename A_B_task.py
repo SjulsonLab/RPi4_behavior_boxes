@@ -184,7 +184,7 @@ class A_B_task(object):
             Timeout(name="intercontext_interval",
                     on_enter=["enter_intercontext_interval"],
                     on_exit=["exit_intercontext_interval"],
-                    timeout = self.full_task_names_and_times[self.trial_counter-1][1],
+                    timeout = self.full_task_names_and_times[self.trial_counter][1],
                     on_timeout=['switch_to_ContextA/B'])]
 
         self.transitions = [
@@ -340,13 +340,13 @@ class A_B_task(object):
             return False
 
     def transition_to_ContextA(self):
-        self.trial_counter += 1
+        # self.trial_counter += 1
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             return True
         else:
             return False
     def transition_to_ContextB(self):
-        self.trial_counter += 1
+        # self.trial_counter += 1
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
             return True
         else:
@@ -409,7 +409,8 @@ class A_B_task(object):
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.event_list.clear()
-        self.trial_counter +=1
+        self.trial_counter += 1
+
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
@@ -419,6 +420,7 @@ class A_B_task(object):
     def exit_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
         self.box.event_list.clear()
+        self.trial_counter += 1
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
