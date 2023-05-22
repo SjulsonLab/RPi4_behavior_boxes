@@ -60,21 +60,21 @@ class VisualStim(object):
 
     # call this method to display the grating. It will launch it in a separate process
     # to run on a separate core
-    def show_grating(self, grating_name):
+    def show_grating(self, grating_name,grey_level):
         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
-        x = Process(target=self.process_function, args=(grating_name,))
+        x = Process(target=self.process_function, args=(grating_name,grey_level,))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
         x.start()
 
     # this is the function that is launched by show_grating to run in a different process
-    def process_function(self, grating_name):
+    def process_function(self, grating_name, gray_level):
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
         self.myscreen.display_grating(self.gratings[grating_name])
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_off")
-        # self.myscreen.display_greyscale(
-        #     self.session_info["gray_level"]["black"]
-        # )  # reset the screen to neutral gray
-        # logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
+        self.myscreen.display_greyscale(
+            self.session_info["gray_level"][gray_level]
+        )  # reset the screen to neutral gray
+        logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
 
     def __del__(self):
         self.myscreen.close()
