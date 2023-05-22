@@ -139,6 +139,8 @@ class A_B_task(object):
         logging.info(self.full_task_names_and_times)
         print(f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
 
+        self.trial_counter = 0
+
         # if no name or session, make fake ones (for testing purposes)
         if kwargs.get("name", None) is None:
             self.name = "name"
