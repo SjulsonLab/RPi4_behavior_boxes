@@ -412,7 +412,7 @@ class A_B_task(object):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
         self.trial_running = False
         # time.sleep(0.2)
-        self.box.visualstim.display_greyscale(0)
+        # self.box.visualstim.display_greyscale(0)
 
     def exit_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
