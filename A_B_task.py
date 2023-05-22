@@ -348,7 +348,7 @@ class A_B_task(object):
         else:
             return False
     def transition_to_ContextB(self):
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
+        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
             return True
             # self.trial_counter += 1
         else:
