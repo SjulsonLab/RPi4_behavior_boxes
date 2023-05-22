@@ -206,7 +206,6 @@ class A_B_task(object):
         self.machine.add_transition('switch_to_ContextA/B', 'intercontext_interval', 'ContextA', conditions = 'transition_to_ContextA')
 
     # trial statistics
-        self.trial_counter = 0
         self.random_ITI = random.randint(2, 4)
         self.LED_delay_time = 0.3
         self.LED_on_time = 0
@@ -332,24 +331,17 @@ class A_B_task(object):
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False #updated
 
-        #look at exactly where the rpg gratings are pulled from (~/gratings/contexta/contexta_40??)
-        #for a given visual stimulus; I'll need to pull the visual stimulus file that corresponds
-        #with the list under visual_gratings in the session_info file
-        #session_info[visual_gratings] = [contexta40, contexta50, contexta60, contexta70, contexta80,
-                                        #contextb40, contextb50, contextb60, contextb70, contextb80]
-        #this is a 10D list that I can pull depending on the duration of the associated contextA or contextB
-
     def transition_to_ContextA(self):  # function applied during all context changes
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
-            return True
+            self.ContextA_var = True
         else:
-            return False
+            self.ContextA_var = False
 
     def transition_to_ContextB(self):  # function applied during all context changes
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
-            return True
+            self.ContextB_var = True
         else:
-            return False
+            self.ContextB_var = False
 
     def exit_standby(self):
         # self.error_repeat = False
@@ -359,6 +351,7 @@ class A_B_task(object):
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
         self.box.sound1.blink(0.1, 0.1)
+        self.trial_counter += 1
         print(list(self.box.visualstim.gratings))
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
@@ -378,13 +371,13 @@ class A_B_task(object):
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.event_list.clear()
-        self.trial_counter+=1
         logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + str(self.full_task_names_and_times[self.trial_counter][1]))
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
         self.box.sound1.blink(0.2, 0.1)
+        self.trial_counter += 1
         print(list(self.box.visualstim.gratings))
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
@@ -404,21 +397,17 @@ class A_B_task(object):
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.event_list.clear()
-        self.trial_counter += 1
         logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + str(self.full_task_names_and_times[self.trial_counter][1]))
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
         self.trial_running = False
-        # time.sleep(0.2)
-        # self.box.visualstim.display_greyscale(0)
-        # self.box.visualstim.myscreen.display_greyscale(self.session_info["gray_level"]["black"])
+        self.trial_counter += 1
 
     def exit_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.trial_counter += 1
         logging.info(";" + str(time.time()) + ";[transition];next_context_name_and_duration;" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + str(self.full_task_names_and_times[self.trial_counter][1]))
 
