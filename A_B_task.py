@@ -334,11 +334,14 @@ class A_B_task(object):
     def transition_to_ContextA(self):  # function applied during all context changes
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             return True
+        else:
+            return False
 
     def transition_to_ContextB(self):  # function applied during all context changes
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
             return True
-
+        else:
+            return False
     def exit_standby(self):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
