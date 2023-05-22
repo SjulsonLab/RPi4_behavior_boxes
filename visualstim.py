@@ -71,10 +71,10 @@ class VisualStim(object):
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
         self.myscreen.display_grating(self.gratings[grating_name])
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_off")
-        self.myscreen.display_greyscale(
-            self.session_info["gray_level"]["black"]
-        )  # reset the screen to neutral gray
-        logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
+        # self.myscreen.display_greyscale(
+        #     self.session_info["gray_level"]["black"]
+        # )  # reset the screen to neutral gray
+        # logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
 
     def __del__(self):
         self.myscreen.close()
