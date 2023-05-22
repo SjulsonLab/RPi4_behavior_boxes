@@ -375,7 +375,7 @@ class A_B_task(object):
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
-        if self.trial_counter =! 0:
+        if self.trial_counter != 0:
             self.trial_counter += 1
         self.box.sound1.blink(0.2, 0.1)
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
