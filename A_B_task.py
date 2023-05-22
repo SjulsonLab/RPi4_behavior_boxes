@@ -185,9 +185,9 @@ class A_B_task(object):
                   on_timeout=['switch_to_intercontext_interval']),
             Timeout(name="intercontext_interval",
                     on_enter=["enter_intercontext_interval"],
-                    on_exit=["switch_to_ContextA/B"],
+                    on_exit=["exit_intercontext_interval"],
                     timeout = self.full_task_names_and_times[self.trial_counter][1],
-                    on_timeout=['exit_intercontext_interval'])]
+                    on_timeout=['switch_to_ContextA/B'])]
 
         self.transitions = [
             ['switch_to_intercontext_interval', ['ContextA','ContextB'], 'intercontext_interval'],
@@ -332,16 +332,27 @@ class A_B_task(object):
                             self.LED_bool = False
 
     def transition_to_ContextA(self):  # function applied during all context changes
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
+        if self.trial_counter == 0: #first trial
+            if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
+                return True
+            else:
+                return False
+        elif self.full_task_names_and_times[self.trial_counter-1][0] == 'ContextA':
             return True
         else:
             return False
 
     def transition_to_ContextB(self):  # function applied during all context changes
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
+        if self.trial_counter == 0: #first trial
+            if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
+                return True
+            else:
+                return False
+        elif self.full_task_names_and_times[self.trial_counter - 1][0] == 'ContextB':
             return True
         else:
             return False
+
     def exit_standby(self):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
@@ -349,8 +360,6 @@ class A_B_task(object):
 
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
-        if self.trial_counter != 0:
-            self.trial_counter += 1
         self.box.sound1.blink(0.1, 0.1)
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
@@ -362,6 +371,7 @@ class A_B_task(object):
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[3],0)
         elif self.full_task_names_and_times[self.trial_counter][1] == 80:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[4],0)
+        self.trial_counter += 1
         self.trial_running = True
 
     def exit_ContextA(self):
@@ -375,8 +385,6 @@ class A_B_task(object):
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
-        if self.trial_counter != 0:
-            self.trial_counter += 1
         self.box.sound1.blink(0.2, 0.1)
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
@@ -388,6 +396,7 @@ class A_B_task(object):
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[8],0)
         elif self.full_task_names_and_times[self.trial_counter][1] == 80:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[9],0)
+        self.trial_counter += 1
         self.trial_running = True
 
     def exit_ContextB(self):
@@ -401,8 +410,8 @@ class A_B_task(object):
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
-        self.trial_counter += 1
         self.trial_running = False
+        self.trial_counter += 1
 
     def exit_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
