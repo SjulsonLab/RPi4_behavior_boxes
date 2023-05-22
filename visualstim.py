@@ -72,7 +72,7 @@ class VisualStim(object):
         self.myscreen.display_grating(self.gratings[grating_name])
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_off")
         self.myscreen.display_greyscale(
-            self.session_info["gray_level"][gray_level]
+            gray_level
         )  # reset the screen to neutral gray
         logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
 
