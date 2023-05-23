@@ -10,6 +10,7 @@ description:
 
 """
 import random
+import numpy as np
 from transitions import Machine
 from transitions import State
 from icecream import ic
@@ -92,11 +93,30 @@ try:
     # print("Imported task_information_headfixed: " + str(task_information.name))
     task = Headfixed2FCTask(name="headfixed2FC_task", session_info=session_info)
 
-    from reward_distribution import generate_reward_trajectory
+    def generate_reward_trajectory(scale=0.5, offset=3.0, change_point=20, ntrials=200):
+        # initial reward (need to be random)
+        rewards_L = [1]
+        rewards_R = [1]
+        for a in np.arange(np.round(ntrials / change_point)):
+            temp = np.random.randn(change_point) * scale
+            rewards_L.append(np.cumsum(temp, axis=-1) + offset)
+            temp = np.random.randn(change_point) * scale
+            rewards_R.append(np.cumsum(temp, axis=-1) + offset)
+        rewards_L = np.hstack(rewards_L)
+        rewards_R = np.hstack(rewards_R)
+        # plt.plot(rewards_L,'b');plt.plot(rewards_R,'r--')
+        reward_LR = [rewards_L, rewards_R]
+        reward_LR = np.transpose(np.array(reward_LR))
+        reward_LR = reward_LR[0:ntrials, :]
+        print(reward_LR)
+        return reward_LR
+
+    # from reward_distribution import generate_reward_trajectory
     scale = session_info['reward']['scale']
     offset = session_info['reward']['offset']
     change_point = session_info['reward']['change_point']
     ntrials = session_info['reward']['ntrials']
+
     reward_distribution_list = generate_reward_trajectory(scale, offset, change_point, ntrials)
 
 

@@ -1,6 +1,6 @@
 import numpy as np
 
-def generate_reward_trajectory(scale==0.5, offset==3.0, change_point==20, ntrials==200):
+def generate_reward_trajectory(scale=0.5, offset=3.0, change_point=20, ntrials=200):
         # initial reward (need to be random)
         rewards_L = [1]
         rewards_R = [1]
@@ -17,7 +17,7 @@ def generate_reward_trajectory(scale==0.5, offset==3.0, change_point==20, ntrial
         reward_LR = reward_LR[0:ntrials,:]
         print(reward_LR)
         return reward_LR
-
+# generate_reward_trajectory()
 # session_information['reward']['scale']
 # session_information['reward']['offset']
 # session_information['reward']['change_point']
