@@ -123,8 +123,8 @@ class Headfixed2FCTask(object):
         self.wrong_choice_error = False
         self.multiple_choice_error = False
         self.error_repeat = False
-        self.reward_time_start = None # for reward_available state time keeping purpose
-        self.reward_time = 10 # sec. could be incorporate into the session_info; available time for reward
+        self.reward_time_start = None  # for reward_available state time keeping purpose
+        self.reward_time = 10  # sec. could be incorporate into the session_info; available time for reward
         self.reward_times_up = False
 
         self.block_count = 0
@@ -160,6 +160,7 @@ class Headfixed2FCTask(object):
         # session_statistics
         self.total_reward = 0
         self.correct_trial_in_block = 0
+
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
@@ -355,7 +356,7 @@ class Headfixed2FCTask(object):
             # self.LED_blink = True
             self.box.cueLED2.on()
             logging.info(";" + str(time.time()) + ";[cue];cueLED_R_on;" + str(self.error_repeat))
-        elif cue =='all':
+        elif cue == 'all':
             self.box.cueLED1.on()
             self.box.cueLED2.on()
             logging.info(";" + str(time.time()) + ";[cue];LED_L+R_on; " + str(self.error_repeat))
