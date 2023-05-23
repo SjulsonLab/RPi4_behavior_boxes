@@ -220,24 +220,20 @@ class HeadfixedIndependentRewardTask(object):
                 if cue_state == 'all':
                     side_choice = side_mice
                     if side_choice == 'left':
-                        reward_size = self.session_info['reward_size'][self.current_card[2][0]]
-                        # left_reward = self.session_info['reward_size'][self.current_card[2][0]]
-                        # reward_size = random.uniform(left_reward - self.session_info['reward_deviation'],
-                        #                              left_reward + self.session_info['reward_deviation'])
+                        reward_size = self.current_reward[0]
                         pump_num = self.current_card[2][0]
                     elif side_choice == 'right':
-                        reward_size = self.session_info['reward_size'][self.current_card[2][1]]
-                        # right_reward = self.session_info['reward_size'][self.current_card[2][1]]
-                        # reward_size = random.uniform(right_reward - self.session_info['reward_deviation'],
-                        #                              right_reward + self.session_info['reward_deviation'])
+                        reward_size = self.current_reward[1]
                         pump_num = self.current_card[2][1]
                 else:
                     side_choice = self.current_card[1]
-                    # forced_reward = self.current_reward
-                    reward_size = self.current_reward
-                    # reward_size = random.uniform(forced_reward - self.session_info['reward_deviation'],
-                    #                              forced_reward + self.session_info['reward_deviation'])
                     pump_num = self.current_card[2]
+                    if side_choice == 'left':
+                        reward_size = self.current_reward[0]
+                        pump_num = self.current_card[2]
+                    elif side_choice == 'right':
+                        reward_size = self.current_reward[1]
+                        pump_num = self.current_card[2]
                 if side_mice == side_choice:  # if the animal chose correctly
                     print("Number of lick detected: " + str(self.lick_count))
                     if self.lick_count == 0:  # if this is the first lick
