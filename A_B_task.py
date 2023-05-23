@@ -199,6 +199,7 @@ class A_B_task(object):
         self.machine.add_transition('start_trial_logic', 'standby', 'ContextB', conditions='start_in_ContextB')
 
     # trial statistics
+        self.intercontext_interval_time = 0
         self.current_state_time = 0
         self.random_ITI = random.randint(2, 4)
         self.LED_delay_time = 0.3
@@ -257,6 +258,12 @@ class A_B_task(object):
     def run(self):
         if self.state == "standby":
             pass
+        elif self.state == 'intercontext_interval':
+            self.trial_running = False
+            self.intercontext_interval_time = time.time()
+            while time.time() - self.intercontext_interval_time <= self.current_state_time:
+                pass
+            self.switch_to_ContextA_B()
         elif self.state == 'ContextA':
             self.trial_running = False
             self.ContextA_time = time.time()
@@ -295,6 +302,7 @@ class A_B_task(object):
         elif self.state == 'ContextB':
             self.trial_running = False
             self.ContextB_time = time.time()  # assign the context switch time to this variable
+            self.ContextA_end = time.time() + self.current_state_time
             self.LED_bool = False
             self.prior_reward_time = 0
             while time.time() - self.ContextB_time <= self.current_state_time:
@@ -412,11 +420,10 @@ class A_B_task(object):
         # logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
         #              str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
         #              str(self.full_task_names_and_times[self.trial_counter][1]))
-        self.trial_running = False
+        self.trial_running = True
 
     def exit_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
-        self.switch_to_ContextA_B()
         self.box.event_list.clear()
 
     def update_plot(self):
