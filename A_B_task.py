@@ -140,7 +140,6 @@ class A_B_task(object):
         print(f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
 
         self.trial_counter = 0
-        self.p = 0
 
         # if no name or session, make fake ones (for testing purposes)
         if kwargs.get("name", None) is None:
@@ -183,7 +182,7 @@ class A_B_task(object):
             Timeout(name="intercontext_interval",
                     on_enter=["enter_intercontext_interval"],
                     on_exit=["exit_intercontext_interval"],
-                    timeout = self.p,
+                    timeout = 30,
                     on_timeout=['switch_to_ContextA_B'])]
 
         self.transitions = [
@@ -376,7 +375,6 @@ class A_B_task(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter += 1
-        self.p = self.full_task_names_and_times[self.trial_counter][1]
         self.switch_to_intercontext_interval()
 
     def enter_ContextB(self):
@@ -405,7 +403,6 @@ class A_B_task(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter += 1
-        self.p = self.full_task_names_and_times[self.trial_counter][1]
         self.switch_to_intercontext_interval()
 
     def enter_intercontext_interval(self):
