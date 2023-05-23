@@ -91,7 +91,7 @@ try:
     from task_information_headfixed2FC import TaskInformation
     task_information = TaskInformation()
     # print("Imported task_information_headfixed: " + str(task_information.name))
-    task = Headfixed2FCTask(name="headfixed2FC_task", session_info=session_info)
+    task = HeadfixedIndependentRewardTask(name="headfixed_independent_reward_task", session_info=session_info)
 
     def generate_reward_trajectory(scale=0.5, offset=3.0, change_point=20, ntrials=200):
         # initial reward (need to be random)
