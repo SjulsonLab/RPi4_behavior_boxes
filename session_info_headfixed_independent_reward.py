@@ -104,6 +104,7 @@ session_info['cue_timeout'] = 120
 session_info['reward_timeout'] = 60
 session_info["punishment_timeout"] = 3
 
+session_info['reward'] = {}
 session_info['reward']['scale'] = 0.5
 session_info['reward']['offset'] = 3.0
 session_info['reward']['change_point'] = 20
