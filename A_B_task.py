@@ -298,7 +298,7 @@ class A_B_task(object):
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False
-            if time.time() - self.ContextA_time >= self.current_state_time:
+            if (time.time() - self.ContextA_time) >= self.current_state_time:
                 self.switch_to_intercontext_interval()
         elif self.state == 'ContextB':
             self.trial_running = False
