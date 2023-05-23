@@ -8,8 +8,8 @@
 """
 author: Mitch Farrell
 date: 2023-04-26
-name: forage_task.py
-goal: forage_task licks only, switch between left and right patches
+name: opioid_forage_task.py
+goal: switch between left and right patches
 """
 import importlib
 from transitions import Machine
