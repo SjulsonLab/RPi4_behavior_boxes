@@ -578,7 +578,7 @@ class Pump(object):
             self.reward_list.append(("pump1_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward_" + str(reward_size))
         elif which_pump == "2":
-            duration = round((reward_size / 1000)/(coefficient_p2[0] + coefficient_p2[1]), 3)  # linear function
+            duration = np.round((reward_size / 1000)/(coefficient_p2[0] + coefficient_p2[1]), 3)  # linear function
             self.pump2.blink(duration, 0.1, 1)
             self.reward_list.append(("pump2_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump2_reward_" + str(reward_size))
