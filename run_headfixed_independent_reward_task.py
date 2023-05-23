@@ -132,8 +132,8 @@ try:
     # Set a timer
     t_minute = int(input("Enter the time in minutes: ")) ## wll add in the session info
     t_end = time.time() + 60 * t_minute
+    first_card = True
     while time.time() < t_end:
-        first_card = True
         task.error_count = 0
         print("Trial " + str(task.trial_number) + " \n")
         task.trial_number += 1
