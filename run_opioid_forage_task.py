@@ -107,9 +107,9 @@ try:
 
     i = True #running this while loop until break encountered
     if random.uniform(0,1) > 0.5:
-        task.start_in_right_patch()
+        task.start_in_remi_right_patch_active()
     else:
-        task.start_in_left_patch()
+        task.start_in_liquid_left_patch_active()
     while i: #change this to a while loop to run through repeatedly, but maintain the original while loop for running the trial
         if time.time() >= t_end:
             print("Times up, finishing up")
