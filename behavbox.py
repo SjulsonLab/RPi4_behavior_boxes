@@ -573,22 +573,22 @@ class Pump(object):
         duration_vac = self.session_info["vacuum_duration"]
 
         if which_pump == "1":
-            duration = round((coefficient_p1[0] * (reward_size / 1000) + coefficient_p1[1]), 3)  # linear function
+            duration = round((reward_size / 1000)/(coefficient_p1[0] + coefficient_p1[1]), 3)  # linear function
             self.pump1.blink(duration, 0.1, 1)
             self.reward_list.append(("pump1_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward_" + str(reward_size))
         elif which_pump == "2":
-            duration = round((coefficient_p2[0] * (reward_size / 1000) + coefficient_p2[1]), 3)  # linear function
+            duration = round((reward_size / 1000)/(coefficient_p2[0] + coefficient_p2[1]), 3)  # linear function
             self.pump2.blink(duration, 0.1, 1)
             self.reward_list.append(("pump2_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump2_reward_" + str(reward_size))
         elif which_pump == "3":
-            duration = round((coefficient_p3[0] * (reward_size / 1000) + coefficient_p3[1]), 3)  # linear function
+            duration = round(((reward_size / 1000)/coefficient_p3[0] + coefficient_p3[1]), 3)  # linear function
             self.pump3.blink(duration, 0.1, 1)
             self.reward_list.append(("pump3_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump3_reward_" + str(reward_size))
         elif which_pump == "4":
-            duration = round((coefficient_p4[0] * (reward_size / 1000) + coefficient_p4[1]), 3)  # linear function
+            duration = round(((reward_size / 1000)/coefficient_p4[0] + coefficient_p4[1]), 3)  # linear function
             self.pump4.blink(duration, 0.1, 1)
             self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
