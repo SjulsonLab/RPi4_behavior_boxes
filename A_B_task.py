@@ -182,12 +182,14 @@ class A_B_task(object):
             Timeout(name="intercontext_interval",
                     on_enter=["enter_intercontext_interval"],
                     on_exit=["exit_intercontext_interval"],
-                    timeout = 30,
-                    on_timeout=['switch_to_ContextA/B'])]
+                    timeout = self.full_task_names_and_times[self.trial_counter][1],
+                    on_timeout=['switch_to_ContextA_B'])]
 
         self.transitions = [
             ['switch_to_intercontext_interval', ['ContextA','ContextB'], 'intercontext_interval'],
-            ['end_task', ['ContextA','ContextB','intercontext_interval'], 'standby']]
+            ['end_task', ['ContextA','ContextB','intercontext_interval'], 'standby'],
+            ['switch_to_ContextA', 'intercontext_interval', 'ContextA'],
+            ['switch_to_ContextB', 'intercontext_interval', 'ContextB']]
 
         self.machine = TimedStateMachine(
             model=self,
@@ -198,8 +200,6 @@ class A_B_task(object):
 
         self.machine.add_transition('start_trial_logic', 'standby', 'ContextA', conditions='start_in_ContextA')
         self.machine.add_transition('start_trial_logic', 'standby', 'ContextB', conditions='start_in_ContextB')
-        self.machine.add_transition('switch_to_ContextA/B', 'intercontext_interval', 'ContextA', conditions = 'transition_to_ContextA')
-        self.machine.add_transition('switch_to_ContextA/B', 'intercontext_interval', 'ContextB',conditions='transition_to_ContextB')
 
     # trial statistics
         self.random_ITI = random.randint(2, 4)
@@ -337,18 +337,12 @@ class A_B_task(object):
         else:
             return False
 
-    def transition_to_ContextA(self):
-        # self.trial_counter += 1
+    def switch_to_ContextA_B(self):
+        self.trial_counter += 1
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
-            return True
-        else:
-            return False
-    def transition_to_ContextB(self):
-        # self.trial_counter += 1
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
-            return True
-        else:
-            return False
+            self.switch_to_ContextA()
+        elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
+            self.swtich_to_ContextB()
 
     def exit_standby(self):
         # self.error_repeat = False
@@ -421,7 +415,6 @@ class A_B_task(object):
     def exit_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.trial_counter += 1
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
