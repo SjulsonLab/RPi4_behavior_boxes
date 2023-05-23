@@ -173,14 +173,12 @@ class A_B_task(object):
                   on_exit=["exit_standby"]),
             Timeout(name="ContextA",
                   on_enter=["enter_ContextA"],
-                  on_exit=["exit_ContextA"],
                   timeout = self.full_task_names_and_times[self.trial_counter][1],
-                  on_timeout = ['switch_to_intercontext_interval']),
+                  on_timeout = ['exit_ContextA']),
             Timeout(name="ContextB",
                   on_enter=["enter_ContextB"],
-                  on_exit=["exit_ContextB"],
                   timeout=self.full_task_names_and_times[self.trial_counter][1],
-                  on_timeout=['switch_to_intercontext_interval']),
+                  on_timeout=['exit_ContextB']),
             Timeout(name="intercontext_interval",
                     on_enter=["enter_intercontext_interval"],
                     on_exit=["exit_intercontext_interval"],
@@ -321,7 +319,7 @@ class A_B_task(object):
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False
                         elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
-                            self.box.cueLED1.off()
+                            self.box.cueLED1.off()self.in_loop_bool
                             self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump1, self.reward_size4)
                             self.prior_reward_time = time.time()
@@ -383,6 +381,7 @@ class A_B_task(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter += 1
+        self.switch_to_intercontext_interval()
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
@@ -410,6 +409,7 @@ class A_B_task(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter += 1
+        self.switch_to_intercontext_interval()
 
     def enter_intercontext_interval(self):
         # logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
