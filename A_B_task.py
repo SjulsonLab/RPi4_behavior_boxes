@@ -171,19 +171,16 @@ class A_B_task(object):
         self.states = [
             State(name='standby',
                   on_exit=["exit_standby"]),
-            Timeout(name="ContextA",
+            State(name="ContextA",
                   on_enter=["enter_ContextA"],
-                  timeout = self.full_task_names_and_times[self.trial_counter][1],
-                  on_timeout = ['exit_ContextA']),
-            Timeout(name="ContextB",
+                  on_exit = ['exit_ContextA']),
+            State(name="ContextB",
                   on_enter=["enter_ContextB"],
-                  timeout=self.full_task_names_and_times[self.trial_counter][1],
-                  on_timeout=['exit_ContextB']),
-            Timeout(name="intercontext_interval",
+                  on_exit=['exit_ContextB']),
+            State(name="intercontext_interval",
                     on_enter=["enter_intercontext_interval"],
-                    on_exit=["exit_intercontext_interval"],
-                    timeout = 30,
-                    on_timeout=['switch_to_ContextA_B'])]
+                    on_exit=["exit_intercontext_interval"])
+        ]
 
         self.transitions = [
             ['switch_to_intercontext_interval', ['ContextA','ContextB'], 'intercontext_interval'],
@@ -202,6 +199,7 @@ class A_B_task(object):
         self.machine.add_transition('start_trial_logic', 'standby', 'ContextB', conditions='start_in_ContextB')
 
     # trial statistics
+        self.current_state_time = 0
         self.random_ITI = random.randint(2, 4)
         self.LED_delay_time = 0.3
         self.LED_on_time = 0
@@ -264,7 +262,7 @@ class A_B_task(object):
             self.ContextA_time = time.time()
             self.LED_bool = False
             self.prior_reward_time = 0
-            while time.time() - self.ContextA_time <= self.full_task_names_and_times[self.trial_counter][1] and self.state == 'ContextA':  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
+            while time.time() - self.ContextA_time <= self.current_state_time:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 if not self.LED_bool:
                     if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI: #first trial after entering the state
                         self.box.cueLED1.on()
@@ -272,7 +270,7 @@ class A_B_task(object):
                         self.LED_on_time = time.time()
                         self.LED_bool = True
                         self.box.event_list.clear()
-                    while self.LED_bool and time.time() - self.ContextA_time <= self.full_task_names_and_times[self.trial_counter][1]:
+                    while self.LED_bool and time.time() - self.ContextA_time <= self.current_state_time:
                         if self.box.event_list:
                             self.event_name = self.box.event_list.popleft()
                         else:
@@ -293,19 +291,20 @@ class A_B_task(object):
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False
+            self.switch_to_intercontext_interval()
         elif self.state == 'ContextB':
             self.trial_running = False
             self.ContextB_time = time.time()  # assign the context switch time to this variable
             self.LED_bool = False
             self.prior_reward_time = 0
-            while time.time() - self.ContextB_time <= self.full_task_names_and_times[self.trial_counter][1] and self.state == 'ContextB':
+            while time.time() - self.ContextB_time <= self.current_state_time:
                 if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:  # first trial after entering the state
                     self.box.cueLED1.on()
                     self.box.cueLED2.on()
                     self.LED_on_time = time.time()
                     self.LED_bool = True
                     self.box.event_list.clear()
-                    while self.LED_bool and time.time() - self.ContextB_time <= self.full_task_names_and_times[self.trial_counter][1]:
+                    while self.LED_bool and time.time() - self.ContextB_time <= self.current_state_time:
                         if self.box.event_list:
                             self.event_name = self.box.event_list.popleft()
                         else:
@@ -326,14 +325,17 @@ class A_B_task(object):
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False
+            self.switch_to_intercontext_interval()
     def start_in_ContextA(self):
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             return True
+            self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         else:
             return False
     def start_in_ContextB(self):
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
             return True
+            self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         else:
             return False
 
@@ -341,8 +343,10 @@ class A_B_task(object):
         self.trial_counter += 1
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             self.switch_to_ContextA()
+            self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
             self.switch_to_ContextB()
+            self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
 
     def exit_standby(self):
         # self.error_repeat = False
@@ -355,7 +359,6 @@ class A_B_task(object):
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        print(list(self.box.visualstim.gratings))
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
         elif self.full_task_names_and_times[self.trial_counter][1] == 50:
@@ -375,7 +378,7 @@ class A_B_task(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter += 1
-        self.switch_to_intercontext_interval()
+        self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
 
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
@@ -383,7 +386,6 @@ class A_B_task(object):
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        print(list(self.box.visualstim.gratings))
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
         elif self.full_task_names_and_times[self.trial_counter][1] == 50:
@@ -403,7 +405,7 @@ class A_B_task(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter += 1
-        self.switch_to_intercontext_interval()
+        self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
@@ -414,6 +416,7 @@ class A_B_task(object):
 
     def exit_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
+        self.switch_to_ContextA_B()
         self.box.event_list.clear()
 
     def update_plot(self):
