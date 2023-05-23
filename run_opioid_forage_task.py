@@ -4,7 +4,7 @@
 # In[ ]:
 
 
-#run_self_admin_task_context_two_actions_lick_contingent.task
+#run_opioid_forage.task
 
 #!/usr/bin/env -S ipython3 -i
 # run_opioid_forage_task.py
@@ -50,7 +50,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import your task class here
-from forage_task import ForageTask
+from opioid_forage_task import OpioidForageTask
 import random
 
 try:
