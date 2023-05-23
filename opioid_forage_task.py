@@ -163,11 +163,11 @@ class OpioidForageTask(object):
         self.reward_times_up = False
         self.reward_pump1 = self.session_info["reward_pump1"]  # update this in session_info
         self.reward_pump2 = self.session_info['reward_pump2']  # update this in session_info
-        self.pump = self.box.pump
 
         self.event_name = ""
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
+        self.pump = self.box.pump
         # self.syringe_pump = LED(23)
         self.treadmill = self.box.treadmill
         self.right_entry_error = False
