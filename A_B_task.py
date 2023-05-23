@@ -173,19 +173,19 @@ class A_B_task(object):
                   on_exit=["exit_standby"]),
             Timeout(name="ContextA",
                   on_enter=["enter_ContextA"],
-                  on_exit=["switch_to_intercontext_interval"],
+                  on_exit=["exit_ContextA"],
                   timeout = self.full_task_names_and_times[self.trial_counter][1],
-                  on_timeout = ['exit_ContextA']),
+                  on_timeout = ['switch_to_intercontext_interval']),
             Timeout(name="ContextB",
                   on_enter=["enter_ContextB"],
-                  on_exit=["switch_to_intercontext_interval"],
+                  on_exit=["exit_ContextB"],
                   timeout=self.full_task_names_and_times[self.trial_counter][1],
-                  on_timeout=['exit_ContextB']),
+                  on_timeout=['switch_to_intercontext_interval']),
             Timeout(name="intercontext_interval",
                     on_enter=["enter_intercontext_interval"],
-                    on_exit=["switch_to_ContextA/B"],
-                    timeout = self.full_task_names_and_times[self.trial_counter][1],
-                    on_timeout=['exit_intercontext_interval'])]
+                    on_exit=["exit_intercontext_interval"],
+                    timeout = 30,
+                    on_timeout=['switch_to_ContextA/B'])]
 
         self.transitions = [
             ['switch_to_intercontext_interval', ['ContextA','ContextB'], 'intercontext_interval'],
@@ -412,9 +412,9 @@ class A_B_task(object):
         self.trial_counter += 1
 
     def enter_intercontext_interval(self):
-        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
-                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
-                     str(self.full_task_names_and_times[self.trial_counter][1]))
+        # logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
+        #              str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
+        #              str(self.full_task_names_and_times[self.trial_counter][1]))
         self.trial_running = False
 
     def exit_intercontext_interval(self):
