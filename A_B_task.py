@@ -298,11 +298,11 @@ class A_B_task(object):
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False
-            self.switch_to_intercontext_interval()
+            if time.time() - self.ContextA_time <= self.current_state_time:
+                self.switch_to_intercontext_interval()
         elif self.state == 'ContextB':
             self.trial_running = False
             self.ContextB_time = time.time()  # assign the context switch time to this variable
-            self.ContextA_end = time.time() + self.current_state_time
             self.LED_bool = False
             self.prior_reward_time = 0
             while time.time() - self.ContextB_time <= self.current_state_time:
@@ -333,7 +333,8 @@ class A_B_task(object):
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False
-            self.switch_to_intercontext_interval()
+            if time.time() - self.ContextB_time <= self.current_state_time:
+                self.switch_to_intercontext_interval()
     def start_in_ContextA(self):
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             return True
