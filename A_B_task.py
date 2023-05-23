@@ -342,7 +342,7 @@ class A_B_task(object):
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             self.switch_to_ContextA()
         elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
-            self.swtich_to_ContextB()
+            self.switch_to_ContextB()
 
     def exit_standby(self):
         # self.error_repeat = False
