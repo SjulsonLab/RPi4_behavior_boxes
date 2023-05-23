@@ -88,7 +88,7 @@ try:
         ]
     )
 
-    from task_information_headfixed2FC import TaskInformation
+    from task_information_independent_reward import TaskInformation
     task_information = TaskInformation()
     # print("Imported task_information_headfixed: " + str(task_information.name))
     task = HeadfixedIndependentRewardTask(name="headfixed_independent_reward_task", session_info=session_info)
