@@ -140,6 +140,7 @@ class A_B_task(object):
         print(f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
 
         self.trial_counter = 0
+        self.p = 0
 
         # if no name or session, make fake ones (for testing purposes)
         if kwargs.get("name", None) is None:
@@ -202,7 +203,6 @@ class A_B_task(object):
         self.machine.add_transition('start_trial_logic', 'standby', 'ContextB', conditions='start_in_ContextB')
 
     # trial statistics
-        self.p = 0
         self.random_ITI = random.randint(2, 4)
         self.LED_delay_time = 0.3
         self.LED_on_time = 0
