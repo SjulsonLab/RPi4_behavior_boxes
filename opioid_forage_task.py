@@ -158,7 +158,6 @@ class OpioidForageTask(object):
         self.error_list = []
         self.error_repeat = False
         self.lick_time = 0.0
-        self.lick_interval = self.session_info["lick_interval"]
         # self.reward_time_start = None # for reward_available state time keeping purpose
         self.reward_time = 10  # sec. could be incorporate into the session_info; available time for reward
         self.reward_times_up = False
