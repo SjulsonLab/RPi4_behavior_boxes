@@ -517,7 +517,7 @@ class Pump(object):
         # round to the second decimal
         # duration = round(solution_positive, 3) * (10**-3)
 
-        duration = round((reward_size/1000)/tube_fit, 3)
+        duration = np.round((reward_size/1000)/tube_fit, 3)
         duration_vacuum = 0.5
 
         if which_pump == "1":
