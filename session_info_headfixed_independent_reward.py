@@ -104,10 +104,10 @@ session_info['cue_timeout'] = 120
 session_info['reward_timeout'] = 60
 session_info["punishment_timeout"] = 3
 
-session_information['reward']['scale'] = 0.5
-session_information['reward']['offset'] = 3.0
-session_information['reward']['change_point'] = 20
-session_information['reward']['ntrials'] = 1000
+session_info['reward']['scale'] = 0.5
+session_info['reward']['offset'] = 3.0
+session_info['reward']['change_point'] = 20
+session_info['reward']['ntrials'] = 1000
 
 # define block_duration and initial block to start the session
 # session_info['block_duration'] = 30  # each block has this amount of repetition
