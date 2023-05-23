@@ -167,7 +167,7 @@ class OpioidForageTask(object):
         self.event_name = ""
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
-        self.syringe_pump = LED(23)
+        # self.syringe_pump = LED(23)
         self.treadmill = self.box.treadmill
         self.right_entry_error = False
         self.left_entry_error = False
@@ -207,10 +207,11 @@ class OpioidForageTask(object):
                 if self.event_name == "right_entry" and self.state == 'remi_right_patch_active':
                     if self.reward_size_var > 5:
                         self.reward_size_index = 5
-                    infusion_duration = (self.session_info['weight'] / 30)*self.right_patch_rewards[self.reward_size_index]
-                    self.syringe_pump.blink(infusion_duration, 0.1, 1)
-                    self.reward_list.append(("remi_reward", infusion_duration))
-                    logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
+                    print(f"remi reward delivered {self.right_patch_rewards[self.reward_size_index]}")
+                    # infusion_duration = (self.session_info['weight'] / 30)*self.right_patch_rewards[self.reward_size_index]
+                    # self.syringe_pump.blink(infusion_duration, 0.1, 1)
+                    # self.reward_list.append(("remi_reward", infusion_duration))
+                    # logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
                     self.reward_size_var += 1
                     self.reward_size_index += 1
                     self.switch_to_remi_right_patch_timeout()
