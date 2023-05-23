@@ -319,7 +319,7 @@ class A_B_task(object):
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
                             self.LED_bool = False
                         elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
-                            self.box.cueLED1.off()self.in_loop_bool
+                            self.box.cueLED1.off()
                             self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump1, self.reward_size4)
                             self.prior_reward_time = time.time()
