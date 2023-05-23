@@ -176,6 +176,17 @@ class OpioidForageTask(object):
         self.lick_count = 0
         self.side_mice_buffer = None
         self.LED_blink = False
+        self.timeline_active_press = []
+        self.active_press_count_list = []
+        self.timeline_inactive_press = []
+        self.inactive_press_count_list = []
+
+        self.left_poke_count = 0
+        self.right_poke_count = 0
+        self.timeline_left_poke = []
+        self.left_poke_count_list = []
+        self.timeline_right_poke = []
+        self.right_poke_count_list = []
         try:
             self.lick_threshold = self.session_info["lick_threshold"]
         except:
@@ -219,8 +230,8 @@ class OpioidForageTask(object):
                 elif self.event_name == 'left_entry' and self.state == 'remi_right_patch_active':
                     if self.reward_size_var != 0:
                         self.left_licks += 1
-                        if self.left_licks >= self.session_info['FR_before_patch_switch']:
-                            self.switch_to_travel_to_liquid_left_patch_active()
+                    if self.left_licks >= self.session_info['FR_before_patch_switch']:
+                        self.switch_to_travel_to_liquid_left_patch_active()
         elif self.state == 'liquid_left_patch_active':
             self.trial_running = False
             self.right_licks = 0
@@ -245,8 +256,8 @@ class OpioidForageTask(object):
                 elif self.event_name == 'right_entry' and self.state == 'liquid_left_patch_active':
                     if self.reward_size_var != 0:
                         self.right_licks += 1
-                        if self.right_licks >= self.session_info['FR_before_patch_switch']:
-                            self.switch_to_travel_to_remi_right_patch_active()
+                    if self.right_licks >= self.session_info['FR_before_patch_switch']:
+                        self.switch_to_travel_to_remi_right_patch_active()
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
