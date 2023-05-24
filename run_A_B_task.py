@@ -105,6 +105,7 @@ try:
     task.start_trial_logic() #shifts state from standby to Context B
     while i: #change this to a while loop to run through repeatedly, but maintain the original while loop for running the trial
         if time.time() >= t_end:
+            i = False
             print("Times up, finishing up")
             task.end_task()
             break

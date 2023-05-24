@@ -136,6 +136,7 @@ class A_B_task(object):
         self.temp = [self.full_task_names_and_times.append([self.full_task_list_names[i], self.full_task_list[i]]) for i in
                 range(len(self.full_task_list_names))]
 
+        self.full_task_names_and_times.append(['task_end',60])
         logging.info(self.full_task_names_and_times)
         print(f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
 
