@@ -416,10 +416,10 @@ class A_B_task(object):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
 
     def enter_intercontext_interval(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
-        # logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
-        #              str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
-        #              str(self.full_task_names_and_times[self.trial_counter][1]))
+        # logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" +
+                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
+                     str(self.full_task_names_and_times[self.trial_counter][1]))
         self.trial_running = True
 
     def exit_intercontext_interval(self):
