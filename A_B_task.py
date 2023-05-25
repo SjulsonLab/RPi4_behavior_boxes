@@ -289,7 +289,7 @@ class A_B_task(object):
                             self.pump.reward(self.reward_pump2, self.reward_size2)
                             self.prior_reward_time = time.time()
                             self.random_ITI = random.randint(2,4) #2,3,4
-                            logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
+                            logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
                         elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
                             self.box.cueLED1.off()
@@ -297,7 +297,7 @@ class A_B_task(object):
                             self.pump.reward(self.reward_pump1, self.reward_size1)
                             self.prior_reward_time = time.time()
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
-                            logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
+                            logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
             if (time.time() - self.ContextA_time) >= self.current_state_time:
                 self.switch_to_intercontext_interval()
@@ -324,7 +324,7 @@ class A_B_task(object):
                             self.pump.reward(self.reward_pump2, self.reward_size3)
                             self.prior_reward_time = time.time()
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
-                            logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
+                            logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
                         elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
                             self.box.cueLED1.off()
@@ -332,7 +332,7 @@ class A_B_task(object):
                             self.pump.reward(self.reward_pump1, self.reward_size4)
                             self.prior_reward_time = time.time()
                             self.random_ITI = random.randint(2, 4)  # 2,3,4
-                            logging.info(";" + str(time.time()) + ";[transition];current_ITI;" + str(self.random_ITI))
+                            logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
             if (time.time() - self.ContextB_time) >= self.current_state_time:
                 self.switch_to_intercontext_interval()
@@ -363,7 +363,7 @@ class A_B_task(object):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
         self.box.sound1.blink(0.1, 0.1)
-        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
+        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
@@ -391,7 +391,7 @@ class A_B_task(object):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
         self.box.sound1.blink(0.2, 0.1)
-        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration;" +
+        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
         if self.full_task_names_and_times[self.trial_counter][1] == 40:
@@ -417,7 +417,7 @@ class A_B_task(object):
 
     def enter_intercontext_interval(self):
         # logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
-        logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" +
+        logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
         self.trial_running = True
