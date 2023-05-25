@@ -208,7 +208,7 @@ class LickTaskLeftandRight(object):
         self.box.event_list.clear()
 
     def enter_timeout(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_timeout" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];enter_timeout;" + str(self.error_repeat))
         self.trial_running = False
         self.box.sound1.on()
         self.box.event_list.clear()
