@@ -213,7 +213,7 @@ class LickTaskLeftandRight(object):
         self.box.sound1.on()
         self.box.event_list.clear()
     def exit_timeout(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];exit_timeout;" + str(self.error_repeat))
         self.box.sound1.off()
         self.box.event_list.clear()
     def update_plot(self):
