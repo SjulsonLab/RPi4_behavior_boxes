@@ -138,7 +138,7 @@ class A_B_task(object):
 
         self.full_task_names_and_times.append(['task_end',60])
         logging.info(self.full_task_names_and_times)
-        print(f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
+        # print(f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
 
         self.trial_counter = 0
 
@@ -355,13 +355,12 @@ class A_B_task(object):
             self.switch_to_ContextB()
 
     def exit_standby(self):
-        # self.error_repeat = False
-        logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];exit_standby")
         self.box.event_list.clear()
 
     def enter_ContextA(self):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
-        logging.info(";" + str(time.time()) + ";[transition];enter_ContextA;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];enter_ContextA")
         self.box.sound1.blink(0.1, 0.1)
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
@@ -379,7 +378,7 @@ class A_B_task(object):
         self.trial_running = True
 
     def exit_ContextA(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_ContextA;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];exit_ContextA")
         self.box.sound1.off()
         self.box.cueLED1.off()
         self.box.cueLED2.off()
@@ -389,7 +388,7 @@ class A_B_task(object):
 
     def enter_ContextB(self):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
-        logging.info(";" + str(time.time()) + ";[transition];enter_ContextB;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];enter_ContextB")
         self.box.sound1.blink(0.2, 0.1)
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
@@ -407,7 +406,7 @@ class A_B_task(object):
         self.trial_running = True
 
     def exit_ContextB(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_ContextB;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];exit_ContextB")
         self.box.sound1.off()
         self.box.cueLED1.off()
         self.box.cueLED2.off()
@@ -416,14 +415,14 @@ class A_B_task(object):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
 
     def enter_intercontext_interval(self):
-        # logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval;" + str(self.error_repeat))
-        logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval_" +
-                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
-                     str(self.full_task_names_and_times[self.trial_counter][1]))
+        logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval")
+        # logging.info(";" + str(time.time()) + ";[transition];enter_inter_" +
+        #              str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
+        #              str(self.full_task_names_and_times[self.trial_counter][1]))
         self.trial_running = True
 
     def exit_intercontext_interval(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval")
         self.box.event_list.clear()
 
     def update_plot(self):
