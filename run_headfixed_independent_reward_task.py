@@ -118,7 +118,7 @@ try:
     ntrials = session_info['reward']['ntrials']
 
     reward_distribution_list = generate_reward_trajectory(scale, offset, change_point, ntrials)
-
+    first_trial_of_the_session = True
 
     # # you can change various parameters if you want
     # task.machine.states['cue'].timeout = 2
@@ -146,6 +146,11 @@ try:
                   "*reward_side: " + str(task.current_card[0]) + "\n")
             task.trial_number += 1
         else:
+            if not first_trial_of_the_session:
+                print("reward_time_out: " + str(session_info["reward_timeout"]))
+                sleep(session_info["reward_timeout"])
+            else:
+                first_trial_of_the_session = False
             # setup the beginning of a new trial
             task.error_count = 0 # reset the error count if previous trial is correct
             print("Trial " + str(task.trial_number) + " \n")
