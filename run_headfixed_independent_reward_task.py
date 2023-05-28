@@ -132,38 +132,37 @@ try:
     # Set a timer
     t_minute = int(input("Enter the time in minutes: ")) ## wll add in the session info
     t_end = time.time() + 60 * t_minute
-    first_card = True
-    while time.time() < t_end:
-        task.error_count = 0
-        print("Trial " + str(task.trial_number) + " \n")
-        task.trial_number += 1
-        print("*******************************\n")
-        task.current_card = task_information.draw_card(session_info['phase'])
-        task.current_reward = reward_distribution_list[task.trial_number]
-        logging.info(";" + str(time.time()) + ";[condition];" + str(task.current_card))
-        print(" - Current card condition: \n" +
-              "*******************************\n" +
-              "*reward_side: " + str(task.current_card[0]) + "\n")
-        while first_card or (session_info["error_repeat"] and task.error_repeat and task.error_count < session_info[
-            "error_max"]):
-            if time.time() >= t_end:
-                print("Times up, finishing up")
-                break
-            if task.error_repeat:
-                task.error_repeat = False
-                print("punishment_time_out: " + str(session_info["punishment_timeout"]))
-                sleep(session_info["punishment_timeout"])
-                print("*error_repeat trial* \n" +
-                      " - Current card condition: \n" +
-                      "*******************************\n" +
-                      "*reward_side: " + str(task.current_card[0]) + "\n")
-                task.trial_number += 1
-            first_card = False
-            logging.info(";" + str(time.time()) + ";[transition];start_trial()")
-            task.start_trial()  # initiate the time state machine, start_trial() is a trigger
-            while task.trial_running:
-                task.run()  # run command trigger additional functions outside of the state machine
-            print("error_count: " + str(task.error_count))
+    while time.time() < t_end: # time check
+        if task.error_repeat:  # error repeat check
+            task.error_repeat = False
+            print("punishment_time_out: " + str(session_info["punishment_timeout"]))
+            sleep(session_info["punishment_timeout"])
+            print("Trial " + str(task.trial_number) + " \n")
+            task.trial_number += 1
+            print("*******************************\n")
+            print("*error_repeat trial* \n" +
+                  " - Current card condition: \n" +
+                  "*******************************\n" +
+                  "*reward_side: " + str(task.current_card[0]) + "\n")
+            task.trial_number += 1
+        else:
+            # setup the beginning of a new trial
+            task.error_count = 0 # reset the error count if previous trial is correct
+            print("Trial " + str(task.trial_number) + " \n")
+            task.trial_number += 1
+            print("*******************************\n")
+            # acquire new reward contingency and cue association
+            task.current_card = task_information.draw_card(session_info['phase'])
+            task.current_reward = reward_distribution_list[task.trial_number]
+            logging.info(";" + str(time.time()) + ";[condition];" + str(task.current_card))
+            print(" - Current card condition: \n" +
+                  "*******************************\n" +
+                  "*reward_side: " + str(task.current_card[0]) + "\n")
+        logging.info(";" + str(time.time()) + ";[transition];start_trial()")
+        task.start_trial()  # initiate the time state machine, start_trial() is a trigger
+        while task.trial_running:
+            task.run()  # run command trigger additional functions outside of the state machine
+        print("error_count: " + str(task.error_count))
     raise SystemExit
 
 # graceful exit
