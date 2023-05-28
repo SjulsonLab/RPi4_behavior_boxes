@@ -101,7 +101,7 @@ if session_info['phase'] == 1:
 # define timeout during each condition
 session_info['initiation_timeout'] = 120  # s
 session_info['cue_timeout'] = 120
-session_info['reward_timeout'] = 60
+session_info['wait_for_choice'] = 60
 session_info["punishment_timeout"] = 3
 
 session_info['reward'] = {}

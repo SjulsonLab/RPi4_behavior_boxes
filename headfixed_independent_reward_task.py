@@ -95,7 +95,7 @@ class Headfixed2FCTask(object):
             Timeout(name='reward_available',
                     on_enter=["enter_reward_available"],
                     on_exit=["exit_reward_available"],
-                    timeout=self.session_info["reward_timeout"],
+                    timeout=self.session_info["wait_for_choice"],
                     on_timeout=["restart"])
         ]
         self.transitions = [
