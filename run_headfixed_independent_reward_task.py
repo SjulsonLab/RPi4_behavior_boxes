@@ -162,7 +162,8 @@ try:
             logging.info(";" + str(time.time()) + ";[condition];" + str(task.current_card))
             print(" - Current card condition: \n" +
                   "*******************************\n" +
-                  "*reward_side: " + str(task.current_card[0]) + "\n")
+                  "*reward_side: " + str(task.current_card[0]) + "\n" +
+                  "*reward_size: " + str(task.current_reward) + "\n")
         logging.info(";" + str(time.time()) + ";[transition];start_trial()")
         task.start_trial()  # initiate the time state machine, start_trial() is a trigger
         while task.trial_running:
