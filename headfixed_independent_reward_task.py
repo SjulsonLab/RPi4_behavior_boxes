@@ -246,12 +246,13 @@ class HeadfixedIndependentRewardTask(object):
                     if side_mice == side_choice:  # if the animal chose correctly
                         if self.lick_count == 0:  # if this is the first lick
                             self.reward_check = True
+                            self.lick_count += 1
                             self.restart()
-                    elif self.side_mice_buffer:
-                        if self.lick_count == 0:
-                            # self.check_cue('sound2')
-                            self.wrong_choice_error = True
-                            self.restart()
+                elif self.side_mice_buffer:
+                    if self.lick_count == 0:
+                        self.check_cue('sound2')
+                        self.wrong_choice_error = True
+                        self.restart()
 
         # look for keystrokes
         self.box.check_keybd()
@@ -327,7 +328,7 @@ class HeadfixedIndependentRewardTask(object):
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
         if self.wrong_choice_error:
-            self.check_cue('sound2')
+            # self.check_cue('sound2')
             logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
             self.error_repeat = True
             self.error_list.append('wrong_choice_error')
