@@ -240,6 +240,7 @@ class HeadfixedIndependentRewardTask(object):
                     side_choice = self.current_card[1]
                     self.pump_num = self.current_card[2]
                     self.reward_size = self.current_reward[1]
+                print("!!!!!!!!CUE_STATE" + str(cue_state))
                 if side_mice == side_choice:  # if the animal chose correctly
                     self.side_mice_buffer = side_mice
                     if side_mice == side_choice:  # if the animal chose correctly
