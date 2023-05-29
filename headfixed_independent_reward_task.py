@@ -226,10 +226,10 @@ class HeadfixedIndependentRewardTask(object):
                 self.side_mice_buffer = side_mice
                 if cue_state == 'all':
                     side_choice = side_mice
-                    if side_choice == 'left':
+                    if side_choice == 'LED_L':
                         self.pump_num = self.current_card[2][0]
                         self.reward_size = self.current_reward[0]
-                    elif side_choice == 'right':
+                    elif side_choice == 'LED_R':
                         self.pump_num = self.current_card[2][1]
                         self.reward_size = self.current_reward[1]
                 elif cue_state == 'left':
@@ -240,7 +240,7 @@ class HeadfixedIndependentRewardTask(object):
                     side_choice = self.current_card[1]
                     self.pump_num = self.current_card[2]
                     self.reward_size = self.current_reward[1]
-                print("!!!!!!!!CUE_STATE" + str(cue_state))
+                print("!!!!!!!!CUE_STATE: " + str(cue_state))
                 if side_mice == side_choice:  # if the animal chose correctly
                     self.side_mice_buffer = side_mice
                     if side_mice == side_choice:  # if the animal chose correctly
