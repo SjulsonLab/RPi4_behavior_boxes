@@ -333,7 +333,7 @@ class HeadfixedIndependentRewardTask(object):
             self.error_list.append('wrong_choice_error')
             self.wrong_choice_error = False
         elif self.reward_check:
-            print("reward amount: " + str(self.pump_num))
+            print("reward amount: " + str(self.reward_size))
             self.pump.reward(self.pump_num, self.reward_size)
             self.total_reward += 1
             self.correct_trial_in_block += 1
