@@ -238,7 +238,7 @@ class HeadfixedIndependentRewardTask(object):
                     self.reward_size = self.current_reward
                 if side_mice == side_choice:  # if the animal chose correctly
                     self.side_mice_buffer = side_mice
-                    if self.side_mice == self.side_choice:  # if the animal chose correctly
+                    if self.side_mice == side_choice:  # if the animal chose correctly
                         if self.lick_count == 0:  # if this is the first lick
                             self.reward_check = True
                             self.restart()
