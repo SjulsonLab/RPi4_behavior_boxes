@@ -232,10 +232,14 @@ class HeadfixedIndependentRewardTask(object):
                     elif side_choice == 'right':
                         self.pump_num = self.current_card[2][1]
                         self.reward_size = self.current_reward[1]
-                else:
+                elif cue_state == 'left':
                     side_choice = self.current_card[1]
                     self.pump_num = self.current_card[2]
-                    self.reward_size = self.current_reward
+                    self.reward_size = self.current_reward[0]
+                elif cue_state == 'right':
+                    side_choice = self.current_card[1]
+                    self.pump_num = self.current_card[2]
+                    self.reward_size = self.current_reward[1]
                 if side_mice == side_choice:  # if the animal chose correctly
                     self.side_mice_buffer = side_mice
                     if side_mice == side_choice:  # if the animal chose correctly
