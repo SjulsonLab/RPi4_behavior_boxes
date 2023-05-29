@@ -46,7 +46,7 @@ class TimedStateMachine(Machine):
     pass
 
 
-class Headfixed2FCTask(object):
+class HeadfixedIndependentRewardTask(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
