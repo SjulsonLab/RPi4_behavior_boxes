@@ -120,7 +120,7 @@ class HeadfixedIndependentRewardTask(object):
         self.early_lick_error = False
         self.initiate_error = False
         self.cue_state_error = False
-        self.wrong_choice_error = False
+        self.wrong_choice_error = True
         self.multiple_choice_error = False
         self.error_repeat = False
         self.reward_time_start = None  # for reward_available state time keeping purpose
@@ -245,12 +245,13 @@ class HeadfixedIndependentRewardTask(object):
                     self.side_mice_buffer = side_mice
                     if side_mice == side_choice:  # if the animal chose correctly
                         if self.lick_count == 0:  # if this is the first lick
+                            self.wrong_choice_error = False
                             self.reward_check = True
                             self.lick_count += 1
                             self.restart()
                 elif self.side_mice_buffer:
                     if self.lick_count == 0:
-                        self.check_cue('sound2')
+                        # self.check_cue('sound2')
                         self.wrong_choice_error = True
                         self.restart()
 
@@ -328,17 +329,18 @@ class HeadfixedIndependentRewardTask(object):
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
         if self.wrong_choice_error:
-            # self.check_cue('sound2')
+            self.check_cue('sound2')
             logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
             self.error_repeat = True
             self.error_list.append('wrong_choice_error')
-            self.wrong_choice_error = False
+            # self.wrong_choice_error = False
         elif self.reward_check:
             print("reward amount: " + str(self.reward_size))
             self.pump.reward(self.pump_num, self.reward_size)
             self.total_reward += 1
             self.correct_trial_in_block += 1
             self.reward_time_start = time.time()
+            self.wrong_choice_error = True
             print("Reward time start" + str(self.reward_time_start))
         elif self.lick_count == 0:
             logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
