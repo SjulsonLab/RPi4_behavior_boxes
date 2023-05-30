@@ -229,9 +229,11 @@ class HeadfixedIndependentRewardTask(object):
                     if side_choice == 'LED_L':
                         self.pump_num = self.current_card[2][0]
                         self.reward_size = self.current_reward[0]
+                        print("self.current_reward[0]: " + str(self.current_reward[0]))
                     elif side_choice == 'LED_R':
                         self.pump_num = self.current_card[2][1]
                         self.reward_size = self.current_reward[1]
+                        print("self.current_reward[0]: " + str(self.current_reward[1]))
                 elif cue_state == 'LED_L':
                     side_choice = self.current_card[1]
                     self.pump_num = self.current_card[2]
