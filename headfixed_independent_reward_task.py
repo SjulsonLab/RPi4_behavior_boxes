@@ -253,6 +253,7 @@ class HeadfixedIndependentRewardTask(object):
                     if self.lick_count == 0:
                         # self.check_cue('sound2')
                         self.wrong_choice_error = True
+                        self.lick_count += 1
                         self.restart()
 
         # look for keystrokes
@@ -260,6 +261,10 @@ class HeadfixedIndependentRewardTask(object):
 
     def enter_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
+        if self.wrong_choice_error:
+            self.error_list.append("no_choice_error")
+            self.check_cue('sound2')
+            self.wrong_choice_error = False
         self.update_plot_choice()
         # self.update_plot_error()
         self.trial_running = False
@@ -267,14 +272,16 @@ class HeadfixedIndependentRewardTask(object):
         if self.early_lick_error:
             self.error_list.append("early_lick_error")
             self.early_lick_error = False
-        self.lick_count = 0
-        self.side_mice_buffer = None
+        # self.lick_count = 0
+        # self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
         logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number) + ";" + str(self.error_repeat))
 
     def exit_standby(self):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
+        self.lick_count = 0
+        self.side_mice_buffer = None
         self.box.event_list.clear()
         pass
 
@@ -328,32 +335,30 @@ class HeadfixedIndependentRewardTask(object):
 
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
-        if self.wrong_choice_error:
+        if self.wrong_choice_error and self.lick_count == 0:
+            logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
+            self.check_cue('sound2')
+            self.error_repeat = True
+            self.error_list.append('no_choice_error')
+        elif self.reward_check:
+            print("reward amount: " + str(self.reward_size))
+            self.pump.reward(self.pump_num, self.reward_size)
+            logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
+            self.error_list.append('correct_trial')
+            self.total_reward += 1
+            self.correct_trial_in_block += 1
+            self.reward_time_start = time.time()
+            print("Reward time start" + str(self.reward_time_start))
+        elif self.wrong_choice_error and self.lick_count > 0:
             self.check_cue('sound2')
             logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
             self.error_repeat = True
             self.error_list.append('wrong_choice_error')
-            # self.wrong_choice_error = False
-        elif self.reward_check:
-            print("reward amount: " + str(self.reward_size))
-            self.pump.reward(self.pump_num, self.reward_size)
-            self.total_reward += 1
-            self.correct_trial_in_block += 1
-            self.reward_time_start = time.time()
-            self.wrong_choice_error = True
-            print("Reward time start" + str(self.reward_time_start))
-        elif self.lick_count == 0:
-            logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
-            self.error_repeat = True
-            self.error_list.append('no_choice_error')
-        else:
-            logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
-            self.error_list.append('correct_trial')
-        # self.reward_times_up = True
-        self.lick_count = 0
+        # self.lick_count = 0
         self.reward_time_start = None
         self.pump_num = None
         self.reward_size = None
+        self.wrong_choice_error = False
 
     # def exit_reward_available(self):
     #     logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
