@@ -1,11 +1,11 @@
 # python3: headfixed_task.py
 """
-author: tian qiu
-date: 2022-07-29
-name: headfixed_task.py
-goal: model_based reinforcement learning behavioral training task structure
+author: tian qiu & Soyoun Kim
+date: 2023-02-16
+name: headfixed2FC_task.py
+goal: model_free reinforcement learning behavioral training task structure
 description:
-    an updated test version of soyoun_task.py
+    an updated test version of headfixed_task.py
 
 """
 import importlib
@@ -46,7 +46,7 @@ class TimedStateMachine(Machine):
     pass
 
 
-class HeadfixedTask(object):
+class Headfixed2FCTask(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
@@ -99,7 +99,7 @@ class HeadfixedTask(object):
                     on_timeout=["restart"])
         ]
         self.transitions = [
-            ['start_trial', 'standby', 'initiate'],  # format: ['trigger', 'origin', 'destination']
+            ['start_trial', 'standby', 'initiate'],
             ['start_cue', 'initiate', 'cue_state'],
             ['evaluate_reward', 'cue_state', 'reward_available'],
             ['restart', ['initiate', 'cue_state', 'reward_available'], 'standby']
@@ -127,6 +127,8 @@ class HeadfixedTask(object):
         self.reward_time = 10 # sec. could be incorporate into the session_info; available time for reward
         self.reward_times_up = False
 
+        self.block_count = 0
+        self.blocknumber = self.session_info["block_number"]
         self.current_card = None
         self.left_poke_count = 0
         self.right_poke_count = 0
@@ -141,6 +143,7 @@ class HeadfixedTask(object):
         self.treadmill = self.box.treadmill
 
         self.distance_initiation = self.session_info['treadmill_setup']['distance_initiation']
+        self.distance_cue = self.session_info['treadmill_setup']['distance_cue']
         self.distance_buffer = None
         self.distance_diff = 0
 
@@ -156,7 +159,7 @@ class HeadfixedTask(object):
 
         # session_statistics
         self.total_reward = 0
-
+        self.correct_trial_in_block = 0
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
@@ -190,9 +193,7 @@ class HeadfixedTask(object):
             # if self.LED_blink:
             #     self.box.cueLED1.blink(0.2, 0.1)
             self.distance_diff = self.get_distance() - self.distance_buffer
-            distance_condition = self.current_card[1]
-            distance_required = self.session_info['treadmill_setup'][distance_condition]
-            if self.distance_diff >= distance_required:
+            if self.distance_diff >= self.distance_cue:
                 self.cue_state_error = False
                 self.evaluate_reward()
             else:
@@ -204,7 +205,6 @@ class HeadfixedTask(object):
                         self.restart()
             # first detect the lick signal:
             cue_state = self.current_card[0]
-            # side_choice = self.current_card[2]
             side_mice = None
             if self.event_name == "left_entry":
                 side_mice = 'left'
@@ -218,36 +218,37 @@ class HeadfixedTask(object):
                 self.timeline_right_poke.append(time.time())
             if side_mice:
                 self.side_mice_buffer = side_mice
-                if cue_state == 'sound+LED':
+                if cue_state == 'all':
                     side_choice = side_mice
                     if side_choice == 'left':
-                        reward_size = self.current_card[3][0]
-                        pump_num = self.current_card[4][0]
+                        left_reward = self.session_info['reward_size'][self.current_card[2][0]]
+                        reward_size = random.uniform(left_reward - self.session_info['reward_deviation'],
+                                                     left_reward + self.session_info['reward_deviation'])
+                        pump_num = self.current_card[3][0]
                     elif side_choice == 'right':
-                        reward_size = self.current_card[3][1]
-                        pump_num = self.current_card[4][1]
+                        right_reward = self.session_info['reward_size'][self.current_card[2][1]]
+                        reward_size = random.uniform(right_reward - self.session_info['reward_deviation'],
+                                                     right_reward + self.session_info['reward_deviation'])
+                        pump_num = self.current_card[3][1]
                 else:
-                    side_choice = self.current_card[2]
-                    reward_size = self.current_card[3]
-                    pump_num = self.current_card[4]
+                    side_choice = self.current_card[1]
+                    forced_reward = self.session_info['reward_size'][self.current_card[2]]
+                    reward_size = random.uniform(forced_reward - self.session_info['reward_deviation'],
+                                                 forced_reward + self.session_info['reward_deviation'])
+                    pump_num = self.current_card[3]
                 if side_mice == side_choice:  # if the animal chose correctly
                     print("Number of lick detected: " + str(self.lick_count))
                     if self.lick_count == 0:  # if this is the first lick
-                        # self.side_mice_buffer = side_mice
-                        self.pump.reward(pump_num, self.session_info["reward_size"][reward_size])
+                        self.pump.reward(pump_num, reward_size)
                         self.total_reward += 1
+                        self.correct_trial_in_block += 1
                         self.reward_time_start = time.time()
                         print("Reward time start" + str(self.reward_time_start))
                     self.lick_count += 1
-
                 elif self.side_mice_buffer:
-                    if self.lick_count == 0:  # multiple choice error
-                        # self.reward_error = True
+                    if self.lick_count == 0:
+                        self.check_cue('sound2')
                         self.wrong_choice_error = True
-                        self.restart()
-                    else:  # wrong side - wrong_choice error
-                        # self.reward_error = True
-                        self.multiple_choice_error = True
                         self.restart()
 
         # look for keystrokes
@@ -277,6 +278,7 @@ class HeadfixedTask(object):
         # print("!!!!!!!!!!!event name is " + self.event_name) # for debugging purposes
         # check error_repeat
         logging.info(";" + str(time.time()) + ";[transition];enter_initiate;" + str(self.error_repeat))
+        self.check_cue('sound1')
         self.trial_running = True
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.get_distance()
@@ -287,6 +289,7 @@ class HeadfixedTask(object):
         # check the flag to see whether to shuffle or keep the original card
         logging.info(";" + str(time.time()) + ";[transition];exit_initiate;" + str(self.error_repeat))
         print("EVENT NAME: " + str(self.box.event_list))
+        self.cue_off('sound1')
         if self.initiate_error:
             self.error_list.append('initiate_error')
             self.error_repeat = True
@@ -306,6 +309,7 @@ class HeadfixedTask(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_cue_state;" + str(self.error_repeat))
         self.cue_off(self.current_card[0])
         if self.cue_state_error:
+            self.check_cue("sound2")
             self.error_list.append('cue_state_error')
             self.error_repeat = True
             logging.info(";" + str(time.time()) + ";[error];cue_state_error;" + str(self.error_repeat))
@@ -327,11 +331,6 @@ class HeadfixedTask(object):
             self.error_repeat = True
             self.error_list.append('wrong_choice_error')
             self.wrong_choice_error = False
-        elif self.multiple_choice_error:
-            logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
-            self.error_repeat = False
-            self.error_list.append('multiple_choice_error')
-            self.multiple_choice_error = False
         elif self.lick_count == 0:
             logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
             self.error_repeat = True
@@ -343,31 +342,40 @@ class HeadfixedTask(object):
         self.reward_time_start = None
 
     def check_cue(self, cue):
-        if cue == 'sound':
+        if cue == 'sound1':
             logging.info(";" + str(time.time()) + ";[cue];cue_sound1_on;" + str(self.error_repeat))
             self.box.sound1.on()
-        elif cue == 'LED':
-            self.box.cueLED1.blink(0.2, 0.1)
-            logging.info(";" + str(time.time()) + ";[cue];cueLED1_on;" + str(self.error_repeat))
-        else:
+        if cue == 'sound2':
+            logging.info(";" + str(time.time()) + ";[cue];cue_sound2_on;" + str(self.error_repeat))
+            self.box.sound2.blink(1, 0.1, 1)
+        elif cue == 'LED_L':
+            self.box.cueLED1.on()
+            logging.info(";" + str(time.time()) + ";[cue];cueLED_L_on;" + str(self.error_repeat))
+        elif cue == 'LED_R':
             # self.LED_blink = True
-            self.box.cueLED1.blink(0.2, 0.1)
-            self.box.sound1.on()
-            logging.info(";" + str(time.time()) + ";[cue];LED_sound_on; " + str(self.error_repeat))
+            self.box.cueLED2.on()
+            logging.info(";" + str(time.time()) + ";[cue];cueLED_R_on;" + str(self.error_repeat))
+        elif cue =='all':
+            self.box.cueLED1.on()
+            self.box.cueLED2.on()
+            logging.info(";" + str(time.time()) + ";[cue];LED_L+R_on; " + str(self.error_repeat))
 
     def cue_off(self, cue):
-        if cue == 'sound':
+        if cue == 'all':
+            self.box.cueLED1.off()
+            self.box.cueLED2.off()
+        elif cue == 'sound1':
             self.box.sound1.off()
             logging.info(";" + str(time.time()) + ";[cue];cue_sound1_off;" + str(self.error_repeat))
-            pass
-        elif cue == 'LED':
+        elif cue == 'sound2':
+            self.box.sound2.off()
+            logging.info(";" + str(time.time()) + ";[cue];cue_sound2_off;" + str(self.error_repeat))
+        elif cue == 'LED_L':
             self.box.cueLED1.off()
-            self.LED_blink = False
             logging.info(";" + str(time.time()) + ";[cue];cueLED1_off;" + str(self.error_repeat))
-        else:
-            self.box.cueLED1.off()
-            self.box.sound1.off()
-            logging.info(";" + str(time.time()) + ";[cue];LED_sound_off;" + str(self.error_repeat))
+        elif cue == 'LED_R':
+            self.box.cueLED2.off()
+            logging.info(";" + str(time.time()) + ";[cue];cueLED2_off;" + str(self.error_repeat))
 
     def get_distance(self):
         try:
@@ -389,8 +397,6 @@ class HeadfixedTask(object):
         ticks = range(len(counts))
         fig, ax = plt.subplots(1, 1, )
         ax.bar(ticks, counts, align='center', tick_label=labels)
-        # plt.xticks(ticks, labels)
-        # plt.title(session_name)
         ax = plt.gca()
         ax.set_xticks(ticks, labels)
         ax.set_xticklabels(labels=labels, rotation=70)

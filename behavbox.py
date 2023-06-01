@@ -20,6 +20,7 @@ from collections import deque
 import pygame
 import pygame.display
 
+import numpy as np
 import matplotlib
 matplotlib.use('module://pygame_matplotlib.backend_pygame')
 import matplotlib.pyplot as plt
@@ -103,35 +104,43 @@ class BehavBox(object):
         # there is a DIO6, but that is the same pin as the camera strobe
 
         ###############################################################################################
-        # IR detection - for nosepoke
+        # IR detection - for nosepoke detection
         ###############################################################################################
-        self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
-        self.IR_rx2 = Button(6, None, True)
-        self.IR_rx3 = Button(12, None, True)
-        self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
-        self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
+        self.lick1 = Button(26, None, True)
+        self.lick2 = Button(27, None, True)
+        self.lick3 = Button(15, None, True)
+        self.reserved_rx1 = Button(13, None, True)  # for mitch
+        self.reserved_rx2 = Button(16, None, True)  # for mitch
+        #
+        # # link nosepoke event detections to callbacks
+        self.lick1.when_pressed = self.left_exit
+        self.lick2.when_pressed = self.right_exit
+        self.lick3.when_pressed = self.center_exit
 
-        # link nosepoke event detections to callbacks
-        self.IR_rx1.when_pressed = self.left_IR_exit
-        self.IR_rx2.when_pressed = self.center_IR_exit
-        self.IR_rx3.when_pressed = self.right_IR_exit
-        self.IR_rx1.when_released = self.left_IR_entry
-        self.IR_rx2.when_released = self.center_IR_entry
-        self.IR_rx3.when_released = self.right_IR_entry
+        self.lick1.when_released = self.left_entry
+        self.lick2.when_released = self.right_entry
+        self.lick3.when_released = self.center_entry
+
+        self.reserved_rx1.when_pressed = self.reserved_rx1_pressed
+        self.reserved_rx2.when_pressed = self.reserved_rx2_pressed
+        self.reserved_rx1.when_released = self.reserved_rx1_released
+        self.reserved_rx2.when_released = self.reserved_rx2_released
 
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
         # pins originally reserved for the lick detection is now used for audio board TTL input signal
+        # NEW EDIT: switch sound to lick
+        """
         self.sound1 = LED(26)  # originally lick1
         self.sound2 = LED(27)  # originally lick2
         self.sound3 = LED(15)  # originally lick3
-
-        self.sound4 = LED(23)  # originally DIO1
-        self.sound5 = LED(24)  # originally DIO2
+        """
+        self.sound1 = LED(23) # branch new_lick modification
+        self.sound2 = LED(24) # branch new_lick modification
 
         ###############################################################################################
-        # pump: trigger signal output to a driver board induce the syringe pump to deliver reward
+        # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
         ###############################################################################################
         self.pump = Pump()
 
@@ -148,7 +157,7 @@ class BehavBox(object):
             print(str(error_message))
 
         ###############################################################################################
-        # visual stimuli
+        # visual stimuli initiation
         ###############################################################################################
         if self.session_info["visual_stimulus"]:
             try:
@@ -159,7 +168,7 @@ class BehavBox(object):
         else:
             pass
         ###############################################################################################
-        # TODO: ADC(Adafruit_ADS1x15)
+        # ADC(Adafruit_ADS1x15) setup
         ###############################################################################################
         try:
             self.ADC = ADS1x15.ADS1015
@@ -168,7 +177,7 @@ class BehavBox(object):
             print(str(error_message))
 
         # ###############################################################################################
-        # # TODO: treadmill
+        # # treadmill setup
         # ###############################################################################################
         if session_info['treadmill'] == True:
             try:
@@ -181,7 +190,7 @@ class BehavBox(object):
             self.treadmill = False
             print("No treadmill I2C connection detected!")
         ###############################################################################################
-        # Keystroke handler
+        # pygame window setup and keystroke handler
         ###############################################################################################
         try:
             pygame.init()
@@ -230,7 +239,6 @@ class BehavBox(object):
         if figure:
             FramePerSec = pygame.time.Clock()
             figure.canvas.draw()
-            # figure.canvas.draw()
             self.main_display.blit(figure, (0, 0))
             pygame.display.update()
             FramePerSec.tick(FPS)
@@ -251,37 +259,47 @@ class BehavBox(object):
                     if event.key == pygame.K_ESCAPE:
                         self.keyboard_active = False
                     elif event.key == pygame.K_1:
-                        self.left_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[action];key_pressed_left_IR_entry()")
+                        self.left_entry()
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_left_entry()")
                     elif event.key == pygame.K_2:
-                        self.center_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[action];key_pressed_center_IR_entry()")
+                        self.center_entry()
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_center_entry()")
                     elif event.key == pygame.K_3:
-                        self.right_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[action];key_pressed_right_IR_entry()")
+                        self.right_entry()
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_right_entry()")
+                    elif event.key == pygame.K_4:
+                        self.reserved_rx1_pressed()
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx1_pressed()")
+                    elif event.key == pygame.K_5:
+                        self.reserved_rx2_pressed()
+                        logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx2_pressed()")
                     elif event.key == pygame.K_q:
                         # print("Q down: syringe pump 1 moves")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump1")
-                        self.pump.reward("1", 10)
+                        self.pump.reward("1", 5)
                     elif event.key == pygame.K_w:
                         # print("W down: syringe pump 2 moves")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump2")
-                        self.pump.reward("2", 10)
+                        self.pump.reward("2", 5)
                     elif event.key == pygame.K_e:
                         # print("E down: syringe pump 3 moves")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3")
-                        self.pump.reward("3", 10)
+                        self.pump.reward("3", 5)
                     elif event.key == pygame.K_r:
                         # print("R down: syringe pump 4 moves")
                         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
-                        self.pump.reward("4", 10)
+                        self.pump.reward("4", 5)
+                    elif event.key == pygame.K_t:
+                        # print("T down: vacuum on")
+                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
+                        self.pump.reward("vacuum", 1)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:
-                        self.left_IR_exit()
+                        self.left_exit()
                     elif event.key == pygame.K_2:
-                        self.center_IR_exit()
+                        self.center_exit()
                     elif event.key == pygame.K_3:
-                        self.right_IR_exit()
+                        self.right_exit()
 
     ###############################################################################################
     # methods to start and stop video
@@ -407,35 +425,57 @@ class BehavBox(object):
     ###############################################################################################
     # callbacks
     ###############################################################################################
-    def left_IR_entry(self):
-        self.event_list.append("left_IR_entry")
-        self.interact_list.append((time.time(), "left_IR_entry"))
-        logging.info(";" + str(time.time()) + ";[action];left_IR_entry")
+    def left_entry(self):
+        self.event_list.append("left_entry")
+        self.interact_list.append((time.time(), "left_entry"))
+        logging.info(";" + str(time.time()) + ";[action];left_entry")
 
-    def center_IR_entry(self):
-        self.event_list.append("center_IR_entry")
-        self.interact_list.append((time.time(), "center_IR_entry"))
-        logging.info(";" + str(time.time()) + ";[action];center_IR_entry")
+    def center_entry(self):
+        self.event_list.append("center_entry")
+        self.interact_list.append((time.time(), "center_entry"))
+        logging.info(";" + str(time.time()) + ";[action];center_entry")
 
-    def right_IR_entry(self):
-        self.event_list.append("right_IR_entry")
-        self.interact_list.append((time.time(), "right_IR_entry"))
-        logging.info(";" + str(time.time()) + ";[action];right_IR_entry")
+    def right_entry(self):
+        self.event_list.append("right_entry")
+        self.interact_list.append((time.time(), "right_entry"))
+        logging.info(";" + str(time.time()) + ";[action];right_entry")
 
-    def left_IR_exit(self):
-        self.event_list.append("left_IR_exit")
-        self.interact_list.append((time.time(), "left_IR_exit"))
-        logging.info(";" + str(time.time()) + ";[action];left_IR_exit")
+    def left_exit(self):
+        self.event_list.append("left_exit")
+        self.interact_list.append((time.time(), "left_exit"))
+        logging.info(";" + str(time.time()) + ";[action];left_exit")
 
-    def center_IR_exit(self):
-        self.event_list.append("center_IR_exit")
-        self.interact_list.append((time.time(), "center_IR_exit"))
-        logging.info(";" + str(time.time()) + ";[action];center_IR_exit")
+    def center_exit(self):
+        self.event_list.append("center_exit")
+        self.interact_list.append((time.time(), "center_exit"))
+        logging.info(";" + str(time.time()) + ";[action];center_exit")
 
-    def right_IR_exit(self):
-        self.event_list.append("right_IR_exit")
-        self.interact_list.append((time.time(), "right_IR_exit"))
-        logging.info(";" + str(time.time()) + ";[action];right_IR_exit")
+    def right_exit(self):
+        self.event_list.append("right_exit")
+        self.interact_list.append((time.time(), "right_exit"))
+        logging.info(";" + str(time.time()) + ";[action];right_exit")
+
+    def reserved_rx1_pressed(self):
+        self.event_list.append("reserved_rx1_pressed")
+        self.interact_list.append((time.time(), "reserved_rx1_pressed"))
+        logging.info(";" + str(time.time()) + ";[action];reserved_rx1_pressed")
+
+    def reserved_rx2_pressed(self):
+        self.event_list.append("reserved_rx2_pressed")
+        self.interact_list.append((time.time(), "reserved_rx2_pressed"))
+        logging.info(";" + str(time.time()) + ";[action];reserved_rx2_pressed")
+
+    def reserved_rx1_released(self):
+        self.event_list.append("reserved_rx1_released")
+        self.interact_list.append((time.time(), "reserved_rx1_released"))
+        logging.info(";" + str(time.time()) + ";[action];reserved_rx1_released")
+
+    def reserved_rx2_released(self):
+        self.event_list.append("reserved_rx2_released")
+        self.interact_list.append((time.time(), "reserved_rx2_released"))
+        logging.info(";" + str(time.time()) + ";[action];reserved_rx2_released")
+
+
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the
@@ -456,46 +496,50 @@ class Pump(object):
         self.pump2 = LED(20)
         self.pump3 = LED(21)
         self.pump4 = LED(7)
-        self.pump5 = LED(8)
-        self.pump_en = LED(25)
+        self.pump_air = LED(8)
+        self.pump_vacuum = LED(25)
         self.reward_list = [] # a list of tuple (pump_x, reward_amount) with information of reward history for data
         # visualization
 
     def reward(self, which_pump, reward_size):
-        print("TODO: calibrate and test syringe pump code in BehavBox.reward()")
-        diameter_mm = 11.7  # for 5 mL syringe
-        # diameter_mm = 14.5   # for 10 mL syringe
-        volPerRevolution_uL = (
-                0.8 * (diameter_mm / 2) * (diameter_mm / 2) * 3.1415926535898
-        )  # thread is 0.8 mm per turn
-        howManyRevolutions = reward_size / volPerRevolution_uL
-        # // determine total steps needed to reach desired revolutions, @200 steps/revolution
-        # // use *4 as a multiplier because it's operating at 1/4 microstep mode.
-        # // round to nearest int
-        totalSteps = round(200 * howManyRevolutions * 4)
-        reward_duration = 0.01  # delivery reward over 300 ms
-        cycle_length = (
-                reward_duration / totalSteps
-        )  # need to know what the minimum value can be
-        # self.pump[which_pump].blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-        # logging.info(";" + str(time.time()) + ", reward_side_" + which_pump + "," + str(reward_size))
+        # coefficient_fit = np.array([8.78674242e-04, 7.33609848e-02, 1.47535000e+00]) # further calibration is needed
+        # coefficient_1 = coefficient_fit[-1]
+        # coefficient_2 = coefficient_fit[-2]
+        # coefficient_3 = coefficient_fit[-3] - reward_size
+        tube_fit = 0.13 # ml/s
+        # discriminant = coefficient_2 ** 2 - 4 * coefficient_1 * coefficient_3
+        # # find solution, i.e. duration of pulse, by calculating the solution for the quadratic equation
+        # solution = np.array([(-coefficient_2 + np.sqrt(discriminant)) / (2 * coefficient_1),
+        #                      (-coefficient_2 - np.sqrt(discriminant)) / (2 * coefficient_1)])
+
+        # With two solution, get the positive value
+        # solution_positive = solution[(solution > 0).nonzero()[0][0]]
+        # round to the second decimal
+        # duration = round(solution_positive, 3) * (10**-3)
+
+        duration = round((reward_size/1000)/tube_fit, 3)
+        duration_vacuum = 0.5
+
         if which_pump == "1":
-            self.pump1.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.pump1.blink(duration, 0.1, 1)
             self.reward_list.append(("pump1_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward_" + str(reward_size))
         elif which_pump == "2":
-            self.pump2.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.pump2.blink(duration, 0.1, 1)
             self.reward_list.append(("pump2_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump2_reward_" + str(reward_size))
         elif which_pump == "3":
-            self.pump3.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.pump3.blink(duration, 0.1, 1)
             self.reward_list.append(("pump3_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump3_reward_" + str(reward_size))
         elif which_pump == "4":
-            self.pump4.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
+            self.pump4.blink(duration, 0.1, 1)
             self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
-        elif which_pump == "5":
-            self.pump5.blink(cycle_length * 0.1, cycle_length * 0.9, totalSteps)
-            self.reward_list.append(("pump5_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump5_reward_" + str(reward_size))
+        elif which_pump == "air_puff":
+            self.pump_air.blink(duration, 0.1, 1)
+            self.reward_list.append(("air_puff", reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
+        elif which_pump == "vacuum":
+            self.pump_vacuum.blink(duration_vacuum, 0.1, 1)
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum")
