@@ -6,18 +6,26 @@ the reward that is delivered to the animal separate from the choices
 @author: eliezyer
 """
 
-
+import importlib
 from transitions import Machine
 from transitions import State
 from transitions.extensions.states import add_state_features, Timeout
 import pysistence, collections
 from icecream import ic
 import logging
+import time
 from datetime import datetime
 import os
 from gpiozero import PWMLED, LED, Button
 from colorama import Fore, Style
 import logging.config
+from time import sleep
+import random
+import threading
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.figure as fg
+import numpy as np
 
 logging.config.dictConfig(
     {
@@ -71,26 +79,23 @@ class EFOTask(object):
         self.states = [
             State(name="standby", on_enter=["enter_standby"], on_exit=["exit_standby"]),
             Timeout(
-                name="trial_available",
-                on_enter=["enter_trial_available"],
-                on_exit=["exit_trial_available"],
+                name="initiate", #this is the trial available, init poke is lit
+                on_enter=["enter_initiate"],
+                on_exit=["exit_initiate"],
+                timeout=self.session_info["initiate_timeout"],
+                on_timeout=["restart"],
             ),
             Timeout(
-                name="start_cue",
+                name="start_cue", #start cue is which poke the animal has to go (or free choice one), either left or right poke
                 on_enter=["enter_start_cue"],
                 on_exit=["exit_start_cue"],
-                timeout=self.session_info["timeout_length"],
-                on_timeout=["timeup"],
+                timeout=self.session_info["cue_timeout"],
+                on_timeout=["restart"],
             ),
             Timeout(
-                name="choice_available",
-                on_enter=["enter_choice_available"],
-                on_exit=["exit_choice_available"],
-            ),
-            Timeout(
-                name="reward_available",
-                on_enter=["enter_reward_available"],
-                on_exit=["exit_reward_available"],
+                name="reward", #reward is available at the back poke, which is lit
+                on_enter=["enter_reward"],
+                on_exit=["exit_reward"],
             ),
         ]
         # can set later with task.machine.states['cue'].timeout etc.
@@ -100,11 +105,12 @@ class EFOTask(object):
         # format is: [event_name, source_state, destination_state]
         ########################################################################
         self.transitions = [
-            ["trial_available", "standby", "start_cue"],
-            ["choice_available", "start_cue", "reward_available"],
-            ["reward_available", "choice_available", "standby"],
+            ["trial_available", "standby", "initiate"],
+            ["choice_available", "initiate", "start_cue"],
+            ["reward_available", "start_cue", "reward"],
+            ["restart", ["initiate", "cue_state", "reward_available"], "standby"]
         ]
-        # EFO: STOPPED HERE ON 10/11/2022
+        
         ########################################################################
         # initialize state machine and behavior box
         ########################################################################
@@ -119,12 +125,50 @@ class EFOTask(object):
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
         self.pump = behavbox.Pump()
+        
+        # trial statistics
+        self.trial_number = 0
+        self.error_count = 0
+        self.error_list = []
+        self.early_lick_error = False
+        self.initiate_error = False
+        self.cue_state_error = False
+        self.wrong_choice_error = False
+        self.multiple_choice_error = False
+        self.error_repeat = False
+        self.reward_time_start = None # for reward_available state time keeping purpose
+        self.reward_time = 10 # sec. could be incorporate into the session_info; available time for reward
+        self.reward_times_up = False
+        self.total_reward = 0
+        self.correct_trial_in_block = 0
+
+        self.block_count = 0
+        self.blocknumber = self.session_info['block_number']
+        self.current_card = None
+        self.left_poke_count = 0
+        self.right_poke_count = 0
+        self.timeline_left_poke = []
+        self.left_poke_count_list = []
+        self.timeline_right_poke = []
+        self.right_poke_count_list = []
+        self.event_name = ""
+        # initialize behavior box
+        self.box = behavbox.BehavBox(self.session_info)
+        self.pump = self.box.pump
+        self.treadmill = self.box.treadmill
+
+        self.distance_initiation = self.session_info['treadmill_setup']['distance_initiation']
+        self.distance_cue = self.session_info['treadmill_setup']['distance_cue']
+        self.distance_buffer = None
+        self.distance_diff = 0
 
     ########################################################################
     # functions called when state transitions occur
     ########################################################################
+    
+    
     def enter_standby(self):
-        print("entering standby")
+        print('entering standby')
         # self.box.sound2.blink(0.5, 0.1, 1)
         self.trial_running = False
 
@@ -184,6 +228,97 @@ class EFOTask(object):
         elif self.state == "cue":
             # self.box.sound3.blink(0.5, 0.1, 1)
             pass
+
+        # look for keystrokes
+        self.box.check_keybd()
+    
+    def run(self):
+        if self.box.event_list:
+            self.event_name = self.box.event_list.popleft()
+        else:
+            self.event_name = ""
+        # there can only be lick during the reward available state
+        # if lick detected prior to reward available state
+        # the trial will restart and transition to standby
+        # if self.event_name == "left_entry" or self.event_name == "right_entry":
+        #     # print("EVENT NAME !!!!!! " + self.event_name)
+        #     if self.state == "reward_available" or self.state == "standby" or self.state == "initiate":
+        #         pass
+        #     else:
+        #         # print("beeeeeeep") # debug signal
+        #         self.early_lick_error = True
+        #         self.error_repeat = True
+        #         self.restart()
+        if self.state == "standby":
+            pass
+        elif self.state == "initiate":
+            self.distance_diff = self.get_distance() - self.distance_buffer
+            if self.distance_diff >= self.distance_initiation:
+                self.initiate_error = False
+                self.start_cue()
+            else:
+                self.initiate_error = True
+        elif self.state == "cue_state":
+            # if self.LED_blink:
+            #     self.box.cueLED1.blink(0.2, 0.1)
+            self.distance_diff = self.get_distance() - self.distance_buffer
+            if self.distance_diff >= self.distance_cue:
+                self.cue_state_error = False
+                self.evaluate_reward()
+            else:
+                self.cue_state_error = True
+        elif self.state == "reward_available":
+            if not self.reward_times_up:
+                if self.reward_time_start:
+                    if time.time() >= self.reward_time_start + self.reward_time:
+                        self.restart()
+            # first detect the lick signal:
+            cue_state = self.current_card[0]
+            side_mice = None
+            if self.event_name == "left_entry":
+                side_mice = 'left'
+                self.left_poke_count += 1
+                self.left_poke_count_list.append(self.left_poke_count)
+                self.timeline_left_poke.append(time.time())
+            elif self.event_name == "right_entry":
+                side_mice = 'right'
+                self.right_poke_count += 1
+                self.right_poke_count_list.append(self.right_poke_count)
+                self.timeline_right_poke.append(time.time())
+            if side_mice:
+                self.side_mice_buffer = side_mice
+                if cue_state == 'all':
+                    side_choice = side_mice
+                    if side_choice == 'left':
+                        left_reward = self.session_info['reward_size'][self.current_card[2][0]]
+                        reward_size = random.uniform(left_reward - self.session_info['reward_deviation'],
+                                                     left_reward + self.session_info['reward_deviation'])
+                        pump_num = self.current_card[3][0]
+                    elif side_choice == 'right':
+                        right_reward = self.session_info['reward_size'][self.current_card[2][1]]
+                        reward_size = random.uniform(right_reward - self.session_info['reward_deviation'],
+                                                     right_reward + self.session_info['reward_deviation'])
+                        pump_num = self.current_card[3][1]
+                else:
+                    side_choice = self.current_card[1]
+                    forced_reward = self.session_info['reward_size'][self.current_card[2]]
+                    reward_size = random.uniform(forced_reward - self.session_info['reward_deviation'],
+                                                 forced_reward + self.session_info['reward_deviation'])
+                    pump_num = self.current_card[3]
+                if side_mice == side_choice:  # if the animal chose correctly
+                    print("Number of lick detected: " + str(self.lick_count))
+                    if self.lick_count == 0:  # if this is the first lick
+                        self.pump.reward(pump_num, reward_size)
+                        self.total_reward += 1
+                        self.correct_trial_in_block += 1
+                        self.reward_time_start = time.time()
+                        print("Reward time start" + str(self.reward_time_start))
+                    self.lick_count += 1
+                elif self.side_mice_buffer:
+                    if self.lick_count == 0:
+                        self.check_cue('sound2')
+                        self.wrong_choice_error = True
+                        self.restart()
 
         # look for keystrokes
         self.box.check_keybd()
