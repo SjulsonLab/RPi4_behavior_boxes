@@ -572,6 +572,7 @@ class Pump(object):
         duration_air = self.session_info['air_duration']
         duration_vac = self.session_info["vacuum_duration"]
 
+
         if which_pump == "1":
             duration = round((coefficient_p1[0] * (reward_size / 1000) + coefficient_p1[1]), 3)  # linear function
             self.pump1.blink(duration, 0.1, 1)

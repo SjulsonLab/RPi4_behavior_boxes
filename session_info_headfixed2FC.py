@@ -96,6 +96,7 @@ else:
     session_info["calibration_coefficient"]['3'] = [9.0, 0.0]
     session_info["calibration_coefficient"]['4'] = [9.0, 0.0]
 
+
 if session_info['phase'] == 1:
     session_info['reward_size'] = {'small': 10, 'large': 10}
 # print(session_info["calibration_coefficient"])
