@@ -4,6 +4,8 @@ from datetime import datetime
 import os
 import pysistence, collections
 import socket
+import pandas as pd
+import numpy as np
 
 # defining immutable mouse dict (once defined for a mouse, NEVER EDIT IT)
 mouse_info = pysistence.make_dict({'mouse_name': 'test',
@@ -55,10 +57,49 @@ session_info['cue'] = ['LED_L', 'LED_R', 'all']
 session_info['choice'] = ['right', 'left']  # lick port
 session_info['reward'] = ['small', 'large']  # reward size
 session_info['reward_size'] = {'small': 5, 'large': 10}
-session_info['reward_deviation'] = 1
+session_info['air_duration'] = 0
+session_info["vacuum_duration"] = 1
+
+""" solenoid calibration information configuration """
+
+solenoid_coeff = None
+def get_coefficient():
+    df_calibration = pd.read_csv("~/experiment_info/calibration_info/calibration.csv")
+    pump_coefficient = {}
+
+    for pump_num in range(1, 5):
+        df_pump = df_calibration[df_calibration['pump_number'] == pump_num]
+        mg_per_pulse = df_pump['weight_fluid'].div(df_pump['iteration'])
+        on_time = df_pump['on_time']
+
+        fit_calibration = np.polyfit(mg_per_pulse, on_time, 1)  # output with highest power first
+        pump_coefficient[str(pump_num)] = fit_calibration
+    return pump_coefficient
+
+try:
+    solenoid_coeff = get_coefficient()
+except Exception as e:
+    print(e)
+
+session_info["calibration_coefficient"] = {}
+
+if solenoid_coeff:
+    session_info["calibration_coefficient"]['1'] = solenoid_coeff["1"]
+    session_info["calibration_coefficient"]['2'] = solenoid_coeff["2"]
+    session_info["calibration_coefficient"]['3'] = solenoid_coeff["3"]
+    session_info["calibration_coefficient"]['4'] = solenoid_coeff["4"]
+else:
+    print("No coefficients, generate the default")
+    # solenoid valve linear fit coefficient for each pump
+    session_info["calibration_coefficient"]['1'] = [8.93273209e+00, 4.87183748e-03]  # highest power first
+    session_info["calibration_coefficient"]['2'] = [9.25818871, 0.01092451]
+    session_info["calibration_coefficient"]['3'] = [9.0, 0.0]
+    session_info["calibration_coefficient"]['4'] = [9.0, 0.0]
+
 
 if session_info['phase'] == 1:
     session_info['reward_size'] = {'small': 10, 'large': 10}
+# print(session_info["calibration_coefficient"])
 
 # define timeout during each condition
 session_info['initiation_timeout'] = 120  # s
