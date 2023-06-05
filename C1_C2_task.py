@@ -361,40 +361,42 @@ class C1_C2_task(object):
     def enter_ContextC1(self):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC1")
-        self.box.sound1.blink(0.1, 0.1)
+        self.box.sound2.on()
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        self.box.visualstim.display_greyscale(self.session_info['gray_level'])
+        self.box.visualstim.display_greyscale(self.session_info['gray_level']['default'])
         self.trial_running = True
 
     def exit_ContextC1(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextC1")
-        self.box.sound1.off()
+        self.box.sound2.off()
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter += 1
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
+        self.box.visualstim.display_greyscale(0)
 
     def enter_ContextC2(self):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC2")
-        self.box.sound1.blink(0.2, 0.1)
+        self.box.sound2.on()
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        self.box.visualstim.display_greyscale(self.session_info['gray_level'])
+        self.box.visualstim.display_greyscale(self.session_info['gray_level']['default'])
         self.trial_running = True
 
     def exit_ContextC2(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextC2")
-        self.box.sound1.off()
+        self.box.sound2.off()
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter += 1
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
+        self.box.visualstim.display_greyscale(0)
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval")
