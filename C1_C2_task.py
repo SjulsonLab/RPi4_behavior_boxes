@@ -365,7 +365,7 @@ class C1_C2_task(object):
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        self.box.visualstim.display_greyscale(self.session_info['gray_level']['default'])
+        self.box.visualstim.myscreen.display_greyscale(self.session_info['gray_level'])
         self.trial_running = True
 
     def exit_ContextC1(self):
@@ -376,7 +376,7 @@ class C1_C2_task(object):
         self.box.event_list.clear()
         self.trial_counter += 1
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
-        self.box.visualstim.display_greyscale(0)
+        self.box.visualstim.myscreen.display_greyscale(0)
 
     def enter_ContextC2(self):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
@@ -385,7 +385,7 @@ class C1_C2_task(object):
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        self.box.visualstim.display_greyscale(self.session_info['gray_level']['default'])
+        self.box.visualstim.myscreen.display_greyscale(self.session_info['gray_level'])
         self.trial_running = True
 
     def exit_ContextC2(self):
@@ -396,7 +396,7 @@ class C1_C2_task(object):
         self.box.event_list.clear()
         self.trial_counter += 1
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
-        self.box.visualstim.display_greyscale(0)
+        self.box.visualstim.myscreen.display_greyscale(0)
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval")
