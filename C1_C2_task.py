@@ -365,7 +365,7 @@ class C1_C2_task(object):
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        self.box.visualstim.myscreen.display_greyscale(self.session_info['gray_level'])
+        self.box.visualstim.myscreen.display_greyscale(self.session_info['gray_level']['default'])
         self.trial_running = True
 
     def exit_ContextC1(self):
@@ -385,7 +385,7 @@ class C1_C2_task(object):
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        self.box.visualstim.myscreen.display_greyscale(self.session_info['gray_level'])
+        self.box.visualstim.myscreen.display_greyscale(self.session_info['gray_level']['default'])
         self.trial_running = True
 
     def exit_ContextC2(self):
