@@ -82,3 +82,6 @@ session_info["calibration_coefficient"]['1'] = [0.13, 0]  # highest power first
 session_info["calibration_coefficient"]['2'] = [0.13, 0]
 session_info["calibration_coefficient"]['3'] = [0.13, 0.0]
 session_info["calibration_coefficient"]['4'] = [0.13, 0.0]
+
+session_info['air_duration'] = 0
+session_info["vacuum_duration"] = 1
