@@ -576,22 +576,26 @@ class Pump(object):
             duration = round((coefficient_p1[0] * (reward_size / 1000) + coefficient_p1[1]), 3)  # linear function
             self.pump1.blink(duration, 0.1, 1)
             self.reward_list.append(("pump1_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump1_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump1_reward(reward_coeff: " + str(coefficient_p1) +
+                         ", reward_amount: " + str(reward_size))
         elif which_pump == "2":
             duration = round((coefficient_p2[0] * (reward_size / 1000) + coefficient_p2[1]), 3)  # linear function
             self.pump2.blink(duration, 0.1, 1)
             self.reward_list.append(("pump2_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump2_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump2_reward(reward_coeff: " + str(coefficient_p2) +
+                         ", reward_amount: " + str(reward_size))
         elif which_pump == "3":
             duration = round((coefficient_p3[0] * (reward_size / 1000) + coefficient_p3[1]), 3)  # linear function
             self.pump3.blink(duration, 0.1, 1)
             self.reward_list.append(("pump3_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump3_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump3_reward(reward_coeff: " + str(coefficient_p3) +
+                         ", reward_amount: " + str(reward_size))
         elif which_pump == "4":
             duration = round((coefficient_p4[0] * (reward_size / 1000) + coefficient_p4[1]), 3)  # linear function
             self.pump4.blink(duration, 0.1, 1)
             self.reward_list.append(("pump4_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump4_reward(reward_coeff: " + str(coefficient_p4) +
+                         ", reward_amount: " + str(reward_size))
         elif which_pump == "air_puff":
             self.pump_air.blink(duration_air, 0.1, 1)
             self.reward_list.append(("air_puff", reward_size))
