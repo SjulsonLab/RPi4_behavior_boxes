@@ -52,91 +52,69 @@ class TimedStateMachine(Machine):
 
 class C1_C2_task(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
-        self.ContextC1_time = [40, 50, 60, 70, 80]
-        self.ContextC2_time = [40, 50, 60, 70, 80]
-        self.intercontext_interval_time = [20, 25, 30, 35, 40]
+        # Initialize duration lists for contexts and intercontext intervals
+        self.ContextC1_durations = [15, 20, 25, 30, 35] * 8
+        self.ContextC2_durations = [15, 20, 25, 30, 35] * 8
+        self.intercontext_interval_durations = [10, 15, 20, 25, 30] * 16
 
-        # used to create the Context_order_list (40 elements, 0s and 1s, no three in a row)
-        self.random_list = []
-        while self.random_list.count(0) != 20 and self.random_list.count(1) != 20:
-            self.random_list = []
-            i = 0
-            for p in range(40):
-                k = random.randint(0, 1)
-                try:
-                    if (self.random_list[i - 1] == 1 and self.random_list[i - 2] == 1):
-                        self.random_list.append(0)
-                        i += 1
-                    elif (self.random_list[i - 1] == 0 and self.random_list[i - 2] == 0):
-                        self.random_list.append(1)
-                        i += 1
-                    else:
-                        self.random_list.append(k)
-                        i += 1
-                except:
-                    self.random_list.append(k)
-                    i += 1
-        self.Context_order_list = self.random_list
-        self.Context_order_list_names = self.Context_order_list.copy()
+        # Shuffling duration lists
+        random.shuffle(self.ContextC1_durations)
+        random.shuffle(self.ContextC2_durations)
+        random.shuffle(self.intercontext_interval_durations)
 
-        for idx, element in enumerate(self.Context_order_list_names):
-            if element == 0:
-                self.Context_order_list_names[idx] = 'ContextC1'
-            elif element == 1:
-                self.Context_order_list_names[idx] = 'ContextC2'
+        # Initialize context names and counts
+        self.contexts = ['ContextC1', 'ContextC2']
+        self.context_counts = {'ContextC1': 0, 'ContextC2': 0}
 
-        self.full_task_list_names = []
-        self.temp = [(self.full_task_list_names.append(self.Context_order_list_names[i]),
-                      self.full_task_list_names.append('intercontext_interval')) for i in
-                     range(len(self.Context_order_list_names))]
-
-        self.ContextC1_time_temp = self.ContextC1_time
-        self.ContextC2_time_temp = self.ContextC2_time
-        random.shuffle(self.ContextC1_time_temp)
-        random.shuffle(self.ContextC2_time_temp)
-
-        i = 0
-        self.Context_timing_list = []
-        while len(self.Context_timing_list) < 40:
-            if len(self.ContextC1_time_temp) == 0:
-                self.ContextC1_time_temp = [40, 50, 60, 70, 80]
-                random.shuffle(self.ContextC1_time_temp)
-            if len(self.ContextC2_time_temp) == 0:
-                self.ContextC2_time_temp = [40, 50, 60, 70, 80]
-                random.shuffle(self.ContextC2_time_temp)
-            if self.Context_order_list[i] == 0:
-                self.temp_ContextC1_var = self.ContextC1_time_temp.pop()
-                self.Context_timing_list.append(self.temp_ContextC1_var)
-            if self.Context_order_list[i] == 1:
-                self.temp_ContextC2_var = self.ContextC2_time_temp.pop()
-                self.Context_timing_list.append(self.temp_ContextC2_var)
-            i += 1
-
-        # generates a random list of intercontext intervals with 8 of each duration
-        self.intercontext_interval_list = []
-        random.shuffle(self.intercontext_interval_time)
-
-        while len(self.intercontext_interval_list) < 40:
-            if len(self.intercontext_interval_time) == 0:
-                self.intercontext_interval_time = [20, 25, 30, 35, 40]
-                random.shuffle(self.intercontext_interval_time)
-            self.temp_intercontext_interval_time = self.intercontext_interval_time.pop()
-            self.intercontext_interval_list.append(self.temp_intercontext_interval_time)
-            i += 1
-
-        # interleaves the Context list with intercontext interval lists to create a full session (note that a context initiates the session)
-        self.full_task_list = []
-        self.temp_list = [
-            (self.full_task_list.append(self.Context_timing_list[i]),
-             self.full_task_list.append(self.intercontext_interval_list[i])) for i in
-            range(len(self.Context_timing_list))]
-
-        # Creates nested list containing the states and their respective durations
+        # Initialize task list and total duration
         self.full_task_names_and_times = []
-        self.temp = [self.full_task_names_and_times.append([self.full_task_list_names[i], self.full_task_list[i]]) for i in
-                range(len(self.full_task_list_names))]
+        self.total_duration = 0
 
-        self.full_task_names_and_times.append(['task_end',60])
+        # Previous two contexts
+        self.prev_contexts = ['', '']
+
+        while self.total_duration < 3600:
+            # Select a context different from the last two (unless we're in the final 10)
+            while True:
+                self.context = random.choice(self.contexts)
+                if (not (self.prev_contexts[0] == self.prev_contexts[1] == self.context) and self.context_counts[
+                    self.context] < 40) or (
+                        (self.context_counts['ContextC1'] >= 30 and self.context_counts['ContextC2'] >= 30)):
+                    break
+
+            # Update previous context indicators and increment count
+            self.prev_contexts[0] = self.prev_contexts[1]
+            self.prev_contexts[1] = self.context
+            self.context_counts[self.context] += 1
+
+            # Select a duration for the context if we have any left for this context
+            if self.context == 'ContextC1' and self.ContextC1_durations:
+                self.duration = self.ContextC1_durations.pop()
+            elif self.context == 'ContextC2' and self.ContextC2_durations:
+                self.duration = self.ContextC2_durations.pop()
+            else:
+                continue
+
+            # Ensure total duration does not exceed 3600
+            if self.total_duration + self.duration > 3600:
+                continue
+
+            # Append the context and its duration to the task list
+            self.full_task_names_and_times.append([self.context, self.duration])
+            self.total_duration += self.duration
+
+            # Select a duration for the intercontext interval
+            if self.intercontext_interval_durations:
+                self.interval_duration = self.intercontext_interval_durations.pop()
+
+                # Ensure total duration does not exceed 3600
+                if self.total_duration + self.interval_duration > 3600:
+                    continue
+
+                # Append the intercontext interval and its duration to the task list
+                self.full_task_names_and_times.append(['intercontext_interval', self.interval_duration])
+                self.total_duration += self.interval_duration
+        self.full_task_names_and_times.append(['task_end', 60])
         logging.info(self.full_task_names_and_times)
         # print(f"This is the order of the Contexts and intercontext_intervals along with their respective durations: {self.full_task_names_and_times}")
 
