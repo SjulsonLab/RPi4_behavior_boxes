@@ -170,7 +170,8 @@ try:
             # acquire new reward contingency and cue association
             task.current_card = task_information.draw_card(session_info['phase'])
             task.current_reward = reward_distribution_list[task.trial_number]
-            logging.info(";" + str(time.time()) + ";[condition];" + str(task.current_card))
+            logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
+                         ";current_reward_" + str(task.current_reward))
             print(" - Current card condition: \n" +
                   "*******************************\n" +
                   "*reward_side: " + str(task.current_card[0]) + "\n" +
