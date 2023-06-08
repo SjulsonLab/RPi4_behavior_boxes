@@ -342,15 +342,15 @@ class A_B_task(object):
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        if self.full_task_names_and_times[self.trial_counter][1] == 40:
+        if self.full_task_names_and_times[self.trial_counter][1] == 15:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 50:
+        elif self.full_task_names_and_times[self.trial_counter][1] == 20:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[1],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 60:
+        elif self.full_task_names_and_times[self.trial_counter][1] == 25:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[2],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 70:
+        elif self.full_task_names_and_times[self.trial_counter][1] == 30:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[3],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 80:
+        elif self.full_task_names_and_times[self.trial_counter][1] == 35:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[4],0)
         self.trial_running = True
 
@@ -370,15 +370,15 @@ class A_B_task(object):
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        if self.full_task_names_and_times[self.trial_counter][1] == 40:
+        if self.full_task_names_and_times[self.trial_counter][1] == 15:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 50:
+        elif self.full_task_names_and_times[self.trial_counter][1] == 20:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[6],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 60:
+        elif self.full_task_names_and_times[self.trial_counter][1] == 25:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[7],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 70:
+        elif self.full_task_names_and_times[self.trial_counter][1] == 30:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[8],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 80:
+        elif self.full_task_names_and_times[self.trial_counter][1] == 35:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[9],0)
         self.trial_running = True
 
