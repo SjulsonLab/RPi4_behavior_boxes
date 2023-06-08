@@ -130,6 +130,7 @@ class HeadfixedIndependentRewardTask(object):
         self.reward_size = None
         self.current_reward = None
         self.reward_check = False
+        self.reward_size_offset = self.session_info['reward_size_offset']
 
         self.block_count = 0
         self.blocknumber = self.session_info["block_number"]
@@ -344,7 +345,7 @@ class HeadfixedIndependentRewardTask(object):
             self.error_list.append('no_choice_error')
         elif self.reward_check:
             print("reward amount: " + str(self.reward_size))
-            self.pump.reward(self.pump_num, self.reward_size)
+            self.pump.reward(self.pump_num, self.reward_size + self.reward_size_offset)
             logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
             self.error_list.append('correct_trial')
             self.total_reward += 1
