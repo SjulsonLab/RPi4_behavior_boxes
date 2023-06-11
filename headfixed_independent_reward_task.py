@@ -352,6 +352,7 @@ class HeadfixedIndependentRewardTask(object):
             self.correct_trial_in_block += 1
             self.reward_time_start = time.time()
             print("Reward time start" + str(self.reward_time_start))
+            self.reward_check = False
         elif self.wrong_choice_error and self.lick_count > 0:
             self.check_cue('sound2')
             logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
