@@ -333,7 +333,7 @@ class HeadfixedIndependentRewardTask(object):
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
         print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
-        self.cue_off(self.current_card[0])
+        # self.cue_off(self.current_card[0])
         # self.reward_times_up = False
 
     def exit_reward_available(self):
