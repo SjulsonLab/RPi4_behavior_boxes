@@ -154,7 +154,7 @@ class remi_self_admin_lick_task(object):
         self.lick_count = 0
         self.side_mice_buffer = None
         self.LED_blink = False
-        self.syringe_pump = LED(11)
+        self.syringe_pump = LED(22)
         self.reward_list = []
 
         try:
