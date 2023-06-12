@@ -150,12 +150,12 @@ class remi_self_admin_lick_task(object):
         self.box = behavbox.BehavBox(self.session_info)
         self.pump = self.box.pump
         self.treadmill = self.box.treadmill
-        self.syringe_pump = self.box.DIO5
+        self.syring_pump = self.box.
         # for refining the lick detection
         self.lick_count = 0
         self.side_mice_buffer = None
         self.LED_blink = False
-        # self.syringe_pump = LED(11)
+        self.syringe_pump = LED(11)
         self.reward_list = []
 
         try:
@@ -189,7 +189,7 @@ class remi_self_admin_lick_task(object):
                 if entry_dt >= self.entry_interval:
                     self.reward()
                     self.entry_time = entry_time_temp
-                    self.switch_to_timeout()
+                    # self.switch_to_timeout()
         self.box.check_keybd()
 
     def enter_standby(self):
