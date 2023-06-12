@@ -188,7 +188,7 @@ class remi_self_admin_lick_task(object):
                 if entry_dt >= self.entry_interval:
                     self.reward()
                     self.entry_time = entry_time_temp
-                    # self.switch_to_timeout()
+                    self.switch_to_timeout()
         self.box.check_keybd()
 
     def enter_standby(self):
