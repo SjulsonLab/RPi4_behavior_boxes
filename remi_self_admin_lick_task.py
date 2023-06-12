@@ -150,11 +150,12 @@ class remi_self_admin_lick_task(object):
         self.box = behavbox.BehavBox(self.session_info)
         self.pump = self.box.pump
         self.treadmill = self.box.treadmill
+        self.syringe_pump = self.box.DIO5
         # for refining the lick detection
         self.lick_count = 0
         self.side_mice_buffer = None
         self.LED_blink = False
-        self.syringe_pump = LED(11)
+        # self.syringe_pump = LED(11)
         self.reward_list = []
 
         try:

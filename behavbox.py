@@ -99,8 +99,8 @@ class BehavBox(object):
         # DIO 1 and 2 are reserved for the audio board
         ###############################################################################################
         # self.DIO3 = LED(9)  # reserved for vacuum function
-        # self.DIO4 = LED(10)
-        # self.DIO5 = LED(11)
+        self.DIO4 = LED(10)
+        self.DIO5 = LED(11)
         # there is a DIO6, but that is the same pin as the camera strobe
 
         ###############################################################################################
