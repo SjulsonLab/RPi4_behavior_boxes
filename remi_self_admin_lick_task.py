@@ -170,6 +170,9 @@ class remi_self_admin_lick_task(object):
         self.syringe_pump.blink(infusion_duration, 0.1, 1)
         self.reward_list.append(("syringe_pump_reward", infusion_duration))
         logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
+    def fill_cath(self):
+        self.syringe_pump.blink(2.2, 0.1, 1) #5ul/second, calculated cath holds ~11.74ul; 2.2seconds delivers ~12ul into cath
+        logging.info(";" + str(time.time()) + ";[reward];catheter_filled_with_~12ul;" + '2.2_second_infusion')
 
     def run(self):
         if self.state == "standby" or self.state == 'timeout':
@@ -197,6 +200,7 @@ class remi_self_admin_lick_task(object):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;")
         self.box.event_list.clear()
+        self.fill_cath()
         self.box.cueLED2.on()
 
     def enter_reward_available(self):
