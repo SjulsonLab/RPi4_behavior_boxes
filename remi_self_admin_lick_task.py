@@ -3,12 +3,11 @@
 
 # In[ ]:
 
-
-# python3: lick_task_left_and_right.py
+# python3: remi_self_admin_lick_task.py
 """
 author: Mitch Farrell
-date: 2023-05-15
-name: lick_task_left_and_right.py
+date: 2023-06-12
+name: remi_self_admin_lick_task.py
 """
 import importlib
 from transitions import Machine
@@ -50,7 +49,7 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class LickTaskLeftandRight(object):
+class remi_self_admin_lick_task(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
@@ -108,7 +107,7 @@ class LickTaskLeftandRight(object):
             model=self,
             states=self.states,
             transitions=self.transitions,
-            initial='standby'  # STARTS IN STANDBY MODE
+            initial='standby'
             )
 
     # trial statistics
@@ -155,6 +154,9 @@ class LickTaskLeftandRight(object):
         self.lick_count = 0
         self.side_mice_buffer = None
         self.LED_blink = False
+        self.syringe_pump = LED(23)
+        self.reward_list = []
+
         try:
             self.lick_threshold = self.session_info["lick_threshold"]
         except:
@@ -164,9 +166,8 @@ class LickTaskLeftandRight(object):
         # session_statistics
         self.total_reward = 0
     def reward(self):  # prototype mouse weight equals 30
-        infusion_duration = (self.session_info['weight'] / 30)  # season's edit: I would like to suggest having this defined in the session_information, and import this value as self.infusion_duration = self.session_info["infusion_duration"], so you don't need to make the calculation everytime you deliver reward - for the body weight doesn't change within one trial
-        self.syringe_pump.blink(infusion_duration, 0.1,
-                                1)  # season's edit: this is a shorter implement without having a function
+        infusion_duration = (self.session_info['weight'] / 30)
+        self.syringe_pump.blink(infusion_duration, 0.1, 1)
         self.reward_list.append(("syringe_pump_reward", infusion_duration))
         logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
 
@@ -178,48 +179,41 @@ class LickTaskLeftandRight(object):
                 self.event_name = self.box.event_list.popleft()
             else:
                 self.event_name = ''
-            if self.event_name == "right_entry":
-                entry_time_temp = time.time() #current time
-                entry_dt = entry_time_temp - self.entry_time #current entry time minus the previous entry time
-                if entry_dt >= self.entry_interval: #if the previous entry is greater than or equal to 3 seconds, then deliver a reward
-                    self.pump.reward(self.reward_pump1,self.reward_size1)
-                    self.entry_time = entry_time_temp
-                    self.switch_to_timeout()
-            elif self.event_name == 'left_entry':
+            if self.event_name == 'left_entry':
                 entry_time_temp = time.time()
                 entry_dt = entry_time_temp - self.entry_time
                 if entry_dt >= self.entry_interval:
-                    self.pump.reward(self.reward_pump2, self.reward_size2)
+                    self.reward()
                     self.entry_time = entry_time_temp
                     self.switch_to_timeout()
         self.box.check_keybd()
 
     def enter_standby(self):
         # self.error_repeat = False
-        logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];enter_standby;")
         self.trial_running = False
         self.box.event_list.clear()
     def exit_standby(self):
         # self.error_repeat = False
-        logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];exit_standby;")
         self.box.event_list.clear()
         self.box.cueLED2.on()
 
     def enter_reward_available(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;")
         self.trial_running = True
 
     def exit_reward_available(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;")
         self.box.event_list.clear()
 
     def enter_timeout(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_timeout;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];enter_timeout;")
         self.trial_running = False
         self.box.sound1.on()
         self.box.event_list.clear()
     def exit_timeout(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_timeout;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];exit_timeout;")
         self.box.sound1.off()
         self.box.event_list.clear()
     def update_plot(self):

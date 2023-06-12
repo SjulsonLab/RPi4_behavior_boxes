@@ -82,15 +82,13 @@ class SelfAdminTaskLeftActions(object):
             State(name='standby',
                   on_enter=["enter_standby"],
                   on_exit=["exit_standby"]),
-            Timeout(name='reward_available',
+            State(name='reward_available',
                     on_enter=["enter_reward_available"],
-                    on_exit=["exit_reward_available"],
-                    timeout=self.session_info["reward_timeout"],
-                    on_timeout=["restart"])
+                    on_exit=["exit_reward_available"])
         ]
         self.transitions = [
-            ['start_trial', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
-            ['restart', 'reward_available', 'standby']
+            ['start_session', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
+            ['end_session', 'reward_available', 'standby']
         ]
 
         self.machine = TimedStateMachine(
@@ -219,7 +217,7 @@ class SelfAdminTaskLeftActions(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
         # self.cue_off('sound2')
         # self.reward_times_up = True
-        self.pump.reward("vaccum", 0)
+        # self.pump.reward("vaccum", 0)
         # if self.multiple_choice_error:
         #     logging.info(";" + str(time.time()) + ";[error];multiple_choice_error;" + str(self.error_repeat))
         #     self.error_repeat = False
