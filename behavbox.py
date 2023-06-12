@@ -298,23 +298,23 @@ class BehavBox(object):
                     #     logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx2_pressed()")
                     elif event.key == pygame.K_q:
                         # print("Q down: syringe pump 1 moves")
-                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump1")
+                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump1")
                         self.pump.reward("key_1", self.session_info["key_reward_amount"])
                     elif event.key == pygame.K_w:
                         # print("W down: syringe pump 2 moves")
-                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump2")
+                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump2")
                         self.pump.reward("key_2", self.session_info["key_reward_amount"])
                     elif event.key == pygame.K_e:
                         # print("E down: syringe pump 3 moves")
-                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3")
+                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3")
                         self.pump.reward("key_3", self.session_info["key_reward_amount"])
                     elif event.key == pygame.K_r:
                         # print("R down: syringe pump 4 moves")
-                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
+                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
                         self.pump.reward("key_4", self.session_info["key_reward_amount"])
                     elif event.key == pygame.K_t:
                         # print("T down: vacuum on")
-                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
+                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
                         self.pump.reward("key_vacuum", 1)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:
