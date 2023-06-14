@@ -103,7 +103,7 @@ class remi_S_T_task(object):
             ['switch_to_seek_drug_context', 'timeout', 'seek_drug_context'],
             ['switch_to_fixed_interval_take_time', 'seek_drug_context', 'fixed_interval_take_time'],
 
-            ['switch_to_timeout', 'fixed_interval_time', 'timeout'],
+            ['switch_to_timeout', 'fixed_interval_take_time', 'timeout'],
             ['end_task', ['fixed_interval_take_time','seek_drug_context','timeout'], 'standby']
         ]
 
