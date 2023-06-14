@@ -124,7 +124,7 @@ class BehavBox(object):
         self.IR_rx4.when_released = self.IR_4_exit
         self.IR_rx5.when_released = self.IR_5_exit
         ###############################################################################################
-        # IR detection - for nosepoke detection
+        # close circuit detection - for ground pin circuit lick detection
         ###############################################################################################
         self.lick1 = Button(26, None, True)
         self.lick2 = Button(27, None, True)
