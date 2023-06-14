@@ -201,11 +201,11 @@ class remi_self_admin_lick_task(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;")
         self.box.event_list.clear()
         self.fill_cath()
-        self.box.cueLED2.on()
 
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;")
         self.trial_running = True
+        self.box.cueLED2.on()
 
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;")
@@ -216,6 +216,8 @@ class remi_self_admin_lick_task(object):
         self.trial_running = False
         self.box.sound1.on()
         self.box.event_list.clear()
+        self.box.cueLED2.off()
+
     def exit_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_timeout;")
         self.box.sound1.off()
