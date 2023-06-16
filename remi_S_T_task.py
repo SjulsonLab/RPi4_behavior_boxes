@@ -162,7 +162,7 @@ class remi_S_T_task(object):
         self.reward_list = []
 
         self.fixed_interval = self.session_info['fixed_interval']
-        self.VR = [1]
+        self.VR = 1
         self.current_VR = 0
         self.num_right_licks = 0
         self.fixed_interval_reference_time = 0
@@ -222,7 +222,7 @@ class remi_S_T_task(object):
         logging.info(";" + str(time.time()) + ";[transition];enter_seek_drug_context;")
         self.trial_running = True
         self.num_right_licks = 0
-        self.current_VR = random.choice(self.VR)
+        self.current_VR = 1
 
     def exit_seek_drug_context(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_seek_drug_context;")
