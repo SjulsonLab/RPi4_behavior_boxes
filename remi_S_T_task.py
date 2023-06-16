@@ -162,7 +162,7 @@ class remi_S_T_task(object):
         self.reward_list = []
 
         self.fixed_interval = self.session_info['fixed_interval']
-        self.VR = [2,4,6,8,10]
+        self.VR = [1]
         self.current_VR = 0
         self.num_right_licks = 0
         self.fixed_interval_reference_time = 0
