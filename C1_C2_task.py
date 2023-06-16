@@ -180,7 +180,7 @@ class C1_C2_task(object):
     # trial statistics
         self.intercontext_interval_time = 0
         self.current_state_time = 0
-        self.random_ITI = random.randint(2, 4)
+        self.random_ITI = 3 #random.randint(2, 4)
         self.LED_delay_time = 0.3
         self.LED_on_time = 0
         self.trial_running = False
@@ -266,7 +266,7 @@ class C1_C2_task(object):
                             self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump2, self.reward_size2)
                             self.prior_reward_time = time.time()
-                            self.random_ITI = random.randint(2,4) #2,3,4
+                            self.random_ITI = 3
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
                         elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
@@ -274,7 +274,7 @@ class C1_C2_task(object):
                             self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump1, self.reward_size1)
                             self.prior_reward_time = time.time()
-                            self.random_ITI = random.randint(2, 4)  # 2,3,4
+                            self.random_ITI = 3  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
             if (time.time() - self.ContextC1_time) >= self.current_state_time:
@@ -301,7 +301,7 @@ class C1_C2_task(object):
                             self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump2, self.reward_size3)
                             self.prior_reward_time = time.time()
-                            self.random_ITI = random.randint(2, 4)  # 2,3,4
+                            self.random_ITI = 3  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
                         elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
@@ -309,7 +309,7 @@ class C1_C2_task(object):
                             self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump1, self.reward_size4)
                             self.prior_reward_time = time.time()
-                            self.random_ITI = random.randint(2, 4)  # 2,3,4
+                            self.random_ITI = 3  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
             if (time.time() - self.ContextC2_time) >= self.current_state_time:
