@@ -186,16 +186,12 @@ class remi_self_admin_lick_task_water_interleaved(object):
                 self.event_name = self.box.event_list.popleft()
             else:
                 self.event_name = ''
-            if self.event_name == 'left_entry':
+            if self.event_name == 'reserved_rx2_pressed':
                 entry_time_temp = time.time()
                 entry_dt = entry_time_temp - self.entry_time
                 self.random_int = random.randint(0,1)
-                if entry_dt >= self.entry_interval and self.random_int == 0:
+                if entry_dt >= self.entry_interval:
                     self.reward()
-                    self.entry_time = entry_time_temp
-                    self.switch_to_timeout()
-                else:
-                    self.pump.reward(self.reward_pump1, self.reward_size)
                     self.entry_time = entry_time_temp
                     self.switch_to_timeout()
         self.box.check_keybd()
