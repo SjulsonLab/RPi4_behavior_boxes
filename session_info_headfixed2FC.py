@@ -85,3 +85,4 @@ session_info["calibration_coefficient"]['4'] = [0.13, 0.0]
 
 session_info['air_duration'] = 0
 session_info["vacuum_duration"] = 1
+session_info["key_reward_amount"] = 5

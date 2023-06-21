@@ -154,8 +154,9 @@ try:
             print("*error_repeat trial* \n" +
                   " - Current card condition: \n" +
                   "*******************************\n" +
-                  "*reward_side: " + str(task.current_card[0]) + "\n")
-            task.trial_number += 1
+                  "*reward_side: " + str(task.current_card[0]) + "\n" +
+                  "*reward_size: " + str(task.current_reward)[1:-1] + "\n")
+            # task.trial_number += 1
         else:
             if not first_trial_of_the_session:
                 print("reward_time_out: " + str(session_info["reward_timeout"]))
@@ -169,13 +170,13 @@ try:
             print("*******************************\n")
             # acquire new reward contingency and cue association
             task.current_card = task_information.draw_card(session_info['phase'])
-            task.current_reward = reward_distribution_list[task.trial_number]
+            task.current_reward = reward_distribution_list[task.trial_number] + float(task.reward_size_offset)
             logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
-                         ";current_reward_" + str(task.current_reward))
+                         ";current_reward_" + str(task.current_reward)[1:-1])
             print(" - Current card condition: \n" +
                   "*******************************\n" +
                   "*reward_side: " + str(task.current_card[0]) + "\n" +
-                  "*reward_size: " + str(task.current_reward) + "\n")
+                  "*reward_size: " + str(task.current_reward)[1:-1] + "\n")
         logging.info(";" + str(time.time()) + ";[transition];start_trial()")
         task.start_trial()  # initiate the time state machine, start_trial() is a trigger
         while task.trial_running:

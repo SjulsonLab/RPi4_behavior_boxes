@@ -130,6 +130,7 @@ class HeadfixedIndependentRewardTask(object):
         self.reward_size = None
         self.current_reward = None
         self.reward_check = False
+        self.reward_size_offset = self.session_info['reward_size_offset']
 
         self.block_count = 0
         self.blocknumber = self.session_info["block_number"]
@@ -332,7 +333,7 @@ class HeadfixedIndependentRewardTask(object):
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
         print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
-        self.cue_off(self.current_card[0])
+        # self.cue_off(self.current_card[0])
         # self.reward_times_up = False
 
     def exit_reward_available(self):
@@ -344,13 +345,14 @@ class HeadfixedIndependentRewardTask(object):
             self.error_list.append('no_choice_error')
         elif self.reward_check:
             print("reward amount: " + str(self.reward_size))
-            self.pump.reward(self.pump_num, self.reward_size)
+            self.pump.reward(self.pump_num, self.reward_size) # + self.reward_size_offset)
             logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
             self.error_list.append('correct_trial')
             self.total_reward += 1
             self.correct_trial_in_block += 1
             self.reward_time_start = time.time()
             print("Reward time start" + str(self.reward_time_start))
+            self.reward_check = False
         elif self.wrong_choice_error and self.lick_count > 0:
             self.check_cue('sound2')
             logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))

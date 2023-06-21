@@ -124,7 +124,7 @@ class BehavBox(object):
         self.IR_rx4.when_released = self.IR_4_exit
         self.IR_rx5.when_released = self.IR_5_exit
         ###############################################################################################
-        # IR detection - for nosepoke detection
+        # close circuit detection - for ground pin circuit lick detection
         ###############################################################################################
         self.lick1 = Button(26, None, True)
         self.lick2 = Button(27, None, True)
@@ -298,24 +298,24 @@ class BehavBox(object):
                     #     logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx2_pressed()")
                     elif event.key == pygame.K_q:
                         # print("Q down: syringe pump 1 moves")
-                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump1")
-                        self.pump.reward("1", 3)
+                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump1")
+                        self.pump.reward("key_1", self.session_info["key_reward_amount"])
                     elif event.key == pygame.K_w:
                         # print("W down: syringe pump 2 moves")
-                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump2")
-                        self.pump.reward("2", 3)
+                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump2")
+                        self.pump.reward("key_2", self.session_info["key_reward_amount"])
                     elif event.key == pygame.K_e:
                         # print("E down: syringe pump 3 moves")
-                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3")
-                        self.pump.reward("3", 3)
+                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3")
+                        self.pump.reward("key_3", self.session_info["key_reward_amount"])
                     elif event.key == pygame.K_r:
                         # print("R down: syringe pump 4 moves")
-                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
-                        self.pump.reward("4", 3)
+                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
+                        self.pump.reward("key_4", self.session_info["key_reward_amount"])
                     elif event.key == pygame.K_t:
                         # print("T down: vacuum on")
-                        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
-                        self.pump.reward("vacuum", 1)
+                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
+                        self.pump.reward("key_vacuum", 1)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:
                         self.left_exit()
@@ -603,3 +603,34 @@ class Pump(object):
         elif which_pump == "vacuum":
             self.pump_vacuum.blink(duration_vac, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump_vacuum" + str(duration_vac))
+        elif which_pump == "key_1":
+            duration = round((coefficient_p1[0] * (reward_size / 1000) + coefficient_p1[1]), 5)  # linear function
+            self.pump1.blink(duration, 0.1, 1)
+            self.reward_list.append(("pump1_reward", reward_size))
+            logging.info(";" + str(time.time()) + ";[key];pump1_reward(reward_coeff: " + str(coefficient_p1) +
+                         ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
+        elif which_pump == "key_2":
+            duration = round((coefficient_p2[0] * (reward_size / 1000) + coefficient_p2[1]), 5)  # linear function
+            self.pump2.blink(duration, 0.1, 1)
+            self.reward_list.append(("pump2_reward", reward_size))
+            logging.info(";" + str(time.time()) + ";[key];pump2_reward(reward_coeff: " + str(coefficient_p2) +
+                         ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
+        elif which_pump == "key_3":
+            duration = round((coefficient_p3[0] * (reward_size / 1000) + coefficient_p3[1]), 5)  # linear function
+            self.pump3.blink(duration, 0.1, 1)
+            self.reward_list.append(("pump3_reward", reward_size))
+            logging.info(";" + str(time.time()) + ";[key];pump3_reward(reward_coeff: " + str(coefficient_p3) +
+                         ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
+        elif which_pump == "key_4":
+            duration = round((coefficient_p4[0] * (reward_size / 1000) + coefficient_p4[1]), 5)  # linear function
+            self.pump4.blink(duration, 0.1, 1)
+            self.reward_list.append(("pump4_reward", reward_size))
+            logging.info(";" + str(time.time()) + ";[key];pump4_reward(reward_coeff: " + str(coefficient_p4) +
+                         ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
+        elif which_pump == "key_air_puff":
+            self.pump_air.blink(duration_air, 0.1, 1)
+            self.reward_list.append(("air_puff", reward_size))
+            logging.info(";" + str(time.time()) + ";[key];pump4_reward_" + str(reward_size))
+        elif which_pump == "key_vacuum":
+            self.pump_vacuum.blink(duration_vac, 0.1, 1)
+            logging.info(";" + str(time.time()) + ";[key];pump_vacuum" + str(duration_vac))

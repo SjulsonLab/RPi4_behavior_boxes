@@ -57,6 +57,8 @@ session_info['reward'] = ['small', 'large']  # reward size
 session_info['reward_size'] = {'small': 5, 'large': 10}
 session_info['air_duration'] = 0
 session_info["vacuum_duration"] = 1
+session_info["key_reward_amount"] = 5
+session_info['reward_size_offset'] = 5
 
 """ solenoid calibration information configuration """
 
@@ -119,3 +121,4 @@ session_info['reward']['ntrials'] = 1000
 session_info['consecutive_control'] = False
 if session_info['consecutive_control']:
     session_info['consecutive_max'] = 3
+
