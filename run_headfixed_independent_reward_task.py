@@ -154,7 +154,8 @@ try:
             print("*error_repeat trial* \n" +
                   " - Current card condition: \n" +
                   "*******************************\n" +
-                  "*reward_side: " + str(task.current_card[0]) + "\n")
+                  "*reward_side: " + str(task.current_card[0]) + "\n" +
+                  "*reward_size: " + str(task.current_reward)[1:-1] + "\n")
             # task.trial_number += 1
         else:
             if not first_trial_of_the_session:
