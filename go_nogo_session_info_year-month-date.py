@@ -40,7 +40,7 @@ session_info['RR_reward_collection_length'] = 2  # in seconds
 # parameters for phase 1
 session_info['lockout_length']              = 1  # in seconds
 session_info['normal_iti_length']           = 3  # in seconds
-session_info['punishment_iti_length']       = 3  # in seconds
+session_info['punishment_iti_length']       = 7  # in seconds
 
 # visual stimulus
 session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
