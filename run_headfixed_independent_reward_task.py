@@ -155,7 +155,7 @@ try:
                   " - Current card condition: \n" +
                   "*******************************\n" +
                   "*reward_side: " + str(task.current_card[0]) + "\n")
-            task.trial_number += 1
+            # task.trial_number += 1
         else:
             if not first_trial_of_the_session:
                 print("reward_time_out: " + str(session_info["reward_timeout"]))
