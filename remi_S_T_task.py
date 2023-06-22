@@ -192,7 +192,7 @@ class remi_S_T_task(object):
                 self.event_name = self.box.event_list.popleft()
             else:
                 self.event_name = ''
-            if self.event_name == 'right_entry':
+            if self.event_name == 'reserved_rx2':
                 if self.num_right_licks >= self.current_VR:
                     self.switch_to_fixed_interval_take_time()
                 else:
