@@ -341,6 +341,7 @@ class HeadfixedIndependentRewardTask(object):
         if self.wrong_choice_error and self.lick_count == 0:
             logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
             self.check_cue('sound2')
+            self.error_count += 1
             self.error_repeat = True
             self.error_list.append('no_choice_error')
         elif self.reward_check:
@@ -357,6 +358,7 @@ class HeadfixedIndependentRewardTask(object):
             self.check_cue('sound2')
             logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
             self.error_repeat = True
+            self.error_count += 1
             self.error_list.append('wrong_choice_error')
         # self.lick_count = 0
         self.reward_time_start = None
