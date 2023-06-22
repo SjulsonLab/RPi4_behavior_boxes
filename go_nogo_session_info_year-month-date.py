@@ -19,7 +19,7 @@ session_info['basedir']					  	= '/home/pi/buffer'
 session_info['external_storage']            = '/mnt/hd'
 session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
 session_info['weight']                	    = 20.0
-session_info['manual_date']					= '2022-06-27'
+session_info['manual_date']					= '2023-06-22'
 session_info['box_name']             		= socket.gethostname()
 
 # session_info['config']						= 'freely_moving_v1'
