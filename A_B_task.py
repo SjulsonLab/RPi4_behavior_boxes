@@ -334,7 +334,7 @@ class A_B_task(object):
         self.trial_counter += 1
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA' and self.left_entry_bool == True:
             self.switch_to_ContextA()
-        elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextB' and self.right_entry_bool = True:
+        elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextB' and self.right_entry_bool == True:
             self.switch_to_ContextB()
         elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
             self.switch_to_ContextB()
