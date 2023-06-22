@@ -29,7 +29,6 @@ session_info['config'] = 'headfixed2FC'
 
 # behavior parameters
 session_info['timeout_length'] = 5  # in seconds
-session_info['reward_size'] = 10  # in microliters
 session_info["lick_threshold"] = 1
 # visual stimulus
 session_info["visual_stimulus"] = False
@@ -37,7 +36,7 @@ session_info["visual_stimulus"] = False
 session_info['config'] = 'headfixed2FC'
 session_info['treadmill_setup'] = {}
 session_info['treadmill'] = True
-session_info['phase'] = 'forced_choice'
+session_info['phase'] = 'independent_reward'
 
 if session_info['treadmill']:
     session_info['treadmill_setup']['distance_cue'] = 5  # cm
@@ -54,7 +53,7 @@ session_info['cue'] = ['LED_L', 'LED_R', 'all']
 # session_info['state'] = ['block1', 'block2']  #
 session_info['choice'] = ['right', 'left']  # lick port
 session_info['reward'] = ['small', 'large']  # reward size
-session_info['reward_size'] = {'small': 5, 'large': 10}
+session_info['reward_size'] = [10,10]
 session_info['air_duration'] = 0
 session_info["vacuum_duration"] = 1
 session_info["key_reward_amount"] = 5

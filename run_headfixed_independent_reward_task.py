@@ -122,13 +122,16 @@ try:
         # print(reward_LR)
         return reward_LR
 
-    # from reward_distribution import generate_reward_trajectory
-    scale = session_info['reward']['scale']
-    offset = session_info['reward']['offset']
-    change_point = session_info['reward']['change_point']
-    ntrials = session_info['reward']['ntrials']
+    if session_info['phase'] == "independent_reward":
+        # from reward_distribution import generate_reward_trajectory
+        scale = session_info['reward']['scale']
+        offset = session_info['reward']['offset']
+        change_point = session_info['reward']['change_point']
+        ntrials = session_info['reward']['ntrials']
+        reward_distribution_list = generate_reward_trajectory(scale, offset, change_point, ntrials)
+    elif session_info['phase'] == "forced_choice":
+        reward_size = session_info['reward_size']
 
-    reward_distribution_list = generate_reward_trajectory(scale, offset, change_point, ntrials)
     first_trial_of_the_session = True
 
     # # you can change various parameters if you want
@@ -170,7 +173,10 @@ try:
             print("*******************************\n")
             # acquire new reward contingency and cue association
             task.current_card = task_information.draw_card(session_info['phase'])
-            task.current_reward = reward_distribution_list[task.trial_number] + float(task.reward_size_offset)
+            if session_info['phase'] == "independent_reward":
+                task.current_reward = reward_distribution_list[task.trial_number] + float(task.reward_size_offset)
+            elif session_info['phase'] == "forced_choice":
+                task.current_reward = session_info['reward_size']
             logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
                          ";current_reward_" + str(task.current_reward)[1:-1])
             print(" - Current card condition: \n" +
