@@ -123,9 +123,7 @@ class HeadfixedIndependentRewardTask(object):
         self.wrong_choice_error = True
         self.multiple_choice_error = False
         self.error_repeat = False
-        self.reward_time_start = None  # for reward_available state time keeping purpose
-        self.reward_time = 10  # sec. could be incorporate into the session_info; available time for reward
-        # self.reward_times_up = False
+
         self.pump_num = None
         self.reward_size = None
         self.current_reward = None
@@ -165,7 +163,6 @@ class HeadfixedIndependentRewardTask(object):
 
         # session_statistics
         self.total_reward = 0
-        self.correct_trial_in_block = 0
 
     ########################################################################
     # functions called when state transitions occur
@@ -183,7 +180,6 @@ class HeadfixedIndependentRewardTask(object):
             if self.state == "reward_available" or self.state == "standby" or self.state == "initiate":
                 pass
             else:
-                # print("beeeeeeep") # debug signal
                 self.early_lick_error = True
                 self.error_repeat = True
                 self.restart()
@@ -197,8 +193,6 @@ class HeadfixedIndependentRewardTask(object):
             else:
                 self.initiate_error = True
         elif self.state == "cue_state":
-            # if self.LED_blink:
-            #     self.box.cueLED1.blink(0.2, 0.1)
             self.distance_diff = self.get_distance() - self.distance_buffer
             if self.distance_diff >= self.distance_cue:
                 self.cue_state_error = False
@@ -206,11 +200,6 @@ class HeadfixedIndependentRewardTask(object):
             else:
                 self.cue_state_error = True
         elif self.state == "reward_available":
-            # if not self.reward_times_up:
-            #     if self.reward_time_start:
-            #         if time.time() >= self.reward_time_start + self.reward_time:
-            #             self.restart()
-            # first detect the lick signal:
             cue_state = self.current_card[0]
             side_mice = None
             if self.event_name == "left_entry":
@@ -254,7 +243,6 @@ class HeadfixedIndependentRewardTask(object):
                             self.restart()
                 elif self.side_mice_buffer:
                     if self.lick_count == 0:
-                        # self.check_cue('sound2')
                         self.wrong_choice_error = True
                         self.lick_count += 1
                         self.restart()
@@ -264,11 +252,6 @@ class HeadfixedIndependentRewardTask(object):
 
     def enter_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
-        if self.wrong_choice_error:
-            self.error_list.append("no_choice_error")
-            logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
-            self.check_cue('sound2')
-            self.wrong_choice_error = False
         self.update_plot_choice()
         # self.update_plot_error()
         self.trial_running = False
@@ -278,13 +261,10 @@ class HeadfixedIndependentRewardTask(object):
             logging.info(";" + str(time.time()) + ";[error];early_lick_error;" + str(self.error_repeat))
             self.check_cue('sound2')
             self.early_lick_error = False
-        # self.lick_count = 0
-        # self.side_mice_buffer = None
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
         logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number) + ";" + str(self.error_repeat))
 
     def exit_standby(self):
-        # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.lick_count = 0
         self.side_mice_buffer = None
@@ -325,68 +305,44 @@ class HeadfixedIndependentRewardTask(object):
     def exit_cue_state(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_cue_state;" + str(self.error_repeat))
         self.cue_off(self.current_card[0])
-        if self.cue_state_error:
-            self.check_cue("sound2")
-            self.error_list.append('cue_state_error')
-            self.error_repeat = True
-            logging.info(";" + str(time.time()) + ";[error];cue_state_error;" + str(self.error_repeat))
-            self.error_count += 1
-            self.cue_state_error = False
+        if not self.early_lick_error:
+            if self.cue_state_error:
+                self.check_cue("sound2")
+                self.error_list.append('cue_state_error')
+                self.error_repeat = True
+                logging.info(";" + str(time.time()) + ";[error];cue_state_error;" + str(self.error_repeat))
+                self.error_count += 1
+                self.cue_state_error = False
 
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
         print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
-        # self.cue_off(self.current_card[0])
-        # self.reward_times_up = False
 
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
-        if self.wrong_choice_error and self.lick_count == 0:
+        if self.lick_count == 0:
             logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
             self.check_cue('sound2')
-            self.error_count += 1
             self.error_repeat = True
+            self.error_count += 1
             self.error_list.append('no_choice_error')
-        elif self.reward_check:
-            print("reward amount: " + str(self.reward_size))
-            self.pump.reward(self.pump_num, self.reward_size) # + self.reward_size_offset)
-            logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
-            self.error_list.append('correct_trial')
-            self.total_reward += 1
-            self.correct_trial_in_block += 1
-            self.reward_time_start = time.time()
-            print("Reward time start" + str(self.reward_time_start))
-            self.reward_check = False
-        elif self.wrong_choice_error and self.lick_count > 0:
-            self.check_cue('sound2')
+        elif self.wrong_choice_error:
             logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
+            self.check_cue('sound2')
             self.error_repeat = True
             self.error_count += 1
             self.error_list.append('wrong_choice_error')
-        # self.lick_count = 0
-        self.reward_time_start = None
+        elif self.reward_check:
+            logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
+            self.pump.reward(self.pump_num, self.reward_size)
+            self.error_repeat = False
+            self.total_reward += 1
+            self.reward_check = False
+            self.error_list.append('correct_trial')
         self.pump_num = None
         self.reward_size = None
         self.wrong_choice_error = False
 
-    # def exit_reward_available(self):
-    #     logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
-    #     self.reward_times_up = True
-    #     self.pump.reward("vaccum", 0)
-    #     if self.wrong_choice_error:
-    #         logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
-    #         self.error_repeat = True
-    #         self.error_list.append('wrong_choice_error')
-    #         self.wrong_choice_error = False
-    #     elif self.lick_count == 0:
-    #         logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
-    #         self.error_repeat = True
-    #         self.error_list.append('no_choice_error')
-    #     else:
-    #         logging.info(";" + str(time.time()) + ";[error];correct_trial;" + str(self.error_repeat))
-    #         self.error_list.append('correct_trial')
-    #     self.lick_count = 0
-    #     self.reward_time_start = None
 
     def check_cue(self, cue):
         if cue == 'sound1':
@@ -399,7 +355,6 @@ class HeadfixedIndependentRewardTask(object):
             self.box.cueLED1.on()
             logging.info(";" + str(time.time()) + ";[cue];cueLED_L_on;" + str(self.error_repeat))
         elif cue == 'LED_R':
-            # self.LED_blink = True
             self.box.cueLED2.on()
             logging.info(";" + str(time.time()) + ";[cue];cueLED_R_on;" + str(self.error_repeat))
         elif cue == 'all':
