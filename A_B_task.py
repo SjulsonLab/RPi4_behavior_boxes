@@ -349,8 +349,7 @@ class A_B_task(object):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA")
         self.box.sound1.blink(0.1, 0.1)
-        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
-                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
+        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_ContextA_" +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
         if self.full_task_names_and_times[self.trial_counter][1] == 15:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
@@ -377,8 +376,7 @@ class A_B_task(object):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB")
         self.box.sound1.blink(0.2, 0.1)
-        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
-                     str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
+        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_ContextB_" +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
         if self.full_task_names_and_times[self.trial_counter][1] == 15:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
