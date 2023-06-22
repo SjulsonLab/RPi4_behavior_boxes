@@ -266,6 +266,7 @@ class HeadfixedIndependentRewardTask(object):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
         if self.wrong_choice_error:
             self.error_list.append("no_choice_error")
+            logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
             self.check_cue('sound2')
             self.wrong_choice_error = False
         self.update_plot_choice()
@@ -274,6 +275,8 @@ class HeadfixedIndependentRewardTask(object):
         # self.reward_error = False
         if self.early_lick_error:
             self.error_list.append("early_lick_error")
+            logging.info(";" + str(time.time()) + ";[error];early_lick_error;" + str(self.error_repeat))
+            self.check_cue('sound2')
             self.early_lick_error = False
         # self.lick_count = 0
         # self.side_mice_buffer = None
