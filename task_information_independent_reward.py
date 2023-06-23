@@ -5,8 +5,6 @@ class TaskInformation(object):
     def __init__(self, **kwargs):
         self.name = "model_based_reinforcement_learning_task"
         self.deck = [('LED_L', 'left', '1'), ('LED_R',  'right', '2'),
-                     ('all',  ('left', 'right'), ('1', '2')), ('all',  ('left', 'right'), ('1', '2')),
-                     ('all',  ('left', 'right'), ('1', '2')),  ('all',  ('left', 'right'), ('1', '2')),
                      ('all',  ('left', 'right'), ('1', '2')), ('all',  ('left', 'right'), ('1', '2'))]
 
     def draw_card(self, phase="final"):
