@@ -7,9 +7,9 @@ class TaskInformation(object):
         self.deck = [('LED_L', 'left', '1'), ('LED_R',  'right', '2'),
                      ('all',  ('left', 'right'), ('1', '2')), ('all',  ('left', 'right'), ('1', '2'))]
 
-    def draw_card(self, phase="final"):
+    def draw_card(self, phase="independent_reward"):
         row_start = 0
-        row_end = len(self.deck)
+        row_end = len(self.deck)-1
         if phase == 'independent_reward':
             pass
         elif phase == 'forced_choice':
