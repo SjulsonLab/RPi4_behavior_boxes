@@ -9,8 +9,8 @@ class TaskInformation(object):
 
     def draw_card(self, phase="final"):
         row_start = 0
-        row_end = 7
-        if phase == 'final':
+        row_end = len(self.deck)
+        if phase == 'independent_reward':
             pass
         elif phase == 'forced_choice':
             row_end = 1
