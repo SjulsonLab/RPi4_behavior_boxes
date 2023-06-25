@@ -203,9 +203,9 @@ class OpioidForageTask(object):
 
     def reward(self):  # prototype mouse weight equals 30
         infusion_duration = (self.session_info['weight'] / 30)
-        self.syringe_pump.blink(infusion_duration*self.right_patch_rewards[self.reward_size_var], 0.1, 1)
-        self.reward_list.append(("syringe_pump_reward", infusion_duration*self.right_patch_rewards[self.reward_size_var]))
-        logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration*self.right_patch_rewards[self.reward_size_var]))
+        self.syringe_pump.blink(infusion_duration*self.right_patch_rewards[self.reward_size_index], 0.1, 1)
+        self.reward_list.append(("syringe_pump_reward", infusion_duration*self.right_patch_rewards[self.reward_size_index]))
+        logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration*self.right_patch_rewards[self.reward_size_index]))
     def fill_cath(self):
         self.syringe_pump.blink(2.2, 0.1, 1) #5ul/second, calculated cath holds ~11.74ul; 2.2seconds delivers ~12ul into cath
         logging.info(";" + str(time.time()) + ";[reward];catheter_filled_with_~12ul;" + '2.2_second_infusion')
