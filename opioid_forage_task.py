@@ -218,7 +218,7 @@ class OpioidForageTask(object):
             self.left_licks = 0
             self.reward_size_var = 0
             self.reward_size_index = 0
-            self.in_loop_bool = True
+            # self.in_loop_bool = True
             self.box.event_list.clear()
             while self.state == 'remi_right_patch_active' or self.state == 'remi_right_patch_timeout':
                 if self.state == 'remi_right_patch_timeout':
@@ -245,7 +245,7 @@ class OpioidForageTask(object):
             self.right_licks = 0
             self.reward_size_var = 0
             self.reward_size_index = 0
-            self.in_loop_bool = True
+            # self.in_loop_bool = True
             self.box.event_list.clear()
             while self.state == 'liquid_left_patch_active' or self.state == 'liquid_left_patch_timeout':
                 if self.state == 'remi_right_patch_timeout':
@@ -274,15 +274,15 @@ class OpioidForageTask(object):
     def enter_remi_right_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_remi_right_patch_active;" + str(self.error_repeat))
         self.box.cueLED2.on()
-        if not self.in_loop_bool:
-            self.trial_running = True
+        # if not self.in_loop_bool:
+        self.trial_running = True
     def exit_remi_right_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_remi_right_patch_active;" + str(self.error_repeat))
         self.box.cueLED2.off()
     def enter_travel_to_remi_right_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_travel_to_remi_right_patch_active;" + str(self.error_repeat))
         self.box.sound2.on()
-        self.in_loop_bool = False
+        # self.in_loop_bool = False
     def exit_travel_to_remi_right_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_travel_to_remi_right_patch_active;" + str(self.error_repeat))
         self.box.sound2.off()
@@ -297,15 +297,15 @@ class OpioidForageTask(object):
     def enter_liquid_left_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_liquid_left_patch_active;" + str(self.error_repeat))
         self.box.cueLED1.on()
-        if not self.in_loop_bool:
-            self.trial_running = True
+        # if not self.in_loop_bool:
+        self.trial_running = True
     def exit_liquid_left_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_liquid_left_patch_active;" + str(self.error_repeat))
         self.box.cueLED1.off()
     def enter_travel_to_liquid_left_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_travel_to_liquid_left_patch_active;" + str(self.error_repeat))
         self.box.sound2.on()
-        self.in_loop_bool = False
+        # self.in_loop_bool = False
     def exit_travel_to_liquid_left_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_travel_to_liquid_left_patch_active;" + str(self.error_repeat))
         self.box.sound2.off()
