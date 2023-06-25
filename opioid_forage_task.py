@@ -198,6 +198,7 @@ class OpioidForageTask(object):
         self.reward_size_index = 0
         self.right_patch_rewards = [1, 0.8, 0.6, 0.4, 0.2, 0]
         self.left_patch_rewards = [3,2.5,2,1.5,1,0]
+        self.syringe_pump = LED(17)
 
     def reward(self):  # prototype mouse weight equals 30
         infusion_duration = (self.session_info['weight'] / 30)
