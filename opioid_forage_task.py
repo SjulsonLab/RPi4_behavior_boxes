@@ -199,6 +199,15 @@ class OpioidForageTask(object):
         self.right_patch_rewards = [1, 0.8, 0.6, 0.4, 0.2, 0]
         self.left_patch_rewards = [3,2.5,2,1.5,1,0]
 
+    def reward(self):  # prototype mouse weight equals 30
+        infusion_duration = (self.session_info['weight'] / 30)
+        self.syringe_pump.blink(infusion_duration*self.right_patch_rewards[self.reward_size_var], 0.1, 1)
+        self.reward_list.append(("syringe_pump_reward", infusion_duration*self.right_patch_rewards[self.reward_size_var]))
+        logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration*self.right_patch_rewards[self.reward_size_var]))
+    def fill_cath(self):
+        self.syringe_pump.blink(2.2, 0.1, 1) #5ul/second, calculated cath holds ~11.74ul; 2.2seconds delivers ~12ul into cath
+        logging.info(";" + str(time.time()) + ";[reward];catheter_filled_with_~12ul;" + '2.2_second_infusion')
+
     def run(self):
         if self.state == "standby":
             pass
@@ -220,10 +229,7 @@ class OpioidForageTask(object):
                     if self.reward_size_var > 5:
                         self.reward_size_index = 5
                     print(f"remi reward delivered {self.right_patch_rewards[self.reward_size_index]}")
-                    # infusion_duration = (self.session_info['weight'] / 30)*self.right_patch_rewards[self.reward_size_index]
-                    # self.syringe_pump.blink(infusion_duration, 0.1, 1)
-                    # self.reward_list.append(("remi_reward", infusion_duration))
-                    # logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
+                    self.reward()
                     self.reward_size_var += 1
                     self.reward_size_index += 1
                     self.switch_to_remi_right_patch_timeout()
@@ -262,6 +268,7 @@ class OpioidForageTask(object):
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
+        self.fill_cath()
     def enter_remi_right_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_remi_right_patch_active;" + str(self.error_repeat))
         self.box.cueLED2.on()
