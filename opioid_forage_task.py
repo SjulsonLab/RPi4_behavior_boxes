@@ -271,11 +271,12 @@ class OpioidForageTask(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
         self.fill_cath()
+        self.trial_running = True
     def enter_remi_right_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_remi_right_patch_active;" + str(self.error_repeat))
         self.box.cueLED2.on()
         # if not self.in_loop_bool:
-        self.trial_running = True
+        # self.trial_running = True
     def exit_remi_right_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_remi_right_patch_active;" + str(self.error_repeat))
         self.box.cueLED2.off()
@@ -298,7 +299,7 @@ class OpioidForageTask(object):
         logging.info(";" + str(time.time()) + ";[transition];enter_liquid_left_patch_active;" + str(self.error_repeat))
         self.box.cueLED1.on()
         # if not self.in_loop_bool:
-        self.trial_running = True
+        # self.trial_running = True
     def exit_liquid_left_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_liquid_left_patch_active;" + str(self.error_repeat))
         self.box.cueLED1.off()
