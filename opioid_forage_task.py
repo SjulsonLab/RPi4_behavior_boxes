@@ -278,22 +278,21 @@ class OpioidForageTask(object):
             self.trial_running = True
     def exit_remi_right_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_remi_right_patch_active;" + str(self.error_repeat))
-
+        self.box.cueLED2.off()
     def enter_travel_to_remi_right_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_travel_to_remi_right_patch_active;" + str(self.error_repeat))
-        self.box.cueLED2.off()
-        self.box.sound1.on()
+        self.box.sound2.on()
         self.in_loop_bool = False
     def exit_travel_to_remi_right_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_travel_to_remi_right_patch_active;" + str(self.error_repeat))
-        self.box.sound1.off()
+        self.box.sound2.off()
 
     def enter_remi_right_patch_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_remi_right_patch_timeout;" + str(self.error_repeat))
-        self.box.sound2.on()
+        self.box.sound1.on()
     def exit_remi_right_patch_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_remi_right_patch_timeout;" + str(self.error_repeat))
-        self.box.sound2.off()
+        self.box.sound1.off()
 
     def enter_liquid_left_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_liquid_left_patch_active;" + str(self.error_repeat))
@@ -302,22 +301,21 @@ class OpioidForageTask(object):
             self.trial_running = True
     def exit_liquid_left_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_liquid_left_patch_active;" + str(self.error_repeat))
-
+        self.box.cueLED1.off()
     def enter_travel_to_liquid_left_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_travel_to_liquid_left_patch_active;" + str(self.error_repeat))
-        self.box.cueLED1.off()
-        self.box.sound1.on()
+        self.box.sound2.on()
         self.in_loop_bool = False
     def exit_travel_to_liquid_left_patch_active(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_travel_to_liquid_left_patch_active;" + str(self.error_repeat))
-        self.box.sound1.off()
+        self.box.sound2.off()
 
     def enter_liquid_left_patch_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_liquid_left_patch_timeout;" + str(self.error_repeat))
-        self.box.sound2.on()
+        self.box.sound1.on()
     def exit_liquid_left_patch_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_liquid_left_patch_timeout;" + str(self.error_repeat))
-        self.box.sound2.off()
+        self.box.sound1.off()
 
 
     def update_plot(self):
