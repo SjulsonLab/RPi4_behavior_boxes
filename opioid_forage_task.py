@@ -227,7 +227,7 @@ class OpioidForageTask(object):
                     self.event_name = self.box.event_list.popleft()
                 else:
                     self.event_name = ''
-                if self.event_name == "left_entry" and self.state == 'remi_right_patch_active':
+                if self.event_name == "right_entry" and self.state == 'remi_right_patch_active':
                     if self.reward_size_var > 5:
                         self.reward_size_index = 5
                     print(f"remi reward delivered {self.right_patch_rewards[self.reward_size_index]}")
@@ -235,7 +235,7 @@ class OpioidForageTask(object):
                     self.reward_size_var += 1
                     self.reward_size_index += 1
                     self.switch_to_remi_right_patch_timeout()
-                elif self.event_name == 'right_entry' and self.state == 'remi_right_patch_active':
+                elif self.event_name == 'left_entry' and self.state == 'remi_right_patch_active':
                     if self.reward_size_var != 0:
                         self.left_licks += 1
                     if self.left_licks >= self.session_info['FR_before_patch_switch']:
@@ -254,14 +254,14 @@ class OpioidForageTask(object):
                     self.event_name = self.box.event_list.popleft()
                 else:
                     self.event_name = ''
-                if self.event_name == "right_entry" and self.state == 'liquid_left_patch_active':
+                if self.event_name == "left_entry" and self.state == 'liquid_left_patch_active':
                     if self.reward_size_var > 5:
                         self.reward_size_index = 5
                     self.pump.reward(self.reward_pump1, self.left_patch_rewards[self.reward_size_index])
                     self.reward_size_var +=1
                     self.reward_size_index +=1
                     self.switch_to_liquid_left_patch_timeout()
-                elif self.event_name == 'left_entry' and self.state == 'liquid_left_patch_active':
+                elif self.event_name == 'right_entry' and self.state == 'liquid_left_patch_active':
                     if self.reward_size_var != 0:
                         self.right_licks += 1
                     if self.right_licks >= self.session_info['FR_before_patch_switch']:
