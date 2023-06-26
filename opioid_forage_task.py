@@ -220,7 +220,7 @@ class OpioidForageTask(object):
             self.reward_size_index = 0
             self.in_loop_bool = True
             self.box.event_list.clear()
-            while self.state == 'remi_right_patch_active' or self.state == 'remi_right_patch_timeout':
+            while self.in_loop_bool == True: #self.state == 'remi_right_patch_active' or self.state == 'remi_right_patch_timeout'
                 if self.state == 'remi_right_patch_timeout':
                     self.left_licks = 0
                 if self.box.event_list:
@@ -240,6 +240,7 @@ class OpioidForageTask(object):
                         self.left_licks += 1
                     if self.left_licks >= self.session_info['FR_before_patch_switch']:
                         self.switch_to_travel_to_liquid_left_patch_active()
+                        self.in_loop_bool = False
         elif self.state == 'liquid_left_patch_active':
             self.trial_running = False
             self.right_licks = 0
@@ -247,7 +248,7 @@ class OpioidForageTask(object):
             self.reward_size_index = 0
             self.in_loop_bool = True
             self.box.event_list.clear()
-            while self.state == 'liquid_left_patch_active' or self.state == 'liquid_left_patch_timeout':
+            while self.in_loop_bool == True: #self.state == 'liquid_left_patch_active' or self.state == 'liquid_left_patch_timeout'
                 if self.state == 'remi_right_patch_timeout':
                     self.right_licks = 0
                 if self.box.event_list:
@@ -266,6 +267,7 @@ class OpioidForageTask(object):
                         self.right_licks += 1
                     if self.right_licks >= self.session_info['FR_before_patch_switch']:
                         self.switch_to_travel_to_remi_right_patch_active()
+                        self.in_loop_bool = False
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
