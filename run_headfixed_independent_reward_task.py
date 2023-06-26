@@ -122,16 +122,44 @@ try:
         # print(reward_LR)
         return reward_LR
 
+    def generate_sine_wave(increment, oscillation_width, amplitude_offset, amplitude_scale, deviation): # for training purpose only
+        session_start = random.uniform(-np.pi / 2, np.pi / 2)
+        session_length = 1000
+        session_end = session_start + session_length
+        # increment = 1
+        # oscillation_width = 0.5
+        # amplitude_offset = 2
+        # amplitude_scale = 2
+        # deviation = 0
+        value_input = np.arange(session_start, session_end, increment)
+        sine_output = (np.sin(value_input * oscillation_width) + amplitude_offset) * amplitude_scale
+        negative_sine_output = (-np.sin(value_input * oscillation_width) + amplitude_offset) * amplitude_scale
+        left_side_reward = np.random.normal(sine_output, deviation)
+        right_side_reward = np.random.normal(negative_sine_output, deviation)
+        # plt.plot(left_side_reward,'b'); plt.plot(right_side_reward,'r')
+        # visualize_scale = 10
+        # plt.plot(left_side_reward[0:visualize_scale], 'b');
+        # plt.plot(right_side_reward[0:visualize_scale], 'r')
+        reward_list = list(zip(left_side_reward, right_side_reward))
+        return reward_list
+
     if session_info['phase'] == "independent_reward":
         # from reward_distribution import generate_reward_trajectory
-        scale = session_info['reward']['scale']
-        offset = session_info['reward']['offset']
-        change_point = session_info['reward']['change_point']
-        ntrials = session_info['reward']['ntrials']
+        scale = session_info['independent_reward']['scale']
+        offset = session_info['independent_reward']['offset']
+        change_point = session_info['independent_reward']['change_point']
+        ntrials = session_info['independent_reward']['ntrials']
         reward_distribution_list = generate_reward_trajectory(scale, offset, change_point, ntrials)
     elif session_info['phase'] == "forced_choice":
         reward_size = session_info['reward_size']
-
+    elif session_info['phase'] == "sine_reward":
+        increment = session_info["sine_reward"]["increment"]
+        oscillation_width = session_info["sine_reward"]["oscillation_width"]
+        amplitude_offset = session_info["sine_reward"]["amplitude_offset"]
+        amplitude_scale = session_info["sine_reward"]["amplitude_scale"]
+        deviation = session_info["sine_reward"]["deviation"]
+        reward_distribution_list = generate_sine_wave(increment, oscillation_width, amplitude_offset,
+                                                      amplitude_scale, deviation)
     first_trial_of_the_session = True
 
     # # you can change various parameters if you want
@@ -177,6 +205,8 @@ try:
                 task.current_reward = reward_distribution_list[task.trial_number] + float(task.reward_size_offset)
             elif session_info['phase'] == "forced_choice":
                 task.current_reward = session_info['reward_size']
+            elif session_info['phase'] == "sine_reward":
+                task.current_reward = reward_distribution_list[task.trial_number]
             logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
                          ";current_reward_" + str(task.current_reward)[1:-1])
             print(" - Current card condition: \n" +

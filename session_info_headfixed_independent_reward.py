@@ -36,7 +36,7 @@ session_info["visual_stimulus"] = False
 session_info['config'] = 'headfixed2FC'
 session_info['treadmill_setup'] = {}
 session_info['treadmill'] = True
-session_info['phase'] = 'independent_reward'
+session_info['phase'] = 'independent_reward' # 'forced_choice', 'sine_reward'
 
 if session_info['treadmill']:
     session_info['treadmill_setup']['distance_cue'] = 5  # cm
@@ -52,12 +52,8 @@ if session_info['error_repeat']:
 session_info['cue'] = ['LED_L', 'LED_R', 'all']
 # session_info['state'] = ['block1', 'block2']  #
 session_info['choice'] = ['right', 'left']  # lick port
-session_info['reward'] = ['small', 'large']  # reward size
-session_info['reward_size'] = [10,10]
 session_info['air_duration'] = 0
 session_info["vacuum_duration"] = 1
-session_info["key_reward_amount"] = 5
-session_info['reward_size_offset'] = 5
 
 """ solenoid calibration information configuration """
 
@@ -95,8 +91,8 @@ else:
     session_info["calibration_coefficient"]['3'] = [0.13, 0.0]
     session_info["calibration_coefficient"]['4'] = [0.13, 0.0]
 
-if session_info['phase'] == 1:
-    session_info['reward_size'] = {'small': 10, 'large': 10}
+if session_info['phase'] == "forced_choice":
+    session_info['reward_size'] = (10, 10)
 # print(session_info["calibration_coefficient"])
 
 # define timeout during each condition
@@ -105,12 +101,22 @@ session_info['cue_timeout'] = 120
 session_info['wait_for_choice'] = 60
 session_info["punishment_timeout"] = 3
 
-session_info['reward'] = {}
-session_info['reward']['scale'] = 0.5
-session_info['reward']['offset'] = 3.0
-session_info['reward']['change_point'] = 20
-session_info['reward']['ntrials'] = 1000
+session_info["key_reward_amount"] = 2
+session_info['reward_size_offset'] = 2
+if session_info["phase"] == 'independent_reward':
+    session_info['independent_reward'] = {}
+    session_info['independent_reward']['scale'] = 0.5
+    session_info['independent_reward']['offset'] = 3.0
+    session_info['independent_reward']['change_point'] = 20
+    session_info['independent_reward']['ntrials'] = 1000
 
+if session_info["phase"] == 'sine_reward':
+    session_info["sine_reward"] = {}
+    session_info["sine_reward"]["increment"] = 1
+    session_info["sine_reward"]["oscillation_width"] = 0.5
+    session_info["sine_reward"]["amplitude_offset"] = 2
+    session_info["sine_reward"]["amplitude_scale"] = 2
+    session_info["sine_reward"]["deviation"] = 0
 # define block_duration and initial block to start the session
 # session_info['block_duration'] = 30  # each block has this amount of repetition
 # session_info['block_variety'] = 2
