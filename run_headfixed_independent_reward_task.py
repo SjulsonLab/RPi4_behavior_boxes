@@ -122,24 +122,15 @@ try:
         # print(reward_LR)
         return reward_LR
 
-    def generate_sine_wave(increment, oscillation_width, amplitude_offset, amplitude_scale, deviation): # for training purpose only
-        session_start = random.uniform(-np.pi / 2, np.pi / 2)
-        session_length = 1000
+    def generate_sine_wave(increment, period_width, amplitude_offset, amplitude_scale, deviation): # for training purpose only
+        session_start = random.uniform(0, period_width)
         session_end = session_start + session_length
-        # increment = 1
-        # oscillation_width = 0.5
-        # amplitude_offset = 2
-        # amplitude_scale = 2
-        # deviation = 0
         value_input = np.arange(session_start, session_end, increment)
-        sine_output = (np.sin(value_input * oscillation_width) + amplitude_offset) * amplitude_scale
-        negative_sine_output = (-np.sin(value_input * oscillation_width) + amplitude_offset) * amplitude_scale
+
+        sine_output = (np.sin((np.pi / period_width) * value_input) + amplitude_offset) * amplitude_scale
+        negative_sine_output = (np.sin((np.pi / period_width) * -value_input) + amplitude_offset) * amplitude_scale
         left_side_reward = np.random.normal(sine_output, deviation)
         right_side_reward = np.random.normal(negative_sine_output, deviation)
-        # plt.plot(left_side_reward,'b'); plt.plot(right_side_reward,'r')
-        # visualize_scale = 10
-        # plt.plot(left_side_reward[0:visualize_scale], 'b');
-        # plt.plot(right_side_reward[0:visualize_scale], 'r')
         reward_list = list(zip(left_side_reward, right_side_reward))
         return reward_list
 
