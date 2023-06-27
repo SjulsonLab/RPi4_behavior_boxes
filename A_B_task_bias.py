@@ -319,6 +319,7 @@ class A_B_task_bias(object):
                             self.right_entry_bool = True
             if (time.time() - self.ContextB_time) >= self.current_state_time:
                 self.switch_to_intercontext_interval()
+
     def start_in_ContextA(self):
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             return True
@@ -332,14 +333,17 @@ class A_B_task_bias(object):
 
     def switch_to_ContextA_B(self):
         self.trial_counter += 1
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB' and (self.right_entry_bool == True or self.left_entry_bool == True):
-            self.switch_to_ContextB()
-        elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextA' and (self.right_entry_bool == True or self.left_entry_bool == True):
-            self.switch_to_ContextA()
-        elif self.full_task_names_and_times[self.trial_counter - 1][0] == 'ContextB' and self.right_entry_bool == False:
-            self.switch_to_ContextB()
-        elif self.full_task_names_and_times[self.trial_counter - 1][0] == 'ContextA' and self.left_entry_bool == False:
-            self.switch_to_ContextA()
+        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
+            if self.right_entry_bool == True or self.left_entry_bool == True:
+                self.switch_to_ContextB()
+            else:
+                self.switch_to_ContextA()
+        elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
+            if self.right_entry_bool == True or self.left_entry_bool == True:
+                self.switch_to_ContextA()
+            else:
+                self.switch_to_ContextB()
+
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby")
         self.box.event_list.clear()
@@ -408,6 +412,7 @@ class A_B_task_bias(object):
     def exit_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_intercontext_interval")
         self.box.event_list.clear()
+        self.trial_running = False
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
