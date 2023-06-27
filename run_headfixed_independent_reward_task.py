@@ -122,7 +122,7 @@ try:
         # print(reward_LR)
         return reward_LR
 
-    def generate_sine_wave(increment, period_width, amplitude_offset, amplitude_scale, deviation): # for training purpose only
+    def generate_sine_wave(increment, period_width, amplitude_offset, amplitude_scale, deviation, session_length): # for training purpose only
         session_start = random.uniform(0, period_width)
         session_end = session_start + session_length
         value_input = np.arange(session_start, session_end, increment)
@@ -144,13 +144,14 @@ try:
     elif session_info['phase'] == "forced_choice":
         reward_size = session_info['reward_size']
     elif session_info['phase'] == "sine_reward":
+        session_length = session_info["sine_reward"]["session_length"]
         increment = session_info["sine_reward"]["increment"]
         period_width = session_info["sine_reward"]["period_width"]
         amplitude_offset = session_info["sine_reward"]["amplitude_offset"]
         amplitude_scale = session_info["sine_reward"]["amplitude_scale"]
         deviation = session_info["sine_reward"]["deviation"]
         reward_distribution_list = generate_sine_wave(increment, period_width, amplitude_offset,
-                                                      amplitude_scale, deviation)
+                                                      amplitude_scale, deviation, session_length)
     first_trial_of_the_session = True
 
     # # you can change various parameters if you want
