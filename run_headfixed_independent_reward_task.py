@@ -145,11 +145,11 @@ try:
         reward_size = session_info['reward_size']
     elif session_info['phase'] == "sine_reward":
         increment = session_info["sine_reward"]["increment"]
-        oscillation_width = session_info["sine_reward"]["oscillation_width"]
+        period_width = session_info["sine_reward"]["period_width"]
         amplitude_offset = session_info["sine_reward"]["amplitude_offset"]
         amplitude_scale = session_info["sine_reward"]["amplitude_scale"]
         deviation = session_info["sine_reward"]["deviation"]
-        reward_distribution_list = generate_sine_wave(increment, oscillation_width, amplitude_offset,
+        reward_distribution_list = generate_sine_wave(increment, period_width, amplitude_offset,
                                                       amplitude_scale, deviation)
     first_trial_of_the_session = True
 
