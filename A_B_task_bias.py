@@ -3,11 +3,11 @@
 
 # In[ ]:
 
-# python3: A_B_task.py
+# python3: A_B_task_bias.py
 """
 author: Mitch Farrell
 date: 2023-05-15
-name: A_B_task.py
+name: A_B_task_bias.py
 """
 import importlib
 from transitions import Machine
@@ -50,7 +50,7 @@ import random
 class TimedStateMachine(Machine):
     pass
 
-class A_B_task(object):
+class A_B_task_bias(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
         # Initialize duration lists for contexts and intercontext intervals
         self.ContextA_durations = [15, 20, 25, 30, 35] * 8
@@ -332,11 +332,14 @@ class A_B_task(object):
 
     def switch_to_ContextA_B(self):
         self.trial_counter += 1
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
+        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB' and self.right_entry_bool == True:
             self.switch_to_ContextB()
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
+        elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextA' and self.left_entry_bool == True:
             self.switch_to_ContextA()
-
+        elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextB' and self.right_entry_bool == False:
+            self.switch_to_ContextA()
+        elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextA' and self.left_entry_bool == False:
+            self.switch_to_ContextB()
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby")
         self.box.event_list.clear()
