@@ -5,14 +5,12 @@ class TaskInformation(object):
     def __init__(self, **kwargs):
         self.name = "model_based_reinforcement_learning_task"
         self.deck = [('LED_L', 'left', '1'), ('LED_R',  'right', '2'),
-                     ('all',  ('left', 'right'), ('1', '2')), ('all',  ('left', 'right'), ('1', '2')),
-                     ('all',  ('left', 'right'), ('1', '2')),  ('all',  ('left', 'right'), ('1', '2')),
                      ('all',  ('left', 'right'), ('1', '2')), ('all',  ('left', 'right'), ('1', '2'))]
 
-    def draw_card(self, phase="final"):
+    def draw_card(self, phase="independent_reward"):
         row_start = 0
-        row_end = 7
-        if phase == 'final':
+        row_end = len(self.deck)-1
+        if phase == 'independent_reward':
             pass
         elif phase == 'forced_choice':
             row_end = 1
