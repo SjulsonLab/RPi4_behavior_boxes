@@ -249,7 +249,7 @@ class A_B_task_bias(object):
             self.ContextA_time = time.time()
             self.LED_bool = False
             self.prior_reward_time = 0
-            self.left_entry_bool = False
+            # self.left_entry_bool = False
             while (time.time() - self.ContextA_time) <= self.current_state_time:  # need to be able to jump out of this loop even in a below while loop; runs when ContextB_duration hasn't elapsed
                 if not self.LED_bool:
                     if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI: #first trial after entering the state
@@ -287,7 +287,7 @@ class A_B_task_bias(object):
             self.ContextB_time = time.time()  # assign the context switch time to this variable
             self.LED_bool = False
             self.prior_reward_time = 0
-            self.right_entry_bool = False
+            # self.right_entry_bool = False
             while (time.time() - self.ContextB_time) <= self.current_state_time:
                 if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:  # first trial after entering the state
                     self.box.cueLED1.on()
@@ -365,6 +365,8 @@ class A_B_task_bias(object):
         elif self.full_task_names_and_times[self.trial_counter][1] == 35:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[4],0)
         self.trial_running = True
+        self.left_entry_bool = False
+        self.right_entry_bool = False
 
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA")
@@ -392,6 +394,8 @@ class A_B_task_bias(object):
         elif self.full_task_names_and_times[self.trial_counter][1] == 35:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[9],0)
         self.trial_running = True
+        self.left_entry_bool = False
+        self.right_entry_bool = False
 
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB")
