@@ -164,22 +164,21 @@ try:
     sleep(10)
     # loop over trials
     # Set a timer
-    t_minute = int(input("Enter the time in minutes: ")) ## wll add in the session info
+    t_minute = int(input("Enter the time in minutes: ")) # wll add in the session info
     t_end = time.time() + 60 * t_minute
     while time.time() < t_end: # time check
         if task.error_repeat:  # error repeat check
             task.error_repeat = False
             print("punishment_time_out: " + str(session_info["punishment_timeout"]))
             sleep(session_info["punishment_timeout"])
-            print("Trial " + str(task.trial_number) + " \n")
-            task.trial_number += 1
+            print("Trial " + str(task.actual_trial_number) + " \n")
+            task.actual_trial_number += 1
             print("*******************************\n")
             print("*error_repeat trial* \n" +
                   " - Current card condition: \n" +
                   "*******************************\n" +
                   "*reward_side: " + str(task.current_card[0]) + "\n" +
                   "*reward_size: " + str(task.current_reward)[1:-1] + "\n")
-            # task.trial_number += 1
         else:
             if not first_trial_of_the_session:
                 print("reward_time_out: " + str(session_info["reward_timeout"]))
@@ -188,17 +187,18 @@ try:
                 first_trial_of_the_session = False
             # setup the beginning of a new trial
             task.error_count = 0 # reset the error count if previous trial is correct
-            print("Trial " + str(task.trial_number) + " \n")
-            task.trial_number += 1
+            print("Trial " + str(task.actual_trial_number) + " \n")
+            task.correct_trial_number += 1
+            task.actual_trial_number += 1
             print("*******************************\n")
             # acquire new reward contingency and cue association
             task.current_card = task_information.draw_card(session_info['phase'])
             if session_info['phase'] == "independent_reward":
-                task.current_reward = reward_distribution_list[task.trial_number] + float(task.reward_size_offset)
+                task.current_reward = reward_distribution_list[task.correct_trial_number] + float(task.reward_size_offset)
             elif session_info['phase'] == "forced_choice":
                 task.current_reward = session_info['reward_size']
             elif session_info['phase'] == "sine_reward":
-                task.current_reward = reward_distribution_list[task.trial_number]
+                task.current_reward = reward_distribution_list[task.correct_trial_number]
             logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
                          ";current_reward_" + str(task.current_reward)[1:-1])
             print(" - Current card condition: \n" +
