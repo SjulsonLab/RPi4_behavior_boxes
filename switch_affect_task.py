@@ -121,6 +121,7 @@ class SwitchAffectTask(object):
         self.first_state = False
         self.equiv_bool = True
         self.random_num_rew = 0
+        self.num_switches = 0
         self.random_num_switches = 0
         self.rewards_earned = 0
         self.bin_index = 0
