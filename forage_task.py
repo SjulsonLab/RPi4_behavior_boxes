@@ -187,8 +187,8 @@ class ForageTask(object):
         self.left_licks = 0
         self.reward_size_var = 0
         self.reward_size_index = 0
-        self.right_patch_rewards = [5,4,3,2,1,0]
-        self.left_patch_rewards = [5,4,3,2,1,0]
+        self.right_patch_rewards = [3,2.5,2,1.5,1,0]
+        self.left_patch_rewards =  [3,2.5,2,1.5,1,0]
 
     def run(self):
         if self.state == "standby":
