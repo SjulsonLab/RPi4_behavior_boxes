@@ -4,15 +4,15 @@
 # In[ ]:
 
 
-#run_self_admin_task_context_two_actions_lick_contingent.task
+#run_switch_affect_task.task
 
 #!/usr/bin/env -S ipython3 -i
 # run_self_admin_task.py
 """
 author: Mitch Farrell
 date: 2023-04-26
-name: run_forage_task.py
-goal: running the forage_task
+name: run_switch_affect_task.py
+goal: running the switch_affect_task
 """
 import random
 from transitions import Machine
@@ -93,7 +93,7 @@ try:
         ]
     )
 
-    task = ForageTask(name="switch_affect_task", session_info=session_info)
+    task = SwitchAffectTask(name="switch_affect_task", session_info=session_info)
 
     # start session
     task.start_session()
