@@ -335,13 +335,17 @@ class A_B_task_bias(object):
         self.trial_counter += 1
         if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
             if self.right_entry_bool == True or self.left_entry_bool == True:
+                self.full_task_names_and_times[self.trial_counter][0] = 'ContextB'
                 self.switch_to_ContextB()
             else:
+                self.full_task_names_and_times[self.trial_counter][0] = 'ContextA'
                 self.switch_to_ContextA()
         elif self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
             if self.right_entry_bool == True or self.left_entry_bool == True:
+                self.full_task_names_and_times[self.trial_counter][0] = 'ContextA'
                 self.switch_to_ContextA()
             else:
+                self.full_task_names_and_times[self.trial_counter][0] = 'ContextB'
                 self.switch_to_ContextB()
 
     def exit_standby(self):
