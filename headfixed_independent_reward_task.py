@@ -114,7 +114,8 @@ class HeadfixedIndependentRewardTask(object):
         self.trial_running = False
 
         # trial statistics
-        self.trial_number = 0
+        self.correct_trial_number = 0
+        self.actual_trial_number = 0
         self.error_count = 0
         self.error_list = []
         self.early_lick_error = False
@@ -262,7 +263,7 @@ class HeadfixedIndependentRewardTask(object):
             self.check_cue('sound2')
             self.early_lick_error = False
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
-        logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.trial_number) + ";" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.actual_trial_number) + ";" + str(self.error_repeat))
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
@@ -316,7 +317,7 @@ class HeadfixedIndependentRewardTask(object):
 
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
-        print(str(time.time()) + ", " + str(self.trial_number) + ", cue_state distance satisfied")
+        print(str(time.time()) + ", " + str(self.actual_trial_number) + ", cue_state distance satisfied")
 
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
