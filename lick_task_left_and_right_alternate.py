@@ -4,11 +4,11 @@
 # In[ ]:
 
 
-# python3: lick_task_left_and_right.py
+# python3: lick_task_left_and_right_alternate.py
 """
 author: Mitch Farrell
-date: 2023-05-15
-name: lick_task_left_and_right.py
+date: 2023-06-30
+name: lick_task_left_and_right_alternate.py
 """
 import importlib
 from transitions import Machine
@@ -50,7 +50,7 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class LickTaskLeftandRight(object):
+class LickTaskLeftandRightAlternate(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
