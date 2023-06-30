@@ -108,10 +108,11 @@ class LickTaskLeftandRight(object):
             model=self,
             states=self.states,
             transitions=self.transitions,
-            initial='standby'  # STARTS IN STANDBY MODE
+            initial='standby'
             )
 
     # trial statistics
+        self.right_active = True
         self.trial_running = False
         self.innocent = True
         self.trial_number = 0
@@ -119,7 +120,7 @@ class LickTaskLeftandRight(object):
         self.error_list = []
         self.error_repeat = False
         self.entry_time = 0.0
-        self.entry_interval = self.session_info["entry_interval"] #update lever_press_interval to entry_interval--make this 3s instead of 1s
+        self.entry_interval = self.session_info["entry_interval"]
         self.reward_time = 10
         self.reward_times_up = False
         self.reward_pump1 = self.session_info["reward_pump1"]
@@ -172,14 +173,14 @@ class LickTaskLeftandRight(object):
                 self.event_name = self.box.event_list.popleft()
             else:
                 self.event_name = ''
-            if self.event_name == "right_entry":
-                entry_time_temp = time.time() #current time
-                entry_dt = entry_time_temp - self.entry_time #current entry time minus the previous entry time
-                if entry_dt >= self.entry_interval: #if the previous entry is greater than or equal to 3 seconds, then deliver a reward
+            if self.event_name == "right_entry" and self.right_active == True:
+                entry_time_temp = time.time()
+                entry_dt = entry_time_temp - self.entry_time
+                if entry_dt >= self.entry_interval:
                     self.pump.reward(self.reward_pump1,self.reward_size1)
                     self.entry_time = entry_time_temp
                     self.switch_to_timeout()
-            elif self.event_name == 'left_entry':
+            elif self.event_name == 'left_entry' and self.right_active == False:
                 entry_time_temp = time.time()
                 entry_dt = entry_time_temp - self.entry_time
                 if entry_dt >= self.entry_interval:
@@ -188,32 +189,33 @@ class LickTaskLeftandRight(object):
                     self.switch_to_timeout()
         self.box.check_keybd()
 
-
-
     def enter_standby(self):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
         self.trial_running = False
         self.box.event_list.clear()
     def exit_standby(self):
-        # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
-        # self.box.cueLED2.on()
-
+        if random.randint(0, 1) == 0:
+            self.right_active = True
+        else:
+            self.right_active = False
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
         self.trial_running = True
-
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
         self.box.event_list.clear()
 
     def enter_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_timeout;" + str(self.error_repeat))
-        self.trial_running = False
-        # self.box.sound1.on()
         self.box.event_list.clear()
+        self.trial_running = False
+        if random.randint(0, 1) == 0:
+            self.right_active = True
+        else:
+            self.right_active = False
     def exit_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_timeout;" + str(self.error_repeat))
         # self.box.sound1.off()
