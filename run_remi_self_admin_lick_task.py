@@ -7,11 +7,11 @@
 #run_remi_self_admin_lick_task_reinstatement.py
 
 #!/usr/bin/env -S ipython3 -i
-# run_remi_self_admin_lick_task_reinstatement.py
+# run_remi_self_admin_lick_task.py
 """
 author: Mitch Farrell
 date: 2023-06-12
-name: run_remi_self_admin_lick_task_reinstatement.py
+name: run_remi_self_admin_lick_task.py
 """
 import random
 from transitions import Machine
@@ -49,7 +49,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import your task class here
-from remi_self_admin_lick_task_reinstatement import remi_self_admin_lick_task_reinstatement
+from remi_self_admin_lick_task import remi_self_admin_lick_task
 
 try:
     # load in session_info file, check that dates are correct, put in automatic
@@ -60,7 +60,7 @@ try:
     full_module_name = 'session_info_' + datestr
     import sys
 
-    session_info_path = '/home/pi/experiment_info/remi_self_admin_lick_task_reinstatement/session_info/'
+    session_info_path = '/home/pi/experiment_info/remi_self_admin_lick_task/session_info/'
     sys.path.insert(0, session_info_path)
     tempmod = importlib.import_module(full_module_name)
     session_info = tempmod.session_info
@@ -91,7 +91,7 @@ try:
         ]
     )
 
-    task = remi_self_admin_lick_task_reinstatement(name="remi_self_admin_lick_task_reinstatement", session_info=session_info)
+    task = remi_self_admin_lick_task(name="remi_self_admin_lick_task", session_info=session_info)
 
     # start session
     task.start_session()
