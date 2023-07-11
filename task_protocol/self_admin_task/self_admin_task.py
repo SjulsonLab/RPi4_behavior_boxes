@@ -36,7 +36,9 @@ logging.config.dictConfig(
     }
 )
 # all modules above this line will have logging disabled
-
+# updated with reorganization (on 7/11/2023)
+import sys
+sys.path.insert(0,'/home/pi/RPi4_behavior_boxes/essential')
 import behavbox
 
 
