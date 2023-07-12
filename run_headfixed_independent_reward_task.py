@@ -157,8 +157,8 @@ try:
         offset = session_info['foraging_reward']['offset']
         max_reward = session_info['foraging_reward']['max_reward']
         increment = session_info['foraging_reward']['increment']
-        reward_distribution[0] = offset
-        reward_distribution[1] = offset
+        reward_distribution = (3,3)
+    
 
     first_trial_of_the_session = True
 
