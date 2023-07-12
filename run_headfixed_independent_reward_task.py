@@ -229,7 +229,7 @@ try:
 
         logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
                          ";current_reward_" + str(task.current_reward)[1:-1])
-            print(" - Current card condition: \n" +
+        print(" - Current card condition: \n" +
                   "*******************************\n" +
                   "*reward_side: " + str(task.current_card[0]) + "\n" +
                   "*reward_size: " + str(task.current_reward)[1:-1] + "\n")
