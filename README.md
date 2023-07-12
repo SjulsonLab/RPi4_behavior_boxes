@@ -11,15 +11,15 @@ After configure the session_information path and input the appropriate path lead
 # Example
 To start running the task `headfixed_task.py`
 1. Setup and configure the 'session_information_year-month-date.py' file:
-first, create the experimental_data directory in the home directory path: 
-`$ mkdir ~/experimental_data`\
-second, create all the necessary subdirectories for the specific task: 
-`$ mkdir ~/experimental_data/headfixed_task`\
-`$ mkdir ~/experimental_data/headfixed_task/session_info`\
-then, copy the session_information example file corresponding to the specific task:
-`$ cp ~/RPi4_behavbior_boxes/task_protocol/headfixed_task/session_info_headfixed_independent_reward.py ~/experimental_data/headfixed_task/session_info`\
-2. Modify the newly created session_info file:
-`$ sudo nano ~/experimental_data/headfixed_task/session_info_headfixed_independent_reward.py`
+first, create the experimental_data directory in the home directory path: <br />
+`$ mkdir ~/experimental_data`<br />
+second, create all the necessary subdirectories for the specific task: <br />
+`$ mkdir ~/experimental_data/headfixed_task`<br />
+`$ mkdir ~/experimental_data/headfixed_task/session_info`<br />
+then, copy the session_information example file corresponding to the specific task: <br />
+`$ cp ~/RPi4_behavbior_boxes/task_protocol/headfixed_task/session_info_headfixed_independent_reward.py ~/experimental_data/headfixed_task/session_info` <br />
+2. Modify the newly created session_info file: <br />
+`$ sudo nano ~/experimental_data/headfixed_task/session_info_headfixed_independent_reward.py` <br />
 **KEEP IN MIND** after configuring the session_information to manually change the field manual date to the day of the experiment session (the day of the experiment), and the name of the session_info file from `session_info_headfixed_independent_reward.py` to `session_info_year-month-date.py`. Otherwise, an error would occur when running the task file.
-3. After setting up the session_info file, run the task:
+3. After setting up the session_info file, run the task: <br />
 `$ python3 ~/RPi4_behavior_boxes/task_protocol/headfixed_task/run_headfixed_task.py`
