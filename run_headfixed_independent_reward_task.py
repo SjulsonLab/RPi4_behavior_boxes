@@ -208,6 +208,7 @@ try:
             elif session_info['phase'] == "sine_reward":
                 task.current_reward = reward_distribution_list[task.correct_trial_number]
             elif session_info['phase'] == 'foraging_reward':
+                task.current_reward = reward_distribution
                 if task.cue_state == 'all':
                     if task.side_choice == 'left':
                         reward_distribution[0] = reward_distribution[0] - increment
@@ -223,8 +224,8 @@ try:
                             reward_distribution[1] = 0
                         if reward_distribution[0] > max_reward:
                             reward_distribution[0] = max_reward
+                    task.current_reward = reward_distribution
 
-                task.current_reward = reward_distribution
 
         logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
                          ";current_reward_" + str(task.current_reward)[1:-1])
