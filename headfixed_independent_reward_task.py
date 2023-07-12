@@ -5,7 +5,7 @@ date: 2023-02-16
 name: headfixed2FC_task.py
 goal: model_free reinforcement learning behavioral training task structure
 description:
-    an updated test version of headfixed_task.py
+    an updated test version of headfixed_task.py & add foraging reward condition
 
 """
 import importlib
@@ -152,6 +152,10 @@ class HeadfixedIndependentRewardTask(object):
         self.distance_buffer = None
         self.distance_diff = 0
 
+        # for foragaing parameters
+        self.side_choice = None  # whether free choice is left or right
+        self.cue_state = None
+
         # for refining the lick detection
         self.lick_count = 0
         self.side_mice_buffer = None
@@ -215,6 +219,7 @@ class HeadfixedIndependentRewardTask(object):
                 self.timeline_right_poke.append(time.time())
             if side_mice:
                 self.side_mice_buffer = side_mice
+                self.cue_state = cue_state # cue state for foraging
                 if cue_state == 'all':
                     side_choice = side_mice
                     if side_choice == 'left':
@@ -238,6 +243,7 @@ class HeadfixedIndependentRewardTask(object):
                     self.side_mice_buffer = side_mice
                     if side_mice == side_choice:  # if the animal chose correctly
                         if self.lick_count == 0:  # if this is the first lick
+                            self.side_choice = side_choice # foraging task
                             self.wrong_choice_error = False
                             self.reward_check = True
                             self.lick_count += 1

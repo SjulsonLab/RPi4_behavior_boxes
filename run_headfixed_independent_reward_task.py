@@ -3,10 +3,10 @@
 """
 author: tian qiu & Soyoun Kim
 date: 2023-02-16
-name: run_headfixed2FC_task.py
+name: run_headfixed_independent_reward_task.py
 goal: model_free reinforcement learning behavioral training run task file
 description:
-    an updated test version of run_headfixed_task.py
+    an updated test version of run_headfixed_task.py & add foraging task
 
 """
 import random
@@ -55,6 +55,7 @@ try:
     datestr = datetime.now().strftime("%Y-%m-%d")
     timestr = datetime.now().strftime('%H%M%S')
     full_module_name = 'session_info_' + datestr
+
     import sys
 
     session_info_path = '/home/pi/experiment_info/headfixed_independent_reward_task/session_info'
@@ -152,6 +153,13 @@ try:
         deviation = session_info["sine_reward"]["deviation"]
         reward_distribution_list = generate_sine_wave(increment, period_width, amplitude_offset,
                                                       amplitude_scale, deviation, session_length)
+    elif session_info['phase'] == 'foraging_reward':
+        offset = session_info['foraging_reward']['offset']
+        max_reward = session_info['foraging_reward']['max_reward']
+        increment = session_info['foraging_reward']['increment']
+        reward_distribution[0] = offset
+        reward_distribution[1] = offset
+
     first_trial_of_the_session = True
 
     # # you can change various parameters if you want
@@ -199,7 +207,26 @@ try:
                 task.current_reward = session_info['reward_size']
             elif session_info['phase'] == "sine_reward":
                 task.current_reward = reward_distribution_list[task.correct_trial_number]
-            logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
+            elif session_info['phase'] == 'foraging_reward':
+                if task.cue_state == 'all':
+                    if task.side_choice == 'left':
+                        reward_distribution[0] = reward_distribution[0] - increment
+                        reward_distribution[1] = reward_distribution[1] + increment
+                        if reward_distribution[0]< 0:
+                            reward_distribution[0] = 0
+                        if reward_distribution[1]> max_reward:
+                             reward_distribution[1] = max_reward
+                    elif task.side_choice == 'right':
+                        reward_distribution[1] = reward_distribution[1] - increment
+                        reward_distribution[0] = reward_distribution[0] + increment
+                        if reward_distribution[1] < 0:
+                            reward_distribution[1] = 0
+                        if reward_distribution[0] > max_reward:
+                            reward_distribution[0] = max_reward
+
+                task.current_reward = reward_distribution
+
+        logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
                          ";current_reward_" + str(task.current_reward)[1:-1])
             print(" - Current card condition: \n" +
                   "*******************************\n" +

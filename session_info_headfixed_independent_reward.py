@@ -116,6 +116,12 @@ elif session_info["phase"] == 'sine_reward':
     session_info["sine_reward"]["amplitude_offset"] = 2
     session_info["sine_reward"]["amplitude_scale"] = 3
     session_info["sine_reward"]["deviation"] = 0
+elif session_info['phase'] == 'foraging_reward':
+    session_info["foraging_reward"] = {}
+    session_info["foraging_reward"]["increment"] = 0.25
+    session_info["foraging_reward"]["offset"] = 3
+    session_info["foraging_reward"]["max_reward"] = 10
+
 
 session_info['consecutive_control'] = False
 if session_info['consecutive_control']:
