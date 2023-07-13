@@ -16,7 +16,7 @@ class TaskInformation(object):
                      ('all', ('left', 'right'), ('1', '2')), ('all', ('left', 'right'), ('1', '2')),
                      ]
 
-    def draw_card(self, phase="independent_reward", fraction = 0.5):
+    def draw_card(self, phase="independent_reward", fraction=0.5):
         row_start = 0
         row_end = len(self.deck)-1
 
