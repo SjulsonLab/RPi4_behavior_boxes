@@ -158,7 +158,7 @@ try:
         max_reward = session_info['foraging_reward']['max_reward']
         increment = session_info['foraging_reward']['increment']
         reward_distribution = (3,3)
-    
+
 
     first_trial_of_the_session = True
 
@@ -208,22 +208,26 @@ try:
             elif session_info['phase'] == "sine_reward":
                 task.current_reward = reward_distribution_list[task.correct_trial_number]
             elif session_info['phase'] == 'foraging_reward':
+                reward_L = reward_distribution[0]
+                reward_R = reward_distribution[1]
                 task.current_reward = reward_distribution
                 if task.cue_state == 'all':
                     if task.side_choice == 'left':
-                        reward_distribution[0] = reward_distribution[0] - increment
-                        reward_distribution[1] = reward_distribution[1] + increment
-                        if reward_distribution[0]< 0:
-                            reward_distribution[0] = 0
-                        if reward_distribution[1]> max_reward:
-                             reward_distribution[1] = max_reward
+                        reward_L = reward_L - increment
+                        reward_R = reward_R + increment
+                        if reward_L < 0:
+                            reward_L = 0
+                        if reward_R > max_reward:
+                             reward_R = max_reward
                     elif task.side_choice == 'right':
-                        reward_distribution[1] = reward_distribution[1] - increment
-                        reward_distribution[0] = reward_distribution[0] + increment
-                        if reward_distribution[1] < 0:
-                            reward_distribution[1] = 0
-                        if reward_distribution[0] > max_reward:
-                            reward_distribution[0] = max_reward
+                        reward_R = reward_R - increment
+                        reward_L = reward_L + increment
+                        if reward_R < 0:
+                            reward_R = 0
+                        if reward_L > max_reward:
+                            reward_L = max_reward
+                    reward_L = reward_distribution[0]
+                    reward_R = reward_distribution[1]
                     task.current_reward = reward_distribution
 
 
