@@ -226,8 +226,7 @@ try:
                             reward_R = 0
                         if reward_L > max_reward:
                             reward_L = max_reward
-                    reward_L = reward_distribution[0]
-                    reward_R = reward_distribution[1]
+                    reward_distribution = (reward_L, reward_R)
                     task.current_reward = reward_distribution
 
 
