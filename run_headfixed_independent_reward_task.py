@@ -200,8 +200,8 @@ try:
             task.actual_trial_number += 1
             print("*******************************\n")
             # acquire new reward contingency and cue association
-            print("fraction " + str(session_info['free_choice_fraction']) + " \n")
-            task.current_card = task_information.draw_card(session_info['phase'], session_info['free_choice_fraction'])
+            print("fraction " + str(session_info['fraction']) + " \n")
+            task.current_card = task_information.draw_card(session_info['phase'], session_info['fraction'])
             if session_info['phase'] == "independent_reward":
                 task.current_reward = reward_distribution_list[task.correct_trial_number] + float(task.reward_size_offset)
             elif session_info['phase'] == "forced_choice":
