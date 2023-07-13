@@ -36,7 +36,7 @@ session_info["visual_stimulus"] = False
 session_info['config'] = 'headfixed2FC'
 session_info['treadmill_setup'] = {}
 session_info['treadmill'] = True
-session_info['phase'] = 'independent_reward' # 'forced_choice', 'sine_reward'
+session_info['phase'] = 'foraging_reward' # 'forced_choice', 'sine_reward'
 
 if session_info['treadmill']:
     session_info['treadmill_setup']['distance_cue'] = 5  # cm
@@ -100,10 +100,9 @@ session_info["punishment_timeout"] = 3
 
 session_info["key_reward_amount"] = 2
 session_info['reward_size_offset'] = 2
+session_info['reward_size'] = (5, 5)
 
-if session_info['phase'] == "forced_choice":
-    session_info['reward_size'] = (10, 10)
-elif session_info["phase"] == 'independent_reward':
+if session_info["phase"] == 'independent_reward':
     session_info['independent_reward'] = {}
     session_info['independent_reward']['scale'] = 0.5
     session_info['independent_reward']['offset'] = 3.0
