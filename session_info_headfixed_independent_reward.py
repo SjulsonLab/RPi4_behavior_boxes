@@ -21,7 +21,7 @@ session_info['flipper_filename'] = '/home/pi/buffer/flipper_timestamp'
 # for actual data save to this dir:
 # session_info['basedir']					  	= '/home/pi/video'
 session_info['weight'] = 0.0
-session_info['manual_date'] = '202x-xx-xx'
+session_info['manual_date'] = '2023-07-13'
 session_info['box_name'] = socket.gethostname()
 session_info['block_number'] = 1  # 1 (left large) or 2 (right large) which block starts
 
