@@ -36,8 +36,10 @@ session_info["visual_stimulus"] = False
 session_info['config'] = 'headfixed2FC'
 session_info['treadmill_setup'] = {}
 session_info['treadmill'] = True
+session_info['fraction'] = 0.3     # 0.3, 0.5,0.7,1 # free choice fraction 1 for all free choice
 session_info['phase'] = 'foraging_reward' # 'forced_choice', 'sine_reward'
-session_info['fraction'] = 0.3 # 0.3, 0.5,0.7,1 # free choice fraction 1 for all free choice
+
+
 
 if session_info['treadmill']:
     session_info['treadmill_setup']['distance_cue'] = 5  # cm
