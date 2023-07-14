@@ -200,7 +200,7 @@ try:
             task.actual_trial_number += 1
             print("*******************************\n")
             # acquire new reward contingency and cue association
-            print("fraction " + str(session_info['fraction']) + " \n")
+            #print("fraction " + str(session_info['fraction']) + " \n")
             task.current_card = task_information.draw_card(session_info['phase'], session_info['fraction'])
             if session_info['phase'] == "independent_reward":
                 task.current_reward = reward_distribution_list[task.correct_trial_number] + float(task.reward_size_offset)
@@ -233,6 +233,7 @@ try:
 
         logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
                          ";current_reward_" + str(task.current_reward)[1:-1])
+
         print(" - Current card condition: \n" +
                   "*******************************\n" +
                   "*reward_side: " + str(task.current_card[0]) + "\n" +
