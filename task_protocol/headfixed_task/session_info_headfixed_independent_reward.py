@@ -21,7 +21,7 @@ session_info['flipper_filename'] = '/home/pi/buffer/flipper_timestamp'
 # for actual data save to this dir:
 # session_info['basedir']					  	= '/home/pi/video'
 session_info['weight'] = 0.0
-session_info['manual_date'] = '202x-xx-xx'
+session_info['manual_date'] = '2023-07-13'
 session_info['box_name'] = socket.gethostname()
 session_info['block_number'] = 1  # 1 (left large) or 2 (right large) which block starts
 
@@ -36,7 +36,10 @@ session_info["visual_stimulus"] = False
 session_info['config'] = 'headfixed2FC'
 session_info['treadmill_setup'] = {}
 session_info['treadmill'] = True
-session_info['phase'] = 'independent_reward' # 'forced_choice', 'sine_reward'
+session_info['fraction'] = 0.3     # 0.3, 0.5,0.7,1 # free choice fraction 1 for all free choice
+session_info['phase'] = 'foraging_reward' # 'forced_choice', 'sine_reward'
+
+
 
 if session_info['treadmill']:
     session_info['treadmill_setup']['distance_cue'] = 5  # cm
@@ -100,10 +103,9 @@ session_info["punishment_timeout"] = 3
 
 session_info["key_reward_amount"] = 2
 session_info['reward_size_offset'] = 2
+session_info['reward_size'] = (5, 5)
 
-if session_info['phase'] == "forced_choice":
-    session_info['reward_size'] = (10, 10)
-elif session_info["phase"] == 'independent_reward':
+if session_info["phase"] == 'independent_reward':
     session_info['independent_reward'] = {}
     session_info['independent_reward']['scale'] = 0.5
     session_info['independent_reward']['offset'] = 3.0
@@ -116,8 +118,13 @@ elif session_info["phase"] == 'sine_reward':
     session_info["sine_reward"]["amplitude_offset"] = 2
     session_info["sine_reward"]["amplitude_scale"] = 3
     session_info["sine_reward"]["deviation"] = 0
+elif session_info['phase'] == 'foraging_reward':
+    session_info["foraging_reward"] = {}
+    session_info["foraging_reward"]["increment"] = 0.25
+    session_info["foraging_reward"]["offset"] = 3
+    session_info["foraging_reward"]["max_reward"] = 10
+
 
 session_info['consecutive_control'] = False
 if session_info['consecutive_control']:
     session_info['consecutive_max'] = 3
-
