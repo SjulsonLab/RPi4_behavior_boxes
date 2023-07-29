@@ -3,10 +3,10 @@
 """
 author: tian qiu & Soyoun Kim
 date: 2023-02-16
-name: run_headfixed2FC_task.py
+name: run_headfixed_independent_reward_task.py
 goal: model_free reinforcement learning behavioral training run task file
 description:
-    an updated test version of run_headfixed_task.py
+    an updated test version of run_headfixed_task.py & add foraging task
 
 """
 import random
@@ -55,6 +55,7 @@ try:
     datestr = datetime.now().strftime("%Y-%m-%d")
     timestr = datetime.now().strftime('%H%M%S')
     full_module_name = 'session_info_' + datestr
+
     import sys
 
     session_info_path = '/home/pi/experiment_info/headfixed_task/session_info'
@@ -152,6 +153,13 @@ try:
         deviation = session_info["sine_reward"]["deviation"]
         reward_distribution_list = generate_sine_wave(increment, period_width, amplitude_offset,
                                                       amplitude_scale, deviation, session_length)
+    elif session_info['phase'] == 'foraging_reward':
+        offset = session_info['foraging_reward']['offset']
+        max_reward = session_info['foraging_reward']['max_reward']
+        increment = session_info['foraging_reward']['increment']
+        reward_distribution = (3,3)
+
+
     first_trial_of_the_session = True
 
     # # you can change various parameters if you want
@@ -192,16 +200,41 @@ try:
             task.actual_trial_number += 1
             print("*******************************\n")
             # acquire new reward contingency and cue association
-            task.current_card = task_information.draw_card(session_info['phase'])
+            #print("fraction " + str(session_info['fraction']) + " \n")
+            task.current_card = task_information.draw_card(session_info['phase'], session_info['fraction'])
             if session_info['phase'] == "independent_reward":
                 task.current_reward = reward_distribution_list[task.correct_trial_number] + float(task.reward_size_offset)
             elif session_info['phase'] == "forced_choice":
                 task.current_reward = session_info['reward_size']
             elif session_info['phase'] == "sine_reward":
                 task.current_reward = reward_distribution_list[task.correct_trial_number]
-            logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
+            elif session_info['phase'] == 'foraging_reward':
+                reward_L = reward_distribution[0]
+                reward_R = reward_distribution[1]
+                task.current_reward = reward_distribution
+                if task.cue_state == 'all':
+                    if task.side_choice == 'left':
+                        reward_L = reward_L - increment
+                        reward_R = reward_R + increment
+                        if reward_L < 0:
+                            reward_L = 0
+                        if reward_R > max_reward:
+                             reward_R = max_reward
+                    elif task.side_choice == 'right':
+                        reward_R = reward_R - increment
+                        reward_L = reward_L + increment
+                        if reward_R < 0:
+                            reward_R = 0
+                        if reward_L > max_reward:
+                            reward_L = max_reward
+                    reward_distribution = (reward_L, reward_R)
+                    task.current_reward = reward_distribution
+
+
+        logging.info(";" + str(time.time()) + ";[condition];current_card_" + str(task.current_card) +
                          ";current_reward_" + str(task.current_reward)[1:-1])
-            print(" - Current card condition: \n" +
+
+        print(" - Current card condition: \n" +
                   "*******************************\n" +
                   "*reward_side: " + str(task.current_card[0]) + "\n" +
                   "*reward_size: " + str(task.current_reward)[1:-1] + "\n")
