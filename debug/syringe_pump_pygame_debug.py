@@ -1,4 +1,7 @@
 import pygame
+# updated with reorganization (on 7/11/2023)
+import sys
+sys.path.insert(0,'/home/pi/RPi4_behavior_boxes/essential')
 from behavbox import Pump
 import numpy as np
 
