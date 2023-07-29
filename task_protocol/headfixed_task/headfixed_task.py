@@ -36,7 +36,8 @@ logging.config.dictConfig(
     }
 )
 # all modules above this line will have logging disabled
-
+import sys
+sys.path.insert(0,'/home/pi/RPi4_behavior_boxes/essential')
 import behavbox
 
 
@@ -46,7 +47,7 @@ class TimedStateMachine(Machine):
     pass
 
 
-class HeadfixedIndependentRewardTask(object):
+class HeadfixedTask(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs

@@ -15,7 +15,9 @@ logging.config.dictConfig(
 )
 # all modules above this line will have logging disabled
 
-# import behavbox_test
+# updated with reorganization (on 7/11/2023)
+import sys
+sys.path.insert(0,'/home/pi/RPi4_behavior_boxes/essential')
 import behavbox
 class KellyRecordTask(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
