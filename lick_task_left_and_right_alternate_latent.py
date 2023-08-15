@@ -4,11 +4,11 @@
 # In[ ]:
 
 
-# python3: lick_task_left_and_right_alternate.py
+# python3: lick_task_left_and_right_alternate_latent.py
 """
 author: Mitch Farrell
-date: 2023-06-30
-name: lick_task_left_and_right_alternate.py
+date: 2023-08-15
+name: lick_task_left_and_right_alternate_latent.py
 """
 import importlib
 from transitions import Machine
@@ -112,6 +112,8 @@ class LickTaskLeftandRightAlternateLatent(object):
             )
 
     # trial statistics
+        self.rewards_earned_in_bout = 0
+        self.reward_bout_number = random.randint(1,4)
         self.right_active = True
         self.trial_running = False
         self.innocent = True
