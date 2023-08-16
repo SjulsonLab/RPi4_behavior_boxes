@@ -113,7 +113,7 @@ class LickTaskLeftandRightAlternateLatent(object):
 
     # trial statistics
         self.rewards_earned_in_bout = 0
-        self.reward_bout_number = random.randint(1,4)
+        self.reward_bout_number = random.randint(2,5)
         self.right_active = True
         self.trial_running = False
         self.innocent = True
@@ -180,6 +180,7 @@ class LickTaskLeftandRightAlternateLatent(object):
                 entry_dt = entry_time_temp - self.entry_time
                 if entry_dt >= self.entry_interval:
                     self.pump.reward(self.reward_pump1,self.reward_size1)
+                    self.rewards_earned_in_bout += 1
                     self.entry_time = entry_time_temp
                     self.switch_to_timeout()
             elif self.event_name == 'left_entry' and self.right_active == False and self.rewards_earned_in_bout <= self.reward_bout_number:
@@ -187,6 +188,7 @@ class LickTaskLeftandRightAlternateLatent(object):
                 entry_dt = entry_time_temp - self.entry_time
                 if entry_dt >= self.entry_interval:
                     self.pump.reward(self.reward_pump2, self.reward_size2)
+                    self.rewards_earned_in_bout += 1
                     self.entry_time = entry_time_temp
                     self.switch_to_timeout()
         self.box.check_keybd()
@@ -220,7 +222,7 @@ class LickTaskLeftandRightAlternateLatent(object):
             else:
                 self.right_active = False
             self.rewards_earned_in_bout = 0
-            self.reward_bout_number = random.randint(1,4)
+            self.reward_bout_number = random.randint(2,5)
 
     def exit_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_timeout;" + str(self.error_repeat))
