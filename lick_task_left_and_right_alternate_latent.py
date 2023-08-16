@@ -113,7 +113,7 @@ class LickTaskLeftandRightAlternateLatent(object):
 
     # trial statistics
         self.rewards_earned_in_bout = 0
-        self.reward_bout_number = random.randint(2,5)
+        self.reward_bout_number = random.randint(2,4)
         self.right_active = True
         self.trial_running = False
         self.innocent = True
@@ -222,7 +222,7 @@ class LickTaskLeftandRightAlternateLatent(object):
             else:
                 self.right_active = False
             self.rewards_earned_in_bout = 0
-            self.reward_bout_number = random.randint(2,5)
+            self.reward_bout_number = random.randint(2,4)
 
     def exit_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_timeout;" + str(self.error_repeat))
