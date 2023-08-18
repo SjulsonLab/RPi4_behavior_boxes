@@ -138,8 +138,8 @@ class ChoiceMotivationTask(object):
         self.reward_pump1 = self.session_info["reward_pump1"]
         self.reward_pump2 = self.session_info['reward_pump2']
 
-        self.reward_size1 = 5 #large, right
-        self.reward_size2 = 5 #small, left
+        self.reward_size1 = 5
+        self.reward_size2 = 5
         self.reward_size3 = self.session_info['reward_size3'] #large, left
         self.reward_size4 = self.session_info['reward_size4'] #small, right
 
@@ -297,17 +297,6 @@ class ChoiceMotivationTask(object):
     def exit_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_timeout;" + str(self.error_repeat))
         self.box.event_list.clear()
-
-
-
-
-
-
-
-
-
-
-
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
