@@ -4,11 +4,11 @@
 # In[ ]:
 
 
-# python3: lick_task_left_and_right_alternate_latent.py
+# python3: choice_motivation_task.py
 """
 author: Mitch Farrell
-date: 2023-08-15
-name: lick_task_left_and_right_alternate_latent.py
+date: 2023-08-17
+name: choice_motivation_task.py
 """
 import importlib
 from transitions import Machine
@@ -50,7 +50,7 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class LickTaskLeftandRightAlternateLatent(object):
+class ChoiceMotivationTask(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
@@ -86,23 +86,31 @@ class LickTaskLeftandRightAlternateLatent(object):
             State(name='standby',
                   on_enter=['switch_to_reward_available'],
                   on_exit=["exit_standby"]),
-            State(name="reward_available",
-                  on_enter=["enter_reward_available"],
-                  on_exit=["exit_reward_available"]),
+            State(name="choice_phase",
+                  on_enter=["enter_choice_phase"],
+                  on_exit=["exit_choice_phase"]),
+            State(name='right_motivation_phase',
+                  on_enter=['enter_right_motivation_phase'],
+                  on_exit=['exit_right_motivation_phase']),
+            State(name='left_motivation_phase',
+                  on_enter=['enter_left_motivation_phase'],
+                  on_exit=['exit_left_motivation_phase']),
             Timeout(name='timeout',
                     on_enter=['enter_timeout'],
                     on_exit=['exit_timeout'],
                     timeout = self.session_info['timeout_time'], #session_info
-                    on_timeout = ['switch_to_reward_available'])]
+                    on_timeout = ['switch_to_choice_phase'])]
 
         self.transitions = [
-            ['start_trial_logic', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
+            ['start_trial_logic', 'standby', 'choice_phase'],  # format: ['trigger', 'origin', 'destination']
 
-            ['switch_to_standby', 'reward_available', 'standby'],
-            ['switch_to_reward_available', ['standby','timeout'], 'reward_available'],
+            ['switch_to_choice_phase', 'timeout', 'choice_phase'],
 
-            ['switch_to_timeout', 'reward_available', 'timeout'],
-            ['end_task', ['reward_available','timeout'], 'standby']]
+            ['switch_to_right_motivation_phase', 'choice_phase', 'right_motivation_phase'],
+            ['switch_to_left_motivation_phase', 'choice_phase', 'left_motivation_phase'],
+
+            ['switch_to_timeout', ['choice_phase', 'right_motivation_phase', 'left_motivation_phase'], 'timeout'],
+            ['end_task', ['choice_phase','right_motivation_phase','left_motivation_phase', 'timeout'], 'standby']]
 
         self.machine = TimedStateMachine(
             model=self,
@@ -112,6 +120,8 @@ class LickTaskLeftandRightAlternateLatent(object):
             )
 
     # trial statistics
+        self.right_motivation_phase_FR = self.session_info['right_motivation_phase_FR']
+        self.left_motivation_phase_FR = self.session_info['left_motivation_phase_FR']
         self.rewards_earned_in_bout = 0
         self.reward_bout_number = random.randint(2,4)
         self.right_active = True
@@ -128,8 +138,8 @@ class LickTaskLeftandRightAlternateLatent(object):
         self.reward_pump1 = self.session_info["reward_pump1"]
         self.reward_pump2 = self.session_info['reward_pump2']
 
-        self.reward_size1 = self.session_info["reward_size1"] #large, right
-        self.reward_size2 = self.session_info['reward_size2'] #small, left
+        self.reward_size1 = 5 #large, right
+        self.reward_size2 = 5 #small, left
         self.reward_size3 = self.session_info['reward_size3'] #large, left
         self.reward_size4 = self.session_info['reward_size4'] #small, right
 
@@ -170,28 +180,75 @@ class LickTaskLeftandRightAlternateLatent(object):
     def run(self):
         if self.state == "standby" or self.state == 'timeout':
             pass
-        elif self.state == 'reward_available':
-            if self.box.event_list:
-                self.event_name = self.box.event_list.popleft()
-            else:
-                self.event_name = ''
-            if self.event_name == "right_entry" and self.right_active == True and self.rewards_earned_in_bout <= self.reward_bout_number:
-                entry_time_temp = time.time()
-                entry_dt = entry_time_temp - self.entry_time
-                if entry_dt >= self.entry_interval:
-                    self.pump.reward(self.reward_pump1,self.reward_size1)
-                    self.rewards_earned_in_bout += 1
-                    self.entry_time = entry_time_temp
+        elif self.state == 'choice_phase':
+            self.right_entry_count = 0
+            self.left_entry_count = 0
+            self.counts_list = []
+            self.choice_phase_start = time.time()
+            self.choice_phase_end = self.choice_phase_start + 10
+            self.trial_running = False
+            while self.choice_phase_end > self.choice_phase_start and self.state == 'choice_phase':
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
+                if self.event_name == "right_entry":
+                    self.right_entry_count += 1
+                    self.counts_list.append('right_entry')
+                if self.event_name == "left_entry":
+                    self.left_entry_count += 1
+                    self.counts_list.append('left_entry')
+            if self.right_entry_count > self.left_entry_count:
+                self.switch_to_right_motivation_phase()
+            elif self.left_entry_count > self.right_entry_count:
+                self.switch_to_left_motivation_phase()
+            elif self.right_entry_count == 0 and self.left_entry_count == 0:
+                self.switch_to_timeout()
+            elif self.left_entry_count == self.right_entry_count:
+                if self.counts_list[-1] == 'right_entry':
+                    self.switch_to_right_motivation_phase()
+                else:
+                    self.switch_to_left_motivation_phase()
+        elif self.state == 'right_motivation_phase':
+            self.motivation_phase_start = time.time()
+            self.motivation_phase_end = self.motivation_phase_start + 10
+            self.right_entry_count = 0
+            self.trial_running = False
+            while self.motivation_phase_end > self.motivation_phase_start and self.state == 'right_motivation_phase':
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
+                if self.event_name == "right_entry":
+                    self.right_entry_count += 1
+                if self.right_entry_count >= self.right_motivation_phase_FR:
+                    self.pump.reward(self.reward_pump1, self.reward_size1)
+                    if self.reward_size1 > 0:
+                        self.reward_size1 = self.reward_size1 - 1
+                    if self.reward_size2 < 5:
+                        self.reward_size2 = self.reward_size2 + 1
                     self.switch_to_timeout()
-            elif self.event_name == 'left_entry' and self.right_active == False and self.rewards_earned_in_bout <= self.reward_bout_number:
-                entry_time_temp = time.time()
-                entry_dt = entry_time_temp - self.entry_time
-                if entry_dt >= self.entry_interval:
+            self.switch_to_timeout()
+        elif self.state == 'left_motivation_phase':
+            self.motivation_phase_start = time.time()
+            self.motivation_phase_end = self.motivation_phase_start + 10
+            self.left_entry_count = 0
+            self.trial_running = False
+            while self.motivation_phase_end > self.motivation_phase_start and self.state == 'right_motivation_phase':
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
+                if self.event_name == "right_entry":
+                    self.right_entry_count += 1
+                if self.right_entry_count >= self.right_motivation_phase_FR:
                     self.pump.reward(self.reward_pump2, self.reward_size2)
-                    self.rewards_earned_in_bout += 1
-                    self.entry_time = entry_time_temp
+                    if self.reward_size2 > 0:
+                        self.reward_size2 = self.reward_size2 - 1
+                    if self.reward_size1 < 5:
+                        self.reward_size1 = self.reward_size1 + 1
                     self.switch_to_timeout()
-        self.box.check_keybd()
+            self.switch_to_timeout()
 
     def enter_standby(self):
         # self.error_repeat = False
@@ -201,33 +258,57 @@ class LickTaskLeftandRightAlternateLatent(object):
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
-        if random.randint(0, 1) == 0:
-            self.right_active = True
-        else:
-            self.right_active = False
-    def enter_reward_available(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
+
+    def enter_choice_phase(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_choice_phase;" + str(self.error_repeat))
         self.trial_running = True
-    def exit_reward_available(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
+        self.box.cueLED1.on()
+        self.box.cueLED2.on()
+    def exit_choice_phase(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_choice_phase;" + str(self.error_repeat))
         self.box.event_list.clear()
+
+    def enter_right_motivation_phase(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_right_motivation_phase;" + str(self.error_repeat))
+        self.trial_running = True
+        self.box.cueLED2.off()
+        self.box.sound1.on()
+    def exit_right_motivation_phase(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_right_motivation_phase;" + str(self.error_repeat))
+        self.box.event_list.clear()
+        self.box.cueLED1.off()
+        self.box.sound1.off()
+
+    def enter_left_motivation_phase(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_left_motivation_phase;" + str(self.error_repeat))
+        self.trial_running = True
+        self.box.cueLED1.off()
+        self.box.sound1.on()
+    def exit_left_motivation_phase(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_left_motivation_phase;" + str(self.error_repeat))
+        self.box.event_list.clear()
+        self.box.cueLED2.off()
+        self.box.sound1.off()
 
     def enter_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_timeout;" + str(self.error_repeat))
         self.box.event_list.clear()
         self.trial_running = False
-        if self.rewards_earned_in_bout >= self.reward_bout_number:
-            if random.randint(0, 1) == 0:
-                self.right_active = True
-            else:
-                self.right_active = False
-            self.rewards_earned_in_bout = 0
-            self.reward_bout_number = random.randint(2,4)
-
     def exit_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_timeout;" + str(self.error_repeat))
-        # self.box.sound1.off()
         self.box.event_list.clear()
+
+
+
+
+
+
+
+
+
+
+
+
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
         axes.plot([1, 2], [1, 2], color='green', label='test')
