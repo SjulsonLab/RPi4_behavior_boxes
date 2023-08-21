@@ -143,7 +143,7 @@ class ChoiceMotivationTask(object):
         self.reward_size3 = self.session_info['reward_size3'] #large, left
         self.reward_size4 = self.session_info['reward_size4'] #small, right
 
-        self.ContextA_time = 0-
+        self.ContextA_time = 0
         self.ContextB_time = 0
 
         self.active_press = 0
