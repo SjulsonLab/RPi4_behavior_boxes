@@ -298,6 +298,9 @@ class ChoiceMotivationTask(object):
     def enter_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_timeout;" + str(self.error_repeat))
         self.box.event_list.clear()
+        self.box.cueLED1.off()
+        self.box.cueLED2.off()
+        self.box.sound1.off()
         self.trial_running = False
     def exit_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_timeout;" + str(self.error_repeat))
