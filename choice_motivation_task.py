@@ -184,10 +184,11 @@ class ChoiceMotivationTask(object):
             self.right_entry_count = 0
             self.left_entry_count = 0
             self.counts_list = []
-            self.choice_phase_start = time.time()
-            self.choice_phase_end = self.choice_phase_start + 10
+            self.current_time = time.time()
+            self.choice_phase_end = time.time() + 10
             self.trial_running = False
-            while self.choice_phase_end > self.choice_phase_start and self.state == 'choice_phase':
+            while self.choice_phase_end > self.current_time and self.state == 'choice_phase':
+                self.current_time = time.time()
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
@@ -210,11 +211,12 @@ class ChoiceMotivationTask(object):
                 else:
                     self.switch_to_left_motivation_phase()
         elif self.state == 'right_motivation_phase':
-            self.motivation_phase_start = time.time()
+            self.current_time = time.time()
             self.motivation_phase_end = self.motivation_phase_start + 10
             self.right_entry_count = 0
             self.trial_running = False
-            while self.motivation_phase_end > self.motivation_phase_start and self.state == 'right_motivation_phase':
+            while self.motivation_phase_end > self.current_time and self.state == 'right_motivation_phase':
+                self.current_time = time.time()
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
@@ -230,11 +232,12 @@ class ChoiceMotivationTask(object):
                     self.switch_to_timeout()
             self.switch_to_timeout()
         elif self.state == 'left_motivation_phase':
-            self.motivation_phase_start = time.time()
+            self.current_time = time.time()
             self.motivation_phase_end = self.motivation_phase_start + 10
             self.left_entry_count = 0
             self.trial_running = False
-            while self.motivation_phase_end > self.motivation_phase_start and self.state == 'right_motivation_phase':
+            while self.motivation_phase_end > self.current_time and self.state == 'right_motivation_phase':
+                self.current_time = time.time()
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
