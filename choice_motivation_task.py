@@ -84,7 +84,7 @@ class ChoiceMotivationTask(object):
         # initialize the state machine
         self.states = [
             State(name='standby',
-                  on_enter=['switch_to_reward_available'],
+                  on_enter=['end_task'],
                   on_exit=["exit_standby"]),
             State(name="choice_phase",
                   on_enter=["enter_choice_phase"],
@@ -110,7 +110,7 @@ class ChoiceMotivationTask(object):
             ['switch_to_left_motivation_phase', 'choice_phase', 'left_motivation_phase'],
 
             ['switch_to_timeout', ['choice_phase', 'right_motivation_phase', 'left_motivation_phase'], 'timeout'],
-            ['end_task', ['choice_phase','right_motivation_phase','left_motivation_phase', 'timeout'], 'standby']]
+            ['end_task', ['choice_phase','right_motivation_phase','left_motivation_phase', 'timeout'], 'timeout']]
 
         self.machine = TimedStateMachine(
             model=self,
