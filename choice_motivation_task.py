@@ -212,7 +212,7 @@ class ChoiceMotivationTask(object):
                     self.switch_to_left_motivation_phase()
         elif self.state == 'right_motivation_phase':
             self.current_time = time.time()
-            self.motivation_phase_end = self.motivation_phase_start + 10
+            self.motivation_phase_end = time.time() + 10
             self.right_entry_count = 0
             self.trial_running = False
             while self.motivation_phase_end > self.current_time and self.state == 'right_motivation_phase':
@@ -233,7 +233,7 @@ class ChoiceMotivationTask(object):
             self.switch_to_timeout()
         elif self.state == 'left_motivation_phase':
             self.current_time = time.time()
-            self.motivation_phase_end = self.motivation_phase_start + 10
+            self.motivation_phase_end = time.time() + 10
             self.left_entry_count = 0
             self.trial_running = False
             while self.motivation_phase_end > self.current_time and self.state == 'right_motivation_phase':
