@@ -237,15 +237,15 @@ class ChoiceMotivationTask(object):
             self.motivation_phase_end = time.time() + 10
             self.left_entry_count = 0
             self.trial_running = False
-            while self.motivation_phase_end > self.current_time and self.state == 'right_motivation_phase':
+            while self.motivation_phase_end > self.current_time and self.state == 'left_motivation_phase':
                 self.current_time = time.time()
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
                     self.event_name = ''
-                if self.event_name == "right_entry":
-                    self.right_entry_count += 1
-                if self.right_entry_count >= self.right_motivation_phase_FR:
+                if self.event_name == "left_entry":
+                    self.left_entry_count += 1
+                if self.left_entry_count >= self.left_motivation_phase_FR:
                     self.pump.reward(self.reward_pump2, self.reward_size2)
                     if self.reward_size2 > 0:
                         self.reward_size2 = self.reward_size2 - 1
