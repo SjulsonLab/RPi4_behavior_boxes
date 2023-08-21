@@ -230,7 +230,8 @@ class ChoiceMotivationTask(object):
                     if self.reward_size2 < 5:
                         self.reward_size2 = self.reward_size2 + 1
                     self.switch_to_timeout()
-            self.switch_to_timeout()
+            if self.state != 'timeout':
+                self.switch_to_timeout()
         elif self.state == 'left_motivation_phase':
             self.current_time = time.time()
             self.motivation_phase_end = time.time() + 10
@@ -251,7 +252,8 @@ class ChoiceMotivationTask(object):
                     if self.reward_size1 < 5:
                         self.reward_size1 = self.reward_size1 + 1
                     self.switch_to_timeout()
-            self.switch_to_timeout()
+            if self.state != 'timeout':
+                self.switch_to_timeout()
 
     def enter_standby(self):
         # self.error_repeat = False
@@ -274,23 +276,23 @@ class ChoiceMotivationTask(object):
     def enter_right_motivation_phase(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_right_motivation_phase;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.cueLED2.off()
+        self.box.cueLED1.off()
         self.box.sound1.on()
     def exit_right_motivation_phase(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_right_motivation_phase;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.box.cueLED1.off()
+        self.box.cueLED2.off()
         self.box.sound1.off()
 
     def enter_left_motivation_phase(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_left_motivation_phase;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.cueLED1.off()
+        self.box.cueLED2.off()
         self.box.sound1.on()
     def exit_left_motivation_phase(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_left_motivation_phase;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.box.cueLED2.off()
+        self.box.cueLED1.off()
         self.box.sound1.off()
 
     def enter_timeout(self):
