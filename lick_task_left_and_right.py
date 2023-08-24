@@ -188,8 +188,6 @@ class LickTaskLeftandRight(object):
                     self.switch_to_timeout()
         self.box.check_keybd()
 
-
-
     def enter_standby(self):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))

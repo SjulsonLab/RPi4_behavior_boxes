@@ -185,7 +185,7 @@ class ChoiceMotivationTask(object):
             self.left_entry_count = 0
             self.counts_list = []
             self.current_time = time.time()
-            self.choice_phase_end = time.time() + 10
+            self.choice_phase_end = time.time() + 5
             self.trial_running = False
             while self.choice_phase_end > self.current_time and self.state == 'choice_phase':
                 self.current_time = time.time()
