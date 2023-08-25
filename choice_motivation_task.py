@@ -277,30 +277,30 @@ class ChoiceMotivationTask(object):
         logging.info(";" + str(time.time()) + ";[transition];enter_right_motivation_phase;" + str(self.error_repeat))
         self.trial_running = True
         self.box.cueLED1.off()
-        self.box.sound2.on()
+        self.box.sound1.on()
     def exit_right_motivation_phase(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_right_motivation_phase;" + str(self.error_repeat))
         self.box.event_list.clear()
         self.box.cueLED2.off()
-        self.box.sound2.off()
+        self.box.sound1.off()
 
     def enter_left_motivation_phase(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_left_motivation_phase;" + str(self.error_repeat))
         self.trial_running = True
         self.box.cueLED2.off()
-        self.box.sound2.on()
+        self.box.sound1.on()
     def exit_left_motivation_phase(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_left_motivation_phase;" + str(self.error_repeat))
         self.box.event_list.clear()
         self.box.cueLED1.off()
-        self.box.sound2.off()
+        self.box.sound1.off()
 
     def enter_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_timeout;" + str(self.error_repeat))
         self.box.event_list.clear()
         self.box.cueLED1.off()
         self.box.cueLED2.off()
-        self.box.sound2.off()
+        self.box.sound1.off()
         self.trial_running = False
     def exit_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_timeout;" + str(self.error_repeat))
