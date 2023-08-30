@@ -52,72 +52,72 @@ class TimedStateMachine(Machine):
 
 class A_B_task(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
-        # Initialize duration lists for contexts and intercontext intervals
-        self.ContextA_durations = [15, 20, 25, 30, 35] * 8
-        self.ContextB_durations = [15, 20, 25, 30, 35] * 8
-        self.intercontext_interval_durations = [10, 15, 20, 25, 30] * 16
-
-        # Shuffling duration lists
-        random.shuffle(self.ContextA_durations)
-        random.shuffle(self.ContextB_durations)
-        random.shuffle(self.intercontext_interval_durations)
-
-        # Initialize context names and counts
-        self.contexts = ['ContextA', 'ContextB']
-        self.context_counts = {'ContextA': 0, 'ContextB': 0}
-
-        # Initialize task list and total duration
-        self.full_task_names_and_times = []
-        self.total_duration = 0
-
-        # Previous two contexts
-        self.prev_contexts = ['', '']
-
-        while self.total_duration < 3600:
-            # Select a context different from the last two (unless we're in the final 10)
-            while True:
-                self.context = random.choice(self.contexts)
-                if (not (self.prev_contexts[0] == self.prev_contexts[1] == self.context) and self.context_counts[self.context] < 40) or (
-                        (self.context_counts['ContextA'] >= 30 and self.context_counts['ContextB'] >= 30)):
-                    break
-
-            # Update previous context indicators and increment count
-            self.prev_contexts[0] = self.prev_contexts[1]
-            self.prev_contexts[1] = self.context
-            self.context_counts[self.context] += 1
-
-            # Select a duration for the context if we have any left for this context
-            if self.context == 'ContextA' and self.ContextA_durations:
-                self.duration = self.ContextA_durations.pop()
-            elif self.context == 'ContextB' and self.ContextB_durations:
-                self.duration = self.ContextB_durations.pop()
-            else:
-                continue
-
-            # Ensure total duration does not exceed 3600
-            if self.total_duration + self.duration > 3600:
-                continue
-
-            # Append the context and its duration to the task list
-            self.full_task_names_and_times.append([self.context, self.duration])
-            self.total_duration += self.duration
-
-            # Select a duration for the intercontext interval
-            if self.intercontext_interval_durations:
-                self.interval_duration = self.intercontext_interval_durations.pop()
-
-                # Ensure total duration does not exceed 3600
-                if self.total_duration + self.interval_duration > 3600:
-                    continue
-
-                # Append the intercontext interval and its duration to the task list
-                self.full_task_names_and_times.append(['intercontext_interval', self.interval_duration])
-                self.total_duration += self.interval_duration
-        self.full_task_names_and_times.append(['task_end', 60])
-
-        logging.info(self.full_task_names_and_times)
-
-        self.trial_counter = 0
+        # # Initialize duration lists for contexts and intercontext intervals
+        # self.ContextA_durations = [15, 20, 25, 30, 35] * 8
+        # self.ContextB_durations = [15, 20, 25, 30, 35] * 8
+        # self.intercontext_interval_durations = [10, 15, 20, 25, 30]
+        #
+        # # Shuffling duration lists
+        # random.shuffle(self.ContextA_durations)
+        # random.shuffle(self.ContextB_durations)
+        # random.shuffle(self.intercontext_interval_durations)
+        #
+        # # Initialize context names and counts
+        # self.contexts = ['ContextA', 'ContextB']
+        # self.context_counts = {'ContextA': 0, 'ContextB': 0}
+        #
+        # # Initialize task list and total duration
+        # self.full_task_names_and_times = []
+        # self.total_duration = 0
+        #
+        # # Previous two contexts
+        # self.prev_contexts = ['', '']
+        #
+        # while self.total_duration < 3600:
+        #     # Select a context different from the last two (unless we're in the final 10)
+        #     while True:
+        #         self.context = random.choice(self.contexts)
+        #         if (not (self.prev_contexts[0] == self.prev_contexts[1] == self.context) and self.context_counts[self.context] < 40) or (
+        #                 (self.context_counts['ContextA'] >= 30 and self.context_counts['ContextB'] >= 30)):
+        #             break
+        #
+        #     # Update previous context indicators and increment count
+        #     self.prev_contexts[0] = self.prev_contexts[1]
+        #     self.prev_contexts[1] = self.context
+        #     self.context_counts[self.context] += 1
+        #
+        #     # Select a duration for the context if we have any left for this context
+        #     if self.context == 'ContextA' and self.ContextA_durations:
+        #         self.duration = self.ContextA_durations.pop()
+        #     elif self.context == 'ContextB' and self.ContextB_durations:
+        #         self.duration = self.ContextB_durations.pop()
+        #     else:
+        #         continue
+        #
+        #     # Ensure total duration does not exceed 3600
+        #     if self.total_duration + self.duration > 3600:
+        #         continue
+        #
+        #     # Append the context and its duration to the task list
+        #     self.full_task_names_and_times.append([self.context, self.duration])
+        #     self.total_duration += self.duration
+        #
+        #     # Select a duration for the intercontext interval
+        #     if self.intercontext_interval_durations:
+        #         self.interval_duration = self.intercontext_interval_durations.pop()
+        #
+        #         # Ensure total duration does not exceed 3600
+        #         if self.total_duration + self.interval_duration > 3600:
+        #             continue
+        #
+        #         # Append the intercontext interval and its duration to the task list
+        #         self.full_task_names_and_times.append(['intercontext_interval', self.interval_duration])
+        #         self.total_duration += self.interval_duration
+        # self.full_task_names_and_times.append(['task_end', 60])
+        #
+        # logging.info(self.full_task_names_and_times)
+        #
+        # self.trial_counter = 0
 
         # if no name or session, make fake ones (for testing purposes)
         if kwargs.get("name", None) is None:
@@ -177,6 +177,10 @@ class A_B_task(object):
         self.machine.add_transition('start_trial_logic', 'standby', 'ContextB', conditions='start_in_ContextB')
 
     # trial statistics
+        self.random_int = random.randint(0,1)
+        self.prior_two_trials_list = ['','']
+        self.xreward_before_switch = self.session_info["xreward_before_switch"] #5
+        self.intercontext_interval_durations = [10, 15, 20, 25, 30]
         self.right_entry_bool = True
         self.left_entry_bool = True
         self.intercontext_interval_time = 0
@@ -241,24 +245,27 @@ class A_B_task(object):
         elif self.state == 'intercontext_interval':
             self.trial_running = False
             self.intercontext_interval_time = time.time()
+            self.current_state_time = random.choice(self.intercontext_interval_durations)
             while (time.time() - self.intercontext_interval_time) <= self.current_state_time:
                 pass
             self.switch_to_ContextA_B()
         elif self.state == 'ContextA':
             self.trial_running = False
-            self.ContextA_time = time.time()
             self.LED_bool = False
             self.prior_reward_time = 0
             self.left_entry_bool = False
-            while (time.time() - self.ContextA_time) <= self.current_state_time:
+            self.xreward_earned = 0
+            self.prior_two_trials_list.pop(0)
+            self.prior_two_trials_list.append('ContextA')
+            while self.xreward_earned <= self.xreward_before_switch:
                 if not self.LED_bool:
-                    if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI: #first trial after entering the state
+                    if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
                         self.box.cueLED1.on()
                         self.box.cueLED2.on()
                         self.LED_on_time = time.time()
                         self.LED_bool = True
                         self.box.event_list.clear()
-                    while self.LED_bool and time.time() - self.ContextA_time <= self.current_state_time:
+                    while self.LED_bool and self.xreward_earned <= self.xreward_before_switch:
                         if self.box.event_list:
                             self.event_name = self.box.event_list.popleft()
                         else:
@@ -272,6 +279,7 @@ class A_B_task(object):
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
                             self.left_entry_bool = True
+                            self.xreward_earned += 1
                         elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
                             self.box.cueLED1.off()
                             self.box.cueLED2.off()
@@ -280,22 +288,24 @@ class A_B_task(object):
                             self.random_ITI = 3  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
-            if (time.time() - self.ContextA_time) >= self.current_state_time:
-                self.switch_to_intercontext_interval()
+            self.switch_to_intercontext_interval()
         elif self.state == 'ContextB':
             self.trial_running = False
             self.ContextB_time = time.time()  # assign the context switch time to this variable
             self.LED_bool = False
             self.prior_reward_time = 0
             self.right_entry_bool = False
-            while (time.time() - self.ContextB_time) <= self.current_state_time:
-                if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:  # first trial after entering the state
+            self.xreward_earned = 0
+            self.prior_two_trials_list.pop(0)
+            self.prior_two_trials_list.append('ContextB')
+            while self.xreward_earned <= self.xreward_before_switch:
+                if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
                     self.box.cueLED1.on()
                     self.box.cueLED2.on()
                     self.LED_on_time = time.time()
                     self.LED_bool = True
                     self.box.event_list.clear()
-                    while self.LED_bool and time.time() - self.ContextB_time <= self.current_state_time:
+                    while self.LED_bool and self.xreward_earned <= self.xreward_before_switch:
                         if self.box.event_list:
                             self.event_name = self.box.event_list.popleft()
                         else:
@@ -317,25 +327,29 @@ class A_B_task(object):
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
                             self.right_entry_bool = True
-            if (time.time() - self.ContextB_time) >= self.current_state_time:
-                self.switch_to_intercontext_interval()
+                            self.xreward_earned += 1
+            self.switch_to_intercontext_interval()
     def start_in_ContextA(self):
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
+        if self.random_int == 0:
             return True
         else:
             return False
     def start_in_ContextB(self):
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
+        if self.rand_int == 1:
             return True
         else:
             return False
 
     def switch_to_ContextA_B(self):
-        self.trial_counter += 1
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextB':
+        if self.prior_two_trials_list[0] == 'ContextA' and self.prior_two_trials_list[1] == 'ContextA':
             self.switch_to_ContextB()
-        if self.full_task_names_and_times[self.trial_counter][0] == 'ContextA':
+        elif self.prior_two_trials_list[0] == 'ContextB' and self.prior_two_trials_list[1] == 'ContextB':
             self.switch_to_ContextA()
+        else:
+            if random.randint(0,1) == 0:
+                self.switch_to_ContextA()
+            if random.randint(0,1) == 1:
+                self.switch_to_ContextB()
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby")
@@ -347,17 +361,9 @@ class A_B_task(object):
         self.box.sound1.blink(0.1, 0.1)
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_ContextA_" +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        if self.full_task_names_and_times[self.trial_counter][1] == 15:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 20:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[1],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 25:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[2],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 30:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[3],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 35:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[4],0)
         self.trial_running = True
+        while self.state == 'ContextA': #think about best ways to implement this...
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
 
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA")
@@ -374,17 +380,9 @@ class A_B_task(object):
         self.box.sound1.blink(0.2, 0.1)
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_ContextB_" +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
-        if self.full_task_names_and_times[self.trial_counter][1] == 15:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 20:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[6],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 25:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[7],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 30:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[8],0)
-        elif self.full_task_names_and_times[self.trial_counter][1] == 35:
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[9],0)
         self.trial_running = True
+        while self.state == 'ContextB':
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
 
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB")
