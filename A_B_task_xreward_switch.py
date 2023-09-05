@@ -23,7 +23,6 @@ from gpiozero import PWMLED, LED, Button
 from colorama import Fore, Style
 import logging.config
 from time import sleep
-import random
 import threading
 import matplotlib
 import matplotlib.pyplot as plt
@@ -335,7 +334,7 @@ class A_B_task_xreward_switch(object):
         else:
             return False
     def start_in_ContextB(self):
-        if self.rand_int == 1:
+        if self.random_int == 1:
             return True
         else:
             return False
