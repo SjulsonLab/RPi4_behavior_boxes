@@ -3,11 +3,11 @@
 
 # In[ ]:
 
-# python3: A_B_task.py
+# python3: A_B_task_xreward_switch.py
 """
 author: Mitch Farrell
 date: 2023-05-15
-name: A_B_task.py
+name: A_B_task_xreward_switch.py
 """
 import importlib
 from transitions import Machine
@@ -50,7 +50,7 @@ import random
 class TimedStateMachine(Machine):
     pass
 
-class A_B_task(object):
+class A_B_task_xreward_switch(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
         # # Initialize duration lists for contexts and intercontext intervals
         # self.ContextA_durations = [15, 20, 25, 30, 35] * 8
@@ -291,7 +291,7 @@ class A_B_task(object):
             self.switch_to_intercontext_interval()
         elif self.state == 'ContextB':
             self.trial_running = False
-            self.ContextB_time = time.time()  # assign the context switch time to this variable
+            self.ContextB_time = time.time()
             self.LED_bool = False
             self.prior_reward_time = 0
             self.right_entry_bool = False
