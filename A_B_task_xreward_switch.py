@@ -176,6 +176,7 @@ class A_B_task_xreward_switch(object):
         self.machine.add_transition('start_trial_logic', 'standby', 'ContextB', conditions='start_in_ContextB')
 
     # trial statistics
+        self.temp = random.randint(0,1)
         self.random_int = random.randint(0,1)
         self.prior_two_trials_list = ['','']
         self.xreward_before_switch = self.session_info["xreward_before_switch"] #5
@@ -272,8 +273,8 @@ class A_B_task_xreward_switch(object):
             while self.xreward_earned <= self.xreward_before_switch:
                 if not self.LED_bool:
                     if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
-                        self.box.cueLED1.on()
-                        self.box.cueLED2.on()
+                        # self.box.cueLED1.on()
+                        # self.box.cueLED2.on()
                         self.LED_on_time = time.time()
                         self.LED_bool = True
                         self.box.event_list.clear()
@@ -283,8 +284,8 @@ class A_B_task_xreward_switch(object):
                         else:
                             self.event_name = ''
                         if self.event_name == "left_entry" and time.time() - self.LED_on_time > self.LED_delay_time:
-                            self.box.cueLED1.off()
-                            self.box.cueLED2.off()
+                            # self.box.cueLED1.off()
+                            # self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump2, self.reward_size2)
                             self.prior_reward_time = time.time()
                             self.random_ITI = 3 #2,3,4
@@ -293,8 +294,8 @@ class A_B_task_xreward_switch(object):
                             self.left_entry_bool = True
                             self.xreward_earned += 1
                         elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
-                            self.box.cueLED1.off()
-                            self.box.cueLED2.off()
+                            # self.box.cueLED1.off()
+                            # self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump1, self.reward_size1)
                             self.prior_reward_time = time.time()
                             self.random_ITI = 3  # 2,3,4
@@ -314,8 +315,8 @@ class A_B_task_xreward_switch(object):
             self.B_thread.start()
             while self.xreward_earned <= self.xreward_before_switch:
                 if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
-                    self.box.cueLED1.on()
-                    self.box.cueLED2.on()
+                    # self.box.cueLED1.on()
+                    # self.box.cueLED2.on()
                     self.LED_on_time = time.time()
                     self.LED_bool = True
                     self.box.event_list.clear()
@@ -325,16 +326,16 @@ class A_B_task_xreward_switch(object):
                         else:
                             self.event_name = ''
                         if self.event_name == "left_entry" and time.time() - self.LED_on_time > self.LED_delay_time:
-                            self.box.cueLED1.off()
-                            self.box.cueLED2.off()
+                            # self.box.cueLED1.off()
+                            # self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump2, self.reward_size3)
                             self.prior_reward_time = time.time()
                             self.random_ITI = 3  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             self.LED_bool = False
                         elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
-                            self.box.cueLED1.off()
-                            self.box.cueLED2.off()
+                            # self.box.cueLED1.off()
+                            # self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump1, self.reward_size4)
                             self.prior_reward_time = time.time()
                             self.random_ITI = 3  # 2,3,4
@@ -361,9 +362,10 @@ class A_B_task_xreward_switch(object):
         elif self.prior_two_trials_list[0] == 'ContextB' and self.prior_two_trials_list[1] == 'ContextB':
             self.switch_to_ContextA()
         else:
-            if random.randint(0,1) == 0:
+            self.temp = random.randint(0,1)
+            if self.temp == 0:
                 self.switch_to_ContextA()
-            if random.randint(0,1) == 1:
+            else:
                 self.switch_to_ContextB()
 
     def exit_standby(self):
@@ -373,7 +375,7 @@ class A_B_task_xreward_switch(object):
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA")
         self.trial_running = True
-        self.box.sound1.blink(0.1, 0.1)
+        # self.box.sound1.blink(0.1, 0.1)
         # while self.state == 'ContextA':
         #     self.box.sound1.blink(0.1, 0.1)
         #     self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
@@ -391,7 +393,7 @@ class A_B_task_xreward_switch(object):
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB")
         self.trial_running = True
-        self.box.sound1.blink(0.2, 0.1)
+        # self.box.sound1.blink(0.2, 0.1)
         # while self.state == 'ContextB':
         #     self.box.sound1.blink(0.2, 0.1)
         #     self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
