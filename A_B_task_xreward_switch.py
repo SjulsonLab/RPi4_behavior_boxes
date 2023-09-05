@@ -238,6 +238,20 @@ class A_B_task_xreward_switch(object):
         # session_statistics
         self.total_reward = 0
 
+    def ContextA_stim(self):
+        while self.state == 'ContextA':
+            self.box.sound1.blink(0.1, 0.1)
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0], 0)
+            time.sleep(1)
+            self.box.sound1.off()
+
+    def ContextB_stim(self):
+        while self.state == 'ContextB':
+            self.box.sound1.blink(0.2, 0.1)
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5], 0)
+            time.sleep(1)
+            self.box.sound1.off()
+
     def run(self):
         if self.state == "standby":
             pass
@@ -332,20 +346,6 @@ class A_B_task_xreward_switch(object):
                             self.right_entry_bool = True
                             self.xreward_earned += 1
             self.switch_to_intercontext_interval()
-
-    def ContextA_stim(self):
-        while self.state == 'ContextA':
-            self.box.sound1.blink(0.1, 0.1)
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0], 0)
-            time.sleep(1)
-            self.box.sound1.off()
-
-    def ContextB_stim(self):
-        while self.state == 'ContextB':
-            self.box.sound1.blink(0.2, 0.1)
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5], 0)
-            time.sleep(1)
-            self.box.sound1.off()
 
     def start_in_ContextA(self):
         if self.random_int == 0:
