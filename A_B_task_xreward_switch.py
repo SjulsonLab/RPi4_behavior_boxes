@@ -244,14 +244,12 @@ class A_B_task_xreward_switch(object):
             self.box.sound1.blink(0.1, 0.1)
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0], 0)
             time.sleep(1)
-            self.box.sound1.off()
 
     def ContextB_stim(self):
         while self.state == 'ContextB':
             self.box.sound1.blink(0.2, 0.1)
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5], 0)
             time.sleep(1)
-            self.box.sound1.off()
 
     def run(self):
         if self.state == "standby":
