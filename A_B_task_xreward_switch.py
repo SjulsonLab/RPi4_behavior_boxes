@@ -229,8 +229,6 @@ class A_B_task_xreward_switch(object):
         self.lick_count = 0
         self.side_mice_buffer = None
         self.LED_blink = False
-        self.A_thread = threading.Thread(target=ContextA_stim)
-        self.B_thread = threading.Thread(target=ContextB_stim)
 
         try:
             self.lick_threshold = self.session_info["lick_threshold"]
@@ -241,19 +239,22 @@ class A_B_task_xreward_switch(object):
         # session_statistics
         self.total_reward = 0
 
-    def ContextA_stim(self):
-        while self.state == 'ContextA':
-            self.box.sound1.blink(0.1, 0.1)
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0], 0)
-            time.sleep(1)
-            self.box.sound1.off()
+        def ContextA_stim(self):
+            while self.state == 'ContextA':
+                self.box.sound1.blink(0.1, 0.1)
+                self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0], 0)
+                time.sleep(1)
+                self.box.sound1.off()
 
-    def ContextB_stim(self):
-        while self.state == 'ContextB':
-            self.box.sound1.blink(0.2, 0.1)
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5], 0)
-            time.sleep(1)
-            self.box.sound1.off()
+        def ContextB_stim(self):
+            while self.state == 'ContextB':
+                self.box.sound1.blink(0.2, 0.1)
+                self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5], 0)
+                time.sleep(1)
+                self.box.sound1.off()
+
+        self.A_thread = threading.Thread(target=ContextA_stim)
+        self.B_thread = threading.Thread(target=ContextB_stim)
 
     def run(self):
         if self.state == "standby":
