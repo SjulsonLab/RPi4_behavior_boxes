@@ -229,6 +229,9 @@ class A_B_task_xreward_switch(object):
         self.lick_count = 0
         self.side_mice_buffer = None
         self.LED_blink = False
+        self.A_thread = threading.Thread(target=ContextA_stim)
+        self.B_thread = threading.Thread(target=ContextB_stim)
+
         try:
             self.lick_threshold = self.session_info["lick_threshold"]
         except:
@@ -270,8 +273,7 @@ class A_B_task_xreward_switch(object):
             self.xreward_earned = 0
             self.prior_two_trials_list.pop(0)
             self.prior_two_trials_list.append('ContextA')
-            A_thread = threading.Thread(target=ContextA_stim)
-            A_thread.start()
+            self.A_thread.start()
             while self.xreward_earned <= self.xreward_before_switch:
                 if not self.LED_bool:
                     if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
@@ -313,8 +315,7 @@ class A_B_task_xreward_switch(object):
             self.xreward_earned = 0
             self.prior_two_trials_list.pop(0)
             self.prior_two_trials_list.append('ContextB')
-            B_thread = threading.Thread(target=ContextB_stim)
-            B_thread.start()
+            self.B_thread.start()
             while self.xreward_earned <= self.xreward_before_switch:
                 if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
                     self.box.cueLED1.on()
