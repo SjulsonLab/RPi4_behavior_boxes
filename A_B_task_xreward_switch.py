@@ -278,7 +278,7 @@ class A_B_task_xreward_switch(object):
                         self.LED_on_time = time.time()
                         self.LED_bool = True
                         self.box.event_list.clear()
-                    while self.LED_bool and self.xreward_earned <= self.xreward_before_switch:
+                    while self.LED_bool:
                         if self.box.event_list:
                             self.event_name = self.box.event_list.popleft()
                         else:
@@ -321,7 +321,7 @@ class A_B_task_xreward_switch(object):
                         self.LED_on_time = time.time()
                         self.LED_bool = True
                         self.box.event_list.clear()
-                        while self.LED_bool and self.xreward_earned <= self.xreward_before_switch:
+                        while self.LED_bool:
                             if self.box.event_list:
                                 self.event_name = self.box.event_list.popleft()
                             else:
