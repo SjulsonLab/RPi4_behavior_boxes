@@ -23,7 +23,6 @@ from gpiozero import PWMLED, LED, Button
 from colorama import Fore, Style
 import logging.config
 from time import sleep
-import threading
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.figure as fg
@@ -43,6 +42,7 @@ logging.config.dictConfig(
 
 import behavbox
 import random
+import threading
 
 # adding timing capability to the state machine
 @add_state_features(Timeout)
@@ -256,6 +256,8 @@ class A_B_task_xreward_switch(object):
             self.xreward_earned = 0
             self.prior_two_trials_list.pop(0)
             self.prior_two_trials_list.append('ContextA')
+            A_thread = threading.Thread(target=ContextA_stim)
+            A_thread.start()
             while self.xreward_earned <= self.xreward_before_switch:
                 if not self.LED_bool:
                     if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
@@ -290,13 +292,15 @@ class A_B_task_xreward_switch(object):
             self.switch_to_intercontext_interval()
         elif self.state == 'ContextB':
             self.trial_running = False
-            self.ContextB_time = time.time()
+            # self.ContextB_time = time.time()
             self.LED_bool = False
             self.prior_reward_time = 0
             self.right_entry_bool = False
             self.xreward_earned = 0
             self.prior_two_trials_list.pop(0)
             self.prior_two_trials_list.append('ContextB')
+            B_thread = threading.Thread(target=ContextB_stim)
+            B_thread.start()
             while self.xreward_earned <= self.xreward_before_switch:
                 if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
                     self.box.cueLED1.on()
@@ -328,6 +332,21 @@ class A_B_task_xreward_switch(object):
                             self.right_entry_bool = True
                             self.xreward_earned += 1
             self.switch_to_intercontext_interval()
+
+    def ContextA_stim(self):
+        while self.state == 'ContextA':
+            self.box.sound1.blink(0.1, 0.1)
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0], 0)
+            time.sleep(1)
+            self.box.sound1.off()
+
+    def ContextB_stim(self):
+        while self.state == 'ContextB':
+            self.box.sound1.blink(0.2, 0.1)
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5], 0)
+            time.sleep(1)
+            self.box.sound1.off()
+
     def start_in_ContextA(self):
         if self.random_int == 0:
             return True
@@ -357,11 +376,11 @@ class A_B_task_xreward_switch(object):
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA")
         self.trial_running = True
-        while self.state == 'ContextA':
-            self.box.sound1.blink(0.1, 0.1)
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
-            time.sleep(1)
-            self.box.sound1.off()
+        # while self.state == 'ContextA':
+        #     self.box.sound1.blink(0.1, 0.1)
+        #     self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
+        #     time.sleep(1)
+        #     self.box.sound1.off()
 
     def exit_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextA")
@@ -374,11 +393,11 @@ class A_B_task_xreward_switch(object):
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB")
         self.trial_running = True
-        while self.state == 'ContextB':
-            self.box.sound1.blink(0.2, 0.1)
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
-            time.sleep(1)
-            self.box.sound1.off()
+        # while self.state == 'ContextB':
+        #     self.box.sound1.blink(0.2, 0.1)
+        #     self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
+        #     time.sleep(1)
+        #     self.box.sound1.off()
 
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB")
