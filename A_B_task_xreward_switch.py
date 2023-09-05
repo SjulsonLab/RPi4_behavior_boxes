@@ -355,11 +355,8 @@ class A_B_task_xreward_switch(object):
         self.box.event_list.clear()
 
     def enter_ContextA(self):
-        self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA")
         self.box.sound1.blink(0.1, 0.1)
-        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_ContextA_" +
-                     str(self.full_task_names_and_times[self.trial_counter][1]))
         self.trial_running = True
         while self.state == 'ContextA': #think about best ways to implement this...
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
@@ -371,14 +368,10 @@ class A_B_task_xreward_switch(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter += 1
-        self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
 
     def enter_ContextB(self):
-        self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB")
         self.box.sound1.blink(0.2, 0.1)
-        logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_ContextB_" +
-                     str(self.full_task_names_and_times[self.trial_counter][1]))
         self.trial_running = True
         while self.state == 'ContextB':
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
@@ -390,13 +383,9 @@ class A_B_task_xreward_switch(object):
         self.box.cueLED2.off()
         self.box.event_list.clear()
         self.trial_counter += 1
-        self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval")
-        # logging.info(";" + str(time.time()) + ";[transition];enter_inter_" +
-        #              str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
-        #              str(self.full_task_names_and_times[self.trial_counter][1]))
         self.trial_running = True
 
     def exit_intercontext_interval(self):
