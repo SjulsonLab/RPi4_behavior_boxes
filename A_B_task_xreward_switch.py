@@ -271,7 +271,7 @@ class A_B_task_xreward_switch(object):
             self.xreward_earned = 0
             self.prior_two_trials_list.pop(0)
             self.prior_two_trials_list.append('ContextA')
-            self.A_thread = threading.Thread(target=ContextA_stim)
+            self.A_thread = threading.Thread(target=self.ContextA_stim)
             self.A_thread.start()
             while self.xreward_earned <= self.xreward_before_switch:
                 if not self.LED_bool:
@@ -314,7 +314,7 @@ class A_B_task_xreward_switch(object):
             self.xreward_earned = 0
             self.prior_two_trials_list.pop(0)
             self.prior_two_trials_list.append('ContextB')
-            self.B_thread = threading.Thread(target=ContextB_stim)
+            self.B_thread = threading.Thread(target=self.ContextB_stim)
             self.B_thread.start()
             while self.xreward_earned <= self.xreward_before_switch:
                 if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
