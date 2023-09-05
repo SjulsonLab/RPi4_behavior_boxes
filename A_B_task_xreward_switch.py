@@ -314,35 +314,36 @@ class A_B_task_xreward_switch(object):
             self.B_thread = threading.Thread(target=self.ContextB_stim)
             self.B_thread.start()
             while self.xreward_earned <= self.xreward_before_switch:
-                if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
-                    # self.box.cueLED1.on()
-                    # self.box.cueLED2.on()
-                    self.LED_on_time = time.time()
-                    self.LED_bool = True
-                    self.box.event_list.clear()
-                    while self.LED_bool and self.xreward_earned <= self.xreward_before_switch:
-                        if self.box.event_list:
-                            self.event_name = self.box.event_list.popleft()
-                        else:
-                            self.event_name = ''
-                        if self.event_name == "left_entry" and time.time() - self.LED_on_time > self.LED_delay_time:
-                            # self.box.cueLED1.off()
-                            # self.box.cueLED2.off()
-                            self.pump.reward(self.reward_pump2, self.reward_size3)
-                            self.prior_reward_time = time.time()
-                            self.random_ITI = 3  # 2,3,4
-                            logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
-                            self.LED_bool = False
-                        elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
-                            # self.box.cueLED1.off()
-                            # self.box.cueLED2.off()
-                            self.pump.reward(self.reward_pump1, self.reward_size4)
-                            self.prior_reward_time = time.time()
-                            self.random_ITI = 3  # 2,3,4
-                            logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
-                            self.LED_bool = False
-                            self.right_entry_bool = True
-                            self.xreward_earned += 1
+                if not self.LED_bool:
+                    if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
+                        # self.box.cueLED1.on()
+                        # self.box.cueLED2.on()
+                        self.LED_on_time = time.time()
+                        self.LED_bool = True
+                        self.box.event_list.clear()
+                        while self.LED_bool and self.xreward_earned <= self.xreward_before_switch:
+                            if self.box.event_list:
+                                self.event_name = self.box.event_list.popleft()
+                            else:
+                                self.event_name = ''
+                            if self.event_name == "left_entry" and time.time() - self.LED_on_time > self.LED_delay_time:
+                                # self.box.cueLED1.off()
+                                # self.box.cueLED2.off()
+                                self.pump.reward(self.reward_pump2, self.reward_size3)
+                                self.prior_reward_time = time.time()
+                                self.random_ITI = 3  # 2,3,4
+                                logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
+                                self.LED_bool = False
+                            elif self.event_name == 'right_entry' and time.time() - self.LED_on_time > self.LED_delay_time:
+                                # self.box.cueLED1.off()
+                                # self.box.cueLED2.off()
+                                self.pump.reward(self.reward_pump1, self.reward_size4)
+                                self.prior_reward_time = time.time()
+                                self.random_ITI = 3  # 2,3,4
+                                logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
+                                self.LED_bool = False
+                                self.right_entry_bool = True
+                                self.xreward_earned += 1
             self.switch_to_intercontext_interval()
 
     def start_in_ContextA(self):
