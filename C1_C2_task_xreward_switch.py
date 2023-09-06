@@ -416,6 +416,7 @@ class C1_C2_task_xreward_switch(object):
 
     def enter_intercontext_interval(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_intercontext_interval")
+        self.box.visualstim.myscreen.display_greyscale(0)
         self.trial_running = True
 
     def exit_intercontext_interval(self):
