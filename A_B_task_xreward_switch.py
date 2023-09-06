@@ -288,18 +288,18 @@ class A_B_task_xreward_switch(object):
                         # self.box.cueLED2.off()
                         self.pump.reward(self.reward_pump2, self.reward_size2)
                         self.prior_reward_time = time.time()
-                        self.random_ITI = 3 #2,3,4
                         logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                         # self.LED_bool = False
                         self.left_entry_bool = True
                         self.xreward_earned += 1
+                        self.box.event_list.clear()
                     elif self.event_name == 'right_entry':
                         # self.box.cueLED1.off()
                         # self.box.cueLED2.off()
                         self.pump.reward(self.reward_pump1, self.reward_size1)
                         self.prior_reward_time = time.time()
-                        self.random_ITI = 3  # 2,3,4
                         logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
+                        self.box.event_list.clear()
                         # self.LED_bool = False
             self.switch_to_intercontext_interval()
         elif self.state == 'ContextB':
@@ -330,19 +330,19 @@ class A_B_task_xreward_switch(object):
                             # self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump2, self.reward_size3)
                             self.prior_reward_time = time.time()
-                            self.random_ITI = 3  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             # self.LED_bool = False
+                            self.box.event_list.clear()
                         elif self.event_name == 'right_entry':
                             # self.box.cueLED1.off()
                             # self.box.cueLED2.off()
                             self.pump.reward(self.reward_pump1, self.reward_size4)
                             self.prior_reward_time = time.time()
-                            self.random_ITI = 3  # 2,3,4
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             # self.LED_bool = False
                             self.right_entry_bool = True
                             self.xreward_earned += 1
+                            self.box.event_list.clear()
             self.switch_to_intercontext_interval()
 
     def start_in_ContextA(self):
