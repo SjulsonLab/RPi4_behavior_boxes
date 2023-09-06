@@ -115,6 +115,7 @@ try:
 
 # graceful exit
 except (KeyboardInterrupt, SystemExit):
+    task.end_task()
     print(Fore.RED + Style.BRIGHT + 'Exiting now...' + Style.RESET_ALL)
     ic('about to call end_session()')
     task.end_session()
