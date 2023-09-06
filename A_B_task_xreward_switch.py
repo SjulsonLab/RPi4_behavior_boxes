@@ -247,7 +247,7 @@ class A_B_task_xreward_switch(object):
 
     def ContextB_stim(self):
         while self.state == 'ContextB':
-            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5], 0)
+            self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[1], 0)
             time.sleep(1)
 
     def run(self):
