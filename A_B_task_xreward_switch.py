@@ -273,7 +273,9 @@ class A_B_task_xreward_switch(object):
             self.box.event_list.clear()
             while self.xreward_earned <= self.xreward_before_switch:
                 # if not self.LED_bool:
-                if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
+                if time.time() - self.prior_reward_time < self.random_ITI:
+                    self.box.event_list.clear()
+                elif self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
                     # self.box.cueLED1.on()
                     # self.box.cueLED2.on()
                     # self.LED_on_time = time.time()
@@ -291,7 +293,6 @@ class A_B_task_xreward_switch(object):
                         logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                         # self.LED_bool = False
                         self.left_entry_bool = True
-                        self.xreward_earned += 1
                         self.box.event_list.clear()
                     elif self.event_name == 'right_entry':
                         # self.box.cueLED1.off()
@@ -299,6 +300,7 @@ class A_B_task_xreward_switch(object):
                         self.pump.reward(self.reward_pump1, self.reward_size1)
                         self.prior_reward_time = time.time()
                         logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
+                        self.xreward_earned += 1
                         self.box.event_list.clear()
                         # self.LED_bool = False
             self.switch_to_intercontext_interval()
@@ -315,7 +317,9 @@ class A_B_task_xreward_switch(object):
             self.box.event_list.clear()
             while self.xreward_earned <= self.xreward_before_switch:
                 # if not self.LED_bool:
-                if self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
+                if time.time() - self.prior_reward_time < self.random_ITI:
+                    self.box.event_list.clear()
+                elif self.prior_reward_time == 0 or time.time() - self.prior_reward_time > self.random_ITI:
                     # self.box.cueLED1.on()
                     # self.box.cueLED2.on()
                     # self.LED_on_time = time.time()
@@ -332,6 +336,7 @@ class A_B_task_xreward_switch(object):
                             self.prior_reward_time = time.time()
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             # self.LED_bool = False
+                            self.xreward_earned += 1
                             self.box.event_list.clear()
                         elif self.event_name == 'right_entry':
                             # self.box.cueLED1.off()
@@ -341,7 +346,6 @@ class A_B_task_xreward_switch(object):
                             logging.info(";" + str(time.time()) + ";[transition];current_ITI_" + str(self.random_ITI))
                             # self.LED_bool = False
                             self.right_entry_bool = True
-                            self.xreward_earned += 1
                             self.box.event_list.clear()
             self.switch_to_intercontext_interval()
 
