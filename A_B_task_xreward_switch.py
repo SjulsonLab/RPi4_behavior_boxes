@@ -379,8 +379,8 @@ class A_B_task_xreward_switch(object):
     def enter_ContextA(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextA")
         self.trial_running = True
-        # self.box.sound1.on()
-        self.box.sound1.blink(0.1, 0.1)
+        self.box.sound1.on()
+        # self.box.sound1.blink(0.1, 0.1)
         # while self.state == 'ContextA':
         #     self.box.sound1.blink(0.1, 0.1)
         #     self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[0],0)
@@ -398,8 +398,8 @@ class A_B_task_xreward_switch(object):
     def enter_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextB")
         self.trial_running = True
-        # self.box.sound2.on()
-        self.box.sound1.blink(0.2, 0.1)
+        self.box.sound2.on()
+        # self.box.sound1.blink(0.2, 0.1)
         # while self.state == 'ContextB':
         #     self.box.sound1.blink(0.2, 0.1)
         #     self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[5],0)
