@@ -51,7 +51,6 @@ class TimedStateMachine(Machine):
 
 class C1_C2_task_xreward_switch(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
-        self.box.visualstim.myscreen.display_greyscale(0)
         # # Initialize duration lists for contexts and intercontext intervals
         # self.ContextA_durations = [15, 20, 25, 30, 35] * 8
         # self.ContextB_durations = [15, 20, 25, 30, 35] * 8
@@ -231,6 +230,7 @@ class C1_C2_task_xreward_switch(object):
         self.lick_count = 0
         self.side_mice_buffer = None
         self.LED_blink = False
+        self.box.visualstim.myscreen.display_greyscale(0)
 
         try:
             self.lick_threshold = self.session_info["lick_threshold"]
