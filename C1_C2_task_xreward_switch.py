@@ -231,7 +231,7 @@ class C1_C2_task_xreward_switch(object):
         self.side_mice_buffer = None
         self.LED_blink = False
         self.box.visualstim.myscreen.display_greyscale(0)
-
+ 
         try:
             self.lick_threshold = self.session_info["lick_threshold"]
         except:
@@ -269,8 +269,8 @@ class C1_C2_task_xreward_switch(object):
             self.xreward_earned = 0
             self.prior_two_trials_list.pop(0)
             self.prior_two_trials_list.append('ContextC1')
-            self.A_thread = threading.Thread(target=self.ContextC1_stim)
-            self.A_thread.start()
+            self.C1_thread = threading.Thread(target=self.ContextC1_stim)
+            self.C1_thread.start()
             self.box.event_list.clear()
             while self.xreward_earned < self.xreward_before_switch:
                 # if not self.LED_bool:
@@ -313,8 +313,8 @@ class C1_C2_task_xreward_switch(object):
             self.xreward_earned = 0
             self.prior_two_trials_list.pop(0)
             self.prior_two_trials_list.append('ContextC2')
-            self.B_thread = threading.Thread(target=self.ContextC2_stim)
-            self.B_thread.start()
+            self.C2_thread = threading.Thread(target=self.ContextC2_stim)
+            self.C2_thread.start()
             self.box.event_list.clear()
             while self.xreward_earned < self.xreward_before_switch:
                 # if not self.LED_bool:
