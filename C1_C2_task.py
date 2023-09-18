@@ -340,6 +340,7 @@ class C1_C2_task(object):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC1")
         self.box.sound2.on()
+        self.box.sound1.blink(0.1,0.1) #temp
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
@@ -349,6 +350,7 @@ class C1_C2_task(object):
     def exit_ContextC1(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextC1")
         self.box.sound2.off()
+        self.box.sound1.off() #temp
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.event_list.clear()
@@ -360,6 +362,7 @@ class C1_C2_task(object):
         self.current_state_time = self.full_task_names_and_times[self.trial_counter][1]
         logging.info(";" + str(time.time()) + ";[transition];enter_ContextC2")
         self.box.sound2.on()
+        self.box.sound1.blink(0.1, 0.1) #temp
         logging.info(";" + str(time.time()) + ";[transition];current_state_and_duration_" +
                      str(self.full_task_names_and_times[self.trial_counter][0]) + '_' +
                      str(self.full_task_names_and_times[self.trial_counter][1]))
@@ -369,6 +372,7 @@ class C1_C2_task(object):
     def exit_ContextC2(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextC2")
         self.box.sound2.off()
+        self.box.sound1.off() #temp
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.event_list.clear()
