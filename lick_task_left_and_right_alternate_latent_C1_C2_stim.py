@@ -201,6 +201,7 @@ class LickTaskLeftandRightAlternateLatentC1C2Stim(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
         self.box.visualstim.myscreen.display_greyscale(self.session_info['gray_level']['default'])
+        self.box.sound2.on()
         if random.randint(0, 1) == 0:
             self.right_active = True
         else:
@@ -303,5 +304,6 @@ class LickTaskLeftandRightAlternateLatentC1C2Stim(object):
         self.update_plot_choice(save_fig=True)
         self.box.video_stop()
         self.box.visualstim.myscreen.display_greyscale(0)
+        self.box.sound2.off()
         # self.box.cueLED2.off()
 
