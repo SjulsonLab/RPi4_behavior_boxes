@@ -130,6 +130,7 @@ class LatentInferenceForageTask(object):
         self.ITI = self.session_info['ITI']
         self.p_switch = self.session_info['p_switch']
         self.p_reward = self.session_info['p_reward']
+        self.reward_earned = False
 
         self.ContextA_time = 0
         self.ContextB_time = 0
@@ -177,6 +178,7 @@ class LatentInferenceForageTask(object):
             self.trial_running = False
             self.LED_bool = False
             self.prior_choice_time = 0
+            self.reward_earned = False
             self.box.event_list.clear()
             while self.state == 'right_patch':
                 if not self.LED_bool:
@@ -196,11 +198,12 @@ class LatentInferenceForageTask(object):
                             self.box.cueLED1.off()
                             self.box.cueLED2.off()
                             self.LED_bool = False
-                            if self.p_switch >= random.random():
+                            if self.p_switch >= random.random() and self.reward_earned == True:
                                 self.switch_to_left_patch()
                             else:
                                 if self.p_reward >= random.random():
                                     self.pump.reward(self.reward_pump1, self.reward_size1) #1 reward
+                                    self.reward_earned = True
                                 else:
                                     self.pump.reward(self.reward_pump1, self.reward_size2) #0 reward
                         if self.event_name == 'left_entry':
@@ -212,6 +215,7 @@ class LatentInferenceForageTask(object):
             self.trial_running = False
             self.LED_bool = False
             self.prior_choice_time = 0
+            self.reward_earned = False
             self.box.event_list.clear()
             while self.state == 'left_patch':
                 if not self.LED_bool:
@@ -231,11 +235,12 @@ class LatentInferenceForageTask(object):
                             self.box.cueLED1.off()
                             self.box.cueLED2.off()
                             self.LED_bool = False
-                            if self.p_switch >= random.random():
+                            if self.p_switch >= random.random() and self.reward_earned == True:
                                 self.switch_to_right_patch()
                             else:
                                 if self.p_reward >= random.random():
                                     self.pump.reward(self.reward_pump2, self.reward_size3)  # 1 reward
+                                    self.reward_earned = True
                                 else:
                                     self.pump.reward(self.reward_pump2, self.reward_size4)  # 0 reward
                         if self.event_name == 'right_entry':
