@@ -203,6 +203,11 @@ class LatentInferenceForageTask(object):
                                     self.pump.reward(self.reward_pump1, self.reward_size1) #1 reward
                                 else:
                                     self.pump.reward(self.reward_pump1, self.reward_size2) #0 reward
+                        if self.event_name == 'left_entry':
+                            self.prior_choice_time = time.time()
+                            self.box.cueLED1.off()
+                            self.box.cueLED2.off()
+                            self.LED_bool = False
         elif self.state == 'left_patch':
             self.trial_running = False
             self.LED_bool = False
@@ -233,6 +238,11 @@ class LatentInferenceForageTask(object):
                                     self.pump.reward(self.reward_pump2, self.reward_size3)  # 1 reward
                                 else:
                                     self.pump.reward(self.reward_pump2, self.reward_size4)  # 0 reward
+                        if self.event_name == 'right_entry':
+                            self.prior_choice_time = time.time()
+                            self.box.cueLED1.off()
+                            self.box.cueLED2.off()
+                            self.LED_bool = False
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
