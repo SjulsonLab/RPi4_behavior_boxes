@@ -3,11 +3,11 @@
 
 # In[ ]:
 
-# python3: remi_self_admin_lick_task.py
+# python3: remi_self_admin_lever_task.py
 """
 author: Mitch Farrell
-date: 2023-06-12
-name: remi_self_admin_lick_task.py
+date: 2023-09-20
+name: remi_self_admin_lever_task.py
 """
 import importlib
 from transitions import Machine
@@ -49,7 +49,7 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class remi_self_admin_lick_task(object):
+class RemiSelfAdminLeverTask(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
