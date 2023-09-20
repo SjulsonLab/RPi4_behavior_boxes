@@ -4,15 +4,14 @@
 # In[ ]:
 
 
-#run_self_admin_task_context_two_actions_lick_contingent.task
+#run_latent_inference_forage_task.task
 
 #!/usr/bin/env -S ipython3 -i
-# run_self_admin_task.py
+# run_latent_inference_forage_task.py
 """
 author: Mitch Farrell
-date: 2023-04-26
-name: run_forage_task.py
-goal: running the forage_task
+date: 2023-09-20
+name: run_latent_inference_forage_task.py
 """
 import random
 from transitions import Machine

@@ -4,11 +4,11 @@
 # In[ ]:
 
 
-# python3: lick_task_left_and_right_alternate_latent_C1_C2_stim.py
+# python3: latent_inference_forage_task.py
 """
 author: Mitch Farrell
-date: 2023-09-18
-name: lick_task_left_and_right_alternate_latent_C1_C2_stim.py
+date: 2023-09-20
+name: latent_inference_forage_task.py
 """
 import importlib
 from transitions import Machine
@@ -50,7 +50,9 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class LickTaskLeftandRightAlternateLatentC1C2Stim(object):
+class LatentInferenceForageTask(object):
+    # Define states. States where the animals is waited to make their decision
+
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
 
         # if no name or session, make fake ones (for testing purposes)
@@ -82,25 +84,23 @@ class LickTaskLeftandRightAlternateLatentC1C2Stim(object):
         # initialize the state machine
         self.states = [
             State(name='standby',
-                  on_enter=['switch_to_reward_available'],
                   on_exit=["exit_standby"]),
-            State(name="reward_available",
-                  on_enter=["enter_reward_available"],
-                  on_exit=["exit_reward_available"]),
-            Timeout(name='timeout',
-                    on_enter=['enter_timeout'],
-                    on_exit=['exit_timeout'],
-                    timeout = self.session_info['timeout_time'], #session_info
-                    on_timeout = ['switch_to_reward_available'])]
+            State(name="right_patch",
+                  on_enter=["enter_right_patch"],
+                  on_exit=["exit_right_patch"]),
+            State(name="left_patch",
+                  on_enter=["enter_left_patch"],
+                  on_exit=["exit_left_patch"])
+                ]
 
         self.transitions = [
-            ['start_trial_logic', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
+            ['start_in_right_patch', 'standby', 'right_patch'],
+            ['start_in_left_patch', 'standby', 'left_patch'],
 
-            ['switch_to_standby', 'reward_available', 'standby'],
-            ['switch_to_reward_available', ['standby','timeout'], 'reward_available'],
+            ['switch_to_right_patch', 'left_patch', 'right_patch'],
+            ['switch_to_left_patch', 'right_patch', 'left_patch'],
 
-            ['switch_to_timeout', 'reward_available', 'timeout'],
-            ['end_task', ['reward_available','timeout'], 'standby']]
+            ['end_task', ['left_patch','right_patch'], 'standby']]
 
         self.machine = TimedStateMachine(
             model=self,
@@ -110,29 +110,30 @@ class LickTaskLeftandRightAlternateLatentC1C2Stim(object):
             )
 
     # trial statistics
-        self.rewards_earned_in_bout = 0
-        self.reward_bout_number = random.randint(2,4)
-        self.right_active = True
         self.trial_running = False
         self.innocent = True
         self.trial_number = 0
         self.error_count = 0
         self.error_list = []
         self.error_repeat = False
-        self.entry_time = 0.0
-        self.entry_interval = self.session_info["entry_interval"]
+        self.lick_time = 0.0
+        self.lick_interval = self.session_info["lick_interval"]
+        # self.reward_time_start = None # for reward_available state time keeping purpose
         self.reward_time = 10
         self.reward_times_up = False
         self.reward_pump1 = self.session_info["reward_pump1"]
         self.reward_pump2 = self.session_info['reward_pump2']
-
-        self.reward_size1 = self.session_info["reward_size1"] #large, right
-        self.reward_size2 = self.session_info['reward_size2'] #small, left
-        self.reward_size3 = self.session_info['reward_size3'] #large, left
-        self.reward_size4 = self.session_info['reward_size4'] #small, right
+        self.reward_size1 = self.session_info['reward_size1']
+        self.reward_size2 = self.session_info['reward_size2']
+        self.reward_size3 = self.session_info['reward_size3']
+        self.reward_size4 = self.session_info['reward_size4']
+        self.ITI = self.session_info['ITI']
+        self.p_switch = self.session_info['p_switch']
+        self.p_reward = self.session_info['p_reward']
 
         self.ContextA_time = 0
         self.ContextB_time = 0
+        self.LED_on_time_plus_LED_duration = 0
 
         self.active_press = 0
         self.inactive_press = 0
@@ -150,9 +151,10 @@ class LickTaskLeftandRightAlternateLatentC1C2Stim(object):
         self.event_name = ""
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
-        self.box.visualstim.myscreen.display_greyscale(0)
         self.pump = self.box.pump
         self.treadmill = self.box.treadmill
+        self.right_entry_error = False
+        self.left_entry_error = False
         # for refining the lick detection
         self.lick_count = 0
         self.side_mice_buffer = None
@@ -165,70 +167,88 @@ class LickTaskLeftandRightAlternateLatentC1C2Stim(object):
 
         # session_statistics
         self.total_reward = 0
+        self.right_licks = 0
+        self.left_licks = 0
 
     def run(self):
-        if self.state == "standby" or self.state == 'timeout':
+        if self.state == 'standby':
             pass
-        elif self.state == 'reward_available':
-            if self.box.event_list:
-                self.event_name = self.box.event_list.popleft()
-            else:
-                self.event_name = ''
-            if self.event_name == "right_entry" and self.right_active == True and self.rewards_earned_in_bout <= self.reward_bout_number:
-                entry_time_temp = time.time()
-                entry_dt = entry_time_temp - self.entry_time
-                if entry_dt >= self.entry_interval:
-                    self.pump.reward(self.reward_pump1,self.reward_size1)
-                    self.rewards_earned_in_bout += 1
-                    self.entry_time = entry_time_temp
-                    self.switch_to_timeout()
-            elif self.event_name == 'left_entry' and self.right_active == False and self.rewards_earned_in_bout <= self.reward_bout_number:
-                entry_time_temp = time.time()
-                entry_dt = entry_time_temp - self.entry_time
-                if entry_dt >= self.entry_interval:
-                    self.pump.reward(self.reward_pump2, self.reward_size2)
-                    self.rewards_earned_in_bout += 1
-                    self.entry_time = entry_time_temp
-                    self.switch_to_timeout()
-        self.box.check_keybd()
+        elif self.state == 'right_patch':
+            self.trial_running = False
+            self.LED_bool = False
+            self.prior_choice_time = 0
+            self.box.event_list.clear()
+            while self.state == 'right_patch':
+                if not self.LED_bool:
+                    if self.prior_choice_time == 0 or time.time() - self.prior_choice_time > self.ITI:
+                        self.box.cueLED1.on()
+                        self.box.cueLED2.on()
+                        self.LED_on_time = time.time()
+                        self.LED_bool = True
+                        self.box.event_list.clear()
+                    while self.LED_bool:
+                        if self.box.event_list:
+                            self.event_name = self.box.event_list.popleft()
+                        else:
+                            self.event_name = ''
+                        if self.event_name == 'right_entry':
+                            self.prior_choice_time = time.time()
+                            self.box.cueLED1.off()
+                            self.box.cueLED2.off()
+                            self.LED_bool = False
+                            if self.p_switch <= random.random():
+                                self.switch_to_left_patch()
+                            else:
+                                if self.p_reward <= random.random():
+                                    self.pump.reward(self.reward_pump1, self.reward_size1) #1 reward
+                                else:
+                                    self.pump.reward(self.reward_pump1, self.reward_size2) #0 reward
+        elif self.state == 'left_patch':
+            self.trial_running = False
+            self.LED_bool = False
+            self.prior_choice_time = 0
+            self.box.event_list.clear()
+            while self.state == 'left_patch':
+                if not self.LED_bool:
+                    if self.prior_choice_time == 0 or time.time() - self.prior_choice_time > self.ITI:
+                        self.box.cueLED1.on()
+                        self.box.cueLED2.on()
+                        self.LED_on_time = time.time()
+                        self.LED_bool = True
+                        self.box.event_list.clear()
+                    while self.LED_bool:
+                        if self.box.event_list:
+                            self.event_name = self.box.event_list.popleft()
+                        else:
+                            self.event_name = ''
+                        if self.event_name == 'left_entry':
+                            self.prior_choice_time = time.time()
+                            self.box.cueLED1.off()
+                            self.box.cueLED2.off()
+                            self.LED_bool = False
+                            if self.p_switch <= random.random():
+                                self.switch_to_left_patch()
+                            else:
+                                if self.p_reward <= random.random():
+                                    self.pump.reward(self.reward_pump2, self.reward_size3)  # 1 reward
+                                else:
+                                    self.pump.reward(self.reward_pump2, self.reward_size4)  # 0 reward
 
-    def enter_standby(self):
-        # self.error_repeat = False
-        logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
-        self.trial_running = False
-        self.box.event_list.clear()
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
-        self.box.event_list.clear()
-        self.box.visualstim.myscreen.display_greyscale(self.session_info['gray_level']['default'])
-        self.box.sound2.on()
-        if random.randint(0, 1) == 0:
-            self.right_active = True
-        else:
-            self.right_active = False
-    def enter_reward_available(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
+
+    def enter_right_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(self.error_repeat))
         self.trial_running = True
-    def exit_reward_available(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
-        self.box.event_list.clear()
+    def exit_right_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_right_patch;" + str(self.error_repeat))
 
-    def enter_timeout(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_timeout;" + str(self.error_repeat))
-        self.box.event_list.clear()
-        self.trial_running = False
-        if self.rewards_earned_in_bout >= self.reward_bout_number:
-            if random.randint(0, 1) == 0:
-                self.right_active = True
-            else:
-                self.right_active = False
-            self.rewards_earned_in_bout = 0
-            self.reward_bout_number = random.randint(2,4)
+    def enter_left_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(self.error_repeat))
+        self.trial_running = True
+    def exit_left_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_left_patch;" + str(self.error_repeat))
 
-    def exit_timeout(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_timeout;" + str(self.error_repeat))
-        # self.box.sound1.off()
-        self.box.event_list.clear()
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
         axes.plot([1, 2], [1, 2], color='green', label='test')
@@ -303,5 +323,6 @@ class LickTaskLeftandRightAlternateLatentC1C2Stim(object):
         ic("TODO: stop video")
         self.update_plot_choice(save_fig=True)
         self.box.video_stop()
-        self.box.visualstim.myscreen.display_greyscale(0)
-        self.box.sound2.off()
+        self.box.cueLED1.off()
+        self.box.cueLED2.off()
+
