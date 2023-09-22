@@ -199,6 +199,7 @@ class LatentInferenceForageTask(object):
                             self.box.cueLED2.off()
                             self.LED_bool = False
                             if self.p_switch >= random.random() and self.reward_earned == True:
+                                self.LED_bool = False
                                 self.switch_to_left_patch()
                             else:
                                 if self.p_reward >= random.random():
@@ -236,6 +237,7 @@ class LatentInferenceForageTask(object):
                             self.box.cueLED2.off()
                             self.LED_bool = False
                             if self.p_switch >= random.random() and self.reward_earned == True:
+                                self.LED_bool = False
                                 self.switch_to_right_patch()
                             else:
                                 if self.p_reward >= random.random():
