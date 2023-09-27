@@ -212,6 +212,7 @@ class LatentInferenceForageTask(object):
                             self.box.cueLED1.off()
                             self.box.cueLED2.off()
                             self.LED_bool = False
+                            logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str(self.error_repeat))
         elif self.state == 'left_patch':
             self.trial_running = False
             self.LED_bool = False
@@ -250,6 +251,7 @@ class LatentInferenceForageTask(object):
                             self.box.cueLED1.off()
                             self.box.cueLED2.off()
                             self.LED_bool = False
+                            logging.info(";" + str(time.time()) + ";[transition];wrong_choice_left_patch;" + str(self.error_repeat))
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
