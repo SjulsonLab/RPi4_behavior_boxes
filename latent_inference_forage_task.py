@@ -201,6 +201,8 @@ class LatentInferenceForageTask(object):
                             if self.p_reward >= random.random():
                                 self.pump.reward(self.reward_pump1, self.reward_size1) #1 reward
                                 if self.p_switch >= random.random():
+                                    self.LED_bool = False
+                                    time.sleep(1)
                                     self.switch_to_left_patch()
                             else:
                                 self.pump.reward(self.reward_pump1, self.reward_size2) #0 reward
@@ -237,6 +239,8 @@ class LatentInferenceForageTask(object):
                             if self.p_reward >= random.random():
                                 self.pump.reward(self.reward_pump2, self.reward_size1)  # 1 reward
                                 if self.p_switch >= random.random():
+                                    self.LED_bool = False
+                                    time.sleep(1)
                                     self.switch_to_right_patch()
                             else:
                                 self.pump.reward(self.reward_pump2, self.reward_size2)  # 0 reward
