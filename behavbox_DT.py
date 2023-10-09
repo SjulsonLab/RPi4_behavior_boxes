@@ -89,8 +89,8 @@ class BehavBox(object):
         self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
         self.IR_rx2 = Button(6, None, True)
         self.IR_rx3 = Button(12, None, True)
-        # self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
-        # self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
+        # self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use)
+        # self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use)
 
         # link nosepoke event detections to callbacks (exit and entry are opposite to pressed and release)
         self.IR_rx1.when_pressed = self.left_IR_exit
@@ -101,15 +101,32 @@ class BehavBox(object):
         self.IR_rx3.when_released = self.right_IR_entry
 
         ###############################################################################################
+        # Closed circuit detection for lick
+        self.lick1 = Button(26, None, True)
+        self.lick2 = Button(27, None, True)
+        self.lick3 = Button(15, None, True)
+
+        # Link lick detection event to callbacks
+        self.lick1.when_pressed = self.left_exit
+        self.lick2.when_pressed = self.right_exit
+        self.lick3.when_pressed = self.center_exit
+
+        self.lick1.when_released = self.left_entry
+        self.lick2.when_released = self.right_entry
+        self.lick3.when_released = self.center_entry
+
+        ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
         # pins originally reserved for the lick detection is now used for audio board TTL input signal
+        # NEW EDIT: switch sound to lick
+        """""
         self.sound1 = LED(26)  # originally lick1
         self.sound2 = LED(27)  # originally lick2
         self.sound3 = LED(15)  # originally lick3
-
-        self.sound4 = LED(23)  # originally DIO1
-        self.sound5 = LED(24)  # originally DIO2
+        """
+        self.sound1 = LED(23)  # new_lick modification
+        self.sound2 = LED(24)  # new_lick modification
 
         #################################################################################################
         # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
@@ -306,6 +323,30 @@ class BehavBox(object):
     def right_IR_exit(self):
         self.event_list.append("right_IR_exit")
         logging.info(str(time.time()) + ", right_IR_exit")
+
+    def left_entry(self):
+        self.event_list.append("left_entry")
+        logging.info(";" + str(time.time()) + ";left_entry")
+
+    def center_entry(self):
+        self.event_list.append("center_entry")
+        logging.info(";" + str(time.time()) + ";center_entry")
+
+    def right_entry(self):
+        self.event_list.append("right_entry")
+        logging.info(";" + str(time.time()) + ";right_entry")
+
+    def left_exit(self):
+        self.event_list.append("left_exit")
+        logging.info(";" + str(time.time()) + ";left_exit")
+
+    def center_exit(self):
+        self.event_list.append("center_exit")
+        logging.info(";" + str(time.time()) + ";center_exit")
+
+    def right_exit(self):
+        self.event_list.append("right_exit")
+        logging.info(";" + str(time.time()) + ";right_exit")
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
