@@ -326,27 +326,27 @@ class BehavBox(object):
 
     def left_entry(self):
         self.event_list.append("left_entry")
-        logging.info(";" + str(time.time()) + ";left_entry")
+        logging.info(str(time.time()) + ", left_entry")
 
     def center_entry(self):
         self.event_list.append("center_entry")
-        logging.info(";" + str(time.time()) + ";center_entry")
+        logging.info(str(time.time()) + ", center_entry")
 
     def right_entry(self):
         self.event_list.append("right_entry")
-        logging.info(";" + str(time.time()) + ";right_entry")
+        logging.info(str(time.time()) + ", right_entry")
 
     def left_exit(self):
         self.event_list.append("left_exit")
-        logging.info(";" + str(time.time()) + ";left_exit")
+        logging.info(str(time.time()) + ", left_exit")
 
     def center_exit(self):
         self.event_list.append("center_exit")
-        logging.info(";" + str(time.time()) + ";center_exit")
+        logging.info(str(time.time()) + ", center_exit")
 
     def right_exit(self):
         self.event_list.append("right_exit")
-        logging.info(";" + str(time.time()) + ";right_exit")
+        logging.info(str(time.time()) + ", right_exit")
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
