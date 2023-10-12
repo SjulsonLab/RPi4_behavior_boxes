@@ -209,6 +209,7 @@ class RemiSelfAdminLeverWithinSessionReinstatementTask(object):
             self.end_extinction = self.start_time + 200 #3600
             self.next_available_reward_time = 0
             self.box.sound1.off()
+            self.box.cueLED2.off()
             self.trial_running = False
             while time.time() < self.end_extinction:
                 if time.time() > self.next_available_reward_time:
