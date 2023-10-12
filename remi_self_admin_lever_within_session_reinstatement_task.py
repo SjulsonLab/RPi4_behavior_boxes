@@ -203,8 +203,8 @@ class RemiSelfAdminLeverWithinSessionReinstatementTask(object):
                             self.reward()
                             self.box.cueLED2.off()
                             self.box.sound1.on()
-                if time.time() > self.end_reward_available:
-                    self.switch_to_extinction()
+            if time.time() > self.end_reward_available:
+                self.switch_to_extinction()
         elif self.state == 'extinction':
             self.end_extinction = self.start_time + 200 #3600
             self.next_available_reward_time = 0
@@ -226,8 +226,8 @@ class RemiSelfAdminLeverWithinSessionReinstatementTask(object):
                             self.next_available_reward_time = self.prior_reward_time + 20
                             self.reward_available_bool = False
                             logging.info(";" + str(time.time()) + ";[reward];extinction_no_reward")
-                if time.time() > self.end_extinction:
-                    self.switch_to_reinstatement()
+            if time.time() > self.end_extinction:
+                self.switch_to_reinstatement()
         elif self.state == 'reinstatement':
             self.end_reinstatement = self.start_time + 300 #5400
             self.next_available_reward_time = 0
