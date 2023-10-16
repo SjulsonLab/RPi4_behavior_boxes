@@ -214,7 +214,7 @@ if __name__ == "__main__":
         session_info['mouse_name'] = animal_ID
         animal_weight = input("Enter animal weight (ex 19.5):\n")
         session_info['weight'] = animal_weight
-        training_phase = input("Enter training_phase (allgo or phase2):\n")
+        training_phase = input("Enter training_phase (allgo or phase1):\n")
         session_info['training_phase'] = training_phase
 
         session_info['date'] = datestr
@@ -314,7 +314,7 @@ if __name__ == "__main__":
                         #     print("Hit criterion is achieved!!!")
                         #     raise SystemExit
 
-        elif training_phase == "go_nogo":
+        elif training_phase == "phase1":
             for i in range(session_info['number_of_trials']):
                 ident_random = (round(random.uniform(0, 1) * 100)) % 2
 
