@@ -82,7 +82,7 @@ class RemiSelfAdminLeverWithinSessionReinstatementTask(object):
 
         self.states = [
             State(name='standby',
-                  on_enter=['switch_to_reward_available'],
+                  on_enter=['enter_standby'],
                   on_exit=["exit_standby"]),
             State(name="reward_available",
                   on_enter=["enter_reward_available"],
