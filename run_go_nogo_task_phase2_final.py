@@ -256,7 +256,7 @@ if __name__ == "__main__":
         scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
         pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
 
-        # Loops over trials for phase 1 training
+        # Loops over trials for phase 2 training
         avoid_go = 0
         avoid_nogo = 0
         go_nums = 0
@@ -265,8 +265,8 @@ if __name__ == "__main__":
         if training_phase == "allgo":
             # phase 0 is the first day of training (after habituation)
             while training_phase == "allgo":
-                task.bait_phase1()
-                if task.deliver_reward == "":  # start phase1 of training
+                task.bait_phase2()
+                if task.deliver_reward == "":  # start phase2 of training
 
                     for w in range(session_info['number_of_trials']):
                         trial_ident = "go_trial"

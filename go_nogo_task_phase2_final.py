@@ -7,6 +7,8 @@
 # Variable ITIs
 # No airpuff
 # LICK-EVOKED REWARD DELIVERY
+# 200ms at the end of the trial as reward lockout period, meaning no reward will be delivered regardless of licking
+# This reward lockout period is to make sure no reward is delivered at the very end of the trial
 # Use closed-loop circuit lick detection system
 ##########################################################################################################
 
@@ -88,7 +90,7 @@ class go_nogo_phase2(object):
             ###################################### states for go trials #############################################
             # vstim_go state: initiate 90 degree drifting gratings stimulus for 3s, no need for timeout because we will
             # trigger state transition to the next state right after entering vstim_go state
-            # after initiation, it will stay in this state for 1s (lockout period), then transition to reward_available
+            # after initiation, it will stay in this state for 2s (lockout period), then transition to reward_available
             # vstim drifting needs to be made in advance with visualstim.py code and saved to home folder of the RPi4
             # then select the vstim to display in the method enter_vstim_go
             Timeout(
@@ -100,7 +102,7 @@ class go_nogo_phase2(object):
             ),
 
             # reward_available state: if there is a lick, deliver reward then transition to temp1 state
-            # if no lick is detected, transition to vacuum state after 2s
+            # if no lick is detected, transition to vacuum state after 1.5s
             Timeout(
                 name="reward_available",
                 on_enter=["enter_reward_available"],
@@ -113,6 +115,16 @@ class go_nogo_phase2(object):
                 name="temp1",
                 on_enter=["enter_temp1"],
                 on_exit=["exit_temp1"],
+            ),
+
+            # reward_lockout state: intermediate state near the end of the trial where if the animal licks, no reward!
+            # this state is to make sure if the animal licks too late, there will be no reward!
+            Timeout(
+                name="reward_lockout",
+                on_enter=["enter_reward_lockout"],
+                on_exit=["exit_reward_lockout"],
+                timeout=0.2,  # in seconds
+                on_timeout=["start_vacuum_reward_lockout"],
             ),
 
             # vacuum state: open vacuum for specified amount of time, then transition to assessment state
@@ -170,7 +182,7 @@ class go_nogo_phase2(object):
                 on_exit=["exit_temp2"],
             ),
 
-            # punishment iti state: only when trial outcome is False Alarm. Otherwise, we will use normal ITI
+            # punishment iti state: only when trial outcome is False Alarm!
             Timeout(
                 name="punishment_iti",
                 on_enter=["enter_punishment_iti"],
@@ -185,6 +197,7 @@ class go_nogo_phase2(object):
                 on_enter=["enter_extra_iti"],
                 on_exit=["exit_extra_iti"],
             ),
+
             ###################################### end of states for nogo trials ######################################
             ###########################################################################################################
         ]
@@ -198,9 +211,10 @@ class go_nogo_phase2(object):
             # to trigger this transition pathway, put 'go_trial_start' in the run_go_nogo code
             ["go_trial_start", "standby", "vstim_go"],
             ["start_reward_available", "vstim_go", "reward_available"],
-            ["start_vacuum_reward_available", "reward_available", "vacuum"],
+            ["start_reward_lockout_reward_available", "reward_available", "reward_lockout"],
             ["start_temp1", "reward_available", "temp1"],
-            ["start_vacuum_temp1", "temp1", "vacuum"],
+            ["start_reward_lockout_temp1", "temp1", "reward_lockout"],
+            ["start_vacuum_reward_lockout", "reward_lockout", "vacuum"],
             ["start_assessment", "vacuum", "assessment"],
             ["start_normal_iti", "assessment", "normal_iti"],
             ["start_extra_iti_normal", "normal_iti", "extra_iti"],
@@ -291,7 +305,7 @@ class go_nogo_phase2(object):
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
         self.trial_outcome = 2  # Miss!!
-        self.countdown(2)
+        self.countdown_trial(1.8)
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
@@ -299,7 +313,7 @@ class go_nogo_phase2(object):
     def enter_lick_count(self):
         logging.info(str(time.time()) + ", entering lick_count")
         self.trial_outcome = 3  # CR!
-        self.countdown(2)
+        self.countdown_trial(2)
 
     def exit_lick_count(self):
         logging.info(str(time.time()) + ", exiting lick_count")
@@ -320,6 +334,12 @@ class go_nogo_phase2(object):
 
     def exit_temp2(self):
         logging.info(str(time.time()) + ", exiting temp2")
+
+    def enter_reward_lockout(self):
+        logging.info(str(time.time()) + ", entering reward_lockout")
+
+    def exit_reward_lockout(self):
+        logging.info(str(time.time()) + ", exiting reward_lockout")
 
     def enter_vacuum(self):
         logging.info(str(time.time()) + ", entering vacuum")
@@ -354,7 +374,7 @@ class go_nogo_phase2(object):
     def exit_extra_iti(self):
         logging.info(str(time.time()) + ", exiting extra_iti")
 
-    def bait_phase1(self):
+    def bait_phase2(self):
         # This function asks the user to input whether they want reward delivery
         # This is used to bait the animal to lick initially
         # If y, deliver reward, if hit enter, start random reward phase
@@ -366,16 +386,16 @@ class go_nogo_phase2(object):
     # countdown methods to run when vstim starts to play, used as timers since vstim starts
     # t is the length of countdown (in seconds)
     ########################################################################
-    def countdown(self, t):
-        # This counts down the length of reward_available or lick_count duration (1s)
-        logging.info(str(time.time()) + ", trial countdown starts")
+    def countdown_trial(self, t):
+        # This counts down the length of reward_available or lick_count duration (2s)
+        logging.info(str(time.time()) + ", countdown starts")
         while t > 0:
             # mins, secs = divmod(t, 60)
             # timer = '{:02d}:{:02d}'.format(mins, secs)
             # print(timer, end="\r")
             time.sleep(0.1)
             t -= 0.1
-        logging.info(str(time.time()) + ", trial countdown ends")
+        logging.info(str(time.time()) + ", countdown ends")
         self.box.event_list.append("countdown ends")
 
     def countdown_iti(self, t_iti):
@@ -416,7 +436,7 @@ class go_nogo_phase2(object):
 
         elif self.state == "reward_available":
             # this task only uses 1 port (left port) and 1 pump (left pump)
-            # deliver reward from left pump if there is a lick detected on the left port
+            # deliver reward from left pump if there is a lick detected on the left IR port
             # if lick is detected, delivery reward then transition to temp1 immediately
             # otherwise transition to vacuum after 1s
             if event_name == "left_entry":
@@ -426,13 +446,16 @@ class go_nogo_phase2(object):
                 self.time_at_reward = time.time() - self.trial_start_time
                 self.start_temp1()  # trigger state transition to temp1
             elif event_name == "trial countdown ends":
-                self.time_at_vstim_OFF = time.time() - self.trial_start_time
-                self.start_vacuum_reward_available()
+                self.time_at_vstim_OFF = time.time() - self.trial_start_time + 0.2
+                self.start_reward_lockout_reward_available()
 
         elif self.state == "temp1":
             if event_name == "trial countdown ends":
-                self.time_at_vstim_OFF = time.time() - self.trial_start_time
-                self.start_vacuum_temp1()
+                self.time_at_vstim_OFF = time.time() - self.trial_start_time + 0.2
+                self.start_reward_lockout_temp1()
+
+        elif self.state == "reward_lockout":
+            pass
 
         elif self.state == "vacuum":
             self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1)

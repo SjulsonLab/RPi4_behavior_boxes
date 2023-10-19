@@ -292,7 +292,7 @@ class go_nogo_phase1(object):
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
         self.trial_outcome = 2  # Miss!!
-        self.countdown(2)
+        self.countdown_trial(2)
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
@@ -300,7 +300,7 @@ class go_nogo_phase1(object):
     def enter_lick_count(self):
         logging.info(str(time.time()) + ", entering lick_count")
         self.trial_outcome = 3  # CR!
-        self.countdown(2)
+        self.countdown_trial(2)
 
     def exit_lick_count(self):
         logging.info(str(time.time()) + ", exiting lick_count")
@@ -367,7 +367,7 @@ class go_nogo_phase1(object):
     # countdown methods to run when vstim starts to play, used as timers since vstim starts
     # t is the length of countdown (in seconds)
     ########################################################################
-    def countdown(self, t):
+    def countdown_trial(self, t):
         # This counts down the length of reward_available or lick_count duration (1s)
         logging.info(str(time.time()) + ", trial countdown starts")
         while t > 0:
