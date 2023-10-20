@@ -395,8 +395,8 @@ class go_nogo_phase2(object):
             # print(timer, end="\r")
             time.sleep(0.1)
             t -= 0.1
-        logging.info(str(time.time()) + ", countdown ends")
-        self.box.event_list.append("countdown ends")
+        logging.info(str(time.time()) + ", trial countdown ends")
+        self.box.event_list.append("trial countdown ends")
 
     def countdown_iti(self, t_iti):
         # This counts down iti of variable lengths
