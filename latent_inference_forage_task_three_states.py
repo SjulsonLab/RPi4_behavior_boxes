@@ -265,6 +265,8 @@ class LatentInferenceForageTaskThreeStates(object):
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
+        self.end_dark_time = time.time()
+        self.next_dark_time = self.end_dark_time + 120
 
     def enter_right_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(self.error_repeat))
