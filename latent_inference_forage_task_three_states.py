@@ -115,7 +115,7 @@ class LatentInferenceForageTaskThreeStates(object):
             )
 
     # trial statistics
-        self.dark_period_times = [30]
+        self.dark_period_times = [10]
         self.end_dark_time = 0
         self.next_dark_time = 0
         self.trial_running = False
