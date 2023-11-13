@@ -17,26 +17,70 @@ import os
 import socket
 import time
 from collections import deque
-import pygame
-import pygame.display
-
-import numpy as np
-import matplotlib
-matplotlib.use('module://pygame_matplotlib.backend_pygame')
-import matplotlib.pyplot as plt
-import matplotlib.figure as fg
 
 import logging
 from colorama import Fore, Style
 from visualstim import VisualStim
 
 import scipy.io, pickle
+from typing import Protocol
 
 import Treadmill
 import ADS1x15
 
 # for the flipper
 from FlipperOutput import FlipperOutput
+
+
+class Presenter(Protocol):
+
+    def IR_1_entry_callback(self):
+        ...
+
+    def IR_2_entry_callback(self):
+        ...
+
+    def IR_3_entry_callback(self):
+        ...
+
+    def IR_4_entry_callback(self):
+        ...
+
+    def IR_5_entry_callback(self):
+        ...
+
+    def IR_1_exit_callback(self):
+        ...
+
+    def IR_2_exit_callback(self):
+        ...
+
+    def IR_3_exit_callback(self):
+        ...
+
+    def IR_4_exit_callback(self):
+        ...
+
+    def IR_5_exit_callback(self):
+        ...
+
+    def lick1_pressed_callback(self):
+        ...
+
+    def lick2_pressed_callback(self):
+        ...
+
+    def lick3_pressed_callback(self):
+        ...
+
+    def lick1_released_callback(self):
+        ...
+
+    def lick2_released_callback(self):
+        ...
+
+    def lick3_released_callback(self):
+        ...
 
 
 class BehavBox(object):
@@ -79,12 +123,6 @@ class BehavBox(object):
         self.IP_address_video = "".join(IP_address_video_list)
 
         ###############################################################################################
-        # event list trigger by the interaction between the RPi and the animal for visualization
-        # interact_list: lick, choice interaction between the board and the animal for visualization
-        ###############################################################################################
-        self.interact_list = []
-
-        ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
         # cue LEDs - setting PWM frequency of 200 Hz
         ###############################################################################################
@@ -112,17 +150,7 @@ class BehavBox(object):
         self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
         self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
 
-        # link nosepoke event detections to callbacks
-        self.IR_rx1.when_pressed = self.IR_1_entry
-        self.IR_rx2.when_pressed = self.IR_2_entry
-        self.IR_rx3.when_pressed = self.IR_3_entry
-        self.IR_rx4.when_pressed = self.IR_4_entry
-        self.IR_rx5.when_pressed = self.IR_5_entry
-        self.IR_rx1.when_released = self.IR_1_exit
-        self.IR_rx2.when_released = self.IR_2_exit
-        self.IR_rx3.when_released = self.IR_3_exit
-        self.IR_rx4.when_released = self.IR_4_exit
-        self.IR_rx5.when_released = self.IR_5_exit
+
         ###############################################################################################
         # close circuit detection - for ground pin circuit lick detection
         ###############################################################################################
@@ -131,20 +159,6 @@ class BehavBox(object):
         self.lick3 = Button(15, None, True)
         #self.reserved_rx1 = Button(13, None, True)  # for mitch
         #self.reserved_rx2 = Button(16, None, True)  # for mitch
-        #
-        # # link nosepoke event detections to callbacks
-        self.lick1.when_pressed = self.left_exit
-        self.lick2.when_pressed = self.right_exit
-        self.lick3.when_pressed = self.center_exit
-
-        self.lick1.when_released = self.left_entry
-        self.lick2.when_released = self.right_entry
-        self.lick3.when_released = self.center_entry
-
-        # self.reserved_rx1.when_pressed = self.reserved_rx1_pressed
-        # self.reserved_rx2.when_pressed = self.reserved_rx2_pressed
-        # self.reserved_rx1.when_released = self.reserved_rx1_released
-        # self.reserved_rx2.when_released = self.reserved_rx2_released
 
         ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
@@ -158,11 +172,6 @@ class BehavBox(object):
         """
         self.sound1 = LED(23) # branch new_lick modification
         self.sound2 = LED(24) # branch new_lick modification
-
-        ###############################################################################################
-        # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
-        ###############################################################################################
-        self.pump = Pump(self.session_info)
 
         ###############################################################################################
         # flipper strobe signal (previously called camera strobe signal)
@@ -209,120 +218,27 @@ class BehavBox(object):
         else:
             self.treadmill = False
             print("No treadmill I2C connection detected!")
-        ###############################################################################################
-        # pygame window setup and keystroke handler
-        ###############################################################################################
-        try:
-            pygame.init()
-            self.main_display = pygame.display.set_mode((800, 600))
-            pygame.display.set_caption(session_info["box_name"])
-            fig, axes = plt.subplots(1, 1, )
-            axes.plot()
-            self.check_plot(fig)
-            print(
-                "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
-            )
-            print("must be in the foreground. Keys are as follows:\n")
-            print(
-                Fore.YELLOW
-                + "         1: left poke            2: center poke            3: right poke"
-            )
-            print(
-                "         Q: pump_1            W: pump_2            E: pump_3            R: pump_4"
-            )
-            print(
-                Fore.CYAN
-                + "                       Esc: close key capture window\n"
-                + Style.RESET_ALL
-            )
-            print(
-                Fore.GREEN
-                + Style.BRIGHT
-                + "         TO EXIT, CLICK THE MAIN TEXT WINDOW AND PRESS CTRL-C "
-                + Fore.RED
-                + "ONCE\n"
-                + Style.RESET_ALL
-            )
 
-            self.keyboard_active = True
-        except Exception as error_message:
-            print("pygame issue\n")
-            print(str(error_message))
-    ###############################################################################################
-    # check for data visualization - uses pygame window to show behavior progress
-    ###############################################################################################
-    """
-    1. show a blank window. (change in the pygame initiation part)
-    2. show a x,y axis with a count of trial
-    """
-    def check_plot(self, figure=None, FPS=144):
-        if figure:
-            FramePerSec = pygame.time.Clock()
-            figure.canvas.draw()
-            self.main_display.blit(figure, (0, 0))
-            pygame.display.update()
-            FramePerSec.tick(FPS)
-        else:
-            print("No figure available")
+    def set_callbacks(self, Presenter):
+        # link nosepoke event detections to callbacks
+        self.IR_rx1.when_pressed = Presenter.IR_1_entry_callback
+        self.IR_rx2.when_pressed = Presenter.IR_2_entry_callback
+        self.IR_rx3.when_pressed = Presenter.IR_3_entry_callback
+        self.IR_rx4.when_pressed = Presenter.IR_4_entry_callback
+        self.IR_rx5.when_pressed = Presenter.IR_5_entry_callback
+        self.IR_rx1.when_released = Presenter.IR_1_exit_callback
+        self.IR_rx2.when_released = Presenter.IR_2_exit_callback
+        self.IR_rx3.when_released = Presenter.IR_3_exit_callback
+        self.IR_rx4.when_released = Presenter.IR_4_exit_callback
+        self.IR_rx5.when_released = Presenter.IR_5_exit_callback
 
-    ###############################################################################################
-    # check for key presses - uses pygame window to simulate nosepokes and licks
-    ###############################################################################################
+        self.lick1.when_pressed = Presenter.lick1_pressed_callback
+        self.lick2.when_pressed = Presenter.lick2_pressed_callback
+        self.lick3.when_pressed = Presenter.lick3_pressed_callback
 
-    def check_keybd(self):
-        reward_size = self.session_info['reward_size']
-        # pump = Pump()
-        if self.keyboard_active:
-            # event = pygame.event.get()
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        self.keyboard_active = False
-                    elif event.key == pygame.K_1:
-                        self.left_entry()
-                        self.left_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[action];key_pressed_left_entry()")
-                    elif event.key == pygame.K_2:
-                        self.center_entry()
-                        self.center_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[action];key_pressed_center_entry()")
-                    elif event.key == pygame.K_3:
-                        self.right_entry()
-                        self.right_IR_entry()
-                        logging.info(";" + str(time.time()) + ";[action];key_pressed_right_entry()")
-                    # elif event.key == pygame.K_4:
-                    #     self.reserved_rx1_pressed()
-                    #     logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx1_pressed()")
-                    # elif event.key == pygame.K_5:
-                    #     self.reserved_rx2_pressed()
-                    #     logging.info(";" + str(time.time()) + ";[action];key_pressed_reserved_rx2_pressed()")
-                    elif event.key == pygame.K_q:
-                        # print("Q down: syringe pump 1 moves")
-                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump1")
-                        self.pump.reward("key_1", self.session_info["key_reward_amount"])
-                    elif event.key == pygame.K_w:
-                        # print("W down: syringe pump 2 moves")
-                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump2")
-                        self.pump.reward("key_2", self.session_info["key_reward_amount"])
-                    elif event.key == pygame.K_e:
-                        # print("E down: syringe pump 3 moves")
-                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3")
-                        self.pump.reward("key_3", self.session_info["key_reward_amount"])
-                    elif event.key == pygame.K_r:
-                        # print("R down: syringe pump 4 moves")
-                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
-                        self.pump.reward("key_4", self.session_info["key_reward_amount"])
-                    elif event.key == pygame.K_t:
-                        # print("T down: vacuum on")
-                        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
-                        self.pump.reward("key_vacuum", 1)
-                elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_1:
-                        self.left_exit()
-                    elif event.key == pygame.K_2:
-                        self.center_exit()
-                    elif event.key == pygame.K_3:
-                        self.right_exit()
+        self.lick1.when_released = Presenter.lick1_released_callback
+        self.lick2.when_released = Presenter.lick2_released_callback
+        self.lick3.when_released = Presenter.lick3_released_callback
 
     ###############################################################################################
     # methods to start and stop video
@@ -442,195 +358,104 @@ class BehavBox(object):
             )
             print("rsync finished!")
             # print("Control-C to quit (ignore the error for now)")
+
         except Exception as e:
             print(e)
 
-    ###############################################################################################
-    # callbacks
-    ###############################################################################################
-    def left_entry(self):
-        self.event_list.append("left_entry")
-        self.interact_list.append((time.time(), "left_entry"))
-        logging.info(";" + str(time.time()) + ";[action];left_entry")
-
-    def center_entry(self):
-        self.event_list.append("center_entry")
-        self.interact_list.append((time.time(), "center_entry"))
-        logging.info(";" + str(time.time()) + ";[action];center_entry")
-
-    def right_entry(self):
-        self.event_list.append("right_entry")
-        self.interact_list.append((time.time(), "right_entry"))
-        logging.info(";" + str(time.time()) + ";[action];right_entry")
-
-    def left_exit(self):
-        self.event_list.append("left_exit")
-        self.interact_list.append((time.time(), "left_exit"))
-        logging.info(";" + str(time.time()) + ";[action];left_exit")
-
-    def center_exit(self):
-        self.event_list.append("center_exit")
-        self.interact_list.append((time.time(), "center_exit"))
-        logging.info(";" + str(time.time()) + ";[action];center_exit")
-
-    def right_exit(self):
-        self.event_list.append("right_exit")
-        self.interact_list.append((time.time(), "right_exit"))
-        logging.info(";" + str(time.time()) + ";[action];right_exit")
-
-    # def reserved_rx1_pressed(self):
-    #     self.event_list.append("reserved_rx1_pressed")
-    #     self.interact_list.append((time.time(), "reserved_rx1_pressed"))
-    #     logging.info(";" + str(time.time()) + ";[action];reserved_rx1_pressed")
-    #
-    # def reserved_rx2_pressed(self):
-    #     self.event_list.append("reserved_rx2_pressed")
-    #     self.interact_list.append((time.time(), "reserved_rx2_pressed"))
-    #     logging.info(";" + str(time.time()) + ";[action];reserved_rx2_pressed")
-    #
-    # def reserved_rx1_released(self):
-    #     self.event_list.append("reserved_rx1_released")
-    #     self.interact_list.append((time.time(), "reserved_rx1_released"))
-    #     logging.info(";" + str(time.time()) + ";[action];reserved_rx1_released")
-    #
-    # def reserved_rx2_released(self):
-    #     self.event_list.append("reserved_rx2_released")
-    #     self.interact_list.append((time.time(), "reserved_rx2_released"))
-    #     logging.info(";" + str(time.time()) + ";[action];reserved_rx2_released")
-    def IR_1_entry(self):
-        self.event_list.append("IR_1_entry")
-        logging.info(str(time.time()) + ", IR_1_entry")
-
-    def IR_2_entry(self):
-        self.event_list.append("IR_2_entry")
-        logging.info(str(time.time()) + ", IR_2_entry")
-
-    def IR_3_entry(self):
-        self.event_list.append("IR_3_entry")
-        logging.info(str(time.time()) + ", IR_3_entry")
-
-    def IR_4_entry(self):
-        self.event_list.append("IR_4_entry")
-        logging.info(str(time.time()) + ", IR_4_entry")
-
-    def IR_5_entry(self):
-        self.event_list.append("IR_5_entry")
-        logging.info(str(time.time()) + ", IR_5_entry")
-
-    def IR_1_exit(self):
-        self.event_list.append("IR_1_exit")
-        logging.info(str(time.time()) + ", IR_1_exit")
-
-    def IR_2_exit(self):
-        self.event_list.append("IR_2_exit")
-        # self.cueLED2.off()
-        logging.info(str(time.time()) + ", IR_2_exit")
-
-    def IR_3_exit(self):
-        self.event_list.append("IR_3_exit")
-        logging.info(str(time.time()) + ", IR_3_exit")
-
-    def IR_4_exit(self):
-        self.event_list.append("IR_4_exit")
-        logging.info(str(time.time()) + ", IR_4_exit")
-
-    def IR_5_exit(self):
-        self.event_list.append("IR_5_exit")
-        logging.info(str(time.time()) + ", IR_5_exit")
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the
 # LED will be if BoxLED.on() is called. This is better than the original PWMLED class.
 class BoxLED(PWMLED):
     set_value = 1  # the intensity value, ranging from 0-1
-
-    def on(
-            self,
-    ):  # unlike PWMLED, here the on() function sets the intensity to set_value,
+    def on(self):  # unlike PWMLED, here the on() function sets the intensity to set_value,
         # not to full intensity
         self.value = self.set_value
 
 
+###############################################################################################
+# pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
+###############################################################################################
 class Pump(object):
     def __init__(self, session_info):
-        self.session_info = session_info
         self.pump1 = LED(19)
         self.pump2 = LED(20)
         self.pump3 = LED(21)
         self.pump4 = LED(7)
         self.pump_air = LED(8)
         self.pump_vacuum = LED(25)
-        self.reward_list = [] # a list of tuple (pump_x, reward_amount) with information of reward history for data
+
+        # this needs to move to the controller
+        self.reward_list = []  # a list of tuple (pump_x, reward_amount) with information of reward history for data
         # visualization
 
-    def reward(self, which_pump, reward_size):
-        # import coefficient from the session_information
-        coefficient_p1 = self.session_info["calibration_coefficient"]['1']
-        coefficient_p2 = self.session_info["calibration_coefficient"]['2']
-        coefficient_p3 = self.session_info["calibration_coefficient"]['3']
-        coefficient_p4 = self.session_info["calibration_coefficient"]['4']
-        duration_air = self.session_info['air_duration']
-        duration_vac = self.session_info["vacuum_duration"]
+        self.coefficient_p1 = session_info["calibration_coefficient"]['1']
+        self.coefficient_p2 = session_info["calibration_coefficient"]['2']
+        self.coefficient_p3 = session_info["calibration_coefficient"]['3']
+        self.coefficient_p4 = session_info["calibration_coefficient"]['4']
+        self.duration_air = session_info['air_duration']
+        self.duration_vac = session_info["vacuum_duration"]
 
+    def reward(self, which_pump, reward_size):
         if which_pump == "1":
-            duration = round((coefficient_p1[0] * (reward_size / 1000) + coefficient_p1[1]), 5)  # linear function
+            duration = round((self.coefficient_p1[0] * (reward_size / 1000) + self.coefficient_p1[1]), 5)  # linear function
             self.pump1.blink(duration, 0.1, 1)
             self.reward_list.append(("pump1_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump1_reward(reward_coeff: " + str(coefficient_p1) +
+            logging.info(";" + str(time.time()) + ";[reward];pump1_reward(reward_coeff: " + str(self.coefficient_p1) +
                          ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
         elif which_pump == "2":
-            duration = round((coefficient_p2[0] * (reward_size / 1000) + coefficient_p2[1]), 5)  # linear function
+            duration = round((self.coefficient_p2[0] * (reward_size / 1000) + self.coefficient_p2[1]), 5)  # linear function
             self.pump2.blink(duration, 0.1, 1)
             self.reward_list.append(("pump2_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump2_reward(reward_coeff: " + str(coefficient_p2) +
+            logging.info(";" + str(time.time()) + ";[reward];pump2_reward(reward_coeff: " + str(self.coefficient_p2) +
                          ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
         elif which_pump == "3":
-            duration = round((coefficient_p3[0] * (reward_size / 1000) + coefficient_p3[1]), 5)  # linear function
+            duration = round((self.coefficient_p3[0] * (reward_size / 1000) + self.coefficient_p3[1]), 5)  # linear function
             self.pump3.blink(duration, 0.1, 1)
             self.reward_list.append(("pump3_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump3_reward(reward_coeff: " + str(coefficient_p3) +
+            logging.info(";" + str(time.time()) + ";[reward];pump3_reward(reward_coeff: " + str(self.coefficient_p3) +
                          ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
         elif which_pump == "4":
-            duration = round((coefficient_p4[0] * (reward_size / 1000) + coefficient_p4[1]), 5)  # linear function
+            duration = round((self.coefficient_p4[0] * (reward_size / 1000) + self.coefficient_p4[1]), 5)  # linear function
             self.pump4.blink(duration, 0.1, 1)
             self.reward_list.append(("pump4_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump4_reward(reward_coeff: " + str(coefficient_p4) +
+            logging.info(";" + str(time.time()) + ";[reward];pump4_reward(reward_coeff: " + str(self.coefficient_p4) +
                          ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
         elif which_pump == "air_puff":
-            self.pump_air.blink(duration_air, 0.1, 1)
+            self.pump_air.blink(self.duration_air, 0.1, 1)
             self.reward_list.append(("air_puff", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
         elif which_pump == "vacuum":
-            self.pump_vacuum.blink(duration_vac, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum" + str(duration_vac))
+            self.pump_vacuum.blink(self.duration_vac, 0.1, 1)
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum" + str(self.duration_vac))
         elif which_pump == "key_1":
-            duration = round((coefficient_p1[0] * (reward_size / 1000) + coefficient_p1[1]), 5)  # linear function
+            duration = round((self.coefficient_p1[0] * (reward_size / 1000) + self.coefficient_p1[1]), 5)  # linear function
             self.pump1.blink(duration, 0.1, 1)
             self.reward_list.append(("pump1_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[key];pump1_reward(reward_coeff: " + str(coefficient_p1) +
+            logging.info(";" + str(time.time()) + ";[key];pump1_reward(reward_coeff: " + str(self.coefficient_p1) +
                          ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
         elif which_pump == "key_2":
-            duration = round((coefficient_p2[0] * (reward_size / 1000) + coefficient_p2[1]), 5)  # linear function
+            duration = round((self.coefficient_p2[0] * (reward_size / 1000) + self.coefficient_p2[1]), 5)  # linear function
             self.pump2.blink(duration, 0.1, 1)
             self.reward_list.append(("pump2_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[key];pump2_reward(reward_coeff: " + str(coefficient_p2) +
+            logging.info(";" + str(time.time()) + ";[key];pump2_reward(reward_coeff: " + str(self.coefficient_p2) +
                          ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
         elif which_pump == "key_3":
-            duration = round((coefficient_p3[0] * (reward_size / 1000) + coefficient_p3[1]), 5)  # linear function
+            duration = round((self.coefficient_p3[0] * (reward_size / 1000) + self.coefficient_p3[1]), 5)  # linear function
             self.pump3.blink(duration, 0.1, 1)
             self.reward_list.append(("pump3_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[key];pump3_reward(reward_coeff: " + str(coefficient_p3) +
+            logging.info(";" + str(time.time()) + ";[key];pump3_reward(reward_coeff: " + str(self.coefficient_p3) +
                          ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
         elif which_pump == "key_4":
-            duration = round((coefficient_p4[0] * (reward_size / 1000) + coefficient_p4[1]), 5)  # linear function
+            duration = round((self.coefficient_p4[0] * (reward_size / 1000) + self.coefficient_p4[1]), 5)  # linear function
             self.pump4.blink(duration, 0.1, 1)
             self.reward_list.append(("pump4_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[key];pump4_reward(reward_coeff: " + str(coefficient_p4) +
+            logging.info(";" + str(time.time()) + ";[key];pump4_reward(reward_coeff: " + str(self.coefficient_p4) +
                          ", reward_amount: " + str(reward_size) + "duration: " + str(duration) + ")")
         elif which_pump == "key_air_puff":
-            self.pump_air.blink(duration_air, 0.1, 1)
+            self.pump_air.blink(self.duration_air, 0.1, 1)
             self.reward_list.append(("air_puff", reward_size))
             logging.info(";" + str(time.time()) + ";[key];pump4_reward_" + str(reward_size))
         elif which_pump == "key_vacuum":
-            self.pump_vacuum.blink(duration_vac, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[key];pump_vacuum" + str(duration_vac))
+            self.pump_vacuum.blink(self.duration_vac, 0.1, 1)
+            logging.info(";" + str(time.time()) + ";[key];pump_vacuum" + str(self.duration_vac))
