@@ -37,18 +37,6 @@ class TimedStateMachine(Machine):
 class AlternateLatent(object):
 
     def __init__(self, session_info: dict):  # name and session_info should be provided as kwargs
-        """
-        Refactoring:
-        Hold performance (choices, correct history, choice time) in the model
-        No params class encapsulation, not enough params to make that worth it
-
-        TODO -
-        - transitions to new blocks; adjusting event list clearing
-        - setup automation of training rewards
-        - logging? here or in the controller?
-
-        """
-
         # TASK + BEHAVIOR STATUS
         self.right_active = True
         self.trial_running = False
