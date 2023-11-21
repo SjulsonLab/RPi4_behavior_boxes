@@ -116,6 +116,7 @@ class LatentInferenceForageTaskThreeStatesInterchoiceDelay(object):
 
     # trial statistics
         self.dark_period_times = [10]
+        self.interchoice_time = 0
         self.interchoice_delay = .5 #seconds
         self.first_choice_trial_bool = True
         self.end_dark_time = 0
@@ -188,6 +189,7 @@ class LatentInferenceForageTaskThreeStatesInterchoiceDelay(object):
             self.trial_running = False
             self.LED_bool = False
             self.prior_choice_time = 0
+            self.interchoice_time = 0
             self.reward_earned = False
             self.first_choice_trial_bool = True
             self.box.event_list.clear()
@@ -197,10 +199,10 @@ class LatentInferenceForageTaskThreeStatesInterchoiceDelay(object):
                 else:
                     self.event_name = ''
                 if not self.first_choice_trial_bool and (self.event_name == 'right_entry' or self.event_name == 'left_entry'):
-                    self.prior_choice_time = time.time()
-                    self.prior_choice_time = self.prior_choice_time + self.interchoice_delay
+                    self.interchoice_time = time.time()
+                    self.interchoice_time = self.interchoice_time + self.interchoice_delay
                 if not self.LED_bool:
-                    if time.time() > self.prior_choice_time:
+                    if time.time() - self.prior_choice_time > self.ITI and time.time() > self.interchoice_time:
                         self.box.cueLED1.on()
                         self.box.cueLED2.on()
                         self.LED_bool = True
@@ -237,6 +239,7 @@ class LatentInferenceForageTaskThreeStatesInterchoiceDelay(object):
             self.trial_running = False
             self.LED_bool = False
             self.prior_choice_time = 0
+            self.interchoice_time = 0
             self.reward_earned = False
             self.first_choice_trial_bool = True
             self.box.event_list.clear()
@@ -246,10 +249,10 @@ class LatentInferenceForageTaskThreeStatesInterchoiceDelay(object):
                 else:
                     self.event_name = ''
                 if not self.first_choice_trial_bool and (self.event_name == 'right_entry' or self.event_name == 'left_entry'):
-                    self.prior_choice_time = time.time()
-                    self.prior_choice_time = self.prior_choice_time + self.interchoice_delay
+                    self.interchoice_time = time.time()
+                    self.interchoice_time = self.interchoice_time + self.interchoice_delay
                 if not self.LED_bool:
-                    if time.time() > self.prior_choice_time:
+                    if time.time() - self.prior_choice_time > self.ITI and time.time() > self.interchoice_time:
                         self.box.cueLED1.on()
                         self.box.cueLED2.on()
                         self.LED_bool = True
