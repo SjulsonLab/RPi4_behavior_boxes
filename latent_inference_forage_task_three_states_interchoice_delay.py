@@ -4,11 +4,11 @@
 # In[ ]:
 
 
-# python3: latent_inference_forage_task_three_states.py
+# python3: latent_inference_forage_task_three_states_interchoice_delay.py
 """
 author: Mitch Farrell
-date: 2023-10-26
-name: latent_inference_forage_task_three_states.py
+date: 2023-11-21
+name: latent_inference_forage_task_three_states_interchoice_delay.py
 """
 import importlib
 from transitions import Machine
@@ -50,7 +50,7 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class LatentInferenceForageTaskThreeStates(object):
+class LatentInferenceForageTaskThreeStatesInterchoiceDelay(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
