@@ -1,6 +1,7 @@
 ##########################################################################################################
-################################### GO/NO-GO TASK PHASE 3 ################################################
-# Edited October 19th 2023
+################################### GO/NO-GO TASK PHASE 4 ################################################
+# Edited November 29th 2023
+# REVERSAL LEARNING TASK!
 # Duy Tran
 # This task include go and no-go trials but with features below:
 # Punishment time included
@@ -44,7 +45,7 @@ class TimedStateMachine(Machine):
 #################################################################################
 ################################### Phase 2 #####################################
 #################################################################################
-class go_nogo_phase3(object):
+class go_nogo_phase4(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
 
         # if no name or session, make fake ones (for testing purposes)
@@ -284,7 +285,7 @@ class go_nogo_phase3(object):
         self.trial_running = True
         self.trial_type = "go"
         logging.info(str(time.time()) + ", initializing vstim_go")
-        self.box.visualstim_go.show_grating(list(self.box.visualstim_go.gratings)[0])
+        self.box.visualstim_nogo.show_grating(list(self.box.visualstim_nogo.gratings)[0])
         logging.info(str(time.time()) + ", vstim_go ON!")
         self.time_at_vstim_ON = time.time() - self.trial_start_time
 
@@ -295,7 +296,7 @@ class go_nogo_phase3(object):
         self.trial_running = True
         self.trial_type = "no_go"
         logging.info(str(time.time()) + ", initializing vstim_nogo")
-        self.box.visualstim_nogo.show_grating(list(self.box.visualstim_nogo.gratings)[0])
+        self.box.visualstim_go.show_grating(list(self.box.visualstim_go.gratings)[0])
         logging.info(str(time.time()) + ", vstim_nogo ON!")
         self.time_at_vstim_ON = time.time() - self.trial_start_time
 
@@ -378,7 +379,7 @@ class go_nogo_phase3(object):
     def exit_extra_iti(self):
         logging.info(str(time.time()) + ", exiting extra_iti")
 
-    def bait_phase3(self):
+    def bait_phase4(self):
         # This function asks the user to input whether they want reward delivery
         # This is used to bait the animal to lick initially
         # If y, deliver reward, if hit enter, start random reward phase
