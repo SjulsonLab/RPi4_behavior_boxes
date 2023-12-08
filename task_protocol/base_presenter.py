@@ -1,9 +1,11 @@
 import logging
 import time
 from typing import List, Tuple, Protocol
+from abc import ABC, abstractmethod
+from icecream import ic
 
 """
-Mixin functions for use with the Presenter of the behavbox model-view-presenter.
+Abstract base class for use with the Presenter of the behavbox model-view-presenter.
 """
 
 
@@ -25,12 +27,22 @@ class GUI(Protocol):
     keyboard_active: bool
 
 
-class Callbacks:
+class Box(Protocol):
+    def video_start(self):
+        ...
+
+    def video_stop(self):
+        ...
+
+
+class Presenter(ABC):
 
     interact_list: List[Tuple[float, str]]
     pump: Pump
     task: Task
     gui: GUI
+    session_info: dict
+    box: Box
 
     def deliver_reward(self, pump_key: str, reward_size: int) -> None:
         self.pump.reward(pump_key, reward_size)
@@ -170,6 +182,24 @@ class Callbacks:
         # give training reward
         self.task.give_training_reward = True
         logging.info(";" + str(time.time()) + ";[action];set_give_reward_true")
+
+    def start_session(self) -> None:
+        ic("TODO: start video")
+        self.box.video_start()
+
+    def end_session(self) -> None:
+        ic("TODO: stop video")
+        self.box.video_stop()
+        self.update_plot(save_fig=True)
+
+    @abstractmethod
+    def run(self) -> None:
+        ...
+
+    @abstractmethod
+    def update_plot(self, save_fig=False) -> None:
+        ...
+
 
 
 

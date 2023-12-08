@@ -9,7 +9,7 @@ from icecream import ic
 import time
 import logging
 
-import callbacks
+from base_presenter import Presenter
 
 SEED = 0
 rng = np.random.default_rng(seed=SEED)
@@ -67,7 +67,7 @@ class Pump(Protocol):
         ...
 
 
-class AlternatingLatentPresenter(callbacks.Callbacks):
+class AlternatingLatentPresenter(Presenter):
 
     def __init__(self, name: str, task: Task, box: Box, pump: Pump,
                 gui: GUI, session_info: dict):
@@ -97,7 +97,7 @@ class AlternatingLatentPresenter(callbacks.Callbacks):
         """
         # make this say if correct real choice or incorrect real choice
         choice_correct, give_training_reward, cur_time = self.task.run_event_loop()
-        # goes thru the whole timeout before doing the plotting bits I think
+        # goes through the whole timeout before doing the plotting bits I think
         if self.task.state in ['A', 'C1', 'right_active']:
             correct_pump = PUMP1_IX
             incorrect_pump = PUMP2_IX

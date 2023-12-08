@@ -14,6 +14,9 @@ LEFT_IX = 1
 
 class Presenter(Protocol):
 
+    def K_escape_callback(self):
+        ...
+
     def K_1_down_callback(self):
         ...
 
