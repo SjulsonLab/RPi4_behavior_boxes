@@ -112,6 +112,7 @@ class LiquidSATaskDualLever(object):
             )
 
     # trial statistics
+        self.active_lever = self.session_info['active_lever'] #reserved_rx1_pressed or reserved_rx2_pressed
         self.trial_running = False
         self.innocent = True
         self.trial_number = 0
