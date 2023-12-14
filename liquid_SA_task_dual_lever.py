@@ -173,7 +173,7 @@ class LiquidSATaskDualLever(object):
                 self.event_name = self.box.event_list.popleft()
             else:
                 self.event_name = ''
-            if self.event_name == 'reserved_rx1_pressed':
+            if self.event_name == self.active_lever:
                 entry_time_temp = time.time()
                 entry_dt = entry_time_temp - self.entry_time
                 if entry_dt >= self.entry_interval:
