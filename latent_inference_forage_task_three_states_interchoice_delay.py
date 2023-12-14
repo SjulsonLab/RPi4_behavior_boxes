@@ -115,6 +115,7 @@ class LatentInferenceForageTaskThreeStatesInterchoiceDelay(object):
             )
 
     # trial statistics
+        self.current_dark_period = 0
         self.dark_period_mu = 10
         self.dark_period_sigma = 5
         self.interchoice_time = 0
@@ -309,7 +310,10 @@ class LatentInferenceForageTaskThreeStatesInterchoiceDelay(object):
         self.trial_running = False
         self.box.cueLED1.off()
         self.box.cueLED2.off()
-        time.sleep(random.gauss(self.dark_period_mu, self.dark_period_sigma))
+        self.current_dark_period = random.gauss(self.dark_period_mu, self.dark_period_sigma)
+        if self.current_dark_period < 1:
+            self.current_dark_period = 1
+        time.sleep(self.current_dark_period)
         self.end_dark_time = time.time()
         self.next_dark_time = self.end_dark_time + 120
         if random.random() > 0.5:
