@@ -125,11 +125,6 @@ class GUI:
             print("No figure available")
 
     def set_callbacks(self, presenter: Presenter):
-        """
-        Put the callbacks in the presenter; add references to them here.
-        :param Presenter:
-        :return:
-        """
         self.K_escape_callback = presenter.K_escape_callback
 
         self.K_1_down_callback = presenter.K_1_down_callback

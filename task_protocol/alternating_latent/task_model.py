@@ -34,6 +34,7 @@ LEFT_IX = 1
 class TimedStateMachine(Machine):
     pass
 
+
 class AlternateLatent(object):
 
     def __init__(self, session_info: dict):  # name and session_info should be provided as kwargs
@@ -120,7 +121,6 @@ class AlternateLatent(object):
             else:
                 self.block_type_counter[0] += 1
 
-
             self.switch_to_right_active()
         else:
             self.switch_to_left_active()
@@ -151,12 +151,14 @@ class AlternateLatent(object):
         self.trial_running = True
         self.last_state_fxn = self.switch_to_right_active
         logging.info(";" + str(time.time()) + ";[transition];enter_right_active;" + str(""))
+        print('entering right active')
 
     def enter_left_active(self):
         self.right_active = False
         self.trial_running = True
         self.last_state_fxn = self.switch_to_left_active
         logging.info(";" + str(time.time()) + ";[transition];enter_left_active;" + str(""))
+        print('entering left active')
 
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(""))

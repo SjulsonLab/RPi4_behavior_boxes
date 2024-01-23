@@ -123,14 +123,17 @@ class Presenter(ABC):
         self.gui.keyboard_active = False
 
     def K_1_down_callback(self) -> None:
+        # left entry
         logging.info(";" + str(time.time()) + ";[action];key_pressed_left_entry()")
         self.left_entry()
 
     def K_2_down_callback(self) -> None:
+        # center entry
         logging.info(";" + str(time.time()) + ";[action];key_pressed_center_entry()")
         self.center_entry()
 
     def K_3_down_callback(self) -> None:
+        # right entry
         logging.info(";" + str(time.time()) + ";[action];key_pressed_right_entry()")
         self.right_entry()
 
@@ -183,6 +186,13 @@ class Presenter(ABC):
         self.task.give_training_reward = True
         logging.info(";" + str(time.time()) + ";[action];set_give_reward_true")
 
+    def print_controls(self) -> None:
+        print("Keyboard controls:")
+        print("1, 2, 3: left/center/right nosepoke entry")
+        print("q, w, e, r, t: pump 1/2/3/4 reward delivery")
+        print("a: toggle automated training rewards")
+        print("g: give training reward")
+
     def start_session(self) -> None:
         ic("TODO: start video")
         self.box.video_start()
@@ -199,7 +209,3 @@ class Presenter(ABC):
     @abstractmethod
     def update_plot(self, save_fig=False) -> None:
         ...
-
-
-
-

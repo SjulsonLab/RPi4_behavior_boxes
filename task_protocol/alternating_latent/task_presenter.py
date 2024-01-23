@@ -9,7 +9,7 @@ from icecream import ic
 import time
 import logging
 
-from base_presenter import Presenter
+from task_protocol.base_presenter import Presenter
 
 SEED = 0
 rng = np.random.default_rng(seed=SEED)
@@ -50,7 +50,7 @@ class GUI(Protocol):
     def check_keyboard(self) -> None:
         ...
 
-    def check_plot(self, figure, save_fig=False) -> None:
+    def check_plot(self, figure, save_fig: bool = False) -> None:
         ...
 
 
@@ -152,7 +152,7 @@ class AlternatingLatentPresenter(Presenter):
         # if choice_correct:  # is not None
         #     self.task.switch_to_timeout()
 
-    def update_plot(self, save_fig=False) -> None:
+    def update_plot(self, save_fig: bool = False) -> None:
         ix = np.array(self.task.trial_correct_list)
         choices = np.array(self.task.trial_choice_list)
         times = np.array(self.task.trial_choice_times)
@@ -180,12 +180,3 @@ class AlternatingLatentPresenter(Presenter):
         plt.xlim(T)
 
         self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)
-
-    def start_session(self) -> None:
-        ic("TODO: start video")
-        self.box.video_start()
-
-    def end_session(self) -> None:
-        ic("TODO: stop video")
-        self.box.video_stop()
-        self.update_plot(save_fig=True)
