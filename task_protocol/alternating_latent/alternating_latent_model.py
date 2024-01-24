@@ -4,10 +4,9 @@
 # python3: lick_task_left_and_right_alternate.py
 """
 author: Mitch Farrell; edited Matthew Chin
-date: 2023-06-30 (to be updated)
+last updated: 2023-06-30
 name: lick_task_left_and_right_alternate.py
 """
-from numpy import ndarray
 from transitions import State, Machine
 from transitions.extensions.states import add_state_features, Timeout
 
@@ -30,9 +29,11 @@ Model for the task - i.e. only sees the the task state machine and status, neces
 RIGHT_IX = 0
 LEFT_IX = 1
 
+
 @add_state_features(Timeout)
 class TimedStateMachine(Machine):
     pass
+
 
 class AlternateLatent(object):
 
@@ -120,7 +121,6 @@ class AlternateLatent(object):
             else:
                 self.block_type_counter[0] += 1
 
-
             self.switch_to_right_active()
         else:
             self.switch_to_left_active()
@@ -151,12 +151,14 @@ class AlternateLatent(object):
         self.trial_running = True
         self.last_state_fxn = self.switch_to_right_active
         logging.info(";" + str(time.time()) + ";[transition];enter_right_active;" + str(""))
+        print('entering right active')
 
     def enter_left_active(self):
         self.right_active = False
         self.trial_running = True
         self.last_state_fxn = self.switch_to_left_active
         logging.info(";" + str(time.time()) + ";[transition];enter_left_active;" + str(""))
+        print('entering left active')
 
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(""))
@@ -217,7 +219,7 @@ class AlternateLatent(object):
         self.error_count = 0
         self.event_list.clear()
 
-    def determine_choice(self) -> Union[int, ndarray[int]]:
+    def determine_choice(self) -> Union[int, np.ndarray[int]]:
         """Determine whether there has been a choice to the left ports, right ports, or a switch."""
 
         sides_licked = np.sum(self.lick_side_buffer.astype(bool))  # get nonzero sides

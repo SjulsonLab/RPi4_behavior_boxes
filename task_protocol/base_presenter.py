@@ -3,6 +3,8 @@ import time
 from typing import List, Tuple, Protocol
 from abc import ABC, abstractmethod
 from icecream import ic
+from transitions import State, Machine
+from transitions.extensions.states import add_state_features, Timeout
 
 """
 Abstract base class for use with the Presenter of the behavbox model-view-presenter.
@@ -33,6 +35,11 @@ class Box(Protocol):
 
     def video_stop(self):
         ...
+
+
+@add_state_features(Timeout)
+class TimedStateMachine(Machine):
+    pass
 
 
 class Presenter(ABC):
@@ -123,14 +130,17 @@ class Presenter(ABC):
         self.gui.keyboard_active = False
 
     def K_1_down_callback(self) -> None:
+        # left entry
         logging.info(";" + str(time.time()) + ";[action];key_pressed_left_entry()")
         self.left_entry()
 
     def K_2_down_callback(self) -> None:
+        # center entry
         logging.info(";" + str(time.time()) + ";[action];key_pressed_center_entry()")
         self.center_entry()
 
     def K_3_down_callback(self) -> None:
+        # right entry
         logging.info(";" + str(time.time()) + ";[action];key_pressed_right_entry()")
         self.right_entry()
 
@@ -183,6 +193,13 @@ class Presenter(ABC):
         self.task.give_training_reward = True
         logging.info(";" + str(time.time()) + ";[action];set_give_reward_true")
 
+    def print_controls(self) -> None:
+        print("[***] KEYBOARD CONTROLS [***]")
+        print("1, 2, 3: left/center/right nosepoke entry")
+        print("q, w, e, r, t: pump 1/2/3/4 reward delivery")
+        print("a: toggle automated training rewards")
+        print("g: give training reward")
+
     def start_session(self) -> None:
         ic("TODO: start video")
         self.box.video_start()
@@ -199,7 +216,3 @@ class Presenter(ABC):
     @abstractmethod
     def update_plot(self, save_fig=False) -> None:
         ...
-
-
-
-

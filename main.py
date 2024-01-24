@@ -17,7 +17,6 @@ import scipy.io, pickle
 import pygame
 from colorama import Fore, Style
 import time
-from time import sleep
 import sys
 import logging
 import logging.config
@@ -25,10 +24,11 @@ import numpy as np
 from pathlib import Path
 
 
-sys.path.insert(0,'./essential')
+sys.path.insert(0, './essential')  # essential holds behavbox and equipment classes
+sys.path.insert(0, '.')
 
-debug_startup = True
-debug_task = False
+debug_startup = False
+debug_task = True
 if debug_startup or debug_task:
     from essential import dummy_box as behavbox
 else:
@@ -60,7 +60,6 @@ logging.config.dictConfig({
 
 # import your task class here
 sys.path.insert(0,'./task_protocol')
-from task_protocol import task_presenter
 from task_protocol.gui import GUI
 
 
@@ -119,8 +118,16 @@ try:
         session_info['file_basename'] = session_info['dir_name'] + '/' + session_info['basename']
 
     log_path = Path(session_info['dir_name']) / (session_info['file_basename'] + '.log')
+    # stop if log path exists, or delete prior log file
+    if os.path.exists(log_path):
+        print(Fore.RED + Style.BRIGHT + 'ERROR: Log file already exists! Exiting now' + Style.RESET_ALL)
+        quit()
+
     session_info_path = Path(session_info['dir_name']) / (session_info['file_basename'] + '_session_info.pkl')
     mat_path = Path(session_info['dir_name']) / (session_info['file_basename'] + '_session_info.mat')
+    session_info['log_path'] = str(log_path)
+
+    logger = logging.getLogger(__name__)
 
     logging.basicConfig(
         level=logging.INFO,
@@ -145,7 +152,7 @@ try:
     ### allow different tasks to be loaded ###
     task_type = session_info['task_config']
     if task_type == 'alternating_latent':
-        from task_protocol.alternating_latent import task_model
+        from task_protocol.alternating_latent import alternating_latent_model, alternating_latent_presenter
         task = task_model.AlternateLatent(session_info=session_info)
         Presenter = task_presenter.AlternatingLatentPresenter
         name = 'alternating_latent_task'
@@ -167,7 +174,7 @@ try:
     gui.set_callbacks(presenter=presenter)
 
     # start session
-    scipy.io.savemat(mat_path, {'session_info': session_info})
+    scipy.io.savemat(mat_path, session_info)
     with open(session_info_path, 'wb') as f:
         pickle.dump(session_info, f)
 
@@ -175,13 +182,14 @@ try:
     if debug_startup:
         pass
     else:
-        # sleep(5)
+        # time.sleep(5)
         # loop over trials
         # Set a timer
         t_minute = int(input("Enter the time in minutes: "))
         t_end = time.time() + 60 * t_minute
 
         run = True
+        presenter.print_controls()
         task.sample_next_block()
         while run:
             if time.time() < t_end:
