@@ -24,7 +24,8 @@ import numpy as np
 from pathlib import Path
 
 
-sys.path.insert(0, './essential')
+sys.path.insert(0, './essential')  # essential holds behavbox and equipment classes
+sys.path.insert(0, '.')
 
 debug_startup = False
 debug_task = True
@@ -151,7 +152,7 @@ try:
     ### allow different tasks to be loaded ###
     task_type = session_info['task_config']
     if task_type == 'alternating_latent':
-        from task_protocol.alternating_latent import task_model, task_presenter
+        from task_protocol.alternating_latent import alternating_latent_model, alternating_latent_presenter
         task = task_model.AlternateLatent(session_info=session_info)
         Presenter = task_presenter.AlternatingLatentPresenter
         name = 'alternating_latent_task'

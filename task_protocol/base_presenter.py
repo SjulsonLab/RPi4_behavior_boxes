@@ -3,6 +3,8 @@ import time
 from typing import List, Tuple, Protocol
 from abc import ABC, abstractmethod
 from icecream import ic
+from transitions import State, Machine
+from transitions.extensions.states import add_state_features, Timeout
 
 """
 Abstract base class for use with the Presenter of the behavbox model-view-presenter.
@@ -33,6 +35,11 @@ class Box(Protocol):
 
     def video_stop(self):
         ...
+
+
+@add_state_features(Timeout)
+class TimedStateMachine(Machine):
+    pass
 
 
 class Presenter(ABC):
@@ -187,7 +194,7 @@ class Presenter(ABC):
         logging.info(";" + str(time.time()) + ";[action];set_give_reward_true")
 
     def print_controls(self) -> None:
-        print("Keyboard controls:")
+        print("[***] KEYBOARD CONTROLS [***]")
         print("1, 2, 3: left/center/right nosepoke entry")
         print("q, w, e, r, t: pump 1/2/3/4 reward delivery")
         print("a: toggle automated training rewards")

@@ -4,10 +4,9 @@
 # python3: lick_task_left_and_right_alternate.py
 """
 author: Mitch Farrell; edited Matthew Chin
-date: 2023-06-30 (to be updated)
+last updated: 2023-06-30
 name: lick_task_left_and_right_alternate.py
 """
-from numpy import ndarray
 from transitions import State, Machine
 from transitions.extensions.states import add_state_features, Timeout
 
@@ -29,6 +28,7 @@ Model for the task - i.e. only sees the the task state machine and status, neces
 
 RIGHT_IX = 0
 LEFT_IX = 1
+
 
 @add_state_features(Timeout)
 class TimedStateMachine(Machine):
@@ -219,7 +219,7 @@ class AlternateLatent(object):
         self.error_count = 0
         self.event_list.clear()
 
-    def determine_choice(self) -> Union[int, ndarray[int]]:
+    def determine_choice(self) -> Union[int, np.ndarray[int]]:
         """Determine whether there has been a choice to the left ports, right ports, or a switch."""
 
         sides_licked = np.sum(self.lick_side_buffer.astype(bool))  # get nonzero sides
