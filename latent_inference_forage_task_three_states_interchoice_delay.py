@@ -220,9 +220,9 @@ class LatentInferenceForageTaskThreeStatesInterchoiceDelay(object):
                             self.box.cueLED2.off()
                             self.LED_bool = False
                             self.first_choice_trial_bool = False
-                            if self.p_reward >= random.random():
+                            if self.p_reward <= random.random():
                                 self.pump.reward(self.reward_pump1, self.reward_size1) #1 reward
-                                if self.p_switch >= random.random():
+                                if self.p_switch <= random.random():
                                     self.LED_bool = False
                                     time.sleep(1)
                                     self.switch_to_left_patch()
@@ -270,9 +270,9 @@ class LatentInferenceForageTaskThreeStatesInterchoiceDelay(object):
                             self.box.cueLED2.off()
                             self.LED_bool = False
                             self.first_choice_trial_bool = False
-                            if self.p_reward >= random.random():
+                            if self.p_reward <= random.random():
                                 self.pump.reward(self.reward_pump2, self.reward_size1)  # 1 reward
-                                if self.p_switch >= random.random():
+                                if self.p_switch <= random.random():
                                     self.LED_bool = False
                                     time.sleep(1)
                                     self.switch_to_right_patch()
