@@ -171,7 +171,7 @@ class CocaineSelfAdminLeverTask(object):
         self.reward_list.append(("syringe_pump_reward", infusion_duration))
         logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
     def fill_cath(self):
-        self.syringe_pump.blink(2.2, 0.1, 1) #5ul/second, calculated cath holds ~11.74ul; 2.2seconds delivers ~12ul into cath
+        self.syringe_pump.blink(3.76, 0.1, 1) #3.125ul/second, calculated cath holds ~11.74ul; 3.76 seconds delivers ~12ul into cath
         logging.info(";" + str(time.time()) + ";[reward];catheter_filled_with_~12ul;" + '2.2_second_infusion')
 
     def run(self):
