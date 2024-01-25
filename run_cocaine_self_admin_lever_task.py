@@ -101,7 +101,7 @@ try:
     # loop over trials
     # Set a timer
     t_minute = int(input("Enter the time in minutes: "))
-    t_end = time.time() + 60 * t_minute
+    t_end = time.time() + 120 * t_minute
 
     i = True
     task.start_trial_logic()
