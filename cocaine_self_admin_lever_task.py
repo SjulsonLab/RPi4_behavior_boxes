@@ -168,11 +168,11 @@ class CocaineSelfAdminLeverTask(object):
     def reward(self):  # prototype mouse weight equals 30
         infusion_duration = (self.session_info['weight'] / 30) #6.25 uL for a 30g mouse
         self.syringe_pump.blink(2*infusion_duration, 0.1, 1) #2 second infusion duration for 6.25 ul (hence 2*)
-        self.reward_list.append(("syringe_pump_reward", infusion_duration))
-        logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
+        self.reward_list.append(("syringe_pump_reward", 2*infusion_duration))
+        logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(2*infusion_duration))
     def fill_cath(self):
         self.syringe_pump.blink(3.76, 0.1, 1) #3.125ul/second, calculated cath holds ~11.74ul; 3.76 seconds delivers ~12ul into cath
-        logging.info(";" + str(time.time()) + ";[reward];catheter_filled_with_~12ul;" + '2.2_second_infusion')
+        logging.info(";" + str(time.time()) + ";[reward];catheter_filled_with_~12ul;" + '3.76_second_infusion')
 
     def run(self):
         if self.state == "standby" or self.state == 'timeout':
