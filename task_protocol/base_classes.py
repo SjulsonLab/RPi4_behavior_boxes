@@ -1,10 +1,12 @@
 import logging
 import time
-from typing import List, Tuple, Protocol
+from typing import List, Tuple, Protocol, Union
 from abc import ABC, abstractmethod
 from icecream import ic
 from transitions import State, Machine
 from transitions.extensions.states import add_state_features, Timeout
+import numpy as np
+
 
 """
 Abstract base class for use with the Presenter of the behavbox model-view-presenter.
@@ -13,15 +15,6 @@ Abstract base class for use with the Presenter of the behavbox model-view-presen
 
 class Pump(Protocol):
     def reward(self, pump_key: str, reward_size: float):
-        ...
-
-
-class Task(Protocol):
-    event_list: List[str]
-    automate_training_rewards: bool
-    give_training_reward: bool
-
-    def switch_to_timeout(self):
         ...
 
 
@@ -42,11 +35,89 @@ class TimedStateMachine(Machine):
     pass
 
 
+class Model(ABC):
+    event_list: list[str]
+    automate_training_rewards: bool
+    give_training_reward: bool
+
+    trial_choice_list: list[int] = []
+    trial_correct_list: list[bool] = []
+    trial_choice_times: list[float] = []
+    trial_reward_given: list[bool] = []
+
+    # Lick detection
+    lick_threshold = 2
+    lick_side_buffer = np.zeros(2)
+    error_count = 0
+    rewards_earned_in_block = 0
+
+    # def determine_choice(self) -> Union[int, np.ndarray[int]]:
+    #     """Determine whether there has been a choice to the left ports, right ports, or a switch."""
+    #
+    #     sides_licked = np.sum(self.lick_side_buffer.astype(bool))  # get nonzero sides
+    #     if sides_licked > 1:
+    #         # made a switch, reset the counter
+    #         self.lick_side_buffer *= 0
+    #         return -1
+    #
+    #     if np.amax(self.lick_side_buffer) >= self.lick_threshold:
+    #         choice_ix = np.argmax(self.lick_side_buffer)  # either 0 or 1
+    #         # choice = ['right', 'left'][choice_ix]
+    #         self.lick_side_buffer *= 0
+    #         return choice_ix
+    #     else:
+    #         return -1  # no choice made/not enough licks
+
+    def determine_choice(self) -> str:
+        """Determine whether there has been a choice to the left ports, right ports, or a switch."""
+
+        sides_licked = np.sum(self.lick_side_buffer.astype(bool))  # get nonzero sides
+        if sides_licked > 1:
+            # made a switch, reset the counter
+            self.lick_side_buffer *= 0
+            choice = 'switch'
+
+        elif np.amax(self.lick_side_buffer) >= self.lick_threshold:
+            choice_ix = np.argmax(self.lick_side_buffer)  # either 0 or 1
+            choice = ['right', 'left'][choice_ix]
+            self.lick_side_buffer *= 0
+        else:
+            choice = ''  # no choice made/not enough licks
+        return choice
+
+    def log_correct_choice(self, choice: int, event_time: float) -> None:
+        self.trial_choice_list.append(choice)
+        self.trial_choice_times.append(event_time)
+        self.trial_correct_list.append(True)
+        self.error_count = 0
+
+    def log_incorrect_choice(self, choice: int, event_time: float) -> None:
+        self.trial_choice_list.append(choice)
+        self.trial_choice_times.append(event_time)
+        self.trial_correct_list.append(False)
+        self.error_count += 1
+
+    def log_training_reward(self, choice: int, event_time: float) -> None:
+        self.trial_choice_list.append(choice)
+        self.trial_choice_times.append(event_time)
+        self.trial_correct_list.append(False)
+        self.error_count = 0
+
+    def reset_counters(self) -> None:
+        self.lick_side_buffer *= 0
+        self.rewards_earned_in_block = 0
+        self.error_count = 0
+        self.event_list.clear()
+
+    def run_event_loop(self):
+        ...
+
+
 class Presenter(ABC):
 
     interact_list: List[Tuple[float, str]]
     pump: Pump
-    task: Task
+    task: Model
     gui: GUI
     session_info: dict
     box: Box

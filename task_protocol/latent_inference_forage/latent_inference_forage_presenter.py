@@ -21,10 +21,10 @@ trial_choice_map = {'right': 0, 'left': 1}
 
 
 class Task(Protocol):
-    trial_choice_list: List[int]
-    trial_correct_list: List[bool]
-    trial_choice_times: List[float]
-    trial_reward_given: List[bool]
+    trial_choice_list: list[int]
+    trial_correct_list: list[bool]
+    trial_choice_times: list[float]
+    trial_reward_given: list[bool]
     event_list: collections.deque
 
     state: str
@@ -67,7 +67,7 @@ class Pump(Protocol):
         ...
 
 
-class AlternatingLatentPresenter(Presenter):
+class LatentInferenceForagePresenter(Presenter):
 
     def __init__(self, task: Task, box: Box, pump: Pump,
                 gui: GUI, session_info: dict):
@@ -96,60 +96,84 @@ class AlternatingLatentPresenter(Presenter):
         Currently set to give rewards probabilistically (same reward sizes, unequal reward probabilities)
         """
         # make this say if correct real choice or incorrect real choice
-        choice_correct, give_training_reward, cur_time = self.task.run_event_loop()
+        time_since_start = self.task.run_event_loop()
+
         # goes through the whole timeout before doing the plotting bits I think
-        if self.task.state in ['A', 'C1', 'right_active']:
+        if self.task.state == 'right_patch':
             correct_pump = PUMP1_IX
             incorrect_pump = PUMP2_IX
-        elif self.task.state in ['B', 'C2', 'left_active']:
+        elif self.task.state == 'left_patch':
             correct_pump = PUMP2_IX
             incorrect_pump = PUMP1_IX
         else:
             raise RuntimeError('state not recognized')
 
-        # give reward if
-        # 1. training reward/human reward (give reward, regardless of action)
-        # 2. correct choice and meets correct reward probability
-        # 3. incorrect but REAL choice (i.e. not a switch) and meets incorrect reward probability
-
-        if give_training_reward:
-            reward_size = self.reward_size_large[correct_pump]
-            self.task.rewards_earned_in_block += 1
-            self.task.trial_reward_given.append(True)
-            logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
-            self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
-
-        elif choice_correct == 'correct':
-            if rng.random() < self.session_info['correct_reward_probability']:
-                reward_size = self.reward_size_large[correct_pump]
-                self.task.rewards_earned_in_block += 1
-                self.task.trial_reward_given.append(True)
-            else:
-                reward_size = 0
-                self.task.trial_reward_given.append(False)
-
-            self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
-
-        elif choice_correct == ('incorrect'
-                                ''):
-            if rng.random() < self.session_info['incorrect_reward_probability']:
-                reward_size = self.reward_size_large[incorrect_pump]  # can modify these to a single value, reward large and reward small
-                self.task.rewards_earned_in_block += 1
-                self.task.trial_reward_given.append(True)
-            else:
-                reward_size = 0
-                self.task.trial_reward_given.append(False)
-
-            self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
+        self.perform_task_commands(correct_pump, incorrect_pump)
 
         if self.task.trial_choice_list:
             self.update_plot()
 
         self.gui.check_keyboard()
-        if self.task.rewards_earned_in_block > self.task.rewards_available_in_block:
-            self.task.sample_next_block()
-        # if choice_correct:  # is not None
-        #     self.task.switch_to_timeout()
+
+    def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:
+        # give reward if
+        # 1. training reward/human reward (give reward, regardless of action)
+        # 2. correct choice and meets correct reward probability
+        # 3. incorrect but REAL choice (i.e. not a switch) and meets incorrect reward probability
+        # state changes if choice is correct and switch probability is met
+
+        for c in self.task.presenter_commands:
+            if c == 'turn_LED_on':
+                self.box.cueLED1.on()
+                self.box.cueLED2.on()
+
+            elif c == 'turn_LED_off':
+                self.box.cueLED1.off()
+                self.box.cueLED2.off()
+
+            elif c == 'give_training_reward':
+                reward_size = self.reward_size_large[correct_pump]
+                self.task.rewards_earned_in_block += 1
+                self.task.trial_reward_given.append(True)
+                logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
+                self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
+
+            elif c == 'give_correct_reward':
+                if rng.random() < self.session_info['correct_reward_probability']:
+                    reward_size = self.reward_size_large[correct_pump]
+                    self.task.rewards_earned_in_block += 1
+                    self.task.trial_reward_given.append(True)
+                else:
+                    reward_size = 0
+                    self.task.trial_reward_given.append(False)
+
+                if rng.random() < self.session_info['switch_probability']:
+                    if self.task.state == 'right_patch':
+                        self.task.switch_to_left_patch()
+                    elif self.task.state == 'left_patch':
+                        self.task.switch_to_right_patch()
+                    else:
+                        raise RuntimeError('state not recognized')
+
+                print('current state: {}; rewards earned in block: {}'.format(self.task.state,
+                                                                              self.task.rewards_earned_in_block))
+                self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
+
+            elif c == 'give_incorrect_reward':
+                if rng.random() < self.session_info['incorrect_reward_probability']:
+                    reward_size = self.reward_size_large[
+                        incorrect_pump]  # can modify these to a single value, reward large and reward small
+                    self.task.rewards_earned_in_block += 1
+                    self.task.trial_reward_given.append(True)
+                else:
+                    reward_size = 0
+                    self.task.trial_reward_given.append(False)
+
+                print('current state: {}; rewards earned in block: {}'.format(self.task.state,
+                                                                              self.task.rewards_earned_in_block))
+                self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
+
+        self.task.presenter_commands.clear()
 
     def update_plot(self, save_fig: bool = False) -> None:
         ix = np.array(self.task.trial_correct_list)

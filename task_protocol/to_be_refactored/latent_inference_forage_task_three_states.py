@@ -220,8 +220,8 @@ class LatentInferenceForageTaskThreeStates(object):
                             self.box.cueLED2.off()
                             self.LED_bool = False
                             logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str(self.error_repeat))
-        if self.next_dark_time < time.time():
-            self.switch_to_dark_period()
+            if self.next_dark_time < time.time():
+                self.switch_to_dark_period()
         elif self.state == 'left_patch':
             self.trial_running = False
             self.LED_bool = False
@@ -277,6 +277,7 @@ class LatentInferenceForageTaskThreeStates(object):
     def enter_left_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(self.error_repeat))
         self.trial_running = True
+
     def exit_left_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_left_patch;" + str(self.error_repeat))
 
