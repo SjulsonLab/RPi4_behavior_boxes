@@ -28,15 +28,10 @@ sys.path.insert(0, './essential')  # essential holds behavbox and equipment clas
 sys.path.insert(0, '.')
 
 debug_startup = False
-debug_task = True
+debug_task = False
 if debug_startup or debug_task:
     from essential import dummy_box as behavbox
 else:
-    import essential
-    from essential.visualstim import VisualStim
-    import essential.Treadmill as Treadmill
-    import essential.ADS1x15 as ADS1x15
-    from essential.FlipperOutput import FlipperOutput
     from essential import behavbox
 
 debug_enable = False
@@ -197,7 +192,7 @@ try:
         task.start_task()
         while run:
             if time.time() < t_end:
-                presenter.run()  # breaks out of this while loop during transitions between blocks; this will permit checking the t_end clock in this loop
+                presenter.run()
             else:
                 run = False
                 print("Times up, finishing up")
@@ -227,6 +222,7 @@ except (KeyboardInterrupt, SystemExit):
 # exit because of error
 except RuntimeError as ex:
     print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
+    print(ex)
     # save dicts to disk
     # scipy.io.savemat(mat_path, {'session_info': session_info})
     scipy.io.savemat(mat_path, session_info)

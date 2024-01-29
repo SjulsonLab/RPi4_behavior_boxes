@@ -53,7 +53,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
 
         # These can't be refactored, session parameters needed for behavbox
         # maybe move them into a parameters class
-        self.ITI = session_info['entry_interval']
+        self.ITI = session_info['intertrial_interval']
         self.lick_threshold = session_info['lick_threshold']
         self.machine = self.make_state_machine()
         self.last_state_fxn = self.switch_to_standby
@@ -68,52 +68,14 @@ class LatentInferenceForageModel(Model):  # subclass from base task
 
         self.presenter_commands = []
         self.ITI_active = False
+        self.ITI_thread = None
 
         self.end_dark_time = 0
         self.next_dark_time = 0
-        self.dark_period_times = [10]
+        self.dark_period_thread = None
 
-        # trial statistics - TODO - edit these away
-        # self.trial_running = False
-        # self.innocent = True
-        # self.trial_number = 0
-        # self.error_count = 0
-        # self.error_list = []
-        # self.error_repeat = False
-        # self.lick_time = 0.0
-        # self.lick_interval = self.session_info["lick_interval"]
-        # # self.reward_time_start = None # for reward_available state time keeping purpose
-        # self.reward_time = 10
-        # self.reward_times_up = False
-        # self.reward_pump1 = self.session_info["reward_pump1"]
-        # self.reward_pump2 = self.session_info['reward_pump2']
-        # self.reward_size1 = self.session_info['reward_size1']
-        # self.reward_size2 = self.session_info['reward_size2']
-        # self.reward_size3 = self.session_info['reward_size3']
-        # self.reward_size4 = self.session_info['reward_size4']
-        # self.ITI = self.session_info['ITI']
-        # self.p_switch = self.session_info['p_switch']
-        # self.p_reward = self.session_info['p_reward']
-        # self.reward_earned = False
-        #
-        # self.ContextA_time = 0
-        # self.ContextB_time = 0
-        # self.LED_on_time_plus_LED_duration = 0
-        #
-        # self.active_press = 0
-        # self.inactive_press = 0
-        # self.timeline_active_press = []
-        # self.active_press_count_list = []
-        # self.timeline_inactive_press = []
-        # self.inactive_press_count_list = []
-        #
-        # self.left_poke_count = 0
-        # self.right_poke_count = 0
-        # self.timeline_left_poke = []
-        # self.left_poke_count_list = []
-        # self.timeline_right_poke = []
-        # self.right_poke_count_list = []
-        # self.event_name = ""
+        # debugging
+        self.t_ITI_start = 0
 
     def make_state_machine(self):
         states = [
@@ -132,8 +94,6 @@ class LatentInferenceForageModel(Model):  # subclass from base task
 
         # all of these transition functions are created automatically
         transitions = [
-            # ['start_in_right_patch', 'standby', 'right_patch'],
-            # ['start_in_left_patch', 'standby', 'left_patch'],
             ['switch_to_right_patch', ['standby', 'dark_period', 'left_patch'], 'right_patch'],
             ['switch_to_left_patch', ['standby', 'dark_period', 'right_patch'], 'left_patch'],
             ['switch_to_dark_period', ['left_patch', 'right_patch'], 'dark_period'],
@@ -147,73 +107,38 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         )
         return machine
 
-    def check_intertrial_interval(self, time_since_choice) -> bool:
-        if time_since_choice < self.ITI:
-            self.lick_side_buffer *= 0
-            return False
-
-        elif time_since_choice >= self.ITI and self.ITI_active:
-            # turn on the LED, end the run loop
-            self.turn_LED_on()
-            self.lick_side_buffer *= 0
-            self.ITI_active = False
-            return False
-
-        else:
-            return True
-
-    def check_dark_period(self, cur_time: float) -> bool:
-        if self.state != 'dark_period' and cur_time >= self.next_dark_time:
-            self.turn_LED_off()
-            self.reset_counters()
-            self.switch_to_dark_period()
-            return False
-
-        elif self.state != 'dark_period' and cur_time < self.next_dark_time:
-            return True
-
-        elif self.state == 'dark_period' and cur_time < self.end_dark_time:
-            return False
-
-        elif self.state == 'dark_period' and cur_time >= self.end_dark_time:
-            self.turn_LED_on()
-            self.reset_counters()
-            if rng.random() > 0.5:
-                self.switch_to_left_patch()
-            else:
-                self.switch_to_right_patch()
-            return False
-
     def run_event_loop(self):
         cur_time = time.time()
         time_since_start = cur_time - self.t_session_start
-        time_since_choice = cur_time - self.last_choice_time
 
         if self.event_list:
             event = self.event_list.popleft()
         else:
             event = ''
 
-        if self.state == 'standby':
-            return time_since_start
-
-        continue_run = self.check_dark_period(cur_time)
-        if not continue_run:
-            return time_since_start
-
-        continue_run = self.check_intertrial_interval(time_since_choice)
-        if not continue_run:
-            return time_since_start
-
         if event == 'right_entry':
             self.lick_side_buffer[RIGHT_IX] += 1
         elif event == 'left_entry':
             self.lick_side_buffer[LEFT_IX] += 1
 
+        if self.state in ['standby', 'dark_period']:
+            self.lick_side_buffer *= 0
+            return time_since_start
+
+        if self.state in ['left_patch', 'right_patch'] and cur_time >= self.next_dark_time:
+            self.lick_side_buffer *= 0
+            self.activate_dark_period()
+            return time_since_start
+
+        if self.ITI_active:
+            if self.session_info['quiet_ITI'] and self.lick_side_buffer.sum() > 0:
+                self.ITI_thread.cancel()
+                self.activate_ITI()
+            return time_since_start
+
         choice = self.determine_choice()
         if choice == 'right':
-            self.last_choice_time = cur_time
-            self.turn_LED_off()
+            self.activate_ITI()
             if self.state == 'right_patch':
                 self.log_correct_choice(RIGHT_IX, time_since_start)
                 self.give_correct_reward()
@@ -223,8 +148,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
                 logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str())
 
         elif choice == 'left':
-            self.last_choice_time = cur_time
-            self.turn_LED_off()
+            self.activate_ITI()
             if self.state == 'left_patch':
                 self.log_correct_choice(LEFT_IX, time_since_start)
                 self.give_correct_reward()
@@ -234,16 +158,12 @@ class LatentInferenceForageModel(Model):  # subclass from base task
                 logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str(""))
 
         elif choice == 'switch':
-            self.last_choice_time = cur_time  # for switches, enter ITI but do not update choices; decide whether to include this or not
-            self.turn_LED_off()
+            self.activate_ITI()
 
         elif (self.error_count >= self.errors_to_reward and self.automate_training_rewards)\
                 or self.give_training_reward:
-            self.last_choice_time = cur_time
-            self.turn_LED_off()
+            self.activate_ITI()
             self.presenter_commands.append('give_training_reward')
-
-            give_training_reward = True
             if self.state == 'right_patch':
                 choice_side = RIGHT_IX
             else:
@@ -267,7 +187,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
-        self.next_dark_time = time.time() + 120
+        self.next_dark_time = time.time() + self.session_info['epoch_length']
         self.reset_counters()
 
     def enter_right_patch(self):
@@ -290,16 +210,57 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         logging.info(";" + str(time.time()) + ";[transition];enter_dark_period;" + str(""))
         self.rewards_earned_in_block = 0
         self.trial_running = False
-        self.end_dark_time = time.time() + rng.choice(self.dark_period_times)
 
     def exit_dark_period(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_dark_period;" + str())
-        self.next_dark_time = time.time() + 120
+        self.next_dark_time = time.time() + self.session_info['epoch_length']
 
     def start_task(self):
         ic('starting task')
-        self.next_dark_time = time.time() + 120
+        self.next_dark_time = time.time() + self.session_info['epoch_length']
         if rng.random() > 0.5:
             self.switch_to_left_patch()
         else:
             self.switch_to_right_patch()
+
+    def activate_ITI(self):
+        self.lick_side_buffer *= 0
+        self.ITI_active = True
+        self.turn_LED_off()
+        t = threading.Timer(interval=self.ITI, function=self.end_ITI)
+        self.t_ITI_start = time.perf_counter()
+        t.start()
+        self.ITI_thread = t
+
+    def end_ITI(self):
+        ic(time.perf_counter() - self.t_ITI_start)
+        self.lick_side_buffer *= 0
+        self.ITI_active = False
+        if (self.state
+                == 'dark_period'):
+            self.turn_LED_off()
+        else:
+            self.turn_LED_on()
+
+    def activate_dark_period(self):
+        # make sure this overrides ITI, so you don't get an LED turned on after darkmode starts
+        self.ITI_active = False
+        if self.ITI_thread:
+            self.ITI_thread.cancel()
+
+        self.turn_LED_off()
+        self.reset_counters()
+        self.switch_to_dark_period()
+
+        t = threading.Timer(rng.choice(self.session_info['dark_period_times']), self.end_dark_period)
+        t.start()
+        self.dark_period_thread = t
+
+    def end_dark_period(self):
+        self.turn_LED_on()
+        self.reset_counters()
+        if rng.random() > 0.5:
+            self.switch_to_left_patch()
+        else:
+            self.switch_to_right_patch()
+

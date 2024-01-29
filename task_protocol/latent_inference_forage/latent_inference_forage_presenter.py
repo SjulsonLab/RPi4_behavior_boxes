@@ -95,9 +95,6 @@ class LatentInferenceForagePresenter(Presenter):
         Process one event, checking GUI and events as needed.
         Currently set to give rewards probabilistically (same reward sizes, unequal reward probabilities)
         """
-        # make this say if correct real choice or incorrect real choice
-        time_since_start = self.task.run_event_loop()
-
         # goes through the whole timeout before doing the plotting bits I think
         if self.task.state == 'right_patch':
             correct_pump = PUMP1_IX
@@ -106,13 +103,13 @@ class LatentInferenceForagePresenter(Presenter):
             correct_pump = PUMP2_IX
             incorrect_pump = PUMP1_IX
         else:
-            raise RuntimeError('state not recognized')
+            correct_pump = None
+            incorrect_pump = None
+            # raise RuntimeError('state not recognized')
 
+        time_since_start = self.task.run_event_loop()
         self.perform_task_commands(correct_pump, incorrect_pump)
-
-        if self.task.trial_choice_list:
-            self.update_plot()
-
+        self.update_plot()
         self.gui.check_keyboard()
 
     def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:
@@ -153,12 +150,13 @@ class LatentInferenceForagePresenter(Presenter):
                     elif self.task.state == 'left_patch':
                         self.task.switch_to_right_patch()
                     else:
-                        raise RuntimeError('state not recognized')
+                        pass
+                        # raise RuntimeError('state not recognized')
 
                 print('current state: {}; rewards earned in block: {}'.format(self.task.state,
                                                                               self.task.rewards_earned_in_block))
                 self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
-
+                
             elif c == 'give_incorrect_reward':
                 if rng.random() < self.session_info['incorrect_reward_probability']:
                     reward_size = self.reward_size_large[
@@ -176,30 +174,34 @@ class LatentInferenceForagePresenter(Presenter):
         self.task.presenter_commands.clear()
 
     def update_plot(self, save_fig: bool = False) -> None:
-        ix = np.array(self.task.trial_correct_list)
-        choices = np.array(self.task.trial_choice_list)
-        times = np.array(self.task.trial_choice_times)
-        rewards = np.array(self.task.trial_reward_given)
+        if self.task.trial_choice_list:
+            ix = np.array(self.task.trial_correct_list)
+            choices = np.array(self.task.trial_choice_list)
+            times = np.array(self.task.trial_choice_times)
+            rewards = np.array(self.task.trial_reward_given)
 
-        correct_trials = choices[ix]
-        correct_times = times[ix]
+            correct_trials = choices[ix]
+            correct_times = times[ix]
 
-        incorrect_trials = choices[~ix]
-        incorrect_times = times[~ix]
+            incorrect_trials = choices[~ix]
+            incorrect_times = times[~ix]
 
-        reward_trials = choices[rewards]
-        reward_times = times[rewards]
+            reward_trials = choices[rewards]
+            reward_times = times[rewards]
 
-        self.gui.figure_window.correct_line.set_data(correct_times, correct_trials)
-        self.gui.figure_window.error_line.set_data(incorrect_times, incorrect_trials)
-        self.gui.figure_window.reward_line.set_data(reward_times, reward_trials)
-        # print('correct trials:', correct_trials)
+            self.gui.figure_window.correct_line.set_data(correct_times, correct_trials)
+            self.gui.figure_window.error_line.set_data(incorrect_times, incorrect_trials)
+            self.gui.figure_window.reward_line.set_data(reward_times, reward_trials)
+            # print('correct trials:', correct_trials)
 
-        # update this to show the last 20-ish trials
-        if times.size > 1:
-            T = [times[-20:][0], times[-1]]
-        else:
-            T = [times[-1]-.5, times[-1]+.5]
-        plt.xlim(T)
+            # update this to show the last 20-ish trials
+            if times.size > 1:
+                T = [times[-20:][0], times[-1]]
+            else:
+                T = [times[-1]-.5, times[-1]+.5]
+            plt.xlim(T)
+
+        self.gui.figure_window.text.set_text('State: {}; ITI: {}'.format(self.task.state,
+                                                                                 self.task.ITI_active))
 
         self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)

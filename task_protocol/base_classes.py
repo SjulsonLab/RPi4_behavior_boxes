@@ -239,20 +239,20 @@ class Presenter(ABC):
 
     def K_e_callback(self) -> None:
         # print("E down: syringe pump 3 moves")
-        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3")
-        # self.pump.reward("key_3", self.session_info["key_reward_amount"])
+        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3")
+        self.pump.reward("key_3", self.session_info["key_reward_amount"])
         pass
 
     def K_r_callback(self) -> None:
         # print("R down: syringe pump 4 moves")
-        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
-        # self.pump.reward("key_4", self.session_info["key_reward_amount"])
+        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
+        self.pump.reward("key_4", self.session_info["key_reward_amount"])
         pass
 
     def K_t_callback(self) -> None:
         # print("T down: vacuum on")
-        # logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
-        # self.pump.reward("key_vacuum", 1)
+        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
+        self.pump.reward("key_vacuum", 1)
         pass
 
     def K_a_callback(self) -> None:
@@ -267,7 +267,8 @@ class Presenter(ABC):
     def print_controls(self) -> None:
         print("[***] KEYBOARD CONTROLS [***]")
         print("1, 2, 3: left/center/right nosepoke entry")
-        print("q, w, e, r, t: pump 1/2/3/4 reward delivery")
+        print("q, w, e, r: pump 1/2/3/4 reward delivery")
+        print("t: vacuum activation")
         print("a: toggle automated training rewards")
         print("g: give training reward")
 

@@ -6,6 +6,7 @@ from datetime import datetime
 
 
 ### PARAMETERS - Rig and defaults (should not change between sessions) ###
+# TODO - get rid of all the redundancy in here
 
 # defining immutable mouse dict (once defined for a mouse, NEVER EDIT IT)
 mouse_info = pysistence.make_dict({'mouse_name': 'TM001',
@@ -29,7 +30,8 @@ session_info['timeout_length']              = 5  # in seconds
 session_info['reward_size']					= 10  # in microliters
 session_info["lick_threshold"]              = 2
 session_info['reward_time_delay']           = 20
-session_info['intertrial_interval']         = 1  # in seconds
+session_info['intertrial_interval']         = .5  # in seconds
+session_info['quiet_ITI']          = False
 
 session_info['initiation_timeout'] = 120  # s
 
@@ -46,8 +48,8 @@ session_info["ContextA_time"] = 30  # todo - revise this or make adjustable by m
 session_info["ContextB_time"] = 30
 session_info["ContextC_time"] = 30
 
-session_info['ITI'] = .5
 session_info['epoch_length'] = 120
+session_info['dark_period_times'] = [10]
 
 # Reward pump parameters
 session_info["reward_pump1"] = '2'
