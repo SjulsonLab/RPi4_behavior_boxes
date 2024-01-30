@@ -37,9 +37,11 @@ class GUI(ABC):
 
 class Box(ABC):
 
+    @abstractmethod
     def video_start(self):
         ...
 
+    @abstractmethod
     def video_stop(self):
         ...
 
@@ -318,7 +320,8 @@ class Presenter(ABC):
     def end_session(self) -> None:
         ic("TODO: stop video")
         self.box.video_stop()
-        self.update_plot(save_fig=True)
+        if self.gui:
+            self.update_plot(save_fig=True)
 
     @abstractmethod
     def run(self) -> None:

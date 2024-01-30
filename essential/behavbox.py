@@ -168,26 +168,26 @@ class BehavBox(object):
             self.treadmill = False
             print("No treadmill I2C connection detected!")
 
-    def set_callbacks(self, Presenter):
+    def set_callbacks(self, presenter: Presenter):
         # link nosepoke event detections to callbacks
-        self.IR_rx1.when_pressed = Presenter.IR_1_entry
-        self.IR_rx2.when_pressed = Presenter.IR_2_entry
-        self.IR_rx3.when_pressed = Presenter.IR_3_entry
-        self.IR_rx4.when_pressed = Presenter.IR_4_entry
-        self.IR_rx5.when_pressed = Presenter.IR_5_entry
-        self.IR_rx1.when_released = Presenter.IR_1_exit
-        self.IR_rx2.when_released = Presenter.IR_2_exit
-        self.IR_rx3.when_released = Presenter.IR_3_exit
-        self.IR_rx4.when_released = Presenter.IR_4_exit
-        self.IR_rx5.when_released = Presenter.IR_5_exit
+        self.IR_rx1.when_pressed = presenter.IR_1_entry
+        self.IR_rx2.when_pressed = presenter.IR_2_entry
+        self.IR_rx3.when_pressed = presenter.IR_3_entry
+        self.IR_rx4.when_pressed = presenter.IR_4_entry
+        self.IR_rx5.when_pressed = presenter.IR_5_entry
+        self.IR_rx1.when_released = presenter.IR_1_exit
+        self.IR_rx2.when_released = presenter.IR_2_exit
+        self.IR_rx3.when_released = presenter.IR_3_exit
+        self.IR_rx4.when_released = presenter.IR_4_exit
+        self.IR_rx5.when_released = presenter.IR_5_exit
 
-        self.lick1.when_pressed = Presenter.left_entry
-        self.lick2.when_pressed = Presenter.center_entry
-        self.lick3.when_pressed = Presenter.right_entry
+        self.lick1.when_pressed = presenter.left_entry
+        self.lick2.when_pressed = presenter.center_entry
+        self.lick3.when_pressed = presenter.right_entry
 
-        self.lick1.when_released = Presenter.left_exit
-        self.lick2.when_released = Presenter.center_exit
-        self.lick3.when_released = Presenter.right_exit
+        self.lick1.when_released = presenter.left_exit
+        self.lick2.when_released = presenter.center_exit
+        self.lick3.when_released = presenter.right_exit
 
     ###############################################################################################
     # methods to start and stop video

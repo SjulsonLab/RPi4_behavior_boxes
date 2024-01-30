@@ -63,6 +63,7 @@ class LatentInferenceForagePresenter(Presenter):
         time_since_start = self.task.run_event_loop()
         self.perform_task_commands(correct_pump, incorrect_pump)
         self.update_plot()
+
         self.check_keyboard()
 
     def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:

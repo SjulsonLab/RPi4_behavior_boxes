@@ -27,7 +27,7 @@ sys.path.insert(0, './essential')  # essential holds behavbox and equipment clas
 sys.path.insert(0, '.')
 
 debug_startup = False
-debug_task = True
+debug_task = False
 if debug_startup or debug_task:
     from essential import dummy_box as behavbox
 else:
@@ -139,6 +139,7 @@ try:
         options_correct = confirm_options(session_info)
 
     gui = GUI(session_info=session_info)
+
     # make dummy box and pump objects for testing, all functions should say "pass"
     box = behavbox.BehavBox(session_info=session_info)
     pump = behavbox.Pump(session_info=session_info)
