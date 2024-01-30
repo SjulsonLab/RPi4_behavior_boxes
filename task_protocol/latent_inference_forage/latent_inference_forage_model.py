@@ -8,7 +8,8 @@ last updated: 2024-01-24
 name: latent_inference_forage_task_three_states.py
 """
 from transitions import State, Machine
-from task_protocol.base_classes import TimedStateMachine, Model
+from essential.base_classes import TimedStateMachine, Model, GUI, Box, Pump
+# from task_protocol.base_classes import TimedStateMachine, Model
 
 from icecream import ic
 import logging
@@ -18,7 +19,7 @@ import numpy as np
 
 import logging.config
 from collections import deque
-from typing import Protocol, List, Tuple, Union
+from typing import List, Tuple, Union
 
 import logging.config
 import threading
@@ -233,7 +234,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         self.ITI_thread = t
 
     def end_ITI(self):
-        ic(time.perf_counter() - self.t_ITI_start)
+        # ic(time.perf_counter() - self.t_ITI_start)
         self.lick_side_buffer *= 0
         self.ITI_active = False
         if (self.state

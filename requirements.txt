@@ -3,6 +3,7 @@ colorama
 colorzero
 gpiozero
 icecream
+importlib
 ipython
 matplotlib
 mock
@@ -13,7 +14,7 @@ pygame_ce
 pygame_gui
 pysistence
 pytest
-rpg
+#rpg
 scipy
 setuptools
 smbus

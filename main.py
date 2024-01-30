@@ -20,7 +20,6 @@ import time
 import sys
 import logging
 import logging.config
-import numpy as np
 from pathlib import Path
 
 
@@ -28,7 +27,7 @@ sys.path.insert(0, './essential')  # essential holds behavbox and equipment clas
 sys.path.insert(0, '.')
 
 debug_startup = False
-debug_task = False
+debug_task = True
 if debug_startup or debug_task:
     from essential import dummy_box as behavbox
 else:
@@ -53,7 +52,7 @@ logging.config.dictConfig({
 
 # import your task class here
 sys.path.insert(0,'./task_protocol')
-from task_protocol.gui import GUI
+from essential.gui import PygameGUI as GUI
 
 
 def confirm_options(session_info: dict) -> bool:
@@ -165,12 +164,12 @@ try:
     else:
         raise RuntimeError('[***] Specified task not recognized!! [***]')
 
-    presenter = Presenter(task=task,
+    presenter = Presenter(model=task,
                           box=box,
                           pump=pump,
                           gui=gui,
                           session_info=session_info)
-    gui.set_callbacks(presenter=presenter)
+    box.set_callbacks(presenter=presenter)
 
     # start session
     scipy.io.savemat(mat_path, session_info)
