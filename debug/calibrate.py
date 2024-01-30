@@ -3,7 +3,7 @@
 author: tian qiu
 date: 2023-03-22
 name: calibrate.py
-goal: calibrating the the pump and log the data entry
+goal: calibrating the pump and log the data entry
 description:
 
 """
@@ -63,32 +63,32 @@ while True:
     pump_number = str(input("Pump Number: "))  # user inputs the pump number they intend to calibrate at the moment
     on_duration = float(input("on_time: "))
     off_duration = float(input("off_time: "))
-    pulse_time = float(input("iteration: "))
+    n_iterations = int(input("iterations: "))
     weight_tube = float(input("weight_tube: "))
     # deliver the water using the pump object
     # pump.reward(pump_number, on_duration, off_duration, pulse_time)
     if pump_number == "1":
-        LED(19).blink(on_time, off_time, iteration)
-        print("pump1, " + str(on_time) + str(off_time) + str(iteration))
+        LED(19).blink(on_duration, off_duration, n_iterations)
+        print("pump1, " + str(on_duration) + str(off_duration) + str(n_iterations))
     elif pump_number == "2":
-        LED(20).blink(on_time, off_time, iteration)
-        print("pump2, " + str(on_time) + str(off_time) + str(iteration))
+        LED(20).blink(on_duration, off_duration, n_iterations)
+        print("pump2, " + str(on_duration) + str(off_duration) + str(n_iterations))
     elif pump_number == "3":
-        LED(21).blink(on_time, off_time, iteration)
-        print("pump3, " + str(on_time) + str(off_time) + str(iteration))
+        LED(21).blink(on_duration, off_duration, n_iterations)
+        print("pump3, " + str(on_duration) + str(off_duration) + str(n_iterations))
     elif pump_number == "4":
-        LED(7).blink(on_time, off_time, iteration)
-        print("pump4, " + str(on_time) + str(off_time) + str(iteration))
-    time.sleep((on_duration+off_duration)*pulse_time + 0.1)
-    print("Please go weight the container with the liquid!\n")
+        LED(7).blink(on_duration, off_duration, n_iterations)
+        print("pump4, " + str(on_duration) + str(off_duration) + str(n_iterations))
+    time.sleep((on_duration+off_duration)*n_iterations + 0.1)
+    print("Please go weigh the container with the liquid!\n")
     weight_total = float(input("weight_total: "))
     weight_fluid = weight_total - weight_tube
     calibration_log.append(
         (pump_number, on_duration, off_duration,
-         pulse_time, weight_tube, weight_total, weight_fluid)
+         n_iterations, weight_tube, weight_total, weight_fluid)
     )
     abort_or_not = str(input("Abort the program?(Y/N) \n")).upper()
-    if abort_or_not == 'Y':
+    if abort_or_not.lower() == ['y']:
         break
 
 print("Flushing the calibration data ...\n")
