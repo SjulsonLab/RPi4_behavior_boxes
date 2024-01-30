@@ -9,7 +9,7 @@ from icecream import ic
 import time
 import logging
 
-from task_protocol.base_classes import Presenter
+from essential.base_classes import Presenter
 
 SEED = 0
 rng = np.random.default_rng(seed=SEED)

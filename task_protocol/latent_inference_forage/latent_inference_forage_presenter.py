@@ -1,5 +1,5 @@
 import collections
-from typing import Protocol, Tuple
+from typing import Tuple, List
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -8,8 +8,8 @@ import numpy as np
 from icecream import ic
 import time
 import logging
+from essential.base_classes import Presenter, Model, GUI, Box, Pump
 
-from task_protocol.base_classes import Presenter
 
 SEED = 0
 rng = np.random.default_rng(seed=SEED)
@@ -20,60 +20,13 @@ PUMP2_IX = 1
 trial_choice_map = {'right': 0, 'left': 1}
 
 
-class Task(Protocol):
-    trial_choice_list: list[int]
-    trial_correct_list: list[bool]
-    trial_choice_times: list[float]
-    trial_reward_given: list[bool]
-    event_list: collections.deque
-
-    state: str
-    rewards_earned_in_block: int
-    rewards_available_in_block: int
-
-    def run_event_loop(self) -> Tuple[str, bool, float]:
-        ...
-
-    def switch_to_timeout(self):
-        ...
-
-    def sample_next_block(self):
-        ...
-
-
-class GUI(Protocol):
-    correct_line: mpl.lines.Line2D
-    incorrect_line: mpl.lines.Line2D
-    reward_line: mpl.lines.Line2D
-    figure_window: plt.Figure
-
-    def check_keyboard(self) -> None:
-        ...
-
-    def check_plot(self, figure, save_fig: bool = False) -> None:
-        ...
-
-
-class Box(Protocol):
-    def video_start(self):
-        ...
-
-    def video_stop(self):
-        ...
-
-
-class Pump(Protocol):
-    def reward(self, pump_key: str, reward_size: float):
-        ...
-
-
 class LatentInferenceForagePresenter(Presenter):
 
-    def __init__(self, task: Task, box: Box, pump: Pump,
+    def __init__(self, model: Model, box: Box, pump: Pump,
                 gui: GUI, session_info: dict):
 
-        self.task: Task = task
-        self.gui: GUI = gui
+        self.task = model
+        self.gui = gui
         self.box = box
         self.pump = pump
         self.session_info = session_info
@@ -85,7 +38,7 @@ class LatentInferenceForagePresenter(Presenter):
         # event list trigger by the interaction between the RPi and the animal for visualization
         # interact_list: lick, choice interaction between the board and the animal for visualization
         ###############################################################################################
-        self.interact_list = []
+        self.interact_list = []  # todo - remove references to this
 
         self.keypress_training_reward = False
         self.automatic_training_rewards = False
@@ -110,7 +63,7 @@ class LatentInferenceForagePresenter(Presenter):
         time_since_start = self.task.run_event_loop()
         self.perform_task_commands(correct_pump, incorrect_pump)
         self.update_plot()
-        self.gui.check_keyboard()
+        self.check_keyboard()
 
     def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:
         # give reward if

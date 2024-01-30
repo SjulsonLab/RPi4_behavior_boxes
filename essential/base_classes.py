@@ -1,28 +1,42 @@
 import logging
 import time
-from typing import List, Tuple, Protocol, Union
+from typing import List, Tuple, Union, Dict
 from abc import ABC, abstractmethod
 from icecream import ic
 from transitions import State, Machine
 from transitions.extensions.states import add_state_features, Timeout
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.lines
+import collections
+import pygame
 
 
-"""
-Abstract base class for use with the Presenter of the behavbox model-view-presenter.
-"""
+class Pump(ABC):
 
-
-class Pump(Protocol):
+    @abstractmethod
     def reward(self, pump_key: str, reward_size: float):
         ...
 
 
-class GUI(Protocol):
-    keyboard_active: bool
+class PerformanceFigure(ABC):
+    figure: plt.Figure
+    correct_line: matplotlib.lines.Line2D
+    error_line: matplotlib.lines.Line2D
+    reward_line: matplotlib.lines.Line2D
+    text: plt.Text
 
 
-class Box(Protocol):
+class GUI(ABC):
+    figure_window: PerformanceFigure
+
+    @abstractmethod
+    def check_plot(self, figure: plt.Figure=None, FPS: int=144, savefig: bool=False):
+        ...
+
+
+class Box(ABC):
+
     def video_start(self):
         ...
 
@@ -30,43 +44,29 @@ class Box(Protocol):
         ...
 
 
+# probably remove this
 @add_state_features(Timeout)
 class TimedStateMachine(Machine):
     pass
 
 
 class Model(ABC):
-    event_list: list[str]
     automate_training_rewards: bool
     give_training_reward: bool
+    state: str
 
-    trial_choice_list: list[int] = []
-    trial_correct_list: list[bool] = []
-    trial_choice_times: list[float] = []
-    trial_reward_given: list[bool] = []
+    event_list: List[str] = collections.deque()
+    trial_choice_list: List[int] = []
+    trial_correct_list: List[bool] = []
+    trial_choice_times: List[float] = []
+    trial_reward_given: List[bool] = []
 
     # Lick detection
-    lick_threshold = 2
-    lick_side_buffer = np.zeros(2)
-    error_count = 0
-    rewards_earned_in_block = 0
-
-    # def determine_choice(self) -> Union[int, np.ndarray[int]]:
-    #     """Determine whether there has been a choice to the left ports, right ports, or a switch."""
-    #
-    #     sides_licked = np.sum(self.lick_side_buffer.astype(bool))  # get nonzero sides
-    #     if sides_licked > 1:
-    #         # made a switch, reset the counter
-    #         self.lick_side_buffer *= 0
-    #         return -1
-    #
-    #     if np.amax(self.lick_side_buffer) >= self.lick_threshold:
-    #         choice_ix = np.argmax(self.lick_side_buffer)  # either 0 or 1
-    #         # choice = ['right', 'left'][choice_ix]
-    #         self.lick_side_buffer *= 0
-    #         return choice_ix
-    #     else:
-    #         return -1  # no choice made/not enough licks
+    lick_threshold: int = 2
+    lick_side_buffer: np.ndarray = np.zeros(2)
+    error_count: int = 0
+    rewards_earned_in_block: int = 0
+    rewards_available_in_block: int = 0
 
     def determine_choice(self) -> str:
         """Determine whether there has been a choice to the left ports, right ports, or a switch."""
@@ -109,12 +109,13 @@ class Model(ABC):
         self.error_count = 0
         self.event_list.clear()
 
+    @abstractmethod
     def run_event_loop(self):
         ...
 
 
 class Presenter(ABC):
-
+    keyboard_active: bool = True
     interact_list: List[Tuple[float, str]]
     pump: Pump
     task: Model
@@ -198,7 +199,8 @@ class Presenter(ABC):
         logging.info(str(time.time()) + ", IR_5_exit")
 
     def K_escape_callback(self) -> None:
-        self.gui.keyboard_active = False
+        pass
+        # self.gui.keyboard_active = False
 
     def K_1_down_callback(self) -> None:
         # left entry
@@ -268,6 +270,46 @@ class Presenter(ABC):
         print("t: vacuum activation")
         print("a: toggle automated training rewards")
         print("g: give training reward")
+
+    def check_keyboard(self):
+
+        if self.keyboard_active:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.K_escape_callback()
+
+                    # lick port interaction buttons
+                    elif event.key == pygame.K_1:
+                        self.K_1_down_callback()
+                    elif event.key == pygame.K_2:
+                        self.K_2_down_callback()
+                    elif event.key == pygame.K_3:
+                        self.K_3_down_callback()
+
+                    # interactive training functions
+                    elif event.key == pygame.K_q:
+                        self.K_q_callback()
+                    elif event.key == pygame.K_w:
+                        self.K_w_callback()
+                    elif event.key == pygame.K_e:
+                        self.K_e_callback()
+                    elif event.key == pygame.K_r:
+                        self.K_r_callback()
+                    elif event.key == pygame.K_t:
+                        self.K_t_callback()
+                    elif event.key == pygame.K_a:
+                        self.K_a_callback()
+                    elif event.key == pygame.K_g:
+                        self.K_g_callback()
+
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_1:
+                        self.K_1_up_callback()
+                    elif event.key == pygame.K_2:
+                        self.K_2_up_callback()
+                    elif event.key == pygame.K_3:
+                        self.K_3_up_callback()
 
     def start_session(self) -> None:
         ic("TODO: start video")

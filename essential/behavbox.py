@@ -23,64 +23,13 @@ from colorama import Fore, Style
 from visualstim import VisualStim
 
 import scipy.io, pickle
-from typing import Protocol
 
 import Treadmill
 import ADS1x15
 
 # for the flipper
 from FlipperOutput import FlipperOutput
-
-
-class Presenter(Protocol):
-
-    def IR_1_entry_callback(self):
-        ...
-
-    def IR_2_entry_callback(self):
-        ...
-
-    def IR_3_entry_callback(self):
-        ...
-
-    def IR_4_entry_callback(self):
-        ...
-
-    def IR_5_entry_callback(self):
-        ...
-
-    def IR_1_exit_callback(self):
-        ...
-
-    def IR_2_exit_callback(self):
-        ...
-
-    def IR_3_exit_callback(self):
-        ...
-
-    def IR_4_exit_callback(self):
-        ...
-
-    def IR_5_exit_callback(self):
-        ...
-
-    def lick1_pressed_callback(self):
-        ...
-
-    def lick2_pressed_callback(self):
-        ...
-
-    def lick3_pressed_callback(self):
-        ...
-
-    def lick1_released_callback(self):
-        ...
-
-    def lick2_released_callback(self):
-        ...
-
-    def lick3_released_callback(self):
-        ...
+from base_classes import Presenter
 
 
 class BehavBox(object):
@@ -221,24 +170,24 @@ class BehavBox(object):
 
     def set_callbacks(self, Presenter):
         # link nosepoke event detections to callbacks
-        self.IR_rx1.when_pressed = Presenter.IR_1_entry_callback
-        self.IR_rx2.when_pressed = Presenter.IR_2_entry_callback
-        self.IR_rx3.when_pressed = Presenter.IR_3_entry_callback
-        self.IR_rx4.when_pressed = Presenter.IR_4_entry_callback
-        self.IR_rx5.when_pressed = Presenter.IR_5_entry_callback
-        self.IR_rx1.when_released = Presenter.IR_1_exit_callback
-        self.IR_rx2.when_released = Presenter.IR_2_exit_callback
-        self.IR_rx3.when_released = Presenter.IR_3_exit_callback
-        self.IR_rx4.when_released = Presenter.IR_4_exit_callback
-        self.IR_rx5.when_released = Presenter.IR_5_exit_callback
+        self.IR_rx1.when_pressed = Presenter.IR_1_entry
+        self.IR_rx2.when_pressed = Presenter.IR_2_entry
+        self.IR_rx3.when_pressed = Presenter.IR_3_entry
+        self.IR_rx4.when_pressed = Presenter.IR_4_entry
+        self.IR_rx5.when_pressed = Presenter.IR_5_entry
+        self.IR_rx1.when_released = Presenter.IR_1_exit
+        self.IR_rx2.when_released = Presenter.IR_2_exit
+        self.IR_rx3.when_released = Presenter.IR_3_exit
+        self.IR_rx4.when_released = Presenter.IR_4_exit
+        self.IR_rx5.when_released = Presenter.IR_5_exit
 
-        self.lick1.when_pressed = Presenter.lick1_pressed_callback
-        self.lick2.when_pressed = Presenter.lick2_pressed_callback
-        self.lick3.when_pressed = Presenter.lick3_pressed_callback
+        self.lick1.when_pressed = Presenter.left_entry
+        self.lick2.when_pressed = Presenter.center_entry
+        self.lick3.when_pressed = Presenter.right_entry
 
-        self.lick1.when_released = Presenter.lick1_released_callback
-        self.lick2.when_released = Presenter.lick2_released_callback
-        self.lick3.when_released = Presenter.lick3_released_callback
+        self.lick1.when_released = Presenter.left_exit
+        self.lick2.when_released = Presenter.center_exit
+        self.lick3.when_released = Presenter.right_exit
 
     ###############################################################################################
     # methods to start and stop video
