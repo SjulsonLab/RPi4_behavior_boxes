@@ -8,53 +8,39 @@ last updated: 2024-01-24
 name: latent_inference_forage_task_three_states.py
 """
 from transitions import State, Machine
-from transitions.extensions.states import add_state_features, Timeout
+from task_protocol.base_classes import TimedStateMachine, Model
 
 from icecream import ic
 import logging
 import time
 
-import random
 import numpy as np
 
 import logging.config
 from collections import deque
 from typing import Protocol, List, Tuple, Union
-from collections import defaultdict
 
-
-import importlib
-import pysistence, collections
-from datetime import datetime
-import os
-from gpiozero import PWMLED, LED, Button
-from colorama import Fore, Style
 import logging.config
-from time import sleep
 import threading
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.figure as fg
 
-rng = np.random.default_rng(12345)
+rng = np.random.default_rng()
+RIGHT_IX = 0
+LEFT_IX = 1
 
 
-# adding timing capability to the state machine
-@add_state_features(Timeout)
-class TimedStateMachine(Machine):
-    pass
-
-class LatentInferenceForageTaskThreeStates(object):
+class LatentInferenceForageModel(Model):  # subclass from base task
 
     def __init__(self, session_info: dict):
+        self.session_info = session_info
+
         # TASK + BEHAVIOR STATUS
         self.right_active = True
         self.trial_running = False
         self.trial_number = 0  # I don't think stopping at max trials is implemented - do that
 
-        self.last_choice_time = 0.0
+        self.last_choice_time = -np.inf
         self.rewards_earned_in_block = 0
-        self.rewards_available_in_block = random.randint(1, 4)
+        self.rewards_available_in_block = rng.integers(1, 4)
 
         # Lick detection
         self.lick_side_buffer = np.zeros(2)
@@ -67,19 +53,29 @@ class LatentInferenceForageTaskThreeStates(object):
 
         # These can't be refactored, session parameters needed for behavbox
         # maybe move them into a parameters class
-        self.choice_interval = session_info['entry_interval']
+        self.ITI = session_info['intertrial_interval']
         self.lick_threshold = session_info['lick_threshold']
         self.machine = self.make_state_machine()
         self.last_state_fxn = self.switch_to_standby
         self.block_type_counter = np.zeros(2)
 
-        # revise these later to make sure you need them
         self.trial_choice_list: list = []
         self.trial_correct_list: list = []
         self.trial_choice_times: list = []
         self.trial_reward_given: list = []
         self.event_list = deque()
-        self.t_session = time.time()
+        self.t_session_start = time.time()
+
+        self.presenter_commands = []
+        self.ITI_active = False
+        self.ITI_thread = None
+
+        self.end_dark_time = 0
+        self.next_dark_time = 0
+        self.dark_period_thread = None
+
+        # debugging
+        self.t_ITI_start = 0
 
     def make_state_machine(self):
         states = [
@@ -98,14 +94,9 @@ class LatentInferenceForageTaskThreeStates(object):
 
         # all of these transition functions are created automatically
         transitions = [
-            ['start_in_right_patch', 'standby', 'right_patch'],
-            ['start_in_left_patch', 'standby', 'left_patch'],
-
-            ['switch_to_right_patch', ['dark_period', 'left_patch'], 'right_patch'],
-            ['switch_to_left_patch', ['dark_period', 'right_patch'], 'left_patch'],
-
+            ['switch_to_right_patch', ['standby', 'dark_period', 'left_patch'], 'right_patch'],
+            ['switch_to_left_patch', ['standby', 'dark_period', 'right_patch'], 'left_patch'],
             ['switch_to_dark_period', ['left_patch', 'right_patch'], 'dark_period'],
-
             ['switch_to_standby', '*', 'standby']]
 
         machine = TimedStateMachine(
@@ -116,246 +107,160 @@ class LatentInferenceForageTaskThreeStates(object):
         )
         return machine
 
-    # trial statistics
-        self.dark_period_times = [10]
-        self.end_dark_time = 0
-        self.next_dark_time = 0
-        self.trial_running = False
-        self.innocent = True
-        self.trial_number = 0
-        self.error_count = 0
-        self.error_list = []
-        self.error_repeat = False
-        self.lick_time = 0.0
-        self.lick_interval = self.session_info["lick_interval"]
-        # self.reward_time_start = None # for reward_available state time keeping purpose
-        self.reward_time = 10
-        self.reward_times_up = False
-        self.reward_pump1 = self.session_info["reward_pump1"]
-        self.reward_pump2 = self.session_info['reward_pump2']
-        self.reward_size1 = self.session_info['reward_size1']
-        self.reward_size2 = self.session_info['reward_size2']
-        self.reward_size3 = self.session_info['reward_size3']
-        self.reward_size4 = self.session_info['reward_size4']
-        self.ITI = self.session_info['ITI']
-        self.p_switch = self.session_info['p_switch']
-        self.p_reward = self.session_info['p_reward']
-        self.reward_earned = False
+    def run_event_loop(self):
+        cur_time = time.time()
+        time_since_start = cur_time - self.t_session_start
 
-        self.ContextA_time = 0
-        self.ContextB_time = 0
-        self.LED_on_time_plus_LED_duration = 0
+        if self.event_list:
+            event = self.event_list.popleft()
+        else:
+            event = ''
 
-        self.active_press = 0
-        self.inactive_press = 0
-        self.timeline_active_press = []
-        self.active_press_count_list = []
-        self.timeline_inactive_press = []
-        self.inactive_press_count_list = []
+        if event == 'right_entry':
+            self.lick_side_buffer[RIGHT_IX] += 1
+        elif event == 'left_entry':
+            self.lick_side_buffer[LEFT_IX] += 1
 
-        self.left_poke_count = 0
-        self.right_poke_count = 0
-        self.timeline_left_poke = []
-        self.left_poke_count_list = []
-        self.timeline_right_poke = []
-        self.right_poke_count_list = []
-        self.event_name = ""
-        # initialize behavior box
-        self.box = behavbox.BehavBox(self.session_info)
-        self.pump = self.box.pump
-        self.treadmill = self.box.treadmill
-        self.right_entry_error = False
-        self.left_entry_error = False
-        # for refining the lick detection
-        self.lick_count = 0
-        self.side_mice_buffer = None
-        self.LED_blink = False
-        try:
-            self.lick_threshold = self.session_info["lick_threshold"]
-        except:
-            print("No lick_threshold defined in session_info. Therefore, default defined as 2 \n")
-            self.lick_threshold = 1
+        if self.state in ['standby', 'dark_period']:
+            self.lick_side_buffer *= 0
+            return time_since_start
 
-        # session_statistics
-        self.total_reward = 0
-        self.right_licks = 0
-        self.left_licks = 0
+        if self.state in ['left_patch', 'right_patch'] and cur_time >= self.next_dark_time:
+            self.lick_side_buffer *= 0
+            self.activate_dark_period()
+            return time_since_start
 
-    def run(self):
-        if self.state == 'standby' or self.state == 'dark_period':
-            pass
-        elif self.state == 'right_patch':
-            self.trial_running = False
-            self.LED_bool = False
-            self.prior_choice_time = 0
-            self.reward_earned = False
-            self.box.event_list.clear()
-            while self.state == 'right_patch' and self.next_dark_time > time.time():
-                if not self.LED_bool:
-                    if self.prior_choice_time == 0 or time.time() - self.prior_choice_time > self.ITI:
-                        self.box.cueLED1.on()
-                        self.box.cueLED2.on()
-                        self.LED_on_time = time.time()
-                        self.LED_bool = True
-                        self.box.event_list.clear()
-                    while self.LED_bool and self.next_dark_time > time.time():
-                        if self.box.event_list:
-                            self.event_name = self.box.event_list.popleft()
-                        else:
-                            self.event_name = ''
-                        if self.event_name == 'right_entry':
-                            self.prior_choice_time = time.time()
-                            self.box.cueLED1.off()
-                            self.box.cueLED2.off()
-                            self.LED_bool = False
-                            if self.p_reward >= random.random():
-                                self.pump.reward(self.reward_pump1, self.reward_size1) #1 reward
-                                if self.p_switch >= random.random():
-                                    self.LED_bool = False
-                                    time.sleep(1)
-                                    self.switch_to_left_patch()
-                            else:
-                                self.pump.reward(self.reward_pump1, self.reward_size2) #0 reward
-                        if self.event_name == 'left_entry':
-                            self.prior_choice_time = time.time()
-                            self.box.cueLED1.off()
-                            self.box.cueLED2.off()
-                            self.LED_bool = False
-                            logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str(self.error_repeat))
-        if self.next_dark_time < time.time():
-            self.switch_to_dark_period()
-        elif self.state == 'left_patch':
-            self.trial_running = False
-            self.LED_bool = False
-            self.prior_choice_time = 0
-            self.reward_earned = False
-            self.box.event_list.clear()
-            while self.state == 'left_patch' and self.next_dark_time > time.time():
-                if not self.LED_bool:
-                    if self.prior_choice_time == 0 or time.time() - self.prior_choice_time > self.ITI:
-                        self.box.cueLED1.on()
-                        self.box.cueLED2.on()
-                        self.LED_on_time = time.time()
-                        self.LED_bool = True
-                        self.box.event_list.clear()
-                    while self.LED_bool and self.next_dark_time > time.time():
-                        if self.box.event_list:
-                            self.event_name = self.box.event_list.popleft()
-                        else:
-                            self.event_name = ''
-                        if self.event_name == 'left_entry':
-                            self.prior_choice_time = time.time()
-                            self.box.cueLED1.off()
-                            self.box.cueLED2.off()
-                            self.LED_bool = False
-                            if self.p_reward >= random.random():
-                                self.pump.reward(self.reward_pump2, self.reward_size1)  # 1 reward
-                                if self.p_switch >= random.random():
-                                    self.LED_bool = False
-                                    time.sleep(1)
-                                    self.switch_to_right_patch()
-                            else:
-                                self.pump.reward(self.reward_pump2, self.reward_size2)  # 0 reward
-                        if self.event_name == 'right_entry':
-                            self.prior_choice_time = time.time()
-                            self.box.cueLED1.off()
-                            self.box.cueLED2.off()
-                            self.LED_bool = False
-                            logging.info(";" + str(time.time()) + ";[transition];wrong_choice_left_patch;" + str(self.error_repeat))
-            if self.next_dark_time < time.time():
-                self.switch_to_dark_period()
+        if self.ITI_active:
+            if self.session_info['quiet_ITI'] and self.lick_side_buffer.sum() > 0:
+                self.ITI_thread.cancel()
+                self.activate_ITI()
+            return time_since_start
+
+        choice = self.determine_choice()
+        if choice == 'right':
+            self.activate_ITI()
+            if self.state == 'right_patch':
+                self.log_correct_choice(RIGHT_IX, time_since_start)
+                self.give_correct_reward()
+            else:
+                self.log_incorrect_choice(RIGHT_IX, time_since_start)
+                self.give_incorrect_reward()
+                logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str())
+
+        elif choice == 'left':
+            self.activate_ITI()
+            if self.state == 'left_patch':
+                self.log_correct_choice(LEFT_IX, time_since_start)
+                self.give_correct_reward()
+            else:
+                self.log_incorrect_choice(LEFT_IX, time_since_start)
+                self.give_incorrect_reward()
+                logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str(""))
+
+        elif choice == 'switch':
+            self.activate_ITI()
+
+        elif (self.error_count >= self.errors_to_reward and self.automate_training_rewards)\
+                or self.give_training_reward:
+            self.activate_ITI()
+            self.presenter_commands.append('give_training_reward')
+            if self.state == 'right_patch':
+                choice_side = RIGHT_IX
+            else:
+                choice_side = LEFT_IX
+            self.log_training_reward(choice_side, time_since_start)
+
+        self.give_training_reward = False
+        return time_since_start
+
+    def turn_LED_on(self) -> None:
+        self.presenter_commands.append('turn_LED_on')
+
+    def turn_LED_off(self) -> None:
+        self.presenter_commands.append('turn_LED_off')
+
+    def give_correct_reward(self) -> None:
+        self.presenter_commands.append('give_correct_reward')
+
+    def give_incorrect_reward(self) -> None:
+        self.presenter_commands.append('give_incorrect_reward')
 
     def exit_standby(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
-        self.end_dark_time = time.time()
-        self.next_dark_time = self.end_dark_time + 120
+        logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
+        self.next_dark_time = time.time() + self.session_info['epoch_length']
+        self.reset_counters()
 
     def enter_right_patch(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(self.error_repeat))
         self.trial_running = True
+        self.last_state_fxn = self.switch_to_right_patch
+        logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(""))
+
     def exit_right_patch(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_right_patch;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];exit_right_patch;" + str(""))
 
     def enter_left_patch(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(self.error_repeat))
         self.trial_running = True
+        self.last_state_fxn = self.switch_to_left_patch
+        logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(""))
+
     def exit_left_patch(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_left_patch;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];exit_left_patch;" + str(""))
 
     def enter_dark_period(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_dark_period;" + str(self.error_repeat))
+        logging.info(";" + str(time.time()) + ";[transition];enter_dark_period;" + str(""))
+        self.rewards_earned_in_block = 0
         self.trial_running = False
-        self.box.cueLED1.off()
-        self.box.cueLED2.off()
-        time.sleep(random.choice(self.dark_period_times))
-        self.end_dark_time = time.time()
-        self.next_dark_time = self.end_dark_time + 120
-        if random.random() > 0.5:
+
+    def exit_dark_period(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_dark_period;" + str())
+        self.next_dark_time = time.time() + self.session_info['epoch_length']
+
+    def start_task(self):
+        ic('starting task')
+        self.next_dark_time = time.time() + self.session_info['epoch_length']
+        if rng.random() > 0.5:
             self.switch_to_left_patch()
         else:
             self.switch_to_right_patch()
 
-    def exit_dark_period(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_dark_period;" + str(self.error_repeat))
+    def activate_ITI(self):
+        self.lick_side_buffer *= 0
+        self.ITI_active = True
+        self.turn_LED_off()
+        t = threading.Timer(interval=self.ITI, function=self.end_ITI)
+        self.t_ITI_start = time.perf_counter()
+        t.start()
+        self.ITI_thread = t
 
-    def update_plot(self):
-        fig, axes = plt.subplots(1, 1, )
-        axes.plot([1, 2], [1, 2], color='green', label='test')
-        self.box.check_plot(fig)
+    def end_ITI(self):
+        ic(time.perf_counter() - self.t_ITI_start)
+        self.lick_side_buffer *= 0
+        self.ITI_active = False
+        if (self.state
+                == 'dark_period'):
+            self.turn_LED_off()
+        else:
+            self.turn_LED_on()
 
-    def update_plot_error(self):
-        error_event = self.error_list
-        labels, counts = np.unique(error_event, return_counts=True)
-        ticks = range(len(counts))
-        fig, ax = plt.subplots(1, 1, )
-        ax.bar(ticks, counts, align='center', tick_label=labels)
-        # plt.xticks(ticks, labels)
-        # plt.title(session_name)
-        ax = plt.gca()
-        ax.set_xticks(ticks, labels)
-        ax.set_xticklabels(labels=labels, rotation=70)
+    def activate_dark_period(self):
+        # make sure this overrides ITI, so you don't get an LED turned on after darkmode starts
+        self.ITI_active = False
+        if self.ITI_thread:
+            self.ITI_thread.cancel()
 
-        self.box.check_plot(fig)
+        self.turn_LED_off()
+        self.reset_counters()
+        self.switch_to_dark_period()
 
-    def update_plot_choice(self, save_fig=False):
-        trajectory_active = self.left_poke_count_list
-        time_active = self.timeline_left_poke
-        trajectory_inactive = self.right_poke_count_list
-        time_inactive = self.timeline_right_poke
-        fig, ax = plt.subplots(1, 1, )
-        print(type(fig))
+        t = threading.Timer(rng.choice(self.session_info['dark_period_times']), self.end_dark_period)
+        t.start()
+        self.dark_period_thread = t
 
-        ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
-        ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
-        if save_fig:
-            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-                'basename'] + "_lever_choice_plot" + '.png')
-        self.box.check_plot(fig)
+    def end_dark_period(self):
+        self.turn_LED_on()
+        self.reset_counters()
+        if rng.random() > 0.5:
+            self.switch_to_left_patch()
+        else:
+            self.switch_to_right_patch()
 
-    def integrate_plot(self, save_fig=False):
-
-        fig, ax = plt.subplots(2, 1)
-
-        trajectory_left = self.active_press
-        time_active_press = self.timeline_active_press
-        trajectory_right = self.right_poke_count_list
-        time_inactive_press = self.timeline_inactive_press
-        print(type(fig))
-
-        ax[0].plot(time_active_press, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
-        ax[0].plot(time_inactive_press, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
-
-        error_event = self.error_list
-        labels, counts = np.unique(error_event, return_counts=True)
-        ticks = range(len(counts))
-        ax[1].bar(ticks, counts, align='center', tick_label=labels)
-        # plt.xticks(ticks, labels)
-        # plt.title(session_name)
-        ax[1] = plt.gca()
-        ax[1].set_xticks(ticks, labels)
-        ax[1].set_xticklabels(labels=labels, rotation=70)
-
-        if save_fig:
-            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-                'basename'] + "_summery" + '.png')
-        self.box.check_plot(fig)

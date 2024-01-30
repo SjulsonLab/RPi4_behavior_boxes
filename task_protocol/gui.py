@@ -65,6 +65,8 @@ class PerformanceFigure:
         self.correct_line = ax.plot([], color='g', marker="o", label='Correct', linestyle='', markersize=10)[0]
         self.error_line = ax.plot([], color='r', marker="o", label='Error', linestyle='', markersize=10)[0]
         self.reward_line = ax.plot([], color='b', marker="v", label='Reward given', linestyle='', markersize=5)[0]
+        self.text = ax.text(0.05, 0.95, '', transform=ax.transAxes, fontsize=14,
+                    verticalalignment='top')#, bbox=props)
         ax.set_yticks([right_ix, left_ix])
         ax.set_yticklabels(['right lick', 'left lick'])
         plt.ylim([right_ix - .5, left_ix + .5])

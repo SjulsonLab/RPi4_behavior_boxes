@@ -6,6 +6,7 @@ from datetime import datetime
 
 
 ### PARAMETERS - Rig and defaults (should not change between sessions) ###
+# TODO - get rid of all the redundancy in here
 
 # defining immutable mouse dict (once defined for a mouse, NEVER EDIT IT)
 mouse_info = pysistence.make_dict({'mouse_name': 'TM001',
@@ -21,7 +22,7 @@ session_info['mouse_name']                 	= mouse_info['mouse_name']
 
 session_info['weight']                	    = 30  # in grams
 session_info['date']					= datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
-session_info['task_config']				    = 'alternating_latent'
+session_info['task_config']				    = 'latent_inference_forage'   # ['alternating_latent', 'latent_inference_forage']
 
 # behavior parameters - ideally set these to a default for each session type, which is adjustable
 session_info['max_trial_number']            = 100
@@ -29,20 +30,26 @@ session_info['timeout_length']              = 5  # in seconds
 session_info['reward_size']					= 10  # in microliters
 session_info["lick_threshold"]              = 2
 session_info['reward_time_delay']           = 20
+session_info['intertrial_interval']         = .5  # in seconds
+session_info['quiet_ITI']          = False
 
 session_info['initiation_timeout'] = 120  # s
 
-session_info['entry_interval'] = 1  # this is the one that delays between choices
+session_info['entry_interval'] = 1  # this is the one that delays between choices - ITI? or intertrial_interval? or entry_interval?
 session_info['timeout_time'] = 3
 session_info['ContextA_reward_probability'] = 1
 session_info['ContextB_reward_probability'] = 1
 
 session_info['correct_reward_probability'] = 1
 session_info['incorrect_reward_probability'] = 0
+session_info['switch_probability'] = .1
 
 session_info["ContextA_time"] = 30  # todo - revise this or make adjustable by mouse performance
 session_info["ContextB_time"] = 30
 session_info["ContextC_time"] = 30
+
+session_info['epoch_length'] = 120
+session_info['dark_period_times'] = [10]
 
 # Reward pump parameters
 session_info["reward_pump1"] = '2'

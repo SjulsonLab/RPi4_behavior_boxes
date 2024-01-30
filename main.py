@@ -28,20 +28,13 @@ sys.path.insert(0, './essential')  # essential holds behavbox and equipment clas
 sys.path.insert(0, '.')
 
 debug_startup = False
-debug_task = True
+debug_task = False
 if debug_startup or debug_task:
     from essential import dummy_box as behavbox
 else:
-    import essential
-    from essential.visualstim import VisualStim
-    import essential.Treadmill as Treadmill
-    import essential.ADS1x15 as ADS1x15
-    from essential.FlipperOutput import FlipperOutput
     from essential import behavbox
 
 debug_enable = False
-seed = 0
-np.random.seed(seed)
 
 
 # all modules above this line will have logging disabled
@@ -118,8 +111,10 @@ try:
         session_info['file_basename'] = session_info['dir_name'] + '/' + session_info['basename']
 
     log_path = Path(session_info['dir_name']) / (session_info['file_basename'] + '.log')
-    # stop if log path exists, or delete prior log file
-    if os.path.exists(log_path):
+    # if not debugging, stop if log path exists
+    if debug_startup or debug_task:
+        pass
+    elif os.path.exists(log_path):
         print(Fore.RED + Style.BRIGHT + 'ERROR: Log file already exists! Exiting now' + Style.RESET_ALL)
         quit()
 
@@ -153,8 +148,8 @@ try:
     task_type = session_info['task_config']
     if task_type == 'alternating_latent':
         from task_protocol.alternating_latent import alternating_latent_model, alternating_latent_presenter
-        task = task_model.AlternateLatent(session_info=session_info)
-        Presenter = task_presenter.AlternatingLatentPresenter
+        task = alternating_latent_model.AlternateLatent(session_info=session_info)
+        Presenter = alternating_latent_presenter.AlternatingLatentPresenter
         name = 'alternating_latent_task'
     elif task_type == 'A_B_task':
         pass
@@ -162,11 +157,15 @@ try:
         pass
     elif task_type == 'A_B_C1_C2_task':
         pass
+    elif task_type == 'latent_inference_forage':
+        from task_protocol.latent_inference_forage import latent_inference_forage_model, latent_inference_forage_presenter
+        task = latent_inference_forage_model.LatentInferenceForageModel(session_info=session_info)
+        Presenter = latent_inference_forage_presenter.LatentInferenceForagePresenter
+        name = 'latent_inference_forage_task'
     else:
         raise RuntimeError('[***] Specified task not recognized!! [***]')
 
-    presenter = Presenter(name=name,
-                          task=task,
+    presenter = Presenter(task=task,
                           box=box,
                           pump=pump,
                           gui=gui,
@@ -190,10 +189,10 @@ try:
 
         run = True
         presenter.print_controls()
-        task.sample_next_block()
+        task.start_task()
         while run:
             if time.time() < t_end:
-                presenter.run()  # breaks out of this while loop during transitions between blocks; this will permit checking the t_end clock in this loop
+                presenter.run()
             else:
                 run = False
                 print("Times up, finishing up")
@@ -215,7 +214,7 @@ except (KeyboardInterrupt, SystemExit):
 
     # save dicts to disk
     ic('Saving files to disk')
-    scipy.io.savemat(mat_path, {'session_info': session_info})
+    scipy.io.savemat(mat_path, session_info)
     with open(session_info_path, 'wb') as f:
         pickle.dump(session_info, f)
     pygame.quit()
@@ -223,8 +222,10 @@ except (KeyboardInterrupt, SystemExit):
 # exit because of error
 except RuntimeError as ex:
     print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
+    print(ex)
     # save dicts to disk
-    scipy.io.savemat(mat_path, {'session_info': session_info})
+    # scipy.io.savemat(mat_path, {'session_info': session_info})
+    scipy.io.savemat(mat_path, session_info)
     with open(session_info_path, 'wb') as f:
         pickle.dump(session_info, f)
     presenter.end_session()

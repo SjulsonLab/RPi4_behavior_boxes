@@ -9,7 +9,7 @@ from icecream import ic
 import time
 import logging
 
-from task_protocol.base_presenter import Presenter
+from task_protocol.base_classes import Presenter
 
 SEED = 0
 rng = np.random.default_rng(seed=SEED)
@@ -69,7 +69,7 @@ class Pump(Protocol):
 
 class AlternatingLatentPresenter(Presenter):
 
-    def __init__(self, name: str, task: Task, box: Box, pump: Pump,
+    def __init__(self, task: Task, box: Box, pump: Pump,
                 gui: GUI, session_info: dict):
 
         self.task: Task = task
@@ -128,10 +128,10 @@ class AlternatingLatentPresenter(Presenter):
                 reward_size = 0
                 self.task.trial_reward_given.append(False)
 
-            print('current state: {}; rewards earned in block: {}'.format(self.task.state, self.task.rewards_earned_in_block))
             self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
 
-        elif choice_correct == 'incorrect':
+        elif choice_correct == ('incorrect'
+                                ''):
             if rng.random() < self.session_info['incorrect_reward_probability']:
                 reward_size = self.reward_size_large[incorrect_pump]  # can modify these to a single value, reward large and reward small
                 self.task.rewards_earned_in_block += 1
@@ -140,7 +140,6 @@ class AlternatingLatentPresenter(Presenter):
                 reward_size = 0
                 self.task.trial_reward_given.append(False)
 
-            print('current state: {}; rewards earned in block: {}'.format(self.task.state, self.task.rewards_earned_in_block))
             self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
 
         if self.task.trial_choice_list:
