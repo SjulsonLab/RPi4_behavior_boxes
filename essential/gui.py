@@ -5,14 +5,14 @@ from colorama import Fore, Style
 import matplotlib
 matplotlib.use('module://pygame_matplotlib.backend_pygame')
 import matplotlib.pyplot as plt
-from essential.base_classes import GUI
+from essential.base_classes import GUI, PerformanceFigure
 
 
 RIGHT_IX = 0
 LEFT_IX = 1
 
 
-class PerformanceFigure:
+class LivePlot(PerformanceFigure):
 
     def __init__(self, right_ix: int, left_ix: int):
         fig, ax = plt.subplots()
@@ -30,7 +30,7 @@ class PygameGUI(GUI):
 
     def __init__(self, session_info: dict):
 
-        self.figure_window = PerformanceFigure(RIGHT_IX, LEFT_IX)
+        self.figure_window = LivePlot(RIGHT_IX, LEFT_IX)
         self.fig_name = session_info['basedir'] + "/" + session_info['basename'] + "/" + \
                         session_info['basename'] + "_choice_plot" + '.png'
 
@@ -65,7 +65,7 @@ class PygameGUI(GUI):
     # check for data visualization - uses pygame window to show behavior progress
     ###############################################################################################
 
-    def check_plot(self, figure=None, FPS=144, savefig=False):
+    def check_plot(self, figure=None, FPS=60, savefig=False):
         if figure:
             FramePerSec = pygame.time.Clock()
             figure.canvas.draw()
