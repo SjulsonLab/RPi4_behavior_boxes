@@ -241,19 +241,16 @@ class Presenter(ABC):
         # print("E down: syringe pump 3 moves")
         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3")
         self.pump.reward("key_3", self.session_info["key_reward_amount"])
-        pass
 
     def K_r_callback(self) -> None:
         # print("R down: syringe pump 4 moves")
         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4")
         self.pump.reward("key_4", self.session_info["key_reward_amount"])
-        pass
 
     def K_t_callback(self) -> None:
         # print("T down: vacuum on")
         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum")
         self.pump.reward("key_vacuum", 1)
-        pass
 
     def K_a_callback(self) -> None:
         # toggle automated training rewards

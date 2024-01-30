@@ -1,5 +1,5 @@
 import collections
-from typing import Protocol, List, Tuple
+from typing import Protocol, Tuple
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
