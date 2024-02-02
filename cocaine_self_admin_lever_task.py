@@ -111,6 +111,7 @@ class CocaineSelfAdminLeverTask(object):
             )
 
     # trial statistics
+        self.initial_infusion_time = 0
         self.trial_running = False
         self.innocent = True
         self.trial_number = 0
@@ -177,7 +178,7 @@ class CocaineSelfAdminLeverTask(object):
     def run(self):
         if self.state == "standby" or self.state == 'timeout':
             pass
-        elif self.state == 'reward_available':
+        elif self.state == 'reward_available' and time.time() > self.initial_infusion_time:
             if self.box.event_list:
                 self.event_name = self.box.event_list.popleft()
             else:
@@ -201,6 +202,7 @@ class CocaineSelfAdminLeverTask(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;")
         self.box.event_list.clear()
         self.fill_cath()
+        self.initial_infusion_time = time.time() + 3.76
 
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;")
