@@ -237,8 +237,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         # ic(time.perf_counter() - self.t_ITI_start)
         self.lick_side_buffer *= 0
         self.ITI_active = False
-        if (self.state
-                == 'dark_period'):
+        if self.state == 'dark_period':
             self.turn_LED_off()
         else:
             self.turn_LED_on()

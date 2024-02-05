@@ -21,6 +21,7 @@ import sys
 import logging
 import logging.config
 from pathlib import Path
+from session_params import make_session_info
 
 
 sys.path.insert(0, './essential')  # essential holds behavbox and equipment classes
@@ -86,9 +87,14 @@ try:
     # want to edit this bit for debugging
     session_info_path = './'
     sys.path.insert(0, session_info_path)
-    tempmod = importlib.import_module(full_module_name)
-    session_info = tempmod.session_info
-    mouse_info = tempmod.mouse_info
+    # tempmod = importlib.import_module(full_module_name)
+    # session_info = tempmod.session_info
+    # mouse_info = tempmod.mouse_info
+
+    session_info = make_session_info()
+    if (session_info['mouse_name'] == 'test_mouse' or session_info['weight'] == 0) and not (debug_startup or debug_task):
+        print(Fore.RED + Style.BRIGHT + 'ERROR: Mouse info not set! Exiting now' + Style.RESET_ALL)
+        quit()
 
     session_info['date'] = datestr
     session_info['time'] = timestr

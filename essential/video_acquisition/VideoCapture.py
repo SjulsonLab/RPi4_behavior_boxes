@@ -8,7 +8,7 @@ Created on Fri Oct 28 12:30:51 2022
 based on the BehavBox class
 """
 import os
-from colorama import Fore,Style
+from colorama import Fore, Style
 import time
 import scipy
 import socket

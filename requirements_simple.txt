@@ -3,7 +3,6 @@ colorama
 colorzero
 gpiozero
 icecream
-importlib
 ipython
 matplotlib
 mock
@@ -12,10 +11,12 @@ Pillow
 pygame
 pygame_ce
 pygame_gui
-pysistence
 pytest
-#rpg
 scipy
 setuptools
+pyserial
 smbus
 transitions
+RPi.GPIO
+picamera
+rpg
