@@ -206,7 +206,7 @@ class HeadfixedHabituation(object):
             self.time_diff = time.time() - self.time_buffer
             if self.time_diff >= self.initiation_time:
                 self.initiate_error = False
-                self.evaluate_reawrd()
+                self.evaluate_reward()
                 if self.extra_reward:
                     self.pump.reward(self.current_card[2][0], self.extra_reward_size)
                     self.pump.reward(self.current_card[2][1], self.extra_reward_size)

@@ -37,10 +37,8 @@ session_info["visual_stimulus"] = False
 session_info['extra_reward'] = True
 session_info['extra_reward_size'] = 2
 
-
-session_info['config'] = 'headfixed2FC'
 session_info['treadmill_setup'] = {}
-session_info['treadmill'] = False
+session_info['treadmill'] = True
 session_info['fraction'] = 1     # 0.3, 0.5,0.7,1 # free choice fraction 1 for all free choice
 session_info['phase'] = 'habituation' # 'forced_choice', 'sine_reward'
 session_info['cue_time'] = 0      # second
