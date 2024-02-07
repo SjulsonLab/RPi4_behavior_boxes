@@ -29,6 +29,8 @@ class TaskInformation(object):
         elif phase == 'forced_choice_right':
             row_start = 1
             row_end = 1
+        elif phase == 'habituation':
+            row_start = 9
         else:
             if fraction == 0.5:
                 row_start = 8
