@@ -118,8 +118,8 @@ def make_session_info() -> Dict[str, Any]:
 
 
 def get_solenoid_coefficients():
-    # df_calibration = pd.read_csv("~/experiment_info/calibration_info/calibration.csv")
-    df_calibration = pd.read_csv(r"C:\Users\mattc\Documents\RPi_clone\calibration.csv")
+    df_calibration = pd.read_csv("~/experiment_info/calibration_info/calibration.csv")
+    # df_calibration = pd.read_csv(r"C:\Users\mattc\Documents\RPi_clone\calibration.csv")
     pump_coefficient = {}
 
     for pump_num in range(1, 5):
