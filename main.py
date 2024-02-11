@@ -28,7 +28,7 @@ sys.path.insert(0, './essential')  # essential holds behavbox and equipment clas
 sys.path.insert(0, '.')
 
 debug_startup = False
-debug_task = False
+debug_task = True
 if debug_startup or debug_task:
     from essential import dummy_box as behavbox
 else:
@@ -92,9 +92,9 @@ try:
     # mouse_info = tempmod.mouse_info
 
     session_info = make_session_info()
-    if (session_info['mouse_name'] == 'test_mouse' or session_info['weight'] == 0) and not (debug_startup or debug_task):
-        print(Fore.RED + Style.BRIGHT + 'ERROR: Mouse info not set! Exiting now' + Style.RESET_ALL)
-        quit()
+    # if (session_info['mouse_name'] == 'test_mouse' or session_info['weight'] == 0) and not (debug_startup or debug_task):
+    #     print(Fore.RED + Style.BRIGHT + 'ERROR: Mouse info not set! Exiting now' + Style.RESET_ALL)
+    #     quit()
 
     session_info['date'] = datestr
     session_info['time'] = timestr
@@ -154,7 +154,7 @@ try:
     task_type = session_info['task_config']
     if task_type == 'alternating_latent':
         from task_protocol.alternating_latent import alternating_latent_model, alternating_latent_presenter
-        task = alternating_latent_model.AlternateLatent(session_info=session_info)
+        task = alternating_latent_model.AlternatingLatentModel(session_info=session_info)
         Presenter = alternating_latent_presenter.AlternatingLatentPresenter
         name = 'alternating_latent_task'
     elif task_type == 'A_B_task':

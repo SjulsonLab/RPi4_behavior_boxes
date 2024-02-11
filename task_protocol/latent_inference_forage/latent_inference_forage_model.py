@@ -16,6 +16,7 @@ import logging
 import time
 
 import numpy as np
+import random
 
 import logging.config
 from collections import deque
@@ -24,7 +25,8 @@ from typing import List, Tuple, Union
 import logging.config
 import threading
 
-rng = np.random.default_rng()
+# SEED = 0
+# random.seed(SEED)
 RIGHT_IX = 0
 LEFT_IX = 1
 
@@ -41,7 +43,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
 
         self.last_choice_time = -np.inf
         self.rewards_earned_in_block = 0
-        self.rewards_available_in_block = rng.integers(1, 4)
+        self.rewards_available_in_block = random.randint(1, 4)
 
         # Lick detection
         self.lick_side_buffer = np.zeros(2)
@@ -167,8 +169,10 @@ class LatentInferenceForageModel(Model):  # subclass from base task
             self.presenter_commands.append('give_training_reward')
             if self.state == 'right_patch':
                 choice_side = RIGHT_IX
-            else:
+            elif self.state == 'left_patch':
                 choice_side = LEFT_IX
+            else:
+                raise RuntimeError('state not recognized')
             self.log_training_reward(choice_side, time_since_start)
 
         self.give_training_reward = False
@@ -219,7 +223,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
     def start_task(self):
         ic('starting task')
         self.next_dark_time = time.time() + self.session_info['epoch_length']
-        if rng.random() > 0.5:
+        if random.random() > 0.5:
             self.switch_to_left_patch()
         else:
             self.switch_to_right_patch()
@@ -252,14 +256,14 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         self.reset_counters()
         self.switch_to_dark_period()
 
-        t = threading.Timer(rng.choice(self.session_info['dark_period_times']), self.end_dark_period)
+        t = threading.Timer(random.choice(self.session_info['dark_period_times']), self.end_dark_period)
         t.start()
         self.dark_period_thread = t
 
     def end_dark_period(self):
         self.turn_LED_on()
         self.reset_counters()
-        if rng.random() > 0.5:
+        if random.random() > 0.5:
             self.switch_to_left_patch()
         else:
             self.switch_to_right_patch()
