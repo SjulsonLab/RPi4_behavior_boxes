@@ -4,6 +4,7 @@ from typing import Tuple, List
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 
 from icecream import ic
 import time
@@ -12,7 +13,7 @@ from essential.base_classes import Presenter, Model, GUI, Box, Pump
 
 
 SEED = 0
-rng = np.random.default_rng(seed=SEED)
+random.seed(SEED)
 
 
 PUMP1_IX = 0
@@ -48,7 +49,6 @@ class LatentInferenceForagePresenter(Presenter):
         Process one event, checking GUI and events as needed.
         Currently set to give rewards probabilistically (same reward sizes, unequal reward probabilities)
         """
-        # goes through the whole timeout before doing the plotting bits I think
         if self.task.state == 'right_patch':
             correct_pump = PUMP1_IX
             incorrect_pump = PUMP2_IX
@@ -90,7 +90,7 @@ class LatentInferenceForagePresenter(Presenter):
                 self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
 
             elif c == 'give_correct_reward':
-                if rng.random() < self.session_info['correct_reward_probability']:
+                if random.random() < self.session_info['correct_reward_probability']:
                     reward_size = self.reward_size_large[correct_pump]
                     self.task.rewards_earned_in_block += 1
                     self.task.trial_reward_given.append(True)
@@ -98,7 +98,7 @@ class LatentInferenceForagePresenter(Presenter):
                     reward_size = 0
                     self.task.trial_reward_given.append(False)
 
-                if rng.random() < self.session_info['switch_probability']:
+                if random.random() < self.session_info['switch_probability']:
                     if self.task.state == 'right_patch':
                         self.task.switch_to_left_patch()
                     elif self.task.state == 'left_patch':
@@ -112,7 +112,7 @@ class LatentInferenceForagePresenter(Presenter):
                 self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
                 
             elif c == 'give_incorrect_reward':
-                if rng.random() < self.session_info['incorrect_reward_probability']:
+                if random.random() < self.session_info['incorrect_reward_probability']:
                     reward_size = self.reward_size_large[
                         incorrect_pump]  # can modify these to a single value, reward large and reward small
                     self.task.rewards_earned_in_block += 1

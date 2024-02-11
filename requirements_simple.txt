@@ -1,7 +1,7 @@
 Adafruit_GPIO
 colorama
 colorzero
-gpiozero
+gpiozero==1.6.2
 icecream
 ipython
 matplotlib
@@ -13,10 +13,10 @@ pygame_ce
 pygame_gui
 pytest
 scipy
+pandas
 setuptools
-pyserial
 smbus
 transitions
-RPi.GPIO
+pysistence
+RPI.GPIO
 picamera
-rpg

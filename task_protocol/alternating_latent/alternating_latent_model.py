@@ -8,7 +8,8 @@ last updated: 2023-06-30
 name: lick_task_left_and_right_alternate.py
 """
 from transitions import State, Machine
-from transitions.extensions.states import add_state_features, Timeout
+from transitions.extensions.states import Timeout
+from essential.base_classes import TimedStateMachine, Model, GUI, Box, Pump
 
 from icecream import ic
 import logging
@@ -18,9 +19,9 @@ import random
 import numpy as np
 
 import logging.config
-from collections import deque
-from typing import Protocol, List, Tuple, Union
-from collections import defaultdict
+from typing import List, Tuple, Union
+from collections import defaultdict, deque
+import threading
 
 """
 Model for the task - i.e. only sees the the task state machine and status, necessary parameters, and presenter messages.
@@ -29,13 +30,11 @@ Model for the task - i.e. only sees the the task state machine and status, neces
 RIGHT_IX = 0
 LEFT_IX = 1
 
-
-@add_state_features(Timeout)
-class TimedStateMachine(Machine):
-    pass
+# SEED = 0
+# random.seed(SEED)
 
 
-class AlternateLatent(object):
+class AlternatingLatentModel(Model):
 
     def __init__(self, session_info: dict):  # name and session_info should be provided as kwargs
         # TASK + BEHAVIOR STATUS
@@ -57,10 +56,9 @@ class AlternateLatent(object):
 
         # These can't be refactored, session parameters needed for behavbox
         # maybe move them into a parameters class
-        self.choice_interval = session_info['entry_interval']
+        self.ITI = session_info['intertrial_interval']
         self.lick_threshold = session_info['lick_threshold']
         self.machine = self.make_state_machine(session_info['timeout_time'])
-        self.last_state_fxn = self.switch_to_standby
         self.block_type_counter = np.zeros(2)
 
         # revise these later to make sure you need them
@@ -71,18 +69,23 @@ class AlternateLatent(object):
         self.event_list = deque()
         self.t_session = time.time()
 
+        self.presenter_commands = []
+        self.ITI_active = False
+        self.ITI_thread = None
+        self.t_ITI_start = 0
+
     def make_state_machine(self, timeout_time: float):
         # reward_available is not used - it would allow licking either side but this task does not use that
         states = [
             State(name='standby',
                   on_enter=['switch_to_reward_available'],
-                  on_exit=["exit_standby"]),
-            State(name="right_active",
-                  on_enter=["enter_right_active"],
-                  on_exit=['exit_right_active']),
-            State(name="left_active",
-                  on_enter=["enter_left_active"],
-                  on_exit=['exit_left_active']),
+                  on_exit=['exit_standby']),
+            State(name='right_patch',
+                  on_enter=['enter_right_patch'],
+                  on_exit=['exit_right_patch']),
+            State(name='left_patch',
+                  on_enter=['enter_left_patch'],
+                  on_exit=['exit_left_patch']),
             Timeout(name='timeout',
                     on_enter=['enter_timeout'],
                     timeout=timeout_time,
@@ -92,11 +95,10 @@ class AlternateLatent(object):
         transitions = [
             # ['start_trial_logic', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
 
-            ['switch_to_standby', ['right_active', 'left_active'], 'standby'],
-            ['switch_to_left_active', '*', 'left_active'],
-            ['switch_to_right_active', '*', 'right_active'],
-            ['switch_to_timeout', ['right_active', 'left_active'], 'timeout'],
-            ['end_task', ['timeout', 'right_active', 'left_active'], 'standby']
+            ['switch_to_standby', ['right_patch', 'left_patch'], 'standby'],
+            ['switch_to_left_patch', '*', 'left_patch'],
+            ['switch_to_right_patch', '*', 'right_patch'],
+            ['end_task', ['timeout', 'right_patch', 'left_patch'], 'standby']
         ]
 
         machine = TimedStateMachine(
@@ -111,196 +113,150 @@ class AlternateLatent(object):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(""))
         self.trial_running = False
         self.event_list.clear()
-        # self.last_state_fxn = self.switch_to_standby
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
         # self.last_state = self.state
         self.reset_counters()
 
-    def exit_right_active(self):
+    def exit_right_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_right_active;" + str(""))
-        # self.last_state_fxn = self.switch_to_right_active
         # self.reset_counters()
 
-    def exit_left_active(self):
+    def exit_left_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_left_active;" + str(""))
-        # self.last_state_fxn = self.switch_to_left_active
         # self.reset_counters()
 
-    def enter_right_active(self):
+    def enter_right_patch(self):
         self.trial_running = True
-        self.last_state_fxn = self.switch_to_right_active
-        logging.info(";" + str(time.time()) + ";[transition];enter_right_active;" + str(""))
+        logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(""))
         print('entering right active')
 
-    def enter_left_active(self):
+    def enter_left_patch(self):
         self.trial_running = True
-        self.last_state_fxn = self.switch_to_left_active
-        logging.info(";" + str(time.time()) + ";[transition];enter_left_active;" + str(""))
+        logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(""))
         print('entering left active')
 
-    def enter_timeout(self):
-        # log the entrance to timeout; reset counters
-        self.event_list.clear()
+    def activate_ITI(self):
         self.lick_side_buffer *= 0
-        self.trial_running = False
-        logging.info(";" + str(time.time()) + ";[transition];enter_timeout;" + str(""))
+        self.ITI_active = True
+        t = threading.Timer(interval=self.ITI, function=self.end_ITI)
+        self.t_ITI_start = time.perf_counter()
+        t.start()
+        self.ITI_thread = t
 
-    def exit_timeout(self):
-        # logs the exit-timeout; doesn't do anything else
-        self.event_list.clear()
+    def end_ITI(self):
+        # ic(time.perf_counter() - self.t_ITI_start)
         self.lick_side_buffer *= 0
-        logging.info(";" + str(time.time()) + ";[transition];exit_timeout;" + str(""))
-        if self.rewards_earned_in_block >= self.rewards_available_in_block:
-            self.sample_next_block()
-        else:
-            self.last_state_fxn()
+        self.ITI_active = False
 
     def sample_next_block(self):
         self.reset_counters()
         self.rewards_available_in_block = random.randint(1, 4)
         print('sampling_next_block')
-        if random.randint(0, 1) == 0:
-            if self.state != 'right_active':
+        if self.state == 'standby':
+            self.block_type_counter *= 0
+            p = random.random()
+            if p > 0.5:
+                self.switch_to_right_patch()
+                self.block_type_counter[0] += 1
+            else:
+                self.switch_to_left_patch()
+                self.block_type_counter[1] += 1
+
+        elif self.state == 'right_patch':
+            p = random.random()
+            if p > 0.5 or self.block_type_counter[0] >= 2:
                 self.block_type_counter *= 0
+                self.switch_to_left_patch()
+                self.block_type_counter[1] += 1
             else:
                 self.block_type_counter[0] += 1
 
-            if self.block_type_counter[0] >= 2:
-                self.switch_to_left_active()
-            else:
-                self.switch_to_right_active()
-
-        else:
-            if self.state != 'left_active':
+        elif self.state == 'left_patch':
+            p = random.random()
+            if p > 0.5 or self.block_type_counter[1] >= 2:
                 self.block_type_counter *= 0
+                self.switch_to_right_patch()
+                self.block_type_counter[0] += 1
             else:
                 self.block_type_counter[1] += 1
 
-            if self.block_type_counter[1] >= 2:
-                self.switch_to_right_active()
-            else:
-                self.switch_to_left_active()
-
-    def reset_counters(self):
-        self.lick_side_buffer *= 0
-        self.rewards_earned_in_block = 0
-        self.error_count = 0
-        self.event_list.clear()
-
-    # def determine_choice(self) -> Union[int, np.ndarray[int]]:
-    def determine_choice(self) -> str:
-        """Determine whether there has been a choice to the left ports, right ports, or a switch."""
-
-        sides_licked = np.sum(self.lick_side_buffer.astype(bool))  # get nonzero sides
-        if sides_licked > 1:
-            # made a switch, reset the counter
-            self.lick_side_buffer *= 0
-            return 'switch'
-
-        if np.amax(self.lick_side_buffer) >= self.lick_threshold:
-            choice_ix = np.argmax(self.lick_side_buffer)  # either 0 or 1
-            choice = ['right', 'left'][choice_ix]
-            self.lick_side_buffer *= 0
-            # return choice_ix
-            return choice
-        else:
-            return ''  # no choice made/not enough licks
-
-    def run_event_loop(self) -> Tuple[str, bool, float]:
-        choice_correct = ''  # ['correct', 'incorrect', 'switch', '']
-        give_training_reward = False
+    def run_event_loop(self) -> None:
         cur_time = time.time()
         time_since_start = cur_time - self.t_session
-        dt = cur_time - self.last_choice_time
 
         if self.event_list:
             event = self.event_list.popleft()
         else:
             event = ''
 
-        if self.state in ['standby', 'timeout']:
-            # self.give_training_reward = False  # only toggle this in left/right active???
-            return choice_correct, give_training_reward, time_since_start
-
-        # self.state is in ['left_active', 'right_active']
-        if dt < self.choice_interval:
-            self.lick_side_buffer *= 0
-            return choice_correct, give_training_reward, time_since_start
-
         if event == 'right_entry':
             self.lick_side_buffer[RIGHT_IX] += 1
         elif event == 'left_entry':
             self.lick_side_buffer[LEFT_IX] += 1
 
+        if self.state == 'standby' or self.ITI_active:
+            self.lick_side_buffer *= 0
+            # self.give_training_reward = False  # only toggle this in left/right active???
+            return
+
         choice_side = self.determine_choice()
         # if no choice made, don't mark anything but maybe give reward
         if choice_side == 'right':
-            self.last_choice_time = cur_time
-            if self.state == 'right_active':
-                choice_correct = 'correct'
+            self.activate_ITI()
+            if self.state == 'right_patch':
                 self.log_correct_choice(RIGHT_IX, time_since_start)
+                self.give_correct_reward()
             else:
-                choice_correct = 'incorrect'
                 self.log_incorrect_choice(RIGHT_IX, time_since_start)
+                self.give_incorrect_reward()
+                # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str())
 
         elif choice_side == 'left':
-            self.last_choice_time = cur_time
-            if self.state == 'left_active':
-                choice_correct = 'correct'
+            self.activate_ITI()
+            if self.state == 'left_patch':
                 self.log_correct_choice(LEFT_IX, time_since_start)
-            else:
-                choice_correct = 'incorrect'
+                self.give_correct_reward()
+            elif self.state == 'right_patch':
                 self.log_incorrect_choice(LEFT_IX, time_since_start)
+                self.give_incorrect_reward()
+                # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str(""))
 
         elif choice_side == 'switch':
-            self.last_choice_time = cur_time  # for switches, enter ITI but do not update choices
-
-        # elif choice_side == ['switch', 'none']:  # no updates unless giving reward
-            # self.incorrect_choice_updates(choice_side, cur_time)
-                # give_reward = self.incorrect_choice_updates(choice_side, cur_time)
+            self.activate_ITI()
 
         elif (self.error_count >= self.errors_to_reward and self.automate_training_rewards)\
                 or self.give_training_reward:
-            self.last_choice_time = cur_time
-            give_training_reward = True
-            if self.state == 'right_active':
+            self.activate_ITI()
+            self.presenter_commands.append('give_training_reward')
+            if self.state == 'right_patch':
                 choice_side = RIGHT_IX
-            else:
+            elif self.state == 'left_patch':
                 choice_side = LEFT_IX
+            else:
+                raise RuntimeError('state not recognized')
             self.log_training_reward(choice_side, time_since_start)
 
         self.give_training_reward = False
-        return choice_correct, give_training_reward, time_since_start
-
-    def log_correct_choice(self, choice: int, event_time: float) -> None:
-        self.trial_choice_list.append(choice)
-        self.trial_choice_times.append(event_time)
-        self.trial_correct_list.append(True)
-        self.error_count = 0
-
-    def log_incorrect_choice(self, choice: int, event_time: float) -> None:
-        self.trial_choice_list.append(choice)
-        self.trial_choice_times.append(event_time)
-        self.trial_correct_list.append(False)
-        self.error_count += 1
-
-    def log_training_reward(self, choice: int, event_time: float) -> None:
-        self.trial_choice_list.append(choice)
-        self.trial_choice_times.append(event_time)
-        self.trial_correct_list.append(False)
-        self.error_count = 0
+        return
 
     def start_task(self):
         """A wrapper function for main function use."""
+        ic('starting task')
         self.sample_next_block()
+
+    def give_correct_reward(self) -> None:
+        self.presenter_commands.append('give_correct_reward')
+
+    def give_incorrect_reward(self) -> None:
+        self.presenter_commands.append('give_incorrect_reward')
 
 
 def main():
     session_info = defaultdict(list)
     session_info['timeout_time'] = 1
-    task = AlternateLatent(session_info)
+    task = AlternatingLatentModel(session_info)
     # task.switch_to_left_active()
     # task.exit_standby()
     # task.switch_to_reward_available()

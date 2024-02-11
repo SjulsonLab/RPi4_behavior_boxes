@@ -4,6 +4,8 @@ import collections
 import socket
 from datetime import datetime
 from typing import List, Tuple, Union, Dict, Any
+import pandas as pd
+import numpy as np
 
 
 ### PARAMETERS - Rig and defaults ###
@@ -17,7 +19,7 @@ def make_session_info() -> Dict[str, Any]:
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					= datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
-    session_info['task_config']				    = 'latent_inference_forage'   # ['alternating_latent', 'latent_inference_forage']
+    session_info['task_config']				    = 'alternating_latent'   # ['alternating_latent', 'latent_inference_forage']
 
     # behavior parameters - ideally set these to a default for each session type, which is adjustable
     session_info['max_trial_number']            = 100
@@ -79,6 +81,28 @@ def make_session_info() -> Dict[str, Any]:
     else:
         session_info['treadmill_setup'] = None
 
+    session_info['air_duration'] = 0
+    session_info["vacuum_duration"] = 1
+    session_info["calibration_coefficient"] = {}
+
+    try:
+        solenoid_coeff = get_solenoid_coefficients()
+    except Exception as e:
+        print(e)
+        solenoid_coeff = None
+
+    if solenoid_coeff:
+        session_info["calibration_coefficient"]['1'] = solenoid_coeff["1"]
+        session_info["calibration_coefficient"]['2'] = solenoid_coeff["2"]
+        session_info["calibration_coefficient"]['3'] = solenoid_coeff["3"]
+        session_info["calibration_coefficient"]['4'] = solenoid_coeff["4"]
+    else:
+        print("No coefficients, generate the default")
+        # solenoid valve linear fit coefficient for each pump
+        session_info["calibration_coefficient"]['1'] = [0.13, 0]  # highest power first
+        session_info["calibration_coefficient"]['2'] = [0.13, 0]
+        session_info["calibration_coefficient"]['3'] = [0.13, 0.0]
+        session_info["calibration_coefficient"]['4'] = [0.13, 0.0]
 
     ### DEPRECATED / NOT CURRENTLY IN USE ###
     session_info['LED_duration'] = 3
@@ -91,3 +115,23 @@ def make_session_info() -> Dict[str, Any]:
     session_info['reward_size'] = 1
 
     return session_info
+
+
+def get_solenoid_coefficients():
+    # df_calibration = pd.read_csv("~/experiment_info/calibration_info/calibration.csv")
+    df_calibration = pd.read_csv(r"C:\Users\mattc\Documents\RPi_clone\calibration.csv")
+    pump_coefficient = {}
+
+    for pump_num in range(1, 5):
+        df_pump = df_calibration[df_calibration['pump_number'] == pump_num]
+        try:
+            mg_per_pulse = df_pump['weight_fluid'].div(df_pump['iteration'])
+        except KeyError as e:
+            print(e)
+            mg_per_pulse = df_pump['water_weight'].div(df_pump['iteration'])
+        on_time = df_pump['on_time']
+
+        fit_calibration = np.polyfit(mg_per_pulse, on_time, 1)  # output with highest power first
+        pump_coefficient[str(pump_num)] = fit_calibration
+
+    return pump_coefficient
