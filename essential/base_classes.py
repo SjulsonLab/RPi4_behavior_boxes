@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib.lines
 import collections
 import pygame
+import threading
 
 
 class Pump(ABC):
@@ -69,6 +70,10 @@ class Model(ABC):
     error_count: int = 0
     rewards_earned_in_block: int = 0
     rewards_available_in_block: int = 0
+    ITI: float
+    ITI_active: bool
+    ITI_thread: threading.Timer
+    t_ITI_start: float
 
     def determine_choice(self) -> str:
         """Determine whether there has been a choice to the left ports, right ports, or a switch."""
@@ -110,6 +115,41 @@ class Model(ABC):
         self.rewards_earned_in_block = 0
         self.error_count = 0
         self.event_list.clear()
+
+    def activate_ITI(self):
+        self.lick_side_buffer *= 0
+        self.ITI_active = True
+        t = threading.Timer(interval=self.ITI, function=self.end_ITI)
+        self.t_ITI_start = time.perf_counter()
+        t.start()
+        self.ITI_thread = t
+
+    def end_ITI(self):
+        # ic(time.perf_counter() - self.t_ITI_start)
+        self.lick_side_buffer *= 0
+        self.ITI_active = False
+
+    def enter_standby(self):  # This function should also call for updating the plot???
+        logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(""))
+        self.event_list.clear()
+
+    def exit_standby(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
+        self.reset_counters()
+
+    def exit_right_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_right_active;" + str(""))
+
+    def exit_left_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_left_active;" + str(""))
+
+    def enter_right_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(""))
+        print('entering right active')
+
+    def enter_left_patch(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(""))
+        print('entering left active')
 
     @abstractmethod
     def run_event_loop(self):
@@ -323,10 +363,39 @@ class Presenter(ABC):
         if self.gui:
             self.update_plot(save_fig=True)
 
-    @abstractmethod
-    def run(self) -> None:
-        ...
+    def update_plot(self, save_fig=False) -> None:
+        if self.task.trial_choice_list:
+            ix = np.array(self.task.trial_correct_list)
+            choices = np.array(self.task.trial_choice_list)
+            times = np.array(self.task.trial_choice_times)
+            rewards = np.array(self.task.trial_reward_given)
+
+            correct_trials = choices[ix]
+            correct_times = times[ix]
+
+            incorrect_trials = choices[~ix]
+            incorrect_times = times[~ix]
+
+            reward_trials = choices[rewards]
+            reward_times = times[rewards]
+
+            self.gui.figure_window.correct_line.set_data(correct_times, correct_trials)
+            self.gui.figure_window.error_line.set_data(incorrect_times, incorrect_trials)
+            self.gui.figure_window.reward_line.set_data(reward_times, reward_trials)
+            # print('correct trials:', correct_trials)
+
+            # update this to show the last 20-ish trials
+            if times.size > 1:
+                T = [times[-20:][0], times[-1]]
+            else:
+                T = [times[-1] - .5, times[-1] + .5]
+            plt.xlim(T)
+
+        self.gui.figure_window.text.set_text('State: {}; ITI: {}'.format(self.task.state,
+                                                                         self.task.ITI_active))
+
+        self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)
 
     @abstractmethod
-    def update_plot(self, save_fig=False) -> None:
+    def run(self) -> None:
         ...

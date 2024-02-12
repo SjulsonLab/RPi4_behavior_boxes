@@ -168,6 +168,11 @@ try:
         task = latent_inference_forage_model.LatentInferenceForageModel(session_info=session_info)
         Presenter = latent_inference_forage_presenter.LatentInferenceForagePresenter
         name = 'latent_inference_forage_task'
+    elif task_type == 'flush':
+        from task_protocol.flush import flush_model, flush_presenter
+        task = flush_model.FlushModel(session_info=session_info)
+        Presenter = flush_presenter.FlushPresenter
+        name = 'flush'
     else:
         raise RuntimeError('[***] Specified task not recognized!! [***]')
 
