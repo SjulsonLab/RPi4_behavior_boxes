@@ -155,6 +155,10 @@ class Model(ABC):
     def run_event_loop(self):
         ...
 
+    @abstractmethod
+    def start_task(self):
+        ...
+
 
 class Presenter(ABC):
     keyboard_active: bool = True
