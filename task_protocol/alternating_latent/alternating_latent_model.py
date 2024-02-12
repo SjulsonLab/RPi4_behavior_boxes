@@ -238,6 +238,9 @@ class AlternatingLatentModel(Model):
                 raise RuntimeError('state not recognized')
             self.log_training_reward(choice_side, time_since_start)
 
+        else:
+            pass
+
         self.give_training_reward = False
         return
 
