@@ -19,7 +19,7 @@ def make_session_info() -> Dict[str, Any]:
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					= datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
-    session_info['task_config']				    = 'alternating_latent'   # ['alternating_latent', 'latent_inference_forage', 'flush']
+    session_info['task_config']				    = 'flush'   # ['alternating_latent', 'latent_inference_forage', 'flush']
 
     # behavior parameters - ideally set these to a default for each session type, which is adjustable
     session_info['max_trial_number']            = 100
