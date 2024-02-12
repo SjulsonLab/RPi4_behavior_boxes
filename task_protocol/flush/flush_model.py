@@ -77,6 +77,10 @@ class FlushModel(Model):
     def give_right_reward(self) -> None:
         self.presenter_commands.append('give_right_reward')
 
+    def start_task(self):
+        pass
+
+
 
 def main():
     session_info = defaultdict(list)
