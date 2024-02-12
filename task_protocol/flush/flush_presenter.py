@@ -20,7 +20,7 @@ class FlushPresenter(Presenter):
         self.pump = pump
         self.session_info = session_info
         self.pump_keys = (session_info["reward_pump1"], session_info['reward_pump2'])
-        self.reward_size = [10, 10]
+        self.reward_size = [20, 20]
 
         self.interact_list = []
 

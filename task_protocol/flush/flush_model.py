@@ -59,7 +59,7 @@ class FlushModel(Model):
         else:
             event = ''
 
-        if self.state == 'standby' or self.ITI_active:
+        if self.ITI_active:
             self.lick_side_buffer *= 0
             return
 
