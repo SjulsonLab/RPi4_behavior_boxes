@@ -181,13 +181,13 @@ class BehavBox(object):
         self.IR_rx4.when_released = presenter.IR_4_exit
         self.IR_rx5.when_released = presenter.IR_5_exit
 
-        self.lick1.when_pressed = presenter.left_entry
-        self.lick2.when_pressed = presenter.center_entry
-        self.lick3.when_pressed = presenter.right_entry
+        self.lick1.when_pressed = presenter.left_exit
+        self.lick2.when_pressed = presenter.right_exit
+        self.lick3.when_pressed = presenter.center_exit
 
-        self.lick1.when_released = presenter.left_exit
-        self.lick2.when_released = presenter.center_exit
-        self.lick3.when_released = presenter.right_exit
+        self.lick1.when_released = presenter.left_entry
+        self.lick2.when_released = presenter.right_entry
+        self.lick3.when_released = presenter.center_entry
 
     ###############################################################################################
     # methods to start and stop video
