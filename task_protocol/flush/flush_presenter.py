@@ -28,6 +28,14 @@ class FlushPresenter(Presenter):
         self.perform_task_commands()
         self.check_keyboard()
 
+    def LEDs_off(self):
+        self.box.cueLED1.off()
+        self.box.cueLED2.off()
+
+    def LEDs_on(self):
+        self.box.cueLED1.on()
+        self.box.cueLED2.on()
+
     def perform_task_commands(self) -> None:
         for c in self.task.presenter_commands:
             if c == 'give_right_reward':
@@ -40,8 +48,7 @@ class FlushPresenter(Presenter):
 
             elif c == 'blink_LED':
                 logging.info(";" + str(time.time()) + ";[action];blinking_LEDs;" + str(""))
-                self.box.cueLED1.on()
-                threading.Timer(1, self.box.cueLED1.off).start()
-
+                self.LEDs_on()
+                threading.Timer(1, self.LEDs_off).start()
 
         self.task.presenter_commands.clear()
