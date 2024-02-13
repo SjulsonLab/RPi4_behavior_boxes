@@ -309,6 +309,10 @@ class Presenter(ABC):
         self.task.give_training_reward = True
         logging.info(";" + str(time.time()) + ";[action];set_give_reward_true")
 
+    def K_l_callback(self) -> None:
+        # blink LED
+        self.task.presenter_commands.append('blink_LED')
+
     def print_controls(self) -> None:
         print("[***] KEYBOARD CONTROLS [***]")
         print("1, 2, 3: left/center/right nosepoke entry")
