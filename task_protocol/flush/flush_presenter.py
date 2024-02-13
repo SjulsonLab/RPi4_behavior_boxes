@@ -22,19 +22,24 @@ class FlushPresenter(Presenter):
         self.pump_keys = (session_info["reward_pump1"], session_info['reward_pump2'])
         self.reward_size = [20, 20]
         self.interact_list = []
+        self.LED_is_on = False
 
     def run(self) -> None:
         self.task.run_event_loop()
         self.perform_task_commands()
         self.check_keyboard()
 
-    def LEDs_off(self):
-        self.box.cueLED1.off()
-        self.box.cueLED2.off()
-
     def LEDs_on(self):
         self.box.cueLED1.on()
         self.box.cueLED2.on()
+        self.LED_is_on = True
+        ic("LEDs on")
+
+    def LEDs_off(self):
+        self.box.cueLED1.off()
+        self.box.cueLED2.off()
+        self.LED_is_on = False
+        ic("LEDs off")
 
     def perform_task_commands(self) -> None:
         for c in self.task.presenter_commands:
@@ -47,8 +52,11 @@ class FlushPresenter(Presenter):
                 self.deliver_reward(pump_key=self.pump_keys[PUMP2_IX], reward_size=self.reward_size[PUMP2_IX])
 
             elif c == 'blink_LED':
-                logging.info(";" + str(time.time()) + ";[action];blinking_LEDs;" + str(""))
-                self.LEDs_on()
-                threading.Timer(1, self.LEDs_off).start()
+                if self.LED_is_on:
+                    pass  # don't blink until the LEDs are off
+                else:
+                    logging.info(";" + str(time.time()) + ";[action];blinking_LEDs;" + str(""))
+                    self.LEDs_on()
+                    threading.Timer(1, self.LEDs_off).start()
 
         self.task.presenter_commands.clear()
