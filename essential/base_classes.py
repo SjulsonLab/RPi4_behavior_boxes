@@ -312,6 +312,7 @@ class Presenter(ABC):
     def K_l_callback(self) -> None:
         # blink LED
         self.task.presenter_commands.append('blink_LED')
+        logging.info(";" + str(time.time()) + ";[action];blink_LED")
 
     def print_controls(self) -> None:
         print("[***] KEYBOARD CONTROLS [***]")
