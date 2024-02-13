@@ -3,7 +3,7 @@ from typing import List, Tuple
 from icecream import ic
 import time
 import logging
-
+import threading
 from essential.base_classes import Presenter, Model, GUI, Box, Pump
 
 PUMP1_IX = 0
@@ -21,7 +21,6 @@ class FlushPresenter(Presenter):
         self.session_info = session_info
         self.pump_keys = (session_info["reward_pump1"], session_info['reward_pump2'])
         self.reward_size = [20, 20]
-
         self.interact_list = []
 
     def run(self) -> None:
@@ -38,5 +37,11 @@ class FlushPresenter(Presenter):
             elif c == 'give_left_reward':
                 logging.info(";" + str(time.time()) + ";[reward];giving_left_reward;" + str(""))
                 self.deliver_reward(pump_key=self.pump_keys[PUMP2_IX], reward_size=self.reward_size[PUMP2_IX])
+
+            elif c == 'blink_LED':
+                logging.info(";" + str(time.time()) + ";[action];blinking_LEDs;" + str(""))
+                self.box.cueLED1.on()
+                threading.Timer(1, self.box.cueLED1.off).start()
+
 
         self.task.presenter_commands.clear()
