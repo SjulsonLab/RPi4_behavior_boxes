@@ -79,6 +79,8 @@ class Model(ABC):
     ITI_thread: threading.Timer
     t_ITI_start: float
 
+    presenter_commands: List[str] = []
+
     def determine_choice(self) -> str:
         """Determine whether there has been a choice to the left ports, right ports, or a switch."""
 
@@ -158,7 +160,6 @@ class Model(ABC):
     @abstractmethod
     def run_event_loop(self):
         ...
-    presenter_commands: List[str] = []
 
     @abstractmethod
     def start_task(self):

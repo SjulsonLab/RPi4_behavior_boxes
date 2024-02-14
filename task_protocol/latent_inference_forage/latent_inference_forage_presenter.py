@@ -82,7 +82,7 @@ class LatentInferenceForagePresenter(Presenter):
                 self.box.cueLED2.off()
 
             elif c == 'give_training_reward':
-                reward_size = self.reward_size_large[correct_pump]
+                reward_size = self.reward_size_large
                 self.task.rewards_earned_in_block += 1
                 self.task.trial_reward_given.append(True)
                 logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
@@ -90,7 +90,7 @@ class LatentInferenceForagePresenter(Presenter):
 
             elif c == 'give_correct_reward':
                 if random.random() < self.session_info['correct_reward_probability']:
-                    reward_size = self.reward_size_large[correct_pump]
+                    reward_size = self.reward_size_large
                     self.task.rewards_earned_in_block += 1
                     self.task.trial_reward_given.append(True)
                 else:
@@ -112,8 +112,7 @@ class LatentInferenceForagePresenter(Presenter):
                 
             elif c == 'give_incorrect_reward':
                 if random.random() < self.session_info['incorrect_reward_probability']:
-                    reward_size = self.reward_size_large[
-                        incorrect_pump]  # can modify these to a single value, reward large and reward small
+                    reward_size = self.reward_size_small
                     self.task.rewards_earned_in_block += 1
                     self.task.trial_reward_given.append(True)
                 else:
