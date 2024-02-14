@@ -12,7 +12,6 @@ name: main.py
 from icecream import ic
 from datetime import datetime
 import os
-import importlib
 import scipy.io, pickle
 import pygame
 from colorama import Fore, Style

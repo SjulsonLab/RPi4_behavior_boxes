@@ -95,16 +95,11 @@ class Pump(PumpBase):
         elif which_pump in ["4", "key_4"]:
             duration = round((self.coefficient_p4[0] * (reward_size / 1000) + self.coefficient_p4[1]),
                              5)  # linear function
-            self.pump4.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward(reward_coeff: " + str(self.coefficient_p4) +
                          ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
         elif which_pump in ["air_puff", "key_air_puff"]:
-            self.pump_air.blink(self.duration_air, 0.1, 1)
-            self.reward_list.append(("air_puff", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump_air" + str(reward_size))
         elif which_pump in ["vacuum", "key_vacuum"]:
-            self.pump_vacuum.blink(self.duration_vac, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump_vacuum" + str(self.duration_vac))
 
     def blink(self, pump_key: str, on_time: float) -> None:
