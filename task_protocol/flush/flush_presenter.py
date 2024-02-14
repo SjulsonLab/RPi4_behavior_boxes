@@ -42,14 +42,15 @@ class FlushPresenter(Presenter):
         ic("LEDs off")
 
     def perform_task_commands(self) -> None:
+        pump_duration = 0.5
         for c in self.task.presenter_commands:
             if c == 'give_right_reward':
                 logging.info(";" + str(time.time()) + ";[reward];giving_right_reward;" + str(""))
-                self.pump.blink(self.pump_keys[PUMP1_IX], 1)
+                self.pump.blink(self.pump_keys[PUMP1_IX], pump_duration)
 
             elif c == 'give_left_reward':
                 logging.info(";" + str(time.time()) + ";[reward];giving_left_reward;" + str(""))
-                self.pump.blink(self.pump_keys[PUMP2_IX], 1)
+                self.pump.blink(self.pump_keys[PUMP2_IX], pump_duration)
 
             elif c == 'blink_LED':
                 if self.LED_is_on:
@@ -63,3 +64,10 @@ class FlushPresenter(Presenter):
                 pass
 
         self.task.presenter_commands.clear()
+
+    def print_controls(self) -> None:
+        print("[***] KEYBOARD CONTROLS [***]")
+        print("1, 3: left/right nosepoke entry + 1s reward delivery")
+        print("q, w, e, r: pump 1/2/3/4 reward delivery")
+        print("t: vacuum activation")
+        print("l: blink LED")

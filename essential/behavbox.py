@@ -30,6 +30,7 @@ import ADS1x15
 # for the flipper
 from FlipperOutput import FlipperOutput
 from base_classes import Presenter, PumpBase, Box
+from typing import List, Tuple, Union, Dict, Any
 
 
 class BehavBox(Box):
@@ -181,13 +182,23 @@ class BehavBox(Box):
         self.IR_rx4.when_released = presenter.IR_4_exit
         self.IR_rx5.when_released = presenter.IR_5_exit
 
-        self.lick1.when_pressed = presenter.left_exit
-        self.lick2.when_pressed = presenter.right_exit
-        self.lick3.when_pressed = presenter.center_exit
+        # This is how it's set in the base code
+        # self.lick1.when_pressed = presenter.left_exit
+        # self.lick2.when_pressed = presenter.right_exit
+        # self.lick3.when_pressed = presenter.center_exit
+        #
+        # self.lick1.when_released = presenter.left_entry
+        # self.lick2.when_released = presenter.right_entry
+        # self.lick3.when_released = presenter.center_entry
 
-        self.lick1.when_released = presenter.left_entry
-        self.lick2.when_released = presenter.right_entry
-        self.lick3.when_released = presenter.center_entry
+        # This makes more sense intuitively??
+        self.lick1.when_pressed = presenter.left_entry
+        self.lick2.when_pressed = presenter.right_entry
+        self.lick3.when_pressed = presenter.center_entry
+
+        self.lick1.when_released = presenter.left_exit
+        self.lick2.when_released = presenter.right_exit
+        self.lick3.when_released = presenter.center_exit
 
     ###############################################################################################
     # methods to start and stop video
@@ -326,7 +337,7 @@ class BoxLED(PWMLED):
 # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
 ###############################################################################################
 class Pump(PumpBase):
-    def __init__(self, session_info):
+    def __init__(self, session_info: Dict[str, Any]):
         self.pump1 = LED(19)
         self.pump2 = LED(20)
         self.pump3 = LED(21)
@@ -345,7 +356,7 @@ class Pump(PumpBase):
         self.duration_air = session_info['air_duration']
         self.duration_vac = session_info["vacuum_duration"]
 
-    def blink(self, pump_key, on_time):
+    def blink(self, pump_key: str, on_time: float):
         """Blink a pump-port once for testing purposes."""
         if pump_key in ["1", "key_1"]:
             self.pump1.blink(on_time=on_time, off_time=0.1, n=1)
@@ -366,66 +377,34 @@ class Pump(PumpBase):
             self.pump_vacuum.blink(on_time, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump_vacuum, duration: " + str(self.duration_vac) + ")")
 
-    def reward(self, which_pump, reward_size):
-        if which_pump == "1":
-            duration = round((self.coefficient_p1[0] * (reward_size / 1000) + self.coefficient_p1[1]), 5)  # linear function
-            self.pump1.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump1_reward", reward_size))
+    def reward(self, which_pump: str, reward_size: float) -> None:
+        if which_pump in ["1", "key_1"]:
+            duration = round((self.coefficient_p1[0] * (reward_size / 1000) + self.coefficient_p1[1]),
+                             5)  # linear function
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward(reward_coeff: " + str(self.coefficient_p1) +
                          ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
-        elif which_pump == "2":
-            duration = round((self.coefficient_p2[0] * (reward_size / 1000) + self.coefficient_p2[1]), 5)  # linear function
-            self.pump2.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump2_reward", reward_size))
+        elif which_pump in ["2", "key_2"]:
+            duration = round((self.coefficient_p2[0] * (reward_size / 1000) + self.coefficient_p2[1]),
+                             5)  # linear function
             logging.info(";" + str(time.time()) + ";[reward];pump2_reward(reward_coeff: " + str(self.coefficient_p2) +
                          ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
-        elif which_pump == "3":
-            duration = round((self.coefficient_p3[0] * (reward_size / 1000) + self.coefficient_p3[1]), 5)  # linear function
-            self.pump3.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump3_reward", reward_size))
+        elif which_pump in ["3", "key_3"]:
+            duration = round((self.coefficient_p3[0] * (reward_size / 1000) + self.coefficient_p3[1]),
+                             5)  # linear function
             logging.info(";" + str(time.time()) + ";[reward];pump3_reward(reward_coeff: " + str(self.coefficient_p3) +
                          ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
-        elif which_pump == "4":
-            duration = round((self.coefficient_p4[0] * (reward_size / 1000) + self.coefficient_p4[1]), 5)  # linear function
+        elif which_pump in ["4", "key_4"]:
+            duration = round((self.coefficient_p4[0] * (reward_size / 1000) + self.coefficient_p4[1]),
+                             5)  # linear function
             self.pump4.blink(duration, 0.1, 1)
             self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward(reward_coeff: " + str(self.coefficient_p4) +
                          ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
-        elif which_pump == "air_puff":
+        elif which_pump in ["air_puff", "key_air_puff"]:
             self.pump_air.blink(self.duration_air, 0.1, 1)
             self.reward_list.append(("air_puff", reward_size))
-            logging.info(";" + str(time.time()) + ";[reward];pump4_reward_" + str(reward_size))
-        elif which_pump == "vacuum":
+            logging.info(";" + str(time.time()) + ";[reward];pump_air" + str(reward_size))
+        elif which_pump in ["vacuum", "key_vacuum"]:
             self.pump_vacuum.blink(self.duration_vac, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump_vacuum" + str(self.duration_vac))
-        elif which_pump == "key_1":
-            duration = round((self.coefficient_p1[0] * (reward_size / 1000) + self.coefficient_p1[1]), 5)  # linear function
-            self.pump1.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump1_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[key];pump1_reward(reward_coeff: " + str(self.coefficient_p1) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
-        elif which_pump == "key_2":
-            duration = round((self.coefficient_p2[0] * (reward_size / 1000) + self.coefficient_p2[1]), 5)  # linear function
-            self.pump2.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump2_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[key];pump2_reward(reward_coeff: " + str(self.coefficient_p2) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
-        elif which_pump == "key_3":
-            duration = round((self.coefficient_p3[0] * (reward_size / 1000) + self.coefficient_p3[1]), 5)  # linear function
-            self.pump3.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump3_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[key];pump3_reward(reward_coeff: " + str(self.coefficient_p3) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
-        elif which_pump == "key_4":
-            duration = round((self.coefficient_p4[0] * (reward_size / 1000) + self.coefficient_p4[1]), 5)  # linear function
-            self.pump4.blink(duration, 0.1, 1)
-            self.reward_list.append(("pump4_reward", reward_size))
-            logging.info(";" + str(time.time()) + ";[key];pump4_reward(reward_coeff: " + str(self.coefficient_p4) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
-        elif which_pump == "key_air_puff":
-            self.pump_air.blink(self.duration_air, 0.1, 1)
-            self.reward_list.append(("air_puff", reward_size))
-            logging.info(";" + str(time.time()) + ";[key];pump4_reward_" + str(reward_size))
-        elif which_pump == "key_vacuum":
-            self.pump_vacuum.blink(self.duration_vac, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[key];pump_vacuum" + str(self.duration_vac))
+

@@ -21,7 +21,7 @@ import sys
 import logging
 import logging.config
 from pathlib import Path
-from session_params import make_session_info
+from session_info import make_session_info
 
 
 sys.path.insert(0, './essential')  # essential holds behavbox and equipment classes
