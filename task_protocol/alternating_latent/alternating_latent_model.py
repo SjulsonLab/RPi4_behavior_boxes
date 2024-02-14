@@ -9,7 +9,7 @@ name: lick_task_left_and_right_alternate.py
 """
 from transitions import State, Machine
 from transitions.extensions.states import Timeout
-from essential.base_classes import TimedStateMachine, Model, GUI, Box, Pump
+from essential.base_classes import TimedStateMachine, Model
 
 from icecream import ic
 import logging

@@ -7,7 +7,7 @@ author: Matthew Chin
 last updated: 2023-06-30
 name: flush_model.py
 """
-from essential.base_classes import TimedStateMachine, Model, GUI, Box, Pump
+from essential.base_classes import TimedStateMachine, Model, GUI, Box, PumpBase
 
 from icecream import ic
 import time
