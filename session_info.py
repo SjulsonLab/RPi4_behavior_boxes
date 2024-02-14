@@ -105,14 +105,14 @@ def make_session_info() -> Dict[str, Any]:
         session_info["calibration_coefficient"]['4'] = [7, 0]
 
     ### DEPRECATED / NOT CURRENTLY IN USE ###
-    session_info['LED_duration'] = 3
+    # session_info['LED_duration'] = 3
 
-    session_info['error_repeat'] = True
-    if session_info['error_repeat']:
-        session_info['error_max'] = 3
-
-    session_info["reward_pump"] = '2'
-    session_info['reward_size'] = 1
+    # session_info['error_repeat'] = True
+    # if session_info['error_repeat']:
+    #     session_info['error_max'] = 3
+    #
+    # session_info["reward_pump"] = '2'
+    # session_info['reward_size'] = 1
 
     return session_info
 
