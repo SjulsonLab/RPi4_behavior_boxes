@@ -101,35 +101,3 @@ class AlternatingLatentPresenter(Presenter):
 
         self.task.presenter_commands.clear()
 
-    def update_plot(self, save_fig: bool = False) -> None:
-        if self.task.trial_choice_list:
-            ix = np.array(self.task.trial_correct_list)
-            choices = np.array(self.task.trial_choice_list)
-            times = np.array(self.task.trial_choice_times)
-            rewards = np.array(self.task.trial_reward_given)
-
-            correct_trials = choices[ix]
-            correct_times = times[ix]
-
-            incorrect_trials = choices[~ix]
-            incorrect_times = times[~ix]
-
-            reward_trials = choices[rewards]
-            reward_times = times[rewards]
-
-            self.gui.figure_window.correct_line.set_data(correct_times, correct_trials)
-            self.gui.figure_window.error_line.set_data(incorrect_times, incorrect_trials)
-            self.gui.figure_window.reward_line.set_data(reward_times, reward_trials)
-            # print('correct trials:', correct_trials)
-
-            # update this to show the last 20-ish trials
-            if times.size > 1:
-                T = [times[-20:][0], times[-1]]
-            else:
-                T = [times[-1]-.5, times[-1]+.5]
-            plt.xlim(T)
-
-        self.gui.figure_window.text.set_text('State: {}; ITI: {}'.format(self.task.state,
-                                                                         self.task.ITI_active))
-
-        self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)

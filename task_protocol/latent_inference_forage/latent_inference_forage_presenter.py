@@ -97,19 +97,8 @@ class LatentInferenceForagePresenter(Presenter):
                     reward_size = 0
                     self.task.trial_reward_given.append(False)
 
-                if random.random() < self.session_info['switch_probability']:
-                    if self.task.state == 'right_patch':
-                        self.task.switch_to_left_patch()
-                    elif self.task.state == 'left_patch':
-                        self.task.switch_to_right_patch()
-                    else:
-                        pass
-                        # raise RuntimeError('state not recognized')
-
-                print('current state: {}; rewards earned in block: {}'.format(self.task.state,
-                                                                              self.task.rewards_earned_in_block))
                 self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
-                
+
             elif c == 'give_incorrect_reward':
                 if random.random() < self.session_info['incorrect_reward_probability']:
                     reward_size = self.reward_size_small
@@ -123,37 +112,20 @@ class LatentInferenceForagePresenter(Presenter):
                                                                               self.task.rewards_earned_in_block))
                 self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
 
+            else:
+                pass
+
+            if c in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info['switch_probability']:
+                if self.task.state == 'right_patch':
+                    self.task.switch_to_left_patch()
+                elif self.task.state == 'left_patch':
+                    self.task.switch_to_right_patch()
+                else:
+                    pass
+                    # raise RuntimeError('state not recognized')
+
+            print('current state: {}; rewards earned in block: {}'.format(self.task.state,
+                                                                          self.task.rewards_earned_in_block))
+
         self.task.presenter_commands.clear()
 
-    def update_plot(self, save_fig: bool = False) -> None:
-        if self.task.trial_choice_list:
-            ix = np.array(self.task.trial_correct_list)
-            choices = np.array(self.task.trial_choice_list)
-            times = np.array(self.task.trial_choice_times)
-            rewards = np.array(self.task.trial_reward_given)
-
-            correct_trials = choices[ix]
-            correct_times = times[ix]
-
-            incorrect_trials = choices[~ix]
-            incorrect_times = times[~ix]
-
-            reward_trials = choices[rewards]
-            reward_times = times[rewards]
-
-            self.gui.figure_window.correct_line.set_data(correct_times, correct_trials)
-            self.gui.figure_window.error_line.set_data(incorrect_times, incorrect_trials)
-            self.gui.figure_window.reward_line.set_data(reward_times, reward_trials)
-            # print('correct trials:', correct_trials)
-
-            # update this to show the last 20-ish trials
-            if times.size > 1:
-                T = [times[-20:][0], times[-1]]
-            else:
-                T = [times[-1]-.5, times[-1]+.5]
-            plt.xlim(T)
-
-        self.gui.figure_window.text.set_text('State: {}; ITI: {}'.format(self.task.state,
-                                                                                 self.task.ITI_active))
-
-        self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)

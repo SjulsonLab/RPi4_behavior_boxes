@@ -398,7 +398,6 @@ class Presenter(ABC):
             self.gui.figure_window.correct_line.set_data(correct_times, correct_trials)
             self.gui.figure_window.error_line.set_data(incorrect_times, incorrect_trials)
             self.gui.figure_window.reward_line.set_data(reward_times, reward_trials)
-            # print('correct trials:', correct_trials)
 
             # update this to show the last 20-ish trials
             if times.size > 1:

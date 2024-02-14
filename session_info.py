@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import List, Tuple, Union, Dict, Any
 import pandas as pd
 import numpy as np
+from icecream import ic
 
 
 ### PARAMETERS - Rig and defaults ###
@@ -19,7 +20,7 @@ def make_session_info() -> Dict[str, Any]:
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					= datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
-    session_info['task_config']				    = 'flush'   # ['alternating_latent', 'latent_inference_forage', 'flush']
+    session_info['task_config']				    = 'latent_inference_forage'   # ['alternating_latent', 'latent_inference_forage', 'flush']
 
     # behavior parameters - ideally set these to a default for each session type, which is adjustable
     session_info['max_trial_number']            = 100
@@ -104,38 +105,23 @@ def make_session_info() -> Dict[str, Any]:
         session_info["calibration_coefficient"]['3'] = [7, 0]
         session_info["calibration_coefficient"]['4'] = [7, 0]
 
-    ### DEPRECATED / NOT CURRENTLY IN USE ###
-    # session_info['LED_duration'] = 3
-
-    # session_info['error_repeat'] = True
-    # if session_info['error_repeat']:
-    #     session_info['error_max'] = 3
-    #
-    # session_info["reward_pump"] = '2'
-    # session_info['reward_size'] = 1
-
     return session_info
 
 
 def get_solenoid_coefficients():
-    df_calibration = pd.read_csv("~/experiment_info/calibration_info/calibration.csv")
-    # df_calibration = pd.read_csv(r"C:\Users\mattc\Documents\RPi_clone\calibration.csv")
+    df_calibration = pd.read_csv("~/experiment_info/calibration_info/calibration_hardcode.csv")
+    # df_calibration = pd.read_csv(r"C:\Users\mattc\Documents\RPi_clone\calibration_hardcode.csv")
     pump_coefficient = {}
-
-    for pump_num in range(1, 5):
-        df_pump = df_calibration[df_calibration['pump_number'] == pump_num]
-        mg_per_pulse = df_pump['weight_fluid'].div(df_pump['iteration'])
-
-        # keep this commented while calibration files are untrustworthy
-        # try:
-        #     mg_per_pulse = df_pump['weight_fluid'].div(df_pump['iteration'])
-        # except KeyError as e:
-        #     # print(e)
-        #     mg_per_pulse = df_pump['water_weight'].div(df_pump['iteration'])
-
-        on_time = df_pump['on_time']
-
-        fit_calibration = np.polyfit(mg_per_pulse, on_time, 1)  # output with highest power first
-        pump_coefficient[str(pump_num)] = fit_calibration
+    for ix in df_calibration.index:
+        pump_coefficient[str(df_calibration.loc[ix, 'pump_number'])] = [df_calibration.loc[ix, 'slope'], df_calibration.loc[ix, 'intercept']]
 
     return pump_coefficient
+
+
+def main():
+    session_info = make_session_info()
+    ic(session_info['calibration_coefficient'])
+
+
+if __name__ == '__main__':
+    main()
