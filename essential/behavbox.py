@@ -29,10 +29,10 @@ import ADS1x15
 
 # for the flipper
 from FlipperOutput import FlipperOutput
-from base_classes import Presenter
+from base_classes import Presenter, PumpBase, Box
 
 
-class BehavBox(object):
+class BehavBox(Box):
     event_list = (
         deque()
     )  # all detected events are added to this queue to be read out by the behavior class
@@ -325,7 +325,7 @@ class BoxLED(PWMLED):
 ###############################################################################################
 # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
 ###############################################################################################
-class Pump(object):
+class Pump(PumpBase):
     def __init__(self, session_info):
         self.pump1 = LED(19)
         self.pump2 = LED(20)
@@ -334,7 +334,7 @@ class Pump(object):
         self.pump_air = LED(8)
         self.pump_vacuum = LED(25)
 
-        # this needs to move to the controller
+        # this needs to move to the controller, if it's used at all
         self.reward_list = []  # a list of tuple (pump_x, reward_amount) with information of reward history for data
         # visualization
 
@@ -344,6 +344,27 @@ class Pump(object):
         self.coefficient_p4 = session_info["calibration_coefficient"]['4']
         self.duration_air = session_info['air_duration']
         self.duration_vac = session_info["vacuum_duration"]
+
+    def blink(self, pump_key, on_time):
+        """Blink a pump-port once for testing purposes."""
+        if pump_key in ["1", "key_1"]:
+            self.pump1.blink(on_time=on_time, off_time=0.1, n=1)
+            logging.info(";" + str(time.time()) + ";[reward];pump1_blink, duration: " + str(on_time) + ")")
+        elif pump_key in ["2", "key_2"]:
+            self.pump2.blink(on_time=on_time, off_time=0.1, n=1)
+            logging.info(";" + str(time.time()) + ";[reward];pump2_blink, duration: " + str(on_time) + ")")
+        elif pump_key in ["3", "key_3"]:
+            self.pump3.blink(on_time=on_time, off_time=0.1, n=1)
+            logging.info(";" + str(time.time()) + ";[reward];pump3_blink, duration: " + str(on_time) + ")")
+        elif pump_key in ["4", "key_4"]:
+            self.pump4.blink(on_time=on_time, off_time=0.1, n=1)
+            logging.info(";" + str(time.time()) + ";[reward];pump4_blink, duration: " + str(on_time) + ")")
+        elif pump_key in ["air_puff", "key_air_puff"]:
+            self.pump_air.blink(on_time, 0.1, 1)
+            logging.info(";" + str(time.time()) + ";[reward];pump_air, duration: " + str(self.duration_air) + ")")
+        elif pump_key in ["vacuum", "key_vacuum"]:
+            self.pump_vacuum.blink(on_time, 0.1, 1)
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum, duration: " + str(self.duration_vac) + ")")
 
     def reward(self, which_pump, reward_size):
         if which_pump == "1":

@@ -28,7 +28,7 @@ sys.path.insert(0, './essential')  # essential holds behavbox and equipment clas
 sys.path.insert(0, '.')
 
 debug_startup = False
-debug_task = False
+debug_task = True
 if debug_startup or debug_task:
     from essential import dummy_box as behavbox
 else:

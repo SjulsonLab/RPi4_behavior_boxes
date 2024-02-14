@@ -8,7 +8,7 @@ from icecream import ic
 import time
 import logging
 
-from essential.base_classes import Presenter, Model, GUI, Box, Pump
+from essential.base_classes import Presenter, Model, GUI, Box, PumpBase
 
 # SEED = 0
 # random.seed(SEED)
@@ -21,7 +21,7 @@ trial_choice_map = {'right': 0, 'left': 1}
 
 class AlternatingLatentPresenter(Presenter):
 
-    def __init__(self, model: Model, box: Box, pump: Pump, gui: GUI, session_info: dict):
+    def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
 
         self.task: Model = model
         self.gui: GUI = gui

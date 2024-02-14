@@ -4,7 +4,7 @@ from icecream import ic
 import time
 import logging
 import threading
-from essential.base_classes import Presenter, Model, GUI, Box, Pump
+from essential.base_classes import Presenter, Model, GUI, Box, PumpBase
 
 PUMP1_IX = 0
 PUMP2_IX = 1
@@ -13,7 +13,7 @@ trial_choice_map = {'right': 0, 'left': 1}
 
 class FlushPresenter(Presenter):
 
-    def __init__(self, model: Model, box: Box, pump: Pump, gui: GUI, session_info: dict):
+    def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
         self.task: Model = model
         self.gui: GUI = gui
         self.box = box
@@ -45,11 +45,11 @@ class FlushPresenter(Presenter):
         for c in self.task.presenter_commands:
             if c == 'give_right_reward':
                 logging.info(";" + str(time.time()) + ";[reward];giving_right_reward;" + str(""))
-                self.deliver_reward(pump_key=self.pump_keys[PUMP1_IX], reward_size=self.reward_size[PUMP1_IX])
+                self.pump.blink(self.pump_keys[PUMP1_IX], 1)
 
             elif c == 'give_left_reward':
                 logging.info(";" + str(time.time()) + ";[reward];giving_left_reward;" + str(""))
-                self.deliver_reward(pump_key=self.pump_keys[PUMP2_IX], reward_size=self.reward_size[PUMP2_IX])
+                self.pump.blink(self.pump_keys[PUMP2_IX], 1)
 
             elif c == 'blink_LED':
                 if self.LED_is_on:
@@ -58,5 +58,8 @@ class FlushPresenter(Presenter):
                     logging.info(";" + str(time.time()) + ";[action];blinking_LEDs;" + str(""))
                     self.LEDs_on()
                     threading.Timer(1, self.LEDs_off).start()
+
+            elif c == 'blink_sound':
+                pass
 
         self.task.presenter_commands.clear()

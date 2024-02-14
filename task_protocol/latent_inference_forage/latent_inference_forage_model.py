@@ -8,7 +8,7 @@ last updated: 2024-01-24
 name: latent_inference_forage_task_three_states.py
 """
 from transitions import State, Machine
-from essential.base_classes import TimedStateMachine, Model, GUI, Box, Pump
+from essential.base_classes import TimedStateMachine, Model
 # from task_protocol.base_classes import TimedStateMachine, Model
 
 from icecream import ic

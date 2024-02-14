@@ -13,10 +13,14 @@ import pygame
 import threading
 
 
-class Pump(ABC):
+class PumpBase(ABC):
 
     @abstractmethod
     def reward(self, pump_key: str, reward_size: float):
+        ...
+
+    @abstractmethod
+    def blink(self, pump_key: str, on_time: float):
         ...
 
 
@@ -154,6 +158,7 @@ class Model(ABC):
     @abstractmethod
     def run_event_loop(self):
         ...
+    presenter_commands: List[str] = []
 
     @abstractmethod
     def start_task(self):
@@ -163,10 +168,10 @@ class Model(ABC):
 class Presenter(ABC):
     keyboard_active: bool = True
     interact_list: List[Tuple[float, str]]
-    pump: Pump
+    pump: PumpBase
     task: Model
     gui: GUI
-    session_info: dict
+    session_info: Dict
     box: Box
 
     def deliver_reward(self, pump_key: str, reward_size: int) -> None:
@@ -323,7 +328,6 @@ class Presenter(ABC):
         print("g: give training reward")
 
     def check_keyboard(self):
-
         if self.keyboard_active:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
