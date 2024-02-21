@@ -438,10 +438,10 @@ class go_nogo_phase1(object):
                 self.start_vacuum_temp1()
 
         elif self.state == "vacuum":
-            self.box.sound1.off()
-            logging.info(str(time.time()) + ", sound_go OFF!")
             self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1)
             logging.info(str(time.time()) + ", vacuum initiated!")
+            self.box.sound1.off()
+            logging.info(str(time.time()) + ", sound_go OFF!")
             self.start_assessment()
 
         elif self.state == "assessment":
@@ -485,9 +485,9 @@ class go_nogo_phase1(object):
                 self.start_vacuum_temp2()
 
         elif self.state == "vacuum":
+            logging.info(str(time.time()) + ", no vacuum!")
             self.box.sound2.off()
             logging.info(str(time.time()) + ", sound_nogo OFF!")
-            logging.info(str(time.time()) + ", no vacuum!")
             self.start_assessment()
 
         elif self.state == "assessment":
