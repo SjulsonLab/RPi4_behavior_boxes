@@ -341,9 +341,13 @@ class go_nogo_phase2(object):
 
     def enter_reward_lockout(self):
         logging.info(str(time.time()) + ", entering reward_lockout")
+        self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1)
+        logging.info(str(time.time()) + ", vacuum initiated!")
 
     def exit_reward_lockout(self):
         logging.info(str(time.time()) + ", exiting reward_lockout")
+        self.box.sound1.off()
+        logging.info(str(time.time()) + ", sound_go OFF!")
 
     def enter_vacuum(self):
         logging.info(str(time.time()) + ", entering vacuum")
@@ -462,10 +466,6 @@ class go_nogo_phase2(object):
             pass
 
         elif self.state == "vacuum":
-            self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1)
-            logging.info(str(time.time()) + ", vacuum initiated!")
-            self.box.sound1.off()
-            logging.info(str(time.time()) + ", sound_go OFF!")
             self.start_assessment()
 
         elif self.state == "assessment":
@@ -506,12 +506,12 @@ class go_nogo_phase2(object):
         elif self.state == "temp2":
             if event_name == "trial countdown ends":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
+                self.box.sound2.off()
+                logging.info(str(time.time()) + ", sound_nogo OFF!")
                 self.start_vacuum_temp2()
 
         elif self.state == "vacuum":
             logging.info(str(time.time()) + ", no vacuum!")
-            self.box.sound2.off()
-            logging.info(str(time.time()) + ", sound_nogo OFF!")
             self.start_assessment()
 
         elif self.state == "assessment":
