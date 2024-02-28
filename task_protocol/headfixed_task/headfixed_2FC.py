@@ -1,9 +1,9 @@
 # python3: headfixed_task.py
 """
 author: tian qiu & Soyoun Kim
-date: 2024-02-06
-name: headfixed_habituation.py
-goal: to habiuate the lickport: 1) single port 2) dural ports and reward comes when it licks
+date: 2024-02-07
+name: headfixed_2FC.py
+goal: to forced choice and free choice with use time and walking
 description:
 
 """
@@ -47,7 +47,7 @@ class TimedStateMachine(Machine):
     pass
 
 
-class HeadfixedHabituation(object):
+class Headfixed2FC(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
@@ -101,11 +101,9 @@ class HeadfixedHabituation(object):
         ]
         self.transitions = [
             ['start_trial', 'standby', 'initiate'],
-           # ['start_cue', 'initiate', 'cue_state'],
-           # ['evaluate_reward', 'cue_state', 'reward_available'],
-            ['evaluate_reward', 'initiate', 'reward_available'],
-            ['restart', ['initiate', 'reward_available'], 'standby']
-           # ['restart', ['initiate', 'cue_state', 'reward_available'], 'standby']
+            ['start_cue', 'initiate', 'cue_state'],
+            ['evaluate_reward', 'cue_state', 'reward_available'],
+            ['restart', ['initiate', 'cue_state', 'reward_available'], 'standby']
         ]
 
         self.machine = TimedStateMachine(
@@ -161,7 +159,10 @@ class HeadfixedHabituation(object):
         self.time_buffer = None
         self.extra_reward = self.session_info['extra_reward']
         self.extra_reward_size = self.session_info['extra_reward_size']
-
+        # for time for not licking to initiate
+        self.initiation_start_duration = self.session_info['initiation_start_duration']
+        self.initiation_time_buffer = None
+        self.lick_count_initiation = 0
 
         # for foragaing parameters
         self.side_choice = None  # whether free choice is left or right
@@ -191,36 +192,44 @@ class HeadfixedHabituation(object):
 
         # animal can lick any time during habituation
         # if lick detected correct reward pass the next reward
-        #
+
         if self.event_name is "left_entry" or self.event_name == "right_entry":
             # print("EVENT NAME !!!!!! " + self.event_name)
-            if self.state == "reward_available" or self.state == "standby" or self.state == "initiate":
+            if self.state == "reward_available":
                 pass
-            #else:
-            #    self.early_lick_error = True
-            #    self.error_repeat = True
-            #    self.restart()
+            elif self.state == "standby":
+                self.initiation_time_buffer = time.time()
+            else:
+                self.early_lick_error = True
+                self.error_repeat = True
+                self.restart()
         if self.state == "standby":
-            pass
+            # only start when no lick for certain time
+            self.time_diff = time.time()-self.initiation_time_buffer
+            if self.time_diff >= self.initiation_start_duration:
+                pass
         elif self.state == "initiate":
             self.time_diff = time.time() - self.time_buffer
+            self.distance_diff = self.get_distance() - self.distance_buffer
             if self.time_diff >= self.initiation_time:
                 self.initiate_error = False
-                self.evaluate_reward()
+                self.start_cue()
                 if self.extra_reward:
-                    self.pump.reward(1, self.extra_reward_size)
-                    self.pump.reward(2, self.extra_reward_size)
-                    #self.pump.reward(self.current_card[2][0], self.extra_reward_size)
-                    #self.pump.reward(self.current_card[2][1], self.extra_reward_size)
-            #self.distance_diff = self.get_distance() - self.distance_buffer
-            #if self.distance_diff >= self.distance_initiation:
-            #    self.initiate_error = False
-            #    self.start_cue()
-            #else:
-            #    self.initiate_error = True
+                    self.pump.reward(self.current_card[2][0], self.extra_reward_size)
+                    self.pump.reward(self.current_card[2][1], self.extra_reward_size)
+            elif self.distance_diff >= self.distance_initiation:
+                self.initiate_error = False
+                self.start_cue()
+            else:
+                self.initiate_error = True
+
         elif self.state == "cue_state":
             self.distance_diff = self.get_distance() - self.distance_buffer
+            self.time_diff = time.time() - self.time_buffer
             if self.distance_diff >= self.distance_cue:
+                self.cue_state_error = False
+                self.evaluate_reward()
+            elif self.time_diff >= self.cue_time:
                 self.cue_state_error = False
                 self.evaluate_reward()
             else:
@@ -283,6 +292,7 @@ class HeadfixedHabituation(object):
         self.update_plot_choice()
         # self.update_plot_error()
         self.trial_running = False
+        self.initiation_time_buffer = time.time()
         # self.reward_error = False
         if self.early_lick_error:
             self.error_list.append("early_lick_error")
@@ -297,6 +307,7 @@ class HeadfixedHabituation(object):
         self.lick_count = 0
         self.side_mice_buffer = None
         self.box.event_list.clear()
+        #self.time_diff = 0;
         pass
 
     def enter_initiate(self):
@@ -328,6 +339,7 @@ class HeadfixedHabituation(object):
         self.check_cue(self.current_card[0])
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.get_distance()
+        self.time_buffer = time.time()
         logging.info(
             ";" + str(time.time()) + ";[treadmill];" + str(self.distance_buffer) + ";" + str(self.error_repeat))
 
@@ -377,9 +389,12 @@ class HeadfixedHabituation(object):
         if cue == 'sound1':
             logging.info(";" + str(time.time()) + ";[cue];cue_sound1_on;" + str(self.error_repeat))
             self.box.sound1.on()
-        if cue == 'sound2':
+        elif cue == 'sound2':
             logging.info(";" + str(time.time()) + ";[cue];cue_sound2_on;" + str(self.error_repeat))
             self.box.sound2.blink(1, 0.1, 1)
+        elif cue == 'sound3';
+            logging.info(";" + str(time.time()) + ";[cue];cue_sound3_on;" + str(self.error_repeat))
+
         elif cue == 'LED_L':
             self.box.cueLED1.on()
             logging.info(";" + str(time.time()) + ";[cue];cueLED_L_on;" + str(self.error_repeat))
