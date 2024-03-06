@@ -4,12 +4,12 @@
 # In[ ]:
 
 
-# python3: opioid_forage_task.py
+# python3: opioid_vs_water_task.py
 """
 author: Mitch Farrell
-date: 2023-05-23
-name: opioid_forage_task.py
-goal: opioid_forage_task licks only, switch between left and right patches
+date: 2024-02-16
+name: opioid_vs_water_task.py
+goal: opioid_vs_water_task
 """
 import importlib
 from transitions import Machine
@@ -51,7 +51,7 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class OpioidForageTask(object):
+class OpioidVsWaterTask(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
@@ -87,60 +87,60 @@ class OpioidForageTask(object):
             State(name='standby',
                   on_exit=["exit_standby"]),
 
-            State(name="remi_right_patch_active",
-                  on_enter=["enter_remi_right_patch_active"],
-                  on_exit=["exit_remi_right_patch_active"]),
-            State(name="liquid_left_patch_active",
-                  on_enter=["enter_liquid_left_patch_active"],
-                  on_exit=["exit_liquid_left_patch_active"]),
+            State(name="remi_patch_active",
+                  on_enter=["enter_remi_patch_active"],
+                  on_exit=["exit_remi_patch_active"]),
+            State(name="liquid_patch_active",
+                  on_enter=["enter_liquid_patch_active"],
+                  on_exit=["exit_liquid_patch_active"]),
 
-            Timeout(name="travel_to_remi_right_patch_active",
-                    on_enter=["enter_travel_to_remi_right_patch_active"],
-                    on_exit=["exit_travel_to_remi_right_patch_active"],
+            Timeout(name="travel_to_remi_patch_active",
+                    on_enter=["enter_travel_to_remi_patch_active"],
+                    on_exit=["exit_travel_to_remi_patch_active"],
                     timeout=self.session_info['travel_time'],
-                    on_timeout=['switch_from_travel_to_remi_right_patch_active']),
-            Timeout(name="travel_to_liquid_left_patch_active",
-                    on_enter=["enter_travel_to_liquid_left_patch_active"],
-                    on_exit=["exit_travel_to_liquid_left_patch_active"],
+                    on_timeout=['switch_from_travel_to_remi_patch_active']),
+            Timeout(name="travel_to_liquid_patch_active",
+                    on_enter=["enter_travel_to_liquid_patch_active"],
+                    on_exit=["exit_travel_to_liquid_patch_active"],
                     timeout = self.session_info['travel_time'],
-                    on_timeout=['switch_from_travel_to_liquid_left_patch_active']),
+                    on_timeout=['switch_from_travel_to_liquid_patch_active']),
 
-            Timeout(name='remi_right_patch_timeout',
-                    on_enter=['enter_remi_right_patch_timeout'],
-                    on_exit=['exit_remi_right_patch_timeout'],
+            Timeout(name='remi_patch_timeout',
+                    on_enter=['enter_remi_patch_timeout'],
+                    on_exit=['exit_remi_patch_timeout'],
                     timeout= self.session_info['remi_timeout_time'],
-                    on_timeout=['switch_from_timeout_to_remi_right_patch_active']),
-            Timeout(name='liquid_left_patch_timeout',
-                    on_enter=['enter_liquid_left_patch_timeout'],
-                    on_exit=['exit_liquid_left_patch_timeout'],
+                    on_timeout=['switch_from_timeout_to_remi_patch_active']),
+            Timeout(name='liquid_patch_timeout',
+                    on_enter=['enter_liquid_patch_timeout'],
+                    on_exit=['exit_liquid_patch_timeout'],
                     timeout=self.session_info['liquid_timeout_time'],
-                    on_timeout=['switch_from_timeout_to_liquid_left_patch_active'])]
+                    on_timeout=['switch_from_timeout_to_liquid_patch_active'])]
 
         self.transitions = [
-            #random start in remi_right or liquid_left
-            ['start_in_remi_right_patch_active', 'standby', 'travel_to_remi_right_patch_active'],
-            ['start_in_liquid_left_patch_active', 'standby', 'travel_to_liquid_left_patch_active'],
+            #random start in remi or liquid
+            ['start_in_remi_patch_active', 'standby', 'travel_to_remi_patch_active'],
+            ['start_in_liquid_patch_active', 'standby', 'travel_to_liquid_patch_active'],
 
             #from timeout to active
-            ['switch_from_timeout_to_remi_right_patch_active', 'remi_right_patch_timeout', 'remi_right_patch_active'],
-            ['switch_from_timeout_to_liquid_left_patch_active', 'liquid_left_patch_timeout', 'liquid_left_patch_active'],
+            ['switch_from_timeout_to_remi_patch_active', 'remi_patch_timeout', 'remi_patch_active'],
+            ['switch_from_timeout_to_liquid_patch_active', 'liquid_patch_timeout', 'liquid_patch_active'],
 
             #from active to timeout
-            ['switch_to_remi_right_patch_timeout', 'remi_right_patch_active', 'remi_right_patch_timeout'],
-            ['switch_to_liquid_left_patch_timeout', 'liquid_left_patch_active', 'liquid_left_patch_timeout'],
+            ['switch_to_remi_patch_timeout', 'remi_patch_active', 'remi_patch_timeout'],
+            ['switch_to_liquid_patch_timeout', 'liquid_patch_active', 'liquid_patch_timeout'],
 
             #from active to travel
-            ['switch_to_travel_to_remi_right_patch_active', 'liquid_left_patch_active', 'travel_to_remi_right_patch_active'],
-            ['switch_to_travel_to_liquid_left_patch_active', 'remi_right_patch_active', 'travel_to_liquid_left_patch_active'],
+            ['switch_to_travel_to_remi_patch_active', 'liquid_patch_active', 'travel_to_remi_patch_active'],
+            ['switch_to_travel_to_liquid_patch_active', 'remi_patch_active', 'travel_to_liquid_patch_active'],
 
             #from travel to active
-            ['switch_from_travel_to_remi_right_patch_active', 'travel_to_remi_right_patch_active', 'remi_right_patch_active'],
-            ['switch_from_travel_to_liquid_left_patch_active', 'travel_to_liquid_left_patch_active', 'liquid_left_patch_active'],
+            ['switch_from_travel_to_remi_patch_active', 'travel_to_remi_patch_active', 'remi_patch_active'],
+            ['switch_from_travel_to_liquid_patch_active', 'travel_to_liquid_patch_active', 'liquid_patch_active'],
 
             #end from any state
-            ['end_task', ['remi_right_patch_active','liquid_left_patch_active',
-                          'travel_to_remi_right_patch_active','travel_to_liquid_left_patch_active',
-                          'remi_right_patch_timeout', 'liquid_left_patch_timeout'], 'standby']]
+            ['end_task', ['remi_patch_active','liquid_patch_active',
+                          'travel_to_remi_patch_active','travel_to_liquid_patch_active',
+                          'remi_patch_timeout', 'liquid_patch_timeout'], 'standby']]
 
         self.machine = TimedStateMachine(
             model=self,
@@ -196,16 +196,16 @@ class OpioidForageTask(object):
         # session_statistics
         self.reward_size_var = 0
         self.reward_size_index = 0
-        self.right_patch_rewards = [1, 0.8, 0.6, 0.4, 0.2, 0]
-        self.left_patch_rewards = [5,4,3,2,1,0]
+        self.remi_patch_rewards = [1, 0.8, 0.6, 0.4, 0.2, 0]
+        self.liquid_patch_rewards = [5,4,3,2,1,0]
         self.syringe_pump = LED(17)
         self.reward_list = []
 
     def reward(self):  # prototype mouse weight equals 30
         infusion_duration = (self.session_info['weight'] / 30)
-        self.syringe_pump.blink(infusion_duration*self.right_patch_rewards[self.reward_size_index], 0.1, 1)
-        self.reward_list.append(("syringe_pump_reward", infusion_duration*self.right_patch_rewards[self.reward_size_index]))
-        logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration*self.right_patch_rewards[self.reward_size_index]))
+        self.syringe_pump.blink(infusion_duration*self.remi_patch_rewards[self.reward_size_index], 0.1, 1)
+        self.reward_list.append(("syringe_pump_reward", infusion_duration*self.remi_patch_rewards[self.reward_size_index]))
+        logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration*self.remi_patch_rewards[self.reward_size_index]))
     def fill_cath(self):
         self.syringe_pump.blink(2.2, 0.1, 1) #5ul/second, calculated cath holds ~11.74ul; 2.2seconds delivers ~12ul into cath
         logging.info(";" + str(time.time()) + ";[reward];catheter_filled_with_~12ul;" + '2.2_second_infusion')
@@ -220,7 +220,7 @@ class OpioidForageTask(object):
             self.reward_size_index = 0
             self.in_loop_bool = True
             self.box.event_list.clear()
-            while self.in_loop_bool == True: #self.state == 'remi_right_patch_active' or self.state == 'remi_right_patch_timeout'
+            while self.in_loop_bool == True: #self.state == 'remi_patch_active' or self.state == 'remi_patch_timeout'
                 if self.state == 'remi_patch_timeout':
                     self.left_licks = 0
                 if self.box.event_list:
@@ -230,16 +230,16 @@ class OpioidForageTask(object):
                 if self.event_name == "right_entry" and self.state == 'remi_patch_active':
                     if self.reward_size_var > 5:
                         self.reward_size_index = 5
-                    print(f"remi reward delivered {self.right_patch_rewards[self.reward_size_index]}")
+                    print(f"remi reward delivered {self.remi_patch_rewards[self.reward_size_index]}")
                     self.reward()
                     self.reward_size_var += 1
                     self.reward_size_index += 1
-                    self.switch_to_remi_right_patch_timeout()
+                    self.switch_to_remi_patch_timeout()
                 elif self.event_name == 'left_entry' and self.state == 'remi_patch_active':
                     if self.reward_size_var != 0:
                         self.left_licks += 1
                     if self.left_licks >= self.session_info['FR_before_patch_switch']:
-                        self.switch_to_travel_to_liquid_left_patch_active()
+                        self.switch_to_travel_to_liquid_patch_active()
                         self.in_loop_bool = False
         elif self.state == 'liquid_patch_active':
             self.trial_running = False
@@ -248,7 +248,7 @@ class OpioidForageTask(object):
             self.reward_size_index = 0
             self.in_loop_bool = True
             self.box.event_list.clear()
-            while self.in_loop_bool == True: #self.state == 'liquid_left_patch_active' or self.state == 'liquid_left_patch_timeout'
+            while self.in_loop_bool == True: #self.state == 'liquid_patch_active' or self.state == 'liquid_patch_timeout'
                 if self.state == 'remi_patch_timeout':
                     self.right_licks = 0
                 if self.box.event_list:
@@ -258,65 +258,65 @@ class OpioidForageTask(object):
                 if self.event_name == "left_entry" and self.state == 'liquid_patch_active':
                     if self.reward_size_var > 5:
                         self.reward_size_index = 5
-                    self.pump.reward(self.reward_pump1, self.left_patch_rewards[self.reward_size_index])
+                    self.pump.reward(self.reward_pump1, self.liquid_patch_rewards[self.reward_size_index])
                     self.reward_size_var +=1
                     self.reward_size_index +=1
-                    self.switch_to_liquid_left_patch_timeout()
-                elif self.event_name == 'right_entry' and self.state == 'liquid_left_patch_active':
+                    self.switch_to_liquid_patch_timeout()
+                elif self.event_name == 'right_entry' and self.state == 'liquid_patch_active':
                     if self.reward_size_var != 0:
                         self.right_licks += 1
                     if self.right_licks >= self.session_info['FR_before_patch_switch']:
-                        self.switch_to_travel_to_remi_right_patch_active()
+                        self.switch_to_travel_to_remi_patch_active()
                         self.in_loop_bool = False
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
         self.fill_cath()
-    def enter_remi_right_patch_active(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_remi_right_patch_active;" + str(self.error_repeat))
+    def enter_remi_patch_active(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_remi_patch_active;" + str(self.error_repeat))
         self.box.cueLED2.on()
         if not self.in_loop_bool:
             self.trial_running = True
-    def exit_remi_right_patch_active(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_remi_right_patch_active;" + str(self.error_repeat))
+    def exit_remi_patch_active(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_remi_patch_active;" + str(self.error_repeat))
         self.box.cueLED2.off()
-    def enter_travel_to_remi_right_patch_active(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_travel_to_remi_right_patch_active;" + str(self.error_repeat))
+    def enter_travel_to_remi_patch_active(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_travel_to_remi_patch_active;" + str(self.error_repeat))
         self.box.sound2.on()
         self.in_loop_bool = False
-    def exit_travel_to_remi_right_patch_active(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_travel_to_remi_right_patch_active;" + str(self.error_repeat))
+    def exit_travel_to_remi_patch_active(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_travel_to_remi_patch_active;" + str(self.error_repeat))
         self.box.sound2.off()
 
-    def enter_remi_right_patch_timeout(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_remi_right_patch_timeout;" + str(self.error_repeat))
+    def enter_remi_patch_timeout(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_remi_patch_timeout;" + str(self.error_repeat))
         self.box.sound1.on()
-    def exit_remi_right_patch_timeout(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_remi_right_patch_timeout;" + str(self.error_repeat))
+    def exit_remi_patch_timeout(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_remi_patch_timeout;" + str(self.error_repeat))
         self.box.sound1.off()
 
-    def enter_liquid_left_patch_active(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_liquid_left_patch_active;" + str(self.error_repeat))
+    def enter_liquid_patch_active(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_liquid_patch_active;" + str(self.error_repeat))
         self.box.cueLED1.on()
         if not self.in_loop_bool:
             self.trial_running = True
-    def exit_liquid_left_patch_active(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_liquid_left_patch_active;" + str(self.error_repeat))
+    def exit_liquid_patch_active(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_liquid_patch_active;" + str(self.error_repeat))
         self.box.cueLED1.off()
-    def enter_travel_to_liquid_left_patch_active(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_travel_to_liquid_left_patch_active;" + str(self.error_repeat))
+    def enter_travel_to_liquid_patch_active(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_travel_to_liquid_patch_active;" + str(self.error_repeat))
         self.box.sound2.on()
         self.in_loop_bool = False
-    def exit_travel_to_liquid_left_patch_active(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_travel_to_liquid_left_patch_active;" + str(self.error_repeat))
+    def exit_travel_to_liquid_patch_active(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_travel_to_liquid_patch_active;" + str(self.error_repeat))
         self.box.sound2.off()
 
-    def enter_liquid_left_patch_timeout(self):
-        logging.info(";" + str(time.time()) + ";[transition];enter_liquid_left_patch_timeout;" + str(self.error_repeat))
+    def enter_liquid_patch_timeout(self):
+        logging.info(";" + str(time.time()) + ";[transition];enter_liquid_patch_timeout;" + str(self.error_repeat))
         self.box.sound1.on()
-    def exit_liquid_left_patch_timeout(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_liquid_left_patch_timeout;" + str(self.error_repeat))
+    def exit_liquid_patch_timeout(self):
+        logging.info(";" + str(time.time()) + ";[transition];exit_liquid_patch_timeout;" + str(self.error_repeat))
         self.box.sound1.off()
 
 
