@@ -112,15 +112,15 @@ class RemiVSLiquidLickChoiceTask(object):
             State(name='liquid_forced_delay',
                   on_enter=['enter_liquid_forced_delay'],
                   on_exit=['exit_liquid_forced_delay']),
-
-            Timeout(name='ITI',
+            State(name='ITI',
                     on_enter=['enter_ITI'],
-                    on_exit=['exit_ITI'],
-                    timeout = self.session_info['ITI'], #session_info
-                    on_timeout = ['switch_to_next_phase'])] #?????????
+                    on_exit=['exit_ITI'])
+        ]
 
         self.transitions = [
-            ['start_trial_logic', 'standby', ['free_choice', 'remi_forced', 'liquid_forced']],  # format: ['trigger', 'origin', 'destination']
+            ['start_in_free_choice', 'standby', 'free_choice'],  # format: ['trigger', 'origin', 'destination']
+            ['start_in_remi_forced', 'standby', 'remi_forced'],
+            ['start_in_liquid_forced', 'standby', 'liquid_forced'],
 
             ['switch_to_free_choice', 'ITI', 'free_choice'],
             ['switch_to_remi_forced', 'ITI', 'remi_forced'],
@@ -145,9 +145,27 @@ class RemiVSLiquidLickChoiceTask(object):
             )
 
     # trial statistics
-        self.trial_time =
-        self.trial_duration =
+        self.trial_end = 0
+        self.trial_duration = 10
 
+        self.free_choice_remi_delivered = False
+        self.remi_delivery_time = 0
+        self.remi_delivery_time_list = [0]
+        self.remi_CS_duration = 0
+
+        self.free_choice_liquid_delivered = False
+        self.liquid_delivery_time = 0
+        self.liquid_delivery_time_list = [0]
+        self.liquid_CS_duration = 0
+
+        self.forced_remi_omit = False
+        self.forced_liquid_omit = False
+
+        self.forced_choice_remi_delivered = False
+        self.forced_choice_liquid_delivered = False
+
+        self.ITI_duration = 0
+        self.ITI_duration_list = [20]
 
         self.rewards_earned_in_bout = 0
         self.reward_bout_number = random.randint(2,4)
@@ -204,12 +222,19 @@ class RemiVSLiquidLickChoiceTask(object):
         # session_statistics
         self.total_reward = 0
 
+    def remi_reward(self):  # prototype mouse weight equals 30
+        infusion_duration = (self.session_info['weight'] / 30)
+        self.syringe_pump.blink(infusion_duration*self.remi_patch_rewards[self.reward_size_index], 0.1, 1)
+        self.reward_list.append(("remi_reward", infusion_duration*self.remi_patch_rewards[self.reward_size_index]))
+        logging.info(";" + str(time.time()) + ";[reward];remi_reward" + str(infusion_duration*self.remi_patch_rewards[self.reward_size_index]))
+    def fill_cath(self):
+        self.syringe_pump.blink(2.2, 0.1, 1) #5ul/second, calculated cath holds ~11.74ul; 2.2seconds delivers ~12ul into cath
+        logging.info(";" + str(time.time()) + ";[reward];catheter_filled_with_~12ul;" + '2.2_second_infusion')
+
     def run(self):
         if self.state == "standby" or self.state == 'timeout':
             pass
         elif self.state == 'free_choice':
-            self.right_entry_count = 0
-            self.left_entry_count = 0
             self.trial_end = time.time() + self.trial_duration
             self.trial_running = False
             while self.trial_end > time.time() and self.state == 'free_choice':
@@ -221,57 +246,90 @@ class RemiVSLiquidLickChoiceTask(object):
                     self.switch_to_free_choice_remi_delay()
                 if self.event_name == "left_entry":
                     self.switch_to_free_choice_liquid_delay()
-
-
-
-
-
-
-
-        elif self.state == 'remi_forced':
-            self.current_time = time.time()
-            self.motivation_phase_end = time.time() + 10
-            self.right_entry_count = 0
+        elif self.state == 'free_choice_remi_delay':
+            self.remi_delivery_time = time.time() + random.choice(self.remi_delivery_time_list)
+            self.remi_CS_duration = time.time() + 20
+            self.free_choice_remi_delivered = False
             self.trial_running = False
-            while self.motivation_phase_end > self.current_time and self.state == 'right_motivation_phase':
-                self.current_time = time.time()
-                if self.box.event_list:
-                    self.event_name = self.box.event_list.popleft()
-                else:
-                    self.event_name = ''
-                if self.event_name == "right_entry":
-                    self.right_entry_count += 1
-                if self.right_entry_count >= self.right_motivation_phase_FR:
+            while time.time() < self.remi_CS_duration:
+                if time.time() > self.remi_delivery_time and self.free_choice_remi_delivered == False:
+                    self.free_choice_remi_delivered = True
+                    self.remi_reward()
+            self.ITI()
+        elif self.state == 'free_choice_liquid_delay':
+            self.liquid_delivery_time = time.time() + random.choice(self.liquid_delivery_time_list)
+            self.liquid_CS_duration = time.time() + 20
+            self.free_choice_liquid_delivered = False
+            self.trial_running = False
+            while time.time() < self.liquid_CS_duration:
+                if time.time() > self.liquid_delivery_time and self.free_choice_liquid_delivered == False:
+                    self.free_choice_liquid_delivered = True
                     self.pump.reward(self.reward_pump1, self.reward_size1)
-                    if self.reward_size1 > 0:
-                        self.reward_size1 = self.reward_size1 - 1
-                    if self.reward_size2 < 5:
-                        self.reward_size2 = self.reward_size2 + 1
-                    self.switch_to_timeout()
-            if self.state != 'timeout':
-                self.switch_to_timeout()
-        elif self.state == 'liquid_forced':
-            self.current_time = time.time()
-            self.motivation_phase_end = time.time() + 10
-            self.left_entry_count = 0
+            self.ITI()
+        elif self.state == 'remi_forced':
+            self.trial_end = time.time() + self.trial_duration
+            self.forced_remi_omit = False
             self.trial_running = False
-            while self.motivation_phase_end > self.current_time and self.state == 'left_motivation_phase':
-                self.current_time = time.time()
+            while self.trial_end > time.time() and self.state == 'remi_forced':
                 if self.box.event_list:
                     self.event_name = self.box.event_list.popleft()
                 else:
                     self.event_name = ''
-                if self.event_name == "left_entry":
-                    self.left_entry_count += 1
-                if self.left_entry_count >= self.left_motivation_phase_FR:
-                    self.pump.reward(self.reward_pump2, self.reward_size2)
-                    if self.reward_size2 > 0:
-                        self.reward_size2 = self.reward_size2 - 1
-                    if self.reward_size1 < 5:
-                        self.reward_size1 = self.reward_size1 + 1
-                    self.switch_to_timeout()
-            if self.state != 'timeout':
-                self.switch_to_timeout()
+                if self.event_name == "right_entry":  # assume liquid is left and remi is right
+                    self.switch_to_remi_forced_delay()
+            if self.trial_end <= time.time():
+                self.forced_remi_omit = True
+        elif self.state == 'liquid_forced':
+            self.trial_end = time.time() + self.trial_duration
+            self.forced_liquid_omit = False
+            self.trial_running = False
+            while self.trial_end > time.time() and self.state == 'liquid_forced':
+                if self.box.event_list:
+                    self.event_name = self.box.event_list.popleft()
+                else:
+                    self.event_name = ''
+                if self.event_name == "left_entry":  # assume liquid is left and remi is right
+                    self.switch_to_liquid_forced_delay()
+            if self.trial_end <= time.time():
+                self.forced_liquid_omit = True
+        elif self.state == 'remi_forced_delay':
+            self.remi_delivery_time = time.time() + random.choice(self.remi_delivery_time_list)
+            self.remi_CS_duration = time.time() + 20
+            self.forced_choice_remi_delivered = False
+            self.trial_running = False
+            while time.time() < self.remi_CS_duration:
+                if time.time() > self.remi_delivery_time and self.free_choice_remi_delivered == False:
+                    self.forced_choice_remi_delivered = True
+                    self.remi_reward()
+            self.ITI()
+        elif self.state == 'liquid_forced_delay':
+            self.liquid_delivery_time = time.time() + random.choice(self.liquid_delivery_time_list)
+            self.liquid_CS_duration = time.time() + 20
+            self.forced_choice_liquid_delivered = False
+            self.trial_running = False
+            while time.time() < self.liquid_CS_duration:
+                if time.time() > self.liquid_delivery_time and self.free_choice_liquid_delivered == False:
+                    self.forced_choice_liquid_delivered = True
+                    self.pump.reward(self.reward_pump1, self.reward_size1)
+            self.ITI()
+        elif self.state == 'ITI':
+            self.ITI_duration = time.time() + random.choice(self.ITI_duration_list)
+            self.trial_running = False
+            while time.time() < self.ITI_duration:
+                pass
+            self.switch_to_free_choice()
+            # if self.forced_remi_omit == True:
+            #     self.switch_to_remi_forced()
+            # elif self.forced_liquid_omit == True:
+            #     self.switch_to_liquid_forced()
+            # else:
+            #     self.random_transition = random.random()
+            #     if self.random_transition > 0 and self.random_transition < 0.8:
+            #         self.switch_to_free_choice()
+            #     elif self.random_transition > 0.8 and self.random_transition <= 0.9:
+            #         self.switch_to_remi_forced()
+            #     elif self.random_transition > 0.9 and self.random_transition <= 1:
+            #         self.switch_to_liquid_forced()
 
     def enter_standby(self):
         # self.error_repeat = False
@@ -289,6 +347,8 @@ class RemiVSLiquidLickChoiceTask(object):
         self.box.cueLED2.on()
     def exit_free_choice(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_free_choice;" + str(self.error_repeat))
+        self.box.cueLED1.off()
+        self.box.cueLED2.off()
         self.box.event_list.clear()
 
     def enter_remi_forced(self):
@@ -299,8 +359,8 @@ class RemiVSLiquidLickChoiceTask(object):
     def exit_remi_forced(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_remi_forced;" + str(self.error_repeat))
         self.box.event_list.clear()
+        self.box.cueLED1.off()
         self.box.cueLED2.off()
-        self.box.sound1.off()
 
     def enter_liquid_forced(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_liquid_forced;" + str(self.error_repeat))
@@ -311,63 +371,56 @@ class RemiVSLiquidLickChoiceTask(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_liquid_forced;" + str(self.error_repeat))
         self.box.event_list.clear()
         self.box.cueLED1.off()
-        self.box.sound1.off()
+        self.box.cueLED2.off()
 
     def enter_free_choice_remi_delay(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_free_choice_remi_delay;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.box.cueLED1.off()
-        self.box.cueLED2.off()
-        self.box.sound1.off()
-        self.trial_running = False
+        self.box.sound1.on()
+        self.trial_running = True
     def exit_free_choice_remi_delay(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_free_choice_remi_delay;" + str(self.error_repeat))
         self.box.event_list.clear()
+        self.box.sound1.off()
 
     def enter_free_choice_liquid_delay(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_free_choice_liquid_delay;" + str(self.error_repeat))
+        self.box.event_list.clear()
         self.trial_running = True
-        self.box.cueLED2.off()
-        self.box.sound1.on()
+        self.box.sound2.on()
     def exit_free_choice_liquid_delay(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_free_choice_liquid_delay;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.box.cueLED1.off()
-        self.box.sound1.off()
+        self.box.sound2.off()
 
     def enter_remi_forced_delay(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_remi_forced_delay;" + str(self.error_repeat))
+        self.box.event_list.clear()
         self.trial_running = True
-        self.box.cueLED2.off()
         self.box.sound1.on()
+
     def exit_remi_forced_delay(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_remi_forced_delay;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.box.cueLED1.off()
         self.box.sound1.off()
 
     def enter_liquid_forced_delay(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_liquid_forced_delay;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.cueLED2.off()
-        self.box.sound1.on()
+        self.box.sound2.on()
+
     def exit_liquid_forced_delay(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_liquid_forced_delay;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.box.cueLED1.off()
         self.box.sound1.off()
 
     def enter_ITI(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_ITI;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.cueLED2.off()
-        self.box.sound1.on()
+
     def exit_ITI(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ITI;" + str(self.error_repeat))
         self.box.event_list.clear()
-        self.box.cueLED1.off()
-        self.box.sound1.off()
-
 
 
 
