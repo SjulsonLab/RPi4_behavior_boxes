@@ -185,35 +185,29 @@ class HeadfixedTaskSoundLR(object):
             self.event_name = self.box.event_list.popleft()
         else:
             self.event_name = ""
-
-        # animal can lick any time during habituation
-        # if lick detected correct reward pass the next reward
-        #
+        # there can only be lick during the reward available state
+        # if lick detected prior to reward available state
+        # the trial will restart and transition to standby
         if self.event_name is "left_entry" or self.event_name == "right_entry":
             # print("EVENT NAME !!!!!! " + self.event_name)
             if self.state == "reward_available" or self.state == "standby" or self.state == "initiate":
                 pass
-            #else:
-            #    self.early_lick_error = True
-            #    self.error_repeat = True
-            #    self.restart()
+            else:
+                self.early_lick_error = True
+                self.error_repeat = True
+                self.restart()
         if self.state == "standby":
             pass
         elif self.state == "initiate":
-            self.time_diff = time.time() - self.time_buffer
             self.distance_diff = self.get_distance() - self.distance_buffer
-            if self.time_diff >= self.initiation_time or self.distance_diff >= self.distance_initiation:
+            if self.distance_diff >= self.distance_initiation:
                 self.initiate_error = False
                 self.start_cue()
-                if self.extra_reward:
-                    self.pump.reward(self.current_card[2][0], self.extra_reward_size)
-                    self.pump.reward(self.current_card[2][1], self.extra_reward_size)
             else:
                 self.initiate_error = True
         elif self.state == "cue_state":
             self.distance_diff = self.get_distance() - self.distance_buffer
-            self.time_diff = time.time() - self.time_buffer
-            if self.distance_diff >= self.distance_cue or self.time_diff >= self.cue_time:
+            if self.distance_diff >= self.distance_cue:
                 self.cue_state_error = False
                 self.evaluate_reward()
             else:
@@ -233,7 +227,7 @@ class HeadfixedTaskSoundLR(object):
                 self.timeline_right_poke.append(time.time())
             if side_mice:
                 self.side_mice_buffer = side_mice
-                self.cue_state = cue_state # cue state for foraging
+                self.cue_state = cue_state  # cue state for foraging
                 if cue_state == 'all':
                     side_choice = side_mice
                     if side_choice == 'left':
@@ -257,7 +251,7 @@ class HeadfixedTaskSoundLR(object):
                     self.side_mice_buffer = side_mice
                     if side_mice == side_choice:  # if the animal chose correctly
                         if self.lick_count == 0:  # if this is the first lick
-                            self.side_choice = side_choice # foraging task
+                            self.side_choice = side_choice  # foraging task
                             self.wrong_choice_error = False
                             self.reward_check = True
                             self.lick_count += 1
