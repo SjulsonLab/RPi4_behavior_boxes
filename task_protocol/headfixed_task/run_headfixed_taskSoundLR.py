@@ -134,6 +134,8 @@ try:
         reward_list = list(zip(left_side_reward, right_side_reward))
         return reward_list
 
+
+    reward_size = session_info['reward_size']
     if session_info['phase'] == "independent_reward":
         # from reward_distribution import generate_reward_trajectory
         scale = session_info['independent_reward']['scale']
@@ -156,13 +158,12 @@ try:
         offset = session_info['foraging_reward']['offset']
         max_reward = session_info['foraging_reward']['max_reward']
         increment = session_info['foraging_reward']['increment']
-        reward_distribution = (3,3)
+        reward_distribution = (3, 3)
+
     elif session_info['phase'] == 'habituation':
         reward_size = session_info['reward_size']
-    else:
-        reward_size = session_info['reward_size']
 
-   first_trial_of_the_session = True
+    first_trial_of_the_session = True
 
     # # you can change various parameters if you want
     # task.machine.states['cue'].timeout = 2
