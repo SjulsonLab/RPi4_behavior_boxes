@@ -128,18 +128,18 @@ class BehavBox(object):
         ###############################################################################################
         self.lick1 = Button(26, None, True)
         self.lick2 = Button(27, None, True)
-        self.lick3 = Button(15, None, True)
+        #self.lick3 = Button(15, None, True)
         #self.reserved_rx1 = Button(13, None, True)  # for mitch
         #self.reserved_rx2 = Button(16, None, True)  # for mitch
         #
         # # link nosepoke event detections to callbacks
         self.lick1.when_pressed = self.left_exit
         self.lick2.when_pressed = self.right_exit
-        self.lick3.when_pressed = self.center_exit
+        #self.lick3.when_pressed = self.center_exit
 
         self.lick1.when_released = self.left_entry
         self.lick2.when_released = self.right_entry
-        self.lick3.when_released = self.center_entry
+        #self.lick3.when_released = self.center_entry
 
         # self.reserved_rx1.when_pressed = self.reserved_rx1_pressed
         # self.reserved_rx2.when_pressed = self.reserved_rx2_pressed
@@ -158,6 +158,8 @@ class BehavBox(object):
         """
         self.sound1 = LED(23) # branch new_lick modification
         self.sound2 = LED(24) # branch new_lick modification
+        self.sound3 = LED(15) # originally assign for lick3
+        self.sound4 = LED(9)
 
         ###############################################################################################
         # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward

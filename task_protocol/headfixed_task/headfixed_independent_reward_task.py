@@ -366,9 +366,19 @@ class HeadfixedIndependentRewardTask(object):
         elif cue == 'LED_R':
             self.box.cueLED2.on()
             logging.info(";" + str(time.time()) + ";[cue];cueLED_R_on;" + str(self.error_repeat))
+        elif cue == 'L':
+            self.box.cueLED1.on()
+            self.box.sound3.on()
+            logging.info(";" + str(time.time()) + ";[cue];cueLED_L_on;" + str(self.error_repeat))
+        elif cue == 'R':
+            self.box.cueLED2.on()
+            self.box.sound4.on()
+            logging.info(";" + str(time.time()) + ";[cue];cueLED_R_on;" + str(self.error_repeat))
         elif cue == 'all':
             self.box.cueLED1.on()
             self.box.cueLED2.on()
+            self.box.sound3.on()
+            self.box.sound4.on()
             logging.info(";" + str(time.time()) + ";[cue];LED_L+R_on; " + str(self.error_repeat))
 
     def cue_off(self, cue):
@@ -387,6 +397,20 @@ class HeadfixedIndependentRewardTask(object):
         elif cue == 'LED_R':
             self.box.cueLED2.off()
             logging.info(";" + str(time.time()) + ";[cue];cueLED2_off;" + str(self.error_repeat))
+        elif cue == 'L':
+            self.box.cueLED1.off()
+            self.box.sound3.off()
+            logging.info(";" + str(time.time()) + ";[cue];cues_L_off;" + str(self.error_repeat))
+        elif cue == 'R':
+            self.box.cueLED2.off()
+            self.box.sound4.off()
+            logging.info(";" + str(time.time()) + ";[cue];cues_R_off;" + str(self.error_repeat))
+        elif cue == 'all':
+            self.box.cueLED1.off()
+            self.box.cueLED2.off()
+            self.box.sound3.off()
+            self.box.sound4.off()
+            logging.info(";" + str(time.time()) + ";[cue];cues_L+R_off; " + str(self.error_repeat))
 
     def get_distance(self):
         try:

@@ -94,16 +94,16 @@ if solenoid_coeff:
 else:
     print("No coefficients, generate the default")
     # solenoid valve linear fit coefficient for each pump
-    session_info["calibration_coefficient"]['1'] = [720, 0]  # highest power first
-    session_info["calibration_coefficient"]['2'] = [720, 0]
-    session_info["calibration_coefficient"]['3'] = [720, 0.0]
-    session_info["calibration_coefficient"]['4'] = [720, 0.0]
+    session_info["calibration_coefficient"]['1'] = [7.20, 0]  # highest power first
+    session_info["calibration_coefficient"]['2'] = [7.20, 0]
+    session_info["calibration_coefficient"]['3'] = [7.20, 0.0]
+    session_info["calibration_coefficient"]['4'] = [7.20, 0.0]
 
 # define timeout during each condition
 session_info['initiation_timeout'] = 120  # s
 session_info['cue_timeout'] = 120
 session_info['wait_for_choice'] = 600
-session_info['reward_timeout'] = 600
+session_info['reward_timeout'] = 5
 session_info["punishment_timeout"] = 0
 
 session_info["key_reward_amount"] = 2
