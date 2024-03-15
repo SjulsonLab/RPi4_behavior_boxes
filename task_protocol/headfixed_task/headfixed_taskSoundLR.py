@@ -200,14 +200,16 @@ class HeadfixedTaskSoundLR(object):
             pass
         elif self.state == "initiate":
             self.distance_diff = self.get_distance() - self.distance_buffer
-            if self.distance_diff >= self.distance_initiation:
+            self.time_diff = time.time() - self.time_buffer
+            if self.distance_diff >= self.distance_initiation or self.time_diff >= self.initiation_time:
                 self.initiate_error = False
                 self.start_cue()
             else:
                 self.initiate_error = True
         elif self.state == "cue_state":
             self.distance_diff = self.get_distance() - self.distance_buffer
-            if self.distance_diff >= self.distance_cue:
+            self.time_diff = time.time() - self.time_buffer
+            if self.distance_diff >= self.distance_cue or self.time_diff >= self.cue_time:
                 self.cue_state_error = False
                 self.evaluate_reward()
             else:
@@ -274,7 +276,7 @@ class HeadfixedTaskSoundLR(object):
         if self.early_lick_error:
             self.error_list.append("early_lick_error")
             logging.info(";" + str(time.time()) + ";[error];early_lick_error;" + str(self.error_repeat))
-            self.check_cue('sound2')
+            #self.check_cue('sound2')
             self.early_lick_error = False
         print(str(time.time()) + ", Total reward up till current session: " + str(self.total_reward))
         logging.info(";" + str(time.time()) + ";[trial];trial_" + str(self.actual_trial_number) + ";" + str(self.error_repeat))
@@ -290,7 +292,7 @@ class HeadfixedTaskSoundLR(object):
         # print("!!!!!!!!!!!event name is " + self.event_name) # for debugging purposes
         # check error_repeat
         logging.info(";" + str(time.time()) + ";[transition];enter_initiate;" + str(self.error_repeat))
-        self.check_cue('sound1')
+        #self.check_cue('sound1')
         self.trial_running = True
         # wait for treadmill signal and process the treadmill signal
         self.distance_buffer = self.get_distance()
@@ -302,7 +304,7 @@ class HeadfixedTaskSoundLR(object):
         # check the flag to see whether to shuffle or keep the original card
         logging.info(";" + str(time.time()) + ";[transition];exit_initiate;" + str(self.error_repeat))
         print("EVENT NAME: " + str(self.box.event_list))
-        self.cue_off('sound1')
+        #self.cue_off('sound1')
         if self.initiate_error:
             self.error_list.append('initiate_error')
             self.error_repeat = True
@@ -325,7 +327,7 @@ class HeadfixedTaskSoundLR(object):
         self.cue_off(self.current_card[0])
         if not self.early_lick_error:
             if self.cue_state_error:
-                self.check_cue("sound2")
+                #self.check_cue("sound2")
                 self.error_list.append('cue_state_error')
                 self.error_repeat = True
                 logging.info(";" + str(time.time()) + ";[error];cue_state_error;" + str(self.error_repeat))
@@ -340,13 +342,13 @@ class HeadfixedTaskSoundLR(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
         if self.lick_count == 0:
             logging.info(";" + str(time.time()) + ";[error];no_choice_error;" + str(self.error_repeat))
-            self.check_cue('sound2')
+            #self.check_cue('sound2')
             self.error_repeat = True
             self.error_count += 1
             self.error_list.append('no_choice_error')
         elif self.wrong_choice_error:
             logging.info(";" + str(time.time()) + ";[error];wrong_choice_error;" + str(self.error_repeat))
-            self.check_cue('sound2')
+            #self.check_cue('sound2')
             self.error_repeat = True
             self.error_count += 1
             self.error_list.append('wrong_choice_error')
@@ -379,12 +381,14 @@ class HeadfixedTaskSoundLR(object):
 
         elif cue == 'L':
             logging.info(";" + str(time.time()) + ";[cue];cue_LED+soundL_on;" + str(self.error_repeat))
+            self.box.sound1.on()
             self.box.sound3.on()
             self.box.cueLED1.on()
 
         elif cue == 'R':
             logging.info(";" + str(time.time()) + ";[cue];cue_LED+soundR_on;" + str(self.error_repeat))
             self.box.sound4.on()
+            self.box.sound2.on()
             self.box.cueLED2.on()
 
         elif cue == 'all':
@@ -392,6 +396,8 @@ class HeadfixedTaskSoundLR(object):
             self.box.cueLED2.on()
             self.box.sound3.on()
             self.box.sound4.on()
+            self.box.sound1.on()
+            self.box.sound2.on()
             logging.info(";" + str(time.time()) + ";[cue];LED_L+R_on; " + str(self.error_repeat))
 
     def cue_off(self, cue):
@@ -400,6 +406,8 @@ class HeadfixedTaskSoundLR(object):
             self.box.cueLED2.off()
             self.box.sound3.off()
             self.box.sound4.off()
+            self.box.sound1.off()
+            self.box.sound2.off()
             logging.info(";" + str(time.time()) + ";[cue];LED_L+R_off; " + str(self.error_repeat))
 
         elif cue == 'sound1':
@@ -417,10 +425,12 @@ class HeadfixedTaskSoundLR(object):
         elif cue == 'L':
             self.box.cueLED1.off()
             self.box.sound3.off()
+            self.box.sound1.off()
             logging.info(";" + str(time.time()) + ";[cue];cueLED+soundL_off;" + str(self.error_repeat))
         elif cue == 'R':
             self.box.cueLED2.off()
             self.box.sound4.off()
+            self.box.sound2.off()
             logging.info(";" + str(time.time()) + ";[cue];cueLED+soundR_off;" + str(self.error_repeat))
 
     def get_distance(self):
