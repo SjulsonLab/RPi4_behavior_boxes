@@ -235,7 +235,7 @@ class go_nogo_phase1(object):
         self.punishment_iti_length = self.session_info["punishment_iti_length"]  # in seconds
 
         # initialize behavior box
-        self.box = behavbox_DT.BehavBox(self.session_info)
+        self.box = behavbox_DT_sideroom.BehavBox(self.session_info)
 
         # pump class is for reward delivery
         self.pump = self.box.pump
