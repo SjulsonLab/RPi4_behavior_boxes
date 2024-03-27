@@ -182,9 +182,19 @@ class BehavBox(object):
     ###############################################################################################
     def video_start(self):
         print("Starting fake video")
+        try:
+            self.flipper.flip()
+        except Exception as error_message:
+            print("flipper can't run\n")
+            print(str(error_message))
 
     def video_stop(self):
         print("Stopping fake video")
+        try:  # try to stop the flipper
+            self.flipper.close()
+        except:
+            pass
+        time.sleep(2)
 
     ###############################################################################################
     # callbacks
