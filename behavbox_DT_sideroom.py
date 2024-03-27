@@ -181,20 +181,79 @@ class BehavBox(object):
     # These work with fake video files but haven't been tested with real ones
     ###############################################################################################
     def video_start(self):
-        print("Starting fake video")
+        dir_name = self.session_info['dir_name']
+        basename = self.session_info['basename']
+        file_name = dir_name + "/" + basename
+        # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
+
+        # create directory on the external storage
+        base_dir = self.session_info['external_storage'] + '/'
+        hd_dir = base_dir + basename
+        os.mkdir(hd_dir)
+
+        # Preview check per Kelly request
+        print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
         try:
-            self.flipper.flip()
-        except Exception as error_message:
-            print("flipper can't run\n")
-            print(str(error_message))
+            print("Starting fake video")
+            # start the flipper before the recording start
+            # initiate the flipper
+            try:
+                self.flipper.flip()
+            except Exception as error_message:
+                print("flipper can't run\n")
+                print(str(error_message))
+
+            # Treadmill initiation
+            if self.treadmill is not False:
+                try:
+                    self.treadmill.start()
+                except Exception as error_message:
+                    print("treadmill cannot run\n")
+                    print(str(error_message))
+
+            # start initiating the dumping of the session information when available
+            scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
+            print("dumping session_info")
+            pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+
+        except Exception as e:
+            print(e)
 
     def video_stop(self):
-        print("Stopping fake video")
-        try:  # try to stop the flipper
-            self.flipper.close()
-        except:
-            pass
-        time.sleep(2)
+        # Get the basename from the session information
+        basename = self.session_info['basename']
+        dir_name = self.session_info['dir_name']
+
+        try:
+            # now stop the flipper after the video stopped recording
+            try:  # try to stop the flipper
+                self.flipper.close()
+            except:
+                pass
+            time.sleep(2)
+            if self.treadmill is not False:
+                try:
+                    self.treadmill.close()
+                except:
+                    pass
+
+            # Create a directory for storage on the hard drive mounted on the box behavior
+            base_dir = self.session_info['external_storage'] + '/'
+            hd_dir = base_dir + basename
+
+            scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
+            print("dumping session_info")
+            pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+
+            # Move the video + log from the box_video SD card to the box_behavior external hard drive
+            os.system(
+                "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/ "
+                + hd_dir
+            )
+            print("rsync finished!")
+
+        except Exception as e:
+            print(e)
 
     ###############################################################################################
     # callbacks
