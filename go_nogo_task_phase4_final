@@ -325,9 +325,9 @@ class go_nogo_phase4(object):
 
     def enter_temp1(self):
         logging.info(str(time.time()) + ", entering temp1")
-        # entering temp1 means reward was delivered immediately before the transition
-        # self.trial_outcome = 1  # Hit!
-        # logging.info(str(time.time()) + ", Hit!")
+        #entering temp1 means reward was delivered immediately before the transition
+        self.trial_outcome = 1  # Hit!
+        logging.info(str(time.time()) + ", Hit!")
 
     def exit_temp1(self):
         logging.info(str(time.time()) + ", exiting temp1")
