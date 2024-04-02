@@ -336,13 +336,13 @@ class go_nogo_phase4(object):
         logging.info(str(time.time()) + ", entering temp2")
         self.trial_outcome = 4  # FA!!!
         logging.info(str(time.time()) + ", FA!!!")
-        self.pump.pump2.on()
-        logging.info(str(time.time()) + ", airpuff ON!")
+        #self.pump.pump2.on()
+        #logging.info(str(time.time()) + ", airpuff ON!")
 
     def exit_temp2(self):
         logging.info(str(time.time()) + ", exiting temp2")
-        self.pump.pump2.off()
-        logging.info(str(time.time()) + ", airpuff OFF!")
+        #self.pump.pump2.off()
+        #logging.info(str(time.time()) + ", airpuff OFF!")
 
     def enter_reward_lockout(self):
         logging.info(str(time.time()) + ", entering reward_lockout")
@@ -360,7 +360,7 @@ class go_nogo_phase4(object):
 
     def enter_assessment(self):
         logging.info(str(time.time()) + ", entering assessment")
-        logging.info(str(time.time()) + ", trial outcome is" + str(self.trial_outcome))
+        logging.info(str(time.time()) + ","+ str(self.trial_outcome))
 
     def exit_assessment(self):
         logging.info(str(time.time()) + ", exiting assessment")
