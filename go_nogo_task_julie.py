@@ -309,7 +309,7 @@ class go_nogo_phase4(object):
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
         self.trial_outcome = 2  # Miss!!
-        self.box.sound3.on()
+        self.box.sound1.on()
         logging.info(str(time.time()) + ", sound_response ON!")
         self.countdown_trial(2)
 
