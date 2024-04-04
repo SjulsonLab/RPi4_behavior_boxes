@@ -302,8 +302,6 @@ class go_nogo_phase1(object):
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
-        self.box.sound1.off()
-        logging.info(str(time.time()) + ", sound_response OFF")
 
     def enter_lick_count(self):
         logging.info(str(time.time()) + ", entering lick_count")
