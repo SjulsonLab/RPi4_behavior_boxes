@@ -37,7 +37,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import the go_nogo_task task class here
-from go_nogo_task_julie_training import go_nogo_phase4
+from go_nogo_task_julie_training import go_nogo_phase1
 
 # define the plotting function here
 def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_count, miss_count,
