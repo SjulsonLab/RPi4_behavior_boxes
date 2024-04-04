@@ -307,7 +307,7 @@ class go_nogo_phase1(object):
 
     def enter_lick_count(self):
         logging.info(str(time.time()) + ", entering lick_count")
-        self.box.sound!.on()
+        self.box.sound1.on()
         logging.info(str(time.time()) + ", sound_response ON")
         self.trial_outcome = 3  # CR!
         self.countdown_trial(2)
