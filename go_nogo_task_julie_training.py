@@ -325,6 +325,8 @@ class go_nogo_phase1(object):
 
     def exit_temp1(self):
         logging.info(str(time.time()) + ", exiting temp1")
+        self.box.sound1.off()
+        logging.info(str(time.time()) + ", sound_response OFF")
 
     def enter_temp2(self):
         logging.info(str(time.time()) + ", entering temp2")
