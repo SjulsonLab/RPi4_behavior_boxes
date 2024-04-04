@@ -214,7 +214,7 @@ if __name__ == "__main__":
         session_info['mouse_name'] = animal_ID
         animal_weight = input("Enter animal weight (ex 19.5):\n")
         session_info['weight'] = animal_weight
-        training_phase = input("Enter training_phase (allgo or phase4):\n")
+        training_phase = input("Enter training_phase (allgo or phase1):\n")
         session_info['training_phase'] = training_phase
 
         session_info['date'] = datestr
@@ -242,7 +242,7 @@ if __name__ == "__main__":
         )
 
         # initiate task object
-        task = go_nogo_phase4(name="go_nogo_task_phase4_final", session_info=session_info)
+        task = go_nogo_phase1(name="go_nogo_task_phase1_final", session_info=session_info)
         trial_list = list(range(0, session_info["number_of_trials"]))
         combine_trial_outcome = ["" for o in range(session_info["number_of_trials"])]
         hit_count = [0 for o in range(session_info["number_of_trials"])]
@@ -256,16 +256,17 @@ if __name__ == "__main__":
         scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
         pickle.dump(session_info, open( session_info['file_basename'] + '_session_info.pkl', "wb" ) )
 
-        # Loops over trials for phase 2 training
+        # Loops over trials for phase 1 training
         avoid_go = 0
         avoid_nogo = 0
         go_nums = 0
         nogo_nums = 0
 
         if training_phase == "allgo":
+            # phase 0 is the first day of training (after habituation)
             while training_phase == "allgo":
-                task.bait_phase4()
-                if task.deliver_reward == "":  # start phase4 of training
+                task.bait_phase1()
+                if task.deliver_reward == "":  # start phase1 of training
 
                     for w in range(session_info['number_of_trials']):
                         trial_ident = "go_trial"
@@ -313,7 +314,7 @@ if __name__ == "__main__":
                         #     print("Hit criterion is achieved!!!")
                         #     raise SystemExit
 
-        elif training_phase == "phase4":
+        elif training_phase == "phase1":
             for i in range(session_info['number_of_trials']):
                 ident_random = (round(random.uniform(0, 1) * 100)) % 2
 
