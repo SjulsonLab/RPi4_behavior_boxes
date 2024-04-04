@@ -295,26 +295,26 @@ class go_nogo_phase1(object):
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
-        self.box.sound2.on()
+        self.box.sound1.on()
         logging.info(str(time.time()) + ", sound_response ON")
         self.trial_outcome = 2  # Miss!!
         self.countdown_trial(2)
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
-        self.box.sound2.off()
+        self.box.sound1.off()
         logging.info(str(time.time()) + ", sound_response OFF")
 
     def enter_lick_count(self):
         logging.info(str(time.time()) + ", entering lick_count")
-        self.box.sound2.on()
+        self.box.sound!.on()
         logging.info(str(time.time()) + ", sound_response ON")
         self.trial_outcome = 3  # CR!
         self.countdown_trial(2)
 
     def exit_lick_count(self):
         logging.info(str(time.time()) + ", exiting lick_count")
-        self.box.sound2.off()
+        self.box.sound1.off()
         logging.info(str(time.time()) + ", sound_response OFF")
 
     def enter_temp1(self):
