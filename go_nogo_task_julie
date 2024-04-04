@@ -1,15 +1,14 @@
 ##########################################################################################################
 ################################### GO/NO-GO TASK PHASE 4 ################################################
 # Edited November 29th 2023
-# REVERSAL LEARNING TASK!
-# Duy Tran
+# LEARNING TASK
+#  modified from Duy Tran
 # This task include go and no-go trials but with features below:
 # Punishment time included
 # Variable ITIs
 # AIRPUFF for FA trials
 # LICK-EVOKED REWARD DELIVERY
-# 200ms at the end of the trial as reward lockout period, meaning no reward will be delivered regardless of licking
-# This reward lockout period is to make sure no reward is delivered at the very end of the trial
+# lockout period is 1.5 seconds, then mice have to decide while sound is on (1.5s)
 # Use closed-loop circuit lick detection system
 ##########################################################################################################
 
@@ -320,7 +319,7 @@ class go_nogo_phase4(object):
     def enter_lick_count(self):
         logging.info(str(time.time()) + ", entering lick_count")
         self.trial_outcome = 3  # CR!
-        self.countdown_trial(2)
+        self.countdown_trial(1.5)
 
     def exit_lick_count(self):
         logging.info(str(time.time()) + ", exiting lick_count")
