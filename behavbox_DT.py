@@ -127,7 +127,7 @@ class BehavBox(object):
         """
         self.sound1 = LED(23)  # new_lick modification
         self.sound2 = LED(24)  # new_lick modification
-        self.sound3 = LED(26)  # cue for response time 
+        #self.sound3 = LED(26)  # cue for response time 
         #################################################################################################
         # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
         # ###############################################################################################
