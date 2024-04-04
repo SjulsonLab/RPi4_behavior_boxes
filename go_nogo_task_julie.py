@@ -325,7 +325,8 @@ class go_nogo_phase4(object):
 
     def exit_lick_count(self):
         logging.info(str(time.time()) + ", exiting lick_count")
-
+        self.box.sound1.off()
+        
     def enter_temp1(self):
         logging.info(str(time.time()) + ", entering temp1")
         #entering temp1 means reward was delivered immediately before the transition
@@ -349,6 +350,7 @@ class go_nogo_phase4(object):
 
     def enter_reward_lockout(self):
         logging.info(str(time.time()) + ", entering reward_lockout")
+        self.box.sound1.off()
         self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1)
         logging.info(str(time.time()) + ", vacuum initiated!")
 
