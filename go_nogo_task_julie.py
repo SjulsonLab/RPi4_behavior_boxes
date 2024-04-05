@@ -310,8 +310,10 @@ class go_nogo_phase4(object):
         logging.info(str(time.time()) + ", entering reward_available")
         self.trial_outcome = 2  # Miss!!
         self.box.sound1.on()
-        logging.info(str(time.time()) + ", sound_response ON!")
-        self.countdown_trial(1.8)
+        logging.info(str(time.time()) + ", sound_response")
+        time.sleep(0.3)
+        self.box.sound1.off()
+        self.countdown_trial(1.5)
 
     def exit_reward_available(self):
         logging.info(str(time.time()) + ", exiting reward_available")
@@ -320,12 +322,13 @@ class go_nogo_phase4(object):
         logging.info(str(time.time()) + ", entering lick_count")
         self.trial_outcome = 3  # CR!
         self.box.sound1.on()
-        logging.info(str(time.time()) + ", sound_response ON!")
-        self.countdown_trial(2)
+        logging.info(str(time.time()) + ", sound_response")
+        time.sleep(0.3)
+        self.box.sound1.off()
+        self.countdown_trial(1.7)
 
     def exit_lick_count(self):
         logging.info(str(time.time()) + ", exiting lick_count")
-        self.box.sound1.off()
         
     def enter_temp1(self):
         logging.info(str(time.time()) + ", entering temp1")
@@ -350,7 +353,6 @@ class go_nogo_phase4(object):
 
     def enter_reward_lockout(self):
         logging.info(str(time.time()) + ", entering reward_lockout")
-        self.box.sound1.off()
         self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1)
         logging.info(str(time.time()) + ", vacuum initiated!")
 
