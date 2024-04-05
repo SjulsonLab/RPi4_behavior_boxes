@@ -375,7 +375,7 @@ class go_nogo_phase1(object):
         # If y, deliver reward, if hit enter, start random reward phase
         self.deliver_reward = input("Deliver reward, else start allgo? (y or hit enter): \n")
         if self.deliver_reward == "y":
-            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
+            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 3)
 
     ########################################################################
     # countdown methods to run when vstim starts to play, used as timers since vstim starts
