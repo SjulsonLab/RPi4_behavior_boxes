@@ -274,6 +274,11 @@ class go_nogo_phase1(object):
         self.box.visualstim_go.show_grating(list(self.box.visualstim_go.gratings)[0])
         logging.info(str(time.time()) + ", vstim_go ON!")
         self.time_at_vstim_ON = time.time() - self.trial_start_time
+        time.sleep(1)
+        self.box.sound1.on()
+        logging.info(str(time.time()) + ", sound_response")
+        time.sleep(0.5)
+        self.box.sound1.off()
     
     def exit_vstim_go(self):
         logging.info(str(time.time()) + ", exiting lockout period")
@@ -285,16 +290,17 @@ class go_nogo_phase1(object):
         self.box.visualstim_nogo.show_grating(list(self.box.visualstim_nogo.gratings)[0])
         logging.info(str(time.time()) + ", vstim_nogo ON!")
         self.time_at_vstim_ON = time.time() - self.trial_start_time
-
+        time.sleep(1)
+        self.box.sound1.on()
+        logging.info(str(time.time()) + ", sound_response")
+        time.sleep(0.5)
+        self.box.sound1.off()
+        
     def exit_vstim_nogo(self):
         logging.info(str(time.time()) + ", exiting lockout period")
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
-        self.box.sound1.on()
-        logging.info(str(time.time()) + ", sound_response")
-        time.sleep(0.3)
-        self.box.sound1.off()
         self.trial_outcome = 2  # Miss!!
         self.countdown_trial(1.7)
 
@@ -303,10 +309,6 @@ class go_nogo_phase1(object):
 
     def enter_lick_count(self):
         logging.info(str(time.time()) + ", entering lick_count")
-        self.box.sound1.on()
-        logging.info(str(time.time()) + ", sound_response")
-        time.sleep(0.3)
-        self.box.sound1.off()
         self.trial_outcome = 3  # CR!
         self.countdown_trial(1.7)
 
