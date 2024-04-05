@@ -434,7 +434,7 @@ class go_nogo_phase1(object):
             # deliver reward from left pump if there is a lick detected on the left IR port
             # if lick is detected, delivery reward then transition to temp1 immediately
             # otherwise transition to vacuum after 1s
-            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
+            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 3)
             logging.info(str(time.time()) + ", reward delivered!")
             self.time_at_reward = time.time() - self.trial_start_time
             self.start_temp1()  # trigger state transition to temp1
