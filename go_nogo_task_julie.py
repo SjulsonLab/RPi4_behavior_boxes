@@ -327,7 +327,7 @@ class go_nogo_phase4(object):
     def enter_lick_count(self):
         logging.info(str(time.time()) + ", entering lick_count")
         self.trial_outcome = 3  # CR!
-        self.countdown_trial(1.7)
+        self.countdown_trial(1.4)
 
     def exit_lick_count(self):
         logging.info(str(time.time()) + ", exiting lick_count")
@@ -546,7 +546,11 @@ class go_nogo_phase4(object):
             pass
 
         elif self.state == "punishment_iti":
-            pass
+            if event_name == "left_entry":
+                self.pump.pump2.on()
+                logging.info(str(time.time()) + ", AIRPUFF")
+                time.sleep(0.1)
+                self.pump.pump2.off()
 
         elif self.state == "extra_iti":
             if event_name == "extra_iti countdown ends":
