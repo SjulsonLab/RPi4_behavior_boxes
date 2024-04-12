@@ -519,6 +519,11 @@ class go_nogo_phase4(object):
                 self.start_vacuum_lick_count()  # trigger transition to vacuum state
 
         elif self.state == "temp2":
+            if event_name == "left_entry":
+                self.pump.pump2.on()
+                logging.info(str(time.time()) + ", AIRPUFF")
+                time.sleep(0.1)
+                self.pump.pump2.off()
             if event_name == "trial countdown ends":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
                 self.start_vacuum_temp2()
