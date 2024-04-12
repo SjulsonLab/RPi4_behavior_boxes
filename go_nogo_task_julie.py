@@ -522,7 +522,7 @@ class go_nogo_phase4(object):
             if event_name == "left_entry":
                 self.pump.pump2.on()
                 logging.info(str(time.time()) + ", AIRPUFF")
-                time.sleep(0.1)
+                time.sleep(0.3)
                 self.pump.pump2.off()
             if event_name == "trial countdown ends":
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time
@@ -549,7 +549,7 @@ class go_nogo_phase4(object):
             if event_name == "left_entry":
                 self.pump.pump2.on()
                 logging.info(str(time.time()) + ", AIRPUFF")
-                time.sleep(0.1)
+                time.sleep(0.3)
                 self.pump.pump2.off()
 
         elif self.state == "extra_iti":
