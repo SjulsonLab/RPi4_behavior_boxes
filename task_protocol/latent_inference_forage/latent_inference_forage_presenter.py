@@ -12,9 +12,8 @@ import logging
 from essential.base_classes import Presenter, Model, GUI, Box, PumpBase
 
 
-SEED = 0
-random.seed(SEED)
-
+# SEED = 0
+# random.seed(SEED)
 
 PUMP1_IX = 0
 PUMP2_IX = 1

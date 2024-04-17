@@ -139,28 +139,30 @@ class LatentInferenceForageModel(Model):  # subclass from base task
                 self.activate_ITI()
             return time_since_start
 
-        choice = self.determine_choice()
-        if choice == 'right':
+        choice_side = self.determine_choice()
+        if choice_side == 'right':
             self.activate_ITI()
             if self.state == 'right_patch':
-                self.log_correct_choice(RIGHT_IX, time_since_start)
+                # logging.info(";" + str(time.time()) + ";[transition];correct_choice_right_patch;" + str())
+                self.log_correct_choice(RIGHT_IX, time_since_start, choice_side)
                 self.give_correct_reward()
             else:
-                self.log_incorrect_choice(RIGHT_IX, time_since_start)
+                # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str())
+                self.log_incorrect_choice(RIGHT_IX, time_since_start, choice_side)
                 self.give_incorrect_reward()
-                logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str())
 
-        elif choice == 'left':
+        elif choice_side == 'left':
             self.activate_ITI()
             if self.state == 'left_patch':
-                self.log_correct_choice(LEFT_IX, time_since_start)
+                # logging.info(";" + str(time.time()) + ";[transition];correct_choice_left_patch;" + str())
+                self.log_correct_choice(LEFT_IX, time_since_start, choice_side)
                 self.give_correct_reward()
             else:
-                self.log_incorrect_choice(LEFT_IX, time_since_start)
+                # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_left_patch;" + str(""))
+                self.log_incorrect_choice(LEFT_IX, time_since_start, choice_side)
                 self.give_incorrect_reward()
-                logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str(""))
 
-        elif choice == 'switch':
+        elif choice_side == 'switch':
             self.activate_ITI()
 
         elif (self.error_count >= self.errors_to_reward and self.automate_training_rewards)\
@@ -168,12 +170,12 @@ class LatentInferenceForageModel(Model):  # subclass from base task
             self.activate_ITI()
             self.presenter_commands.append('give_training_reward')
             if self.state == 'right_patch':
-                choice_side = RIGHT_IX
+                choice_ix = RIGHT_IX
             elif self.state == 'left_patch':
-                choice_side = LEFT_IX
+                choice_ix = LEFT_IX
             else:
                 raise RuntimeError('state not recognized')
-            self.log_training_reward(choice_side, time_since_start)
+            self.log_training_reward(choice_ix, time_since_start)
 
         self.give_training_reward = False
         return time_since_start

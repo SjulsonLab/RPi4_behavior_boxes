@@ -13,14 +13,23 @@ class LED:
         self.blink_thread = None
         self.blinking = False
 
-    def blink_loop(self, on_time: float, off_time: float, n: int):
+    def blink_loop(self, on_time: float, off_time: float, n: int = None):
+        """
+        A while loop that blinks the LED on and off. If n is not None, it will blink n times.
+        If n is None, it will blink indefinitely until a separate thread turns it off.
+        """
         self.blinking = True
-        for i in range(n):
+        while self.blinking:
             self.is_on = True
             time.sleep(on_time)
             self.is_on = False
             time.sleep(off_time)
-        self.blinking = False
+
+            if n is not None:
+                n -= 1
+
+            if n == 0:
+                self.blinking = False
 
     def blink(self, on_time: float, off_time: float, n: int):
         if self.blinking:
@@ -36,6 +45,7 @@ class LED:
 
     def off(self):
         self.is_on = False
+        self.blinking = False
 
 
 class BehavBox(Box):

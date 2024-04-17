@@ -120,8 +120,8 @@ class BehavBox(Box):
         self.sound2 = LED(27)  # originally lick2
         self.sound3 = LED(15)  # originally lick3
         """
-        self.sound1 = LED(23) # branch new_lick modification
-        self.sound2 = LED(24) # branch new_lick modification
+        self.sound1 = LED(23)  # branch new_lick modification
+        self.sound2 = LED(24)  # branch new_lick modification
 
         ###############################################################################################
         # flipper strobe signal (previously called camera strobe signal)
