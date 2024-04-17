@@ -7,6 +7,7 @@ from typing import List, Tuple, Union, Dict, Any
 import pandas as pd
 import numpy as np
 from icecream import ic
+from pathlib import Path
 
 
 ### PARAMETERS - Rig and defaults ###
@@ -20,7 +21,7 @@ def make_session_info() -> Dict[str, Any]:
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					= datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
-    session_info['task_config']				    = 'latent_inference_forage'   # ['alternating_latent', 'latent_inference_forage', 'flush']
+    session_info['task_config']				    = 'latent_inference_with_stimuli'   # 'alternating_latent', 'latent_inference_forage', 'flush', 'latent_inference_with_stimuli'
 
     # behavior parameters - ideally set these to a default for each session type, which is adjustable
     session_info['max_trial_number']            = 100
@@ -67,10 +68,14 @@ def make_session_info() -> Dict[str, Any]:
     # Parameters - box and rig
     session_info['box_name']             		= socket.gethostname()
 
+    # Parameters - visual stimuli
+    gratings_dir = '/home/pi/gratings'  # './dummy_vis'
     session_info["visual_stimulus"]             = False
     session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
     session_info['vis_gratings']				= ['/home/pi/gratings/context_a.dat',
-                                                   '/home/pi/gratings/context_b.dat']
+                                                   '/home/pi/gratings/context_b.dat',]
+    session_info['vis_gratings'] = ['/home/pi/gratings/context_a.dat',
+                                    '/home/pi/gratings/context_b.dat', ]
     session_info['vis_raws']					= []
 
     session_info['treadmill_setup']             = {}
@@ -104,6 +109,18 @@ def make_session_info() -> Dict[str, Any]:
         session_info["calibration_coefficient"]['2'] = [7, 0]
         session_info["calibration_coefficient"]['3'] = [7, 0]
         session_info["calibration_coefficient"]['4'] = [7, 0]
+
+    if session_info['task_config'] == 'latent_inference_with_stimuli':
+        session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
+        # session_info['stimulus_duration'] = 15
+        session_info['p_stimulus'] = 0.25
+        # gratings = dict(a_grating=gratings_dir + '/context_a.dat', b_grating=gratings_dir + '/context_b.dat')
+
+        times = [15, 20, 25, 30, 35]
+        gratings = {}
+        for t in times:
+            gratings['a_{}.grating'.format(t)] = Path(gratings_dir) / 'context_a/a_{}.grating'.format(t)
+            gratings['b_{}.grating'.format(t)] = Path(gratings_dir) / 'context_b/b_{}.grating'.format(t)
 
     return session_info
 

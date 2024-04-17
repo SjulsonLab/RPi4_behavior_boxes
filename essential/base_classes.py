@@ -98,20 +98,22 @@ class Model(ABC):
             choice = ''  # no choice made/not enough licks
         return choice
 
-    def log_correct_choice(self, choice: int, event_time: float) -> None:
+    def log_correct_choice(self, choice: int, event_time: float, choice_side: str) -> None:
+        logging.info(";" + str(time.time()) + ";[transition];correct_choice_{}_patch;".format(choice_side) + str())
         self.trial_choice_list.append(choice)
         self.trial_choice_times.append(event_time)
         self.trial_correct_list.append(True)
         self.error_count = 0
 
-    def log_incorrect_choice(self, choice: int, event_time: float) -> None:
+    def log_incorrect_choice(self, choice: int, event_time: float, choice_side: str) -> None:
+        logging.info(";" + str(time.time()) + ";[transition];wrong_choice_{}_patch;".format(choice_side) + str())
         self.trial_choice_list.append(choice)
         self.trial_choice_times.append(event_time)
         self.trial_correct_list.append(False)
         self.error_count += 1
 
-    def log_training_reward(self, choice: int, event_time: float) -> None:
-        self.trial_choice_list.append(choice)
+    def log_training_reward(self, choice_ix: int, event_time: float) -> None:
+        self.trial_choice_list.append(choice_ix)
         self.trial_choice_times.append(event_time)
         self.trial_correct_list.append(False)
         self.error_count = 0

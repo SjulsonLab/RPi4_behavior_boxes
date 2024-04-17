@@ -271,6 +271,7 @@ class A_B_C1_C2_task(object):
                             self.LED_bool = False
             if (time.time() - self.ContextA_time) >= self.current_state_time:
                 self.switch_to_intercontext_interval()
+
         elif self.state == 'ContextB':
             self.trial_running = False
             self.ContextB_time = time.time()  # assign the context switch time to this variable
@@ -306,6 +307,7 @@ class A_B_C1_C2_task(object):
                             self.LED_bool = False
             if (time.time() - self.ContextB_time) >= self.current_state_time:
                 self.switch_to_intercontext_interval()
+
         elif self.state == 'ContextC1':
             self.trial_running = False
             self.ContextC1_time = time.time()
@@ -342,6 +344,7 @@ class A_B_C1_C2_task(object):
                             self.LED_bool = False
             if (time.time() - self.ContextC1_time) >= self.current_state_time:
                 self.switch_to_intercontext_interval()
+
         elif self.state == 'ContextC2':
             self.trial_running = False
             self.ContextC2_time = time.time()  # assign the context switch time to this variable
@@ -461,7 +464,7 @@ class A_B_C1_C2_task(object):
         elif self.full_task_names_and_times[self.trial_counter][1] == 35:
             self.box.visualstim.show_grating(list(self.box.visualstim.gratings)[9],0)
         self.trial_running = True
-
+    
     def exit_ContextB(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_ContextB")
         self.box.sound1.off()
