@@ -15,26 +15,30 @@ def repeat_stimulus(stimulus_path: str, t_stimulus: int):
     with rpg.Screen() as myscreen:
         grating = myscreen.load_grating(stimulus_path)
         for _ in range(t_stimulus):
-            ic("Stimulus on")
             tstart = time.perf_counter()
+            ic("Stimulus on")
             myscreen.display_grating(grating)
             tgrating = time.perf_counter()
             time.sleep(.5)
             ic("Stimulus off")
             tsleep = time.perf_counter()
-            ic(tsleep - tgrating, "sec elapsed at grating command")
-            ic(tsleep - tstart, "sec elapsed at grating sleep command")
+
+            ic(tgrating - tstart, "sec elapsed after grating command")
+            ic(tsleep - tgrating, "sec elapsed over .5s sleep command")
+            ic(tsleep - tstart, "sec elapsed over grating")
 
             ic("Gray screen on")
             myscreen.display_greyscale(0)
             tgrey = time.perf_counter()
-            ic(tgrey - tstart, "sec elapsed at grayscreen command")
             time.sleep(1)
             ic("Gray screen off")
             tend = time.perf_counter()
-            ic(tend - tstart, "sec elapsed for cycle")
-            ic(tend - tsleep, "sec elapsed since gratings off")
+
+            ic(tgrey - tstart, "sec elapsed after grayscreen command")
+            ic(tgrey - tsleep, "sec elapsed after gratings sleep command")
+            ic(tend - tsleep, "sec elapsed since sleep command")
             ic(tend - tgrey, "sec elapsed since grayscreen command")
+            ic(tend - tstart, "sec elapsed for cycle")
 
 
 def repeat_grayscreen(t_stimulus: int):
