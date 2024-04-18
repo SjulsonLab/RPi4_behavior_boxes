@@ -34,6 +34,6 @@ t = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
 t.start()
 t.join()
 
-threading.Thread(target=repeat_grayscreen, args=(t_stimulus)).start()
+threading.Thread(target=repeat_grayscreen, args=(t_stimulus,)).start()
 # threading.Thread(target=ion_test).start()
 
