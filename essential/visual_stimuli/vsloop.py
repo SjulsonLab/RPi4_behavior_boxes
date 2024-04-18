@@ -10,33 +10,30 @@ import numpy as np
 
 gratings_dir = Path('/home/pi/gratings')  # './dummy_vis'
 
-def repeat_stimulus(t_stimulus: int):
+def repeat_stimulus(stimulus_path: str, t_stimulus: int):
     with rpg.Screen() as myscreen:
-        grating = myscreen.load_grating(gratings_dir / "test2_grating.dat")
+        grating = myscreen.load_grating(stimulus_path)
         for _ in range(t_stimulus):
             myscreen.display_grating(grating)
-            time.sleep(1)
+            time.sleep(.5)
+            myscreen.display_greyscale(0)
+            time.sleep(.5)
 
-        #
-        # plt.plot(np.random.rand(10), np.random.rand(10), 'ro')
-        # plt.axis('scaled')
-        # # plt.draw()
-        # # plt.pause(.01)
-        # print('red light')
-        # time.sleep(.5)
-        # # f.canvas.flush_events()
-        #
-        # # plt.plot(np.random.rand(10), np.random.rand(10), 'go')
-        # # plt.axis('scaled')
-        # # plt.draw()
-        # print('green light')
-        # time.sleep(.5)
-        # # f.canvas.flush_events()
-        # # plt.pause(.01)
+def repeat_grayscreen(t_stimulus: int):
+    with rpg.Screen() as myscreen:
+        for _ in range(t_stimulus):
+            myscreen.display_greyscale(40)
+            time.sleep(.5)
+            myscreen.display_greyscale(0)
+            time.sleep(.5)
 
 
 t_stimulus = 5
-t = threading.Thread(target=repeat_stimulus, args=(t_stimulus,))
+grating = gratings_dir / "vertical_grating_pulse.dat"
+t = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
 t.start()
+t.join()
+
+threading.Thread(target=repeat_grayscreen, args=(t_stimulus)).start()
 # threading.Thread(target=ion_test).start()
 
