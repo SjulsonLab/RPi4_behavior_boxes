@@ -15,21 +15,21 @@ def repeat_stimulus(stimulus_path: str, t_stimulus: int):
         grating = myscreen.load_grating(stimulus_path)
         for _ in range(t_stimulus):
             myscreen.display_grating(grating)
-            time.sleep(.5)
+            time.sleep(1)
             myscreen.display_greyscale(0)
-            time.sleep(.5)
+            time.sleep(1)
 
 def repeat_grayscreen(t_stimulus: int):
     with rpg.Screen() as myscreen:
         for _ in range(t_stimulus):
             myscreen.display_greyscale(40)
-            time.sleep(.5)
+            time.sleep(1)
             myscreen.display_greyscale(0)
-            time.sleep(.5)
+            time.sleep(1)
 
 
 t_stimulus = 5
-grating = gratings_dir / "vertical_grating_pulse.dat"
+grating = gratings_dir / "vertical_grating_1s.dat"
 t = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
 t.start()
 t.join()
