@@ -49,7 +49,7 @@ def repeat_grayscreen(t_stimulus: int):
 
 
 t_stimulus = 5
-grating = gratings_dir / "vertical_grating_.5s.dat"
+grating = gratings_dir / "vertical_grating_0.5s.dat"
 t = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
 t.start()
 t.join()
