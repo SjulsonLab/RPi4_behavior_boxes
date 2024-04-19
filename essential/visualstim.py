@@ -32,7 +32,7 @@ class VisualStim(object):
     def display_default_greyscale(self):
         self.myscreen.display_greyscale(self.session_info["gray_level"])
 
-    def end_process(self):
+    def end_gratings_process(self):
         self.gratings_on = False
         if self.active_process is not None:
             self.active_process.join()
@@ -87,17 +87,18 @@ class VisualStim(object):
         self.gratings_on = True
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
         tstart = time.perf_counter()
-        while self.gratings_on:
+        while self.gratings_on and time.perf_counter() - tstart < stimulus_duration:
             logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
             self.myscreen.display_grating(self.gratings[grating_name])
 
             logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
             self.display_default_greyscale()
-            if time.perf_counter() - tstart > stimulus_duration:
-                self.gratings_on = False
+            if time.perf_counter() - tstart >= stimulus_duration:
+                break
             else:
                 time.sleep(self.session_info["interstimulus_interval"])
 
+        self.gratings_on = False
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
     # this is the function that is launched by show_grating to run in a different process
