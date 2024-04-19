@@ -48,13 +48,32 @@ class LED:
         self.blinking = False
 
 
+class VisualStim:
+
+    def __init__(self, session_info):
+        self.session_info = session_info
+
+    def loop_grating(self, grating_name: str, duration: float):
+        """
+        Ideally update this so matplotlib shows either a static grating or a grayscreen matching the
+        physical stimulus.
+        """
+        pass
+
+    def end_gratings_process(self):
+        pass
+
+    def display_default_greyscale(self):
+        pass
+
+
 class BehavBox(Box):
 
     cueLED1 = LED()
     cueLED2 = LED()
 
     def __init__(self, session_info):
-        pass
+        self.visualstim = VisualStim(session_info)
 
     def set_callbacks(self, presenter):
         pass
