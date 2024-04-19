@@ -111,8 +111,9 @@ def make_session_info() -> Dict[str, Any]:
 
     if session_info['task_config'] == 'latent_inference_with_stimuli':
         session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
-        session_info['stimulus_duration'] = .5
-        session_info['interstimulus_interval'] = .5
+        session_info['grating_duration'] = .5
+        session_info['inter_grating_interval'] = .5
+        session_info['stimulus_duration'] = 5
         session_info['p_stimulus'] = 1
 
         # times = [15, 20, 25, 30, 35]

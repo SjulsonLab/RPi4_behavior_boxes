@@ -95,7 +95,7 @@ class VisualStim(object):
             if time.perf_counter() - tstart >= stimulus_duration:
                 break
             else:
-                time.sleep(self.session_info["interstimulus_interval"])
+                time.sleep(self.session_info["inter_grating_interval"])
 
         self.gratings_on = False
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
