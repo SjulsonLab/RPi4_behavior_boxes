@@ -12,6 +12,7 @@ from icecream import ic
 import sys
 sys.path.append('/home/pi/RPi4_behavior_boxes')
 from essential.visualstim import VisualStim
+from session_info import make_session_info
 
 
 gratings_dir = Path('/home/pi/gratings')  # './dummy_vis'
@@ -68,7 +69,8 @@ grating = gratings_dir / "vertical_grating_0.5s.dat"
 # t = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
 # t.start()
 # t.join()
-visualstim = VisualStim()
+session_info = make_session_info()
+visualstim = VisualStim(session_info)
 visualstim.list_gratings()
 
 # threading.Thread(target=repeat_grayscreen, args=(t_stimulus,)).start()
