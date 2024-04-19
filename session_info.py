@@ -29,9 +29,8 @@ def make_session_info() -> Dict[str, Any]:
     session_info['reward_size']					= 10  # in microliters
     session_info["lick_threshold"]              = 2
     session_info['reward_time_delay']           = 20
-    session_info['intertrial_interval']         = .5  # in seconds
+    session_info['intertrial_interval']         = 3  # in seconds
     session_info['quiet_ITI']          = True
-
     session_info['initiation_timeout'] = 120  # s
 
     session_info['entry_interval'] = 1  # this is the one that delays between choices - ITI? or intertrial_interval? or entry_interval?
@@ -112,15 +111,19 @@ def make_session_info() -> Dict[str, Any]:
 
     if session_info['task_config'] == 'latent_inference_with_stimuli':
         session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
-        # session_info['stimulus_duration'] = 15
+        session_info['stimulus_duration'] = .5
+        session_info['interstimulus_interval'] = .5
         session_info['p_stimulus'] = 0.25
-        # gratings = dict(a_grating=gratings_dir + '/context_a.dat', b_grating=gratings_dir + '/context_b.dat')
 
-        times = [15, 20, 25, 30, 35]
+        # times = [15, 20, 25, 30, 35]
+        times = [.5, 1, 2]
         gratings = {}
         for t in times:
-            gratings['a_{}.grating'.format(t)] = Path(gratings_dir) / 'context_a/a_{}.grating'.format(t)
-            gratings['b_{}.grating'.format(t)] = Path(gratings_dir) / 'context_b/b_{}.grating'.format(t)
+            gratings['vertical_{}.grating'.format(t)] = Path(gratings_dir) / 'vertical_grating_{}s.dat'.format(t)
+            gratings['horizontal_{}.grating'.format(t)] = Path(gratings_dir) / 'horizontal_grating_{}s.dat'.format(t)
+
+            # gratings['a_{}.grating'.format(t)] = Path(gratings_dir) / 'vertical_grating_{}s.dat'.format(session_info['stimulus_duration'])
+            # gratings['b_{}.grating'.format(t)] = Path(gratings_dir) / 'horizontal_grating_{}s.dat'.format(session_info['stimulus_duration'])
 
     return session_info
 

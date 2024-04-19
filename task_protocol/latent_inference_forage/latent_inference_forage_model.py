@@ -59,7 +59,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         self.ITI = session_info['intertrial_interval']
         self.lick_threshold = session_info['lick_threshold']
         self.machine = self.make_state_machine()
-        self.last_state_fxn = self.switch_to_standby
+        # self.last_state_fxn = self.switch_to_standby
         self.block_type_counter = np.zeros(2)
 
         self.trial_choice_list: list = []
@@ -199,7 +199,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
 
     def enter_right_patch(self):
         self.trial_running = True
-        self.last_state_fxn = self.switch_to_right_patch
+        # self.last_state_fxn = self.switch_to_right_patch
         logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(""))
 
     def exit_right_patch(self):
@@ -207,7 +207,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
 
     def enter_left_patch(self):
         self.trial_running = True
-        self.last_state_fxn = self.switch_to_left_patch
+        # self.last_state_fxn = self.switch_to_left_patch
         logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(""))
 
     def exit_left_patch(self):

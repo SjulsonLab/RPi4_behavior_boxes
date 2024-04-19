@@ -26,8 +26,19 @@ class VisualStim(object):
         logging.info(";" + str(time.time()) + ";[initialization];screen_opened")
         self.load_session_gratings()
 
+        self.gratings_on = False
+        self.active_process = None
+
+    def display_default_greyscale(self):
+        self.myscreen.display_greyscale(self.session_info["gray_level"])
+
+    def end_process(self):
+        self.gratings_on = False
+        if self.active_process is not None:
+            self.active_process.join()
+
     def load_grating_file(
-        self, grating_file
+        self, grating_file: str
     ):  # best if grating_file is an absolute path
         fname = os.path.split(grating_file)
         logging.info(";" + str(time.time()) + ";[initialization];loading grating file")
@@ -62,9 +73,32 @@ class VisualStim(object):
     # to run on a separate core
     def show_grating(self, grating_name):
         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
-        x = Process(target=self.process_function, args=(grating_name,))
+        self.active_process = Process(target=self.process_function, args=(grating_name,))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
-        x.start()
+        self.active_process.start()
+
+    def loop_grating(self, grating_name: str, stimulus_duration: float):
+        logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
+        self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
+        logging.info(";" + str(time.time()) + ";[configuration];starting process")
+        self.active_process.start()
+
+    def loop_grating_process(self, grating_name: str, stimulus_duration: float):
+        self.gratings_on = True
+        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
+        tstart = time.perf_counter()
+        while self.gratings_on:
+            logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
+            self.myscreen.display_grating(self.gratings[grating_name])
+
+            logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
+            self.display_default_greyscale()
+            if time.perf_counter() - tstart > stimulus_duration:
+                self.gratings_on = False
+            else:
+                time.sleep(self.session_info["interstimulus_interval"])
+
+        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
     # this is the function that is launched by show_grating to run in a different process
     def process_function(self, grating_name):

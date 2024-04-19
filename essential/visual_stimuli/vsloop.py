@@ -7,6 +7,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from icecream import ic
+from ..visualstim import VisualStim
 
 
 gratings_dir = Path('/home/pi/gratings')  # './dummy_vis'
@@ -19,7 +20,7 @@ def repeat_stimulus(stimulus_path: str, t_stimulus: int):
             ic("Stimulus on")
             myscreen.display_grating(grating)
             tgrating = time.perf_counter()
-            time.sleep(.5)
+            # time.sleep(.5)
             ic("Stimulus off")
             tsleep = time.perf_counter()
 
@@ -41,6 +42,12 @@ def repeat_stimulus(stimulus_path: str, t_stimulus: int):
             ic(tend - tstart, "sec elapsed for cycle")
 
 
+def repeat_stimulus_process(stimulus_path: str, t_stimulus: float):
+    visualstim = VisualStim()
+    grating = visualstim.myscreen.load_grating(stimulus_path)
+    visualstim.loop_grating_process(grating, t_stimulus)
+
+
 def repeat_grayscreen(t_stimulus: int):
     with rpg.Screen() as myscreen:
         for _ in range(t_stimulus):
@@ -54,10 +61,13 @@ def repeat_grayscreen(t_stimulus: int):
 
 t_stimulus = 5
 grating = gratings_dir / "vertical_grating_0.5s.dat"
-t = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
-t.start()
-t.join()
+# t = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
+# t.start()
+# t.join()
+visualstim = VisualStim()
+visualstim.list_gratings()
 
-threading.Thread(target=repeat_grayscreen, args=(t_stimulus,)).start()
+# threading.Thread(target=repeat_grayscreen, args=(t_stimulus,)).start()
 # threading.Thread(target=ion_test).start()
+repeat_stimulus_process(grating, t_stimulus)
 
