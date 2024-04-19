@@ -47,8 +47,7 @@ def repeat_stimulus(stimulus_path: str, t_stimulus: int):
             ic(tend - tstart, "sec elapsed for cycle")
 
 
-def repeat_stimulus_process(stimulus_path: str, t_stimulus: float):
-    visualstim = VisualStim()
+def repeat_stimulus_process(visualstim: VisualStim, stimulus_path: str, t_stimulus: float):
     grating = visualstim.myscreen.load_grating(stimulus_path)
     visualstim.loop_grating_process(grating, t_stimulus)
 
@@ -75,5 +74,5 @@ visualstim.list_gratings()
 
 # threading.Thread(target=repeat_grayscreen, args=(t_stimulus,)).start()
 # threading.Thread(target=ion_test).start()
-repeat_stimulus_process(grating, t_stimulus)
+repeat_stimulus_process(visualstim, grating, t_stimulus)
 
