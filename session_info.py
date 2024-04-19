@@ -40,7 +40,7 @@ def make_session_info() -> Dict[str, Any]:
 
     session_info['correct_reward_probability'] = 1
     session_info['incorrect_reward_probability'] = 0
-    session_info['switch_probability'] = .1
+    session_info['switch_probability'] = .3
 
     session_info["ContextA_time"] = 30  # todo - revise this or make adjustable by mouse performance
     session_info["ContextB_time"] = 30
@@ -113,7 +113,7 @@ def make_session_info() -> Dict[str, Any]:
         session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
         session_info['stimulus_duration'] = .5
         session_info['interstimulus_interval'] = .5
-        session_info['p_stimulus'] = 0.50
+        session_info['p_stimulus'] = 1
 
         # times = [15, 20, 25, 30, 35]
         times = [.5, 1, 2]
