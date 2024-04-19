@@ -29,7 +29,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['reward_size']					= 10  # in microliters
     session_info["lick_threshold"]              = 2
     session_info['reward_time_delay']           = 20
-    session_info['intertrial_interval']         = 3  # in seconds
+    session_info['intertrial_interval']         = 2  # in seconds
     session_info['quiet_ITI']          = True
     session_info['initiation_timeout'] = 120  # s
 
