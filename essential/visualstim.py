@@ -18,6 +18,7 @@ from multiprocessing import Process
 
 
 class VisualStim(object):
+
     def __init__(self, session_info):
         self.session_info = session_info
         self.gratings = OrderedDict()
@@ -37,9 +38,7 @@ class VisualStim(object):
         if self.active_process is not None:
             self.active_process.join()
 
-    def load_grating_file(
-        self, grating_file: str
-    ):  # best if grating_file is an absolute path
+    def load_grating_file(self, grating_file: str):  # best if grating_file is an absolute path
         fname = os.path.split(grating_file)
         logging.info(";" + str(time.time()) + ";[initialization];loading grating file")
         self.gratings.update({fname[1]: self.myscreen.load_grating(grating_file)})

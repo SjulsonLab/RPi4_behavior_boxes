@@ -71,10 +71,10 @@ def make_session_info() -> Dict[str, Any]:
     gratings_dir = '/home/pi/gratings'  # './dummy_vis'
     session_info["visual_stimulus"]             = False
     session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
-    session_info['vis_gratings']				= ['/home/pi/gratings/context_a.dat',
-                                                   '/home/pi/gratings/context_b.dat',]
-    session_info['vis_gratings'] = ['/home/pi/gratings/context_a.dat',
-                                    '/home/pi/gratings/context_b.dat', ]
+    # session_info['vis_gratings']				= ['/home/pi/gratings/context_a.dat',
+    #                                                '/home/pi/gratings/context_b.dat',]
+    session_info['vis_gratings'] = ['/home/pi/gratings/vertical_grating_0.5s.dat',
+                                    '/home/pi/gratings/horizontal_grating_0.5s.dat', ]
     session_info['vis_raws']					= []
 
     session_info['treadmill_setup']             = {}

@@ -15,8 +15,6 @@ from essential.visualstim import VisualStim
 from session_info import make_session_info
 
 
-gratings_dir = Path('/home/pi/gratings')  # './dummy_vis'
-
 def repeat_stimulus(stimulus_path: str, t_stimulus: int):
     with rpg.Screen() as myscreen:
         grating = myscreen.load_grating(stimulus_path)
@@ -48,15 +46,16 @@ def repeat_stimulus(stimulus_path: str, t_stimulus: int):
 
 
 def repeat_stimulus_process(visualstim: VisualStim, stimulus_path: str, t_stimulus: float):
-    grating = visualstim.myscreen.load_grating(stimulus_path)
-    visualstim.loop_grating_process(grating, t_stimulus)
+    # grating = visualstim.myscreen.load_grating(stimulus_path)
+    grating_name = "vertical_grating_0.5s.dat"
+    visualstim.loop_grating_process(grating_name, t_stimulus)
 
 
-def repeat_grayscreen(t_stimulus: int):
+def repeat_grayscreen(visualstim: VisualStim, t_stimulus: int):
     with rpg.Screen() as myscreen:
         for _ in range(t_stimulus):
             ic("Gray screen on")
-            myscreen.display_greyscale(40)
+            visualstim.myscreen.display_greyscale(40)
             time.sleep(1)
             ic("Gray screen off")
             myscreen.display_greyscale(0)
@@ -64,6 +63,7 @@ def repeat_grayscreen(t_stimulus: int):
 
 
 t_stimulus = 5
+gratings_dir = Path('/home/pi/gratings')  # './dummy_vis'
 grating = gratings_dir / "vertical_grating_0.5s.dat"
 # t = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
 # t.start()
