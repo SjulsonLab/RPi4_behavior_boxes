@@ -25,8 +25,6 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
         super().__init__(model, box, pump, gui, session_info)
-        self.gratings_on = False
-
         if session_info['counterbalance_type'] == 'leftA':
             self.L_stimulus_on = self.stimulus_A_on
             self.R_stimulus_on = self.stimulus_B_on
@@ -51,7 +49,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
     def stimuli_reset(self) -> None:
         self.box.sound1.off()
         self.box.sound2.off()
-        self.box.visualstim.end_process()
+        self.box.visualstim.end_gratings_process()
         self.box.visualstim.display_default_greyscale()
 
     def stimuli_off(self) -> None:
@@ -59,7 +57,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.box.cueLED2.off()
         self.box.sound1.off()
         self.box.sound2.off()
-        self.box.visualstim.end_process()
+        self.box.visualstim.end_gratings_process()
         self.box.visualstim.myscreen.display_greyscale(0)
 
     def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:

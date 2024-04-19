@@ -113,7 +113,7 @@ def make_session_info() -> Dict[str, Any]:
         session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
         session_info['stimulus_duration'] = .5
         session_info['interstimulus_interval'] = .5
-        session_info['p_stimulus'] = 0.25
+        session_info['p_stimulus'] = 0.50
 
         # times = [15, 20, 25, 30, 35]
         times = [.5, 1, 2]
