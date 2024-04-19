@@ -69,13 +69,29 @@ def make_session_info() -> Dict[str, Any]:
 
     # Parameters - visual stimuli
     gratings_dir = '/home/pi/gratings'  # './dummy_vis'
-    session_info["visual_stimulus"]             = False
-    session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
-    # session_info['vis_gratings']				= ['/home/pi/gratings/context_a.dat',
-    #                                                '/home/pi/gratings/context_b.dat',]
-    session_info['vis_gratings'] = ['/home/pi/gratings/vertical_grating_0.5s.dat',
-                                    '/home/pi/gratings/horizontal_grating_0.5s.dat', ]
-    session_info['vis_raws']					= []
+    session_info["visual_stimulus"]             = True
+    if session_info["visual_stimulus"]:
+        session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
+        # session_info['vis_gratings']				= ['/home/pi/gratings/context_a.dat',
+        #                                                '/home/pi/gratings/context_b.dat',]
+        session_info['vis_gratings'] = ['/home/pi/gratings/vertical_grating_0.5s.dat',
+                                        '/home/pi/gratings/horizontal_grating_0.5s.dat', ]
+        session_info['vis_raws']					= []
+        session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
+        session_info['grating_duration'] = .5
+        session_info['inter_grating_interval'] = .5
+        session_info['stimulus_duration'] = 5
+        session_info['p_stimulus'] = 1
+
+    # times = [15, 20, 25, 30, 35]
+    times = [.5, 1, 2]
+    gratings = {}
+    for t in times:
+        gratings['vertical_{}.grating'.format(t)] = Path(gratings_dir) / 'vertical_grating_{}s.dat'.format(t)
+        gratings['horizontal_{}.grating'.format(t)] = Path(gratings_dir) / 'horizontal_grating_{}s.dat'.format(t)
+
+        # gratings['a_{}.grating'.format(t)] = Path(gratings_dir) / 'vertical_grating_{}s.dat'.format(session_info['stimulus_duration'])
+        # gratings['b_{}.grating'.format(t)] = Path(gratings_dir) / 'horizontal_grating_{}s.dat'.format(session_info['stimulus_duration'])
 
     session_info['treadmill_setup']             = {}
     session_info['treadmill']                   = True
@@ -109,24 +125,15 @@ def make_session_info() -> Dict[str, Any]:
         session_info["calibration_coefficient"]['3'] = [7, 0]
         session_info["calibration_coefficient"]['4'] = [7, 0]
 
-    if session_info['task_config'] == 'latent_inference_with_stimuli':
-        session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
-        session_info['grating_duration'] = .5
-        session_info['inter_grating_interval'] = .5
-        session_info['stimulus_duration'] = 5
-        session_info['p_stimulus'] = 1
-
-        # times = [15, 20, 25, 30, 35]
-        times = [.5, 1, 2]
-        gratings = {}
-        for t in times:
-            gratings['vertical_{}.grating'.format(t)] = Path(gratings_dir) / 'vertical_grating_{}s.dat'.format(t)
-            gratings['horizontal_{}.grating'.format(t)] = Path(gratings_dir) / 'horizontal_grating_{}s.dat'.format(t)
-
-            # gratings['a_{}.grating'.format(t)] = Path(gratings_dir) / 'vertical_grating_{}s.dat'.format(session_info['stimulus_duration'])
-            # gratings['b_{}.grating'.format(t)] = Path(gratings_dir) / 'horizontal_grating_{}s.dat'.format(session_info['stimulus_duration'])
-
+    sanity_checks(session_info)
     return session_info
+
+
+def sanity_checks(session_info: dict):
+    if session_info['visual_stimulus']:
+        assert session_info['vis_gratings'], "No visual stimuli specified"
+        assert session_info['counterbalance_type'], "No counterbalance type specified"
+        assert session_info['task_config'] in ['latent_inference_with_stimuli'], "Invalid task config for stimulus task"
 
 
 def get_solenoid_coefficients():
