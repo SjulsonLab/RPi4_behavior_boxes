@@ -167,6 +167,11 @@ try:
         task = latent_inference_forage_model.LatentInferenceForageModel(session_info=session_info)
         Presenter = latent_inference_forage_presenter.LatentInferenceForagePresenter
         name = 'latent_inference_forage_task'
+    elif task_type == 'latent_inference_with_stimuli':
+        from task_protocol.latent_inference_with_stimuli import stimulus_inference_model, stimulus_inference_presenter
+        task = stimulus_inference_model.StimulusInferenceModel(session_info=session_info)
+        Presenter = stimulus_inference_presenter.StimulusInferencePresenter
+        name = 'latent_inference_with_stimuli'
     elif task_type == 'flush':
         from task_protocol.flush import flush_model, flush_presenter
         task = flush_model.FlushModel(session_info=session_info)
