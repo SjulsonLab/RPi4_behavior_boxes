@@ -72,5 +72,5 @@ visualstim.list_gratings()
 
 # threading.Thread(target=repeat_grayscreen, args=(t_stimulus,)).start()
 # threading.Thread(target=ion_test).start()
-repeat_stimulus_process(visualstim, "vertical_grating_0.5s.dat", t_stimulus)
+# repeat_stimulus_process(visualstim, "vertical_grating_0.5s.dat", t_stimulus)
 
