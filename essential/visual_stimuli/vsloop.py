@@ -7,7 +7,11 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from icecream import ic
-from ..visualstim import VisualStim
+# import importlib.util
+# from ..visualstim import VisualStim
+import sys
+sys.path.append('/home/pi/RPi4_behavior_boxes')
+from essential.visualstim import VisualStim
 
 
 gratings_dir = Path('/home/pi/gratings')  # './dummy_vis'
