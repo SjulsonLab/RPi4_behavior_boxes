@@ -25,6 +25,8 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
         super().__init__(model, box, pump, gui, session_info)
+        self.stimulus_thread = None
+
         if session_info['counterbalance_type'] == 'leftA':
             self.L_stimulus_on = self.stimulus_A_on
             self.R_stimulus_on = self.stimulus_B_on
@@ -155,3 +157,4 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
                                                                           self.task.rewards_earned_in_block))
 
         self.task.presenter_commands.clear()
+        self.box.visualstim.presenter_commands.clear()

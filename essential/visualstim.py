@@ -15,9 +15,10 @@ import os
 from collections import OrderedDict
 from icecream import ic
 from multiprocessing import Process
+from base_classes import VisualStimBase
 
 
-class VisualStim(object):
+class VisualStim(VisualStimBase):
 
     def __init__(self, session_info):
         self.session_info = session_info
@@ -26,6 +27,7 @@ class VisualStim(object):
         self.load_session_gratings()
         self.gratings_on = False
         self.active_process = None
+        self.presenter_commands = []
 
         # self.myscreen.display_greyscale(self.session_info["gray_level"])
         self.display_default_greyscale()
@@ -99,6 +101,7 @@ class VisualStim(object):
                 time.sleep(self.session_info["inter_grating_interval"])
 
         self.gratings_on = False
+        self.presenter_commands.append("reset_stimuli")
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
     # this is the function that is launched by show_grating to run in a different process

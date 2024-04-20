@@ -40,7 +40,26 @@ class GUI(ABC):
         ...
 
 
+class VisualStimBase(ABC):
+
+    presenter_commands: List[str]
+
+    @abstractmethod
+    def loop_grating(self, grating_name: str, duration: float):
+        ...
+
+    @abstractmethod
+    def display_default_greyscale(self):
+        ...
+
+    @abstractmethod
+    def end_gratings_process(self):
+        ...
+
+
 class Box(ABC):
+
+    visualstim: VisualStim
 
     @abstractmethod
     def video_start(self):
