@@ -70,8 +70,9 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         # 2. correct choice and meets correct reward probability
         # 3. incorrect but REAL choice (i.e. not a switch) and meets incorrect reward probability
         # state changes if choice is correct and switch probability is met
+        commands = self.task.presenter_commands + self.box.visualstim.presenter_commands
 
-        for c in self.task.presenter_commands:
+        for c in commands:
             if c == 'turn_LED_on':
                 self.box.cueLED1.on()
                 self.box.cueLED2.on()
