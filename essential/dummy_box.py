@@ -1,7 +1,7 @@
 import logging
 import time
 from typing import List, Tuple, Union
-from essential.base_classes import Box, PumpBase, Presenter, Model, GUI
+from essential.base_classes import Box, PumpBase, Presenter, Model, GUI, VisualStimBase
 from threading import Timer, Thread
 from icecream import ic
 
@@ -48,10 +48,11 @@ class LED:
         self.blinking = False
 
 
-class VisualStim:
+class VisualStim(VisualStimBase):
 
     def __init__(self, session_info):
         self.session_info = session_info
+        self.presenter_commands = []
 
     def loop_grating(self, grating_name: str, duration: float):
         """
