@@ -64,98 +64,136 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.box.visualstim.end_gratings_process()
         self.box.visualstim.myscreen.display_greyscale(0)
 
-    def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:
+
+    def match_command(self, command: str, correct_pump: int, incorrect_pump: int) -> None:
         # give reward if
         # 1. training reward/human reward (give reward, regardless of action)
         # 2. correct choice and meets correct reward probability
         # 3. incorrect but REAL choice (i.e. not a switch) and meets incorrect reward probability
         # state changes if choice is correct and switch probability is met
-        commands = self.task.presenter_commands + self.box.visualstim.presenter_commands
+        if command == 'turn_LED_on':
+            self.box.cueLED1.on()
+            self.box.cueLED2.on()
+            logging.info(";" + str(time.time()) + ";[action];LED_on;" + str(""))
 
-        for c in commands:
-            if c == 'turn_LED_on':
-                self.box.cueLED1.on()
-                self.box.cueLED2.on()
-                logging.info(";" + str(time.time()) + ";[action];LED_on;" + str(""))
+        elif command == 'turn_LED_off':
+            self.box.cueLED1.off()
+            self.box.cueLED2.off()
+            logging.info(";" + str(time.time()) + ";[action];LED_off;" + str(""))
 
-            elif c == 'turn_LED_off':
-                self.box.cueLED1.off()
-                self.box.cueLED2.off()
-                logging.info(";" + str(time.time()) + ";[action];LED_off;" + str(""))
+        elif command == 'turn_L_stimulus_on':
+            self.L_stimulus_on()
+            logging.info(";" + str(time.time()) + ";[action];left_stimulus_on;" + str(""))
 
-            elif c == 'turn_L_stimulus_on':
-                self.L_stimulus_on()
-                logging.info(";" + str(time.time()) + ";[action];left_stimulus_on;" + str(""))
+        elif command == 'turn_L_stimulus_off':
+            self.stimuli_reset()  # self.stimuli_off()
+            logging.info(";" + str(time.time()) + ";[action];left_stimulus_off;" + str(""))
 
-            elif c == 'turn_L_stimulus_off':
-                self.stimuli_reset()  # self.stimuli_off()
-                logging.info(";" + str(time.time()) + ";[action];left_stimulus_off;" + str(""))
+        elif command == 'turn_R_stimulus_on':
+            self.R_stimulus_on()
+            logging.info(";" + str(time.time()) + ";[action];right_stimulus_on;" + str(""))
 
-            elif c == 'turn_R_stimulus_on':
-                self.R_stimulus_on()
-                logging.info(";" + str(time.time()) + ";[action];right_stimulus_on;" + str(""))
+        elif command == 'turn_R_stimulus_off':
+            self.stimuli_reset()  # self.stimuli_off()
+            logging.info(";" + str(time.time()) + ";[action];right_stimulus_off;" + str(""))
 
-            elif c == 'turn_R_stimulus_off':
-                self.stimuli_reset()  # self.stimuli_off()
-                logging.info(";" + str(time.time()) + ";[action];right_stimulus_off;" + str(""))
+        elif command == 'turn_stimulus_C_on':
+            self.stimulus_C_on()
+            logging.info(";" + str(time.time()) + ";[action];stimulus_C_on;" + str(""))
 
-            elif c == 'turn_stimulus_C_on':
-                self.stimulus_C_on()
-                logging.info(";" + str(time.time()) + ";[action];stimulus_C_on;" + str(""))
+        elif command == 'reset_stimuli':
+            self.stimuli_reset()
+            logging.info(";" + str(time.time()) + ";[action];stimuli_reset;" + str(""))
 
-            elif c == 'reset_stimuli':
-                self.stimuli_reset()
-                logging.info(";" + str(time.time()) + ";[action];stimuli_reset;" + str(""))
+        elif command == 'turn_stimuli_off':
+            self.stimuli_off()
+            logging.info(";" + str(time.time()) + ";[action];stimuli_off;" + str(""))
 
-            elif c == 'turn_stimuli_off':
-                self.stimuli_off()
-                logging.info(";" + str(time.time()) + ";[action];stimuli_off;" + str(""))
+        elif command == 'give_training_reward':
+            reward_size = self.reward_size_large
+            self.task.rewards_earned_in_block += 1
+            self.task.trial_reward_given.append(True)
+            logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
+            self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
 
-            elif c == 'give_training_reward':
+        elif command == 'give_correct_reward':
+            if random.random() < self.session_info['correct_reward_probability']:
                 reward_size = self.reward_size_large
                 self.task.rewards_earned_in_block += 1
                 self.task.trial_reward_given.append(True)
-                logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
-                self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
-
-            elif c == 'give_correct_reward':
-                if random.random() < self.session_info['correct_reward_probability']:
-                    reward_size = self.reward_size_large
-                    self.task.rewards_earned_in_block += 1
-                    self.task.trial_reward_given.append(True)
-                else:
-                    reward_size = 0
-                    self.task.trial_reward_given.append(False)
-
-                self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
-
-            elif c == 'give_incorrect_reward':
-                if random.random() < self.session_info['incorrect_reward_probability']:
-                    reward_size = self.reward_size_small
-                    self.task.rewards_earned_in_block += 1
-                    self.task.trial_reward_given.append(True)
-                else:
-                    reward_size = 0
-                    self.task.trial_reward_given.append(False)
-
-                print('current state: {}; rewards earned in block: {}'.format(self.task.state,
-                                                                              self.task.rewards_earned_in_block))
-                self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
-
             else:
-                raise ValueError('Presenter command not recognized')
+                reward_size = 0
+                self.task.trial_reward_given.append(False)
 
-            if c in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info['switch_probability']:
-                if self.task.state == 'right_patch':
-                    self.task.switch_to_left_patch()
-                elif self.task.state == 'left_patch':
-                    self.task.switch_to_right_patch()
-                else:
-                    pass
-                    # raise RuntimeError('state not recognized')
+            self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
+
+        elif command == 'give_incorrect_reward':
+            if random.random() < self.session_info['incorrect_reward_probability']:
+                reward_size = self.reward_size_small
+                self.task.rewards_earned_in_block += 1
+                self.task.trial_reward_given.append(True)
+            else:
+                reward_size = 0
+                self.task.trial_reward_given.append(False)
+
+            print('current state: {}; rewards earned in block: {}'.format(self.task.state,
+                                                                          self.task.rewards_earned_in_block))
+            self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
+
+        else:
+            raise ValueError('Presenter command not recognized')
+
+        if command in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info[
+            'switch_probability']:
+            if self.task.state == 'right_patch':
+                self.task.switch_to_left_patch()
+            elif self.task.state == 'left_patch':
+                self.task.switch_to_right_patch()
+            else:
+                pass
+                # raise RuntimeError('state not recognized')
 
             print('current state: {}; rewards earned in block: {}'.format(self.task.state,
                                                                           self.task.rewards_earned_in_block))
 
-        self.task.presenter_commands.clear()
-        self.box.visualstim.presenter_commands.clear()
+    def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:
+        for i in range(len(self.task.presenter_commands)):
+            c = self.task.presenter_commands.pop(0)
+            self.match_command(c, correct_pump, incorrect_pump)
+
+        for i in range(len(self.box.visualstim.presenter_commands)):
+            c = self.box.visualstim.presenter_commands.pop(0)
+            self.match_command(c, correct_pump, incorrect_pump)
+
+    def update_plot(self, save_fig=False) -> None:
+        if self.task.trial_choice_list:
+            ix = np.array(self.task.trial_correct_list)
+            choices = np.array(self.task.trial_choice_list)
+            times = np.array(self.task.trial_choice_times)
+            rewards = np.array(self.task.trial_reward_given)
+
+            correct_trials = choices[ix]
+            correct_times = times[ix]
+
+            incorrect_trials = choices[~ix]
+            incorrect_times = times[~ix]
+
+            reward_trials = choices[rewards]
+            reward_times = times[rewards]
+
+            self.gui.figure_window.correct_line.set_data(correct_times, correct_trials)
+            self.gui.figure_window.error_line.set_data(incorrect_times, incorrect_trials)
+            self.gui.figure_window.reward_line.set_data(reward_times, reward_trials)
+
+            # update this to show the last 20-ish trials
+            if times.size > 1:
+                T = [times[-20:][0], times[-1]]
+            else:
+                T = [times[-1] - .5, times[-1] + .5]
+            plt.xlim(T)
+
+        self.gui.figure_window.state_text.set_text('State: {}; ITI: {}'.format(self.task.state,
+                                                                         self.task.ITI_active))
+        self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.box.visualstim.gratings_on))
+
+        self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)

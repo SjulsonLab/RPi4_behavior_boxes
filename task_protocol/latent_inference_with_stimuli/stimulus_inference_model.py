@@ -72,7 +72,10 @@ class StimulusInferenceModel(LatentInferenceForageModel):
 
     def enter_left_patch(self) -> None:
         logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(""))
-        if random.random() < self.session_info['p_stimulus']:
+        sample = random.random()
+        # if random.random() < self.session_info['p_stimulus']:
+        if sample < self.session_info['p_stimulus']:
+            ic("left stimulus on", sample)
             self.L_stimulus_on()
             logging.info(";" + str(time.time()) + ";[action];left_stimulus_on;" + str(""))
 
@@ -82,7 +85,10 @@ class StimulusInferenceModel(LatentInferenceForageModel):
 
     def enter_right_patch(self) -> None:
         logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(""))
-        if random.random() < self.session_info['p_stimulus']:
+        sample = random.random()
+        # if random.random() < self.session_info['p_stimulus']:
+        if sample < self.session_info['p_stimulus']:
+            ic("right stimulus on", sample)
             self.R_stimulus_on()
             logging.info(";" + str(time.time()) + ";[action];right_stimulus_on;" + str(""))
 

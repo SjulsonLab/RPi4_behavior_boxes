@@ -11,6 +11,7 @@ import matplotlib.lines
 import collections
 import pygame
 import threading
+from multiprocessing import Process
 
 
 class PumpBase(ABC):
@@ -29,7 +30,8 @@ class PerformanceFigure(ABC):
     correct_line: matplotlib.lines.Line2D
     error_line: matplotlib.lines.Line2D
     reward_line: matplotlib.lines.Line2D
-    text: plt.Text
+    state_text: plt.Text
+    stimulus_text: plt.Text
 
 
 class GUI(ABC):
@@ -42,7 +44,9 @@ class GUI(ABC):
 
 class VisualStimBase(ABC):
 
+    gratings_on = False
     presenter_commands: List[str]
+    active_process: Process
 
     @abstractmethod
     def loop_grating(self, grating_name: str, duration: float):
@@ -52,14 +56,18 @@ class VisualStimBase(ABC):
     def display_default_greyscale(self):
         ...
 
-    @abstractmethod
     def end_gratings_process(self):
-        ...
+        self.gratings_on = False
+        if self.active_process is not None:
+            self.active_process.join()
 
 
 class Box(ABC):
 
     visualstim: VisualStimBase
+    presenter_commands: List[str]
+    # sound1: LED
+    # sound2: LED
 
     @abstractmethod
     def video_start(self):
@@ -189,7 +197,7 @@ class Model(ABC):
 
 class Presenter(ABC):
     keyboard_active: bool = True
-    interact_list: List[Tuple[float, str]]
+    # interact_list: List[Tuple[float, str]]
     pump: PumpBase
     task: Model
     gui: GUI
@@ -202,32 +210,32 @@ class Presenter(ABC):
 
     def left_entry(self) -> None:
         self.task.event_list.append("left_entry")
-        self.interact_list.append((time.time(), "left_entry"))
+        # self.interact_list.append((time.time(), "left_entry"))
         logging.info(";" + str(time.time()) + ";[action];left_entry")
 
     def center_entry(self) -> None:
         self.task.event_list.append("center_entry")
-        self.interact_list.append((time.time(), "center_entry"))
+        # self.interact_list.append((time.time(), "center_entry"))
         logging.info(";" + str(time.time()) + ";[action];center_entry")
 
     def right_entry(self) -> None:
         self.task.event_list.append("right_entry")
-        self.interact_list.append((time.time(), "right_entry"))
+        # self.interact_list.append((time.time(), "right_entry"))
         logging.info(";" + str(time.time()) + ";[action];right_entry")
 
     def left_exit(self) -> None:
         self.task.event_list.append("left_exit")
-        self.interact_list.append((time.time(), "left_exit"))
+        # self.interact_list.append((time.time(), "left_exit"))
         logging.info(";" + str(time.time()) + ";[action];left_exit")
 
     def center_exit(self) -> None:
         self.task.event_list.append("center_exit")
-        self.interact_list.append((time.time(), "center_exit"))
+        # self.interact_list.append((time.time(), "center_exit"))
         logging.info(";" + str(time.time()) + ";[action];center_exit")
 
     def right_exit(self) -> None:
         self.task.event_list.append("right_exit")
-        self.interact_list.append((time.time(), "right_exit"))
+        # self.interact_list.append((time.time(), "right_exit"))
         logging.info(";" + str(time.time()) + ";[action];right_exit")
 
     def IR_1_entry(self) -> None:
@@ -427,9 +435,8 @@ class Presenter(ABC):
                 T = [times[-1] - .5, times[-1] + .5]
             plt.xlim(T)
 
-        self.gui.figure_window.text.set_text('State: {}; ITI: {}'.format(self.task.state,
+        self.gui.figure_window.state_text.set_text('State: {}; ITI: {}'.format(self.task.state,
                                                                          self.task.ITI_active))
-
         self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)
 
     @abstractmethod

@@ -27,7 +27,7 @@ sys.path.insert(0, './essential')  # essential holds behavbox and equipment clas
 sys.path.insert(0, '.')
 
 debug_startup = False
-debug_task = False
+debug_task = True
 if debug_startup or debug_task:
     from essential import dummy_box as behavbox
 else:
@@ -144,8 +144,6 @@ try:
         options_correct = confirm_options(session_info)
 
     gui = GUI(session_info=session_info)
-
-    # make dummy box and pump objects for testing, all functions should say "pass"
     box = behavbox.BehavBox(session_info=session_info)
     pump = behavbox.Pump(session_info=session_info)
 
@@ -155,7 +153,7 @@ try:
         from task_protocol.alternating_latent import alternating_latent_model, alternating_latent_presenter
         task = alternating_latent_model.AlternatingLatentModel(session_info=session_info)
         Presenter = alternating_latent_presenter.AlternatingLatentPresenter
-        name = 'alternating_latent_task'
+        # name = 'alternating_latent_task'
     elif task_type == 'A_B_task':
         pass
     elif task_type == 'C1_C2_task':
@@ -166,17 +164,17 @@ try:
         from task_protocol.latent_inference_forage import latent_inference_forage_model, latent_inference_forage_presenter
         task = latent_inference_forage_model.LatentInferenceForageModel(session_info=session_info)
         Presenter = latent_inference_forage_presenter.LatentInferenceForagePresenter
-        name = 'latent_inference_forage_task'
+        # name = 'latent_inference_forage_task'
     elif task_type == 'latent_inference_with_stimuli':
         from task_protocol.latent_inference_with_stimuli import stimulus_inference_model, stimulus_inference_presenter
         task = stimulus_inference_model.StimulusInferenceModel(session_info=session_info)
         Presenter = stimulus_inference_presenter.StimulusInferencePresenter
-        name = 'latent_inference_with_stimuli'
+        # name = 'latent_inference_with_stimuli'
     elif task_type == 'flush':
         from task_protocol.flush import flush_model, flush_presenter
         task = flush_model.FlushModel(session_info=session_info)
         Presenter = flush_presenter.FlushPresenter
-        name = 'flush'
+        # name = 'flush'
     else:
         raise RuntimeError('[***] Specified task not recognized!! [***]')
 
