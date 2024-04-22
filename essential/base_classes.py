@@ -59,7 +59,7 @@ class VisualStimBase(ABC):
 
 class Box(ABC):
 
-    visualstim: VisualStim
+    visualstim: VisualStimBase
 
     @abstractmethod
     def video_start(self):
