@@ -13,7 +13,7 @@ import logging
 import os
 from collections import OrderedDict
 from icecream import ic
-from multiprocessing import Process, Queue
+from multiprocessing import Process
 import sys
 sys.path.append('/home/pi/RPi4_behavior_boxes')
 from essential.base_classes import VisualStimBase
@@ -26,12 +26,8 @@ class VisualStim(VisualStimBase):
         self.gratings = OrderedDict()
         self.myscreen = rpg.Screen()
         self.load_session_gratings()
-        self.gratings_on = False
-        self.active_process = None
-        self.presenter_commands = Queue()
-
-        # self.myscreen.display_greyscale(self.session_info["gray_level"])
         self.display_default_greyscale()
+        self.active_process = None
         logging.info(";" + str(time.time()) + ";[initialization];screen_opened")
 
     def display_default_greyscale(self):
@@ -80,37 +76,6 @@ class VisualStim(VisualStimBase):
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
         self.active_process.start()
 
-    def loop_grating(self, grating_name: str, stimulus_duration: float):
-        logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
-        self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration,
-                                                                              self.presenter_commands))
-        logging.info(";" + str(time.time()) + ";[configuration];starting process")
-        self.gratings_on = True
-        self.active_process.start()
-
-    def loop_grating_process(self, grating_name: str, stimulus_duration: float, queue: Queue = None):
-        self.gratings_on = True
-        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
-        tstart = time.perf_counter()
-        while self.gratings_on and time.perf_counter() - tstart < stimulus_duration:
-            logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
-            self.myscreen.display_grating(self.gratings[grating_name])
-
-            logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
-            self.display_default_greyscale()
-            if time.perf_counter() - tstart >= stimulus_duration:
-                break
-            else:
-                time.sleep(self.session_info["inter_grating_interval"])
-
-        queue.put('reset_stimuli')
-        ic("stimulus loop_grating_process done")
-        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
-
-    # def end_gratings_callback(self):
-    #     self.gratings_on = False
-    #     self.presenter_commands.append('reset_stimuli')
-
     # this is the function that is launched by show_grating to run in a different process
     def process_function(self, grating_name):
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
@@ -123,3 +88,6 @@ class VisualStim(VisualStimBase):
 
     def __del__(self):
         self.myscreen.close()
+
+    def loop_grating(self, grating_name: str, duration: float):
+        pass
