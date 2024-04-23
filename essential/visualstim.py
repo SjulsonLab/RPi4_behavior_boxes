@@ -17,7 +17,7 @@ from icecream import ic
 from multiprocessing import Process
 import sys
 sys.path.append('/home/pi/RPi4_behavior_boxes')
-from base_classes import VisualStimBase
+from essential.base_classes import VisualStimBase
 
 
 class VisualStim(VisualStimBase):
@@ -30,6 +30,7 @@ class VisualStim(VisualStimBase):
         self.gratings_on = False
         self.active_process = None
         self.presenter_commands = []
+        # self.presenter_commands = Queue()
 
         # self.myscreen.display_greyscale(self.session_info["gray_level"])
         self.display_default_greyscale()
@@ -84,10 +85,14 @@ class VisualStim(VisualStimBase):
     def loop_grating(self, grating_name: str, stimulus_duration: float):
         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
         self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
+        # self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration,
+        #                                                                       self.presenter_commands))
+        # self.active_process = Thread(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
+        self.gratings_on = True
         self.active_process.start()
 
-    def loop_grating_process(self, grating_name: str, stimulus_duration: float):
+    def loop_grating_process(self, grating_name: str, stimulus_duration: float): #, queue: Queue = None):
         self.gratings_on = True
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
         tstart = time.perf_counter()
@@ -102,8 +107,11 @@ class VisualStim(VisualStimBase):
             else:
                 time.sleep(self.session_info["inter_grating_interval"])
 
+        # threading
         self.gratings_on = False
         self.presenter_commands.append('reset_stimuli')
+        # multiprocessing
+        # queue.put('reset_stimuli')
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
     def end_gratings_callback(self):
