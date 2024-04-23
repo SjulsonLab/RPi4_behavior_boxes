@@ -4,11 +4,7 @@ import rpg
 import time
 import threading
 from pathlib import Path
-import matplotlib.pyplot as plt
-import numpy as np
 from icecream import ic
-# import importlib.util
-# from ..visualstim import VisualStim
 import sys
 sys.path.append('/home/pi/RPi4_behavior_boxes')
 from essential.visualstim import VisualStim
@@ -53,10 +49,9 @@ t_stimulus = 5
 gratings_dir = Path('/home/pi/gratings')  # './dummy_vis'
 grating = gratings_dir / "vertical_grating_0.5s.dat"
 t_stim = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
-t_iter = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
+t_iter = threading.Thread(target=alternate_process)
 t_stim.start()
 t_iter.start()
-# t.join()
 
 # session_info = make_session_info()
 # visualstim = VisualStim(session_info)
