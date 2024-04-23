@@ -6,7 +6,6 @@
 # Luke Sjulson, 2021-01-27
 #
 # TODO: make show_random() method to show a random grating from the list
-# TODO: (someday) implement triggering of visual gratings
 
 import rpg
 import time
@@ -14,7 +13,7 @@ import logging
 import os
 from collections import OrderedDict
 from icecream import ic
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 import sys
 sys.path.append('/home/pi/RPi4_behavior_boxes')
 from essential.base_classes import VisualStimBase
@@ -29,8 +28,7 @@ class VisualStim(VisualStimBase):
         self.load_session_gratings()
         self.gratings_on = False
         self.active_process = None
-        self.presenter_commands = []
-        # self.presenter_commands = Queue()
+        self.presenter_commands = Queue()
 
         # self.myscreen.display_greyscale(self.session_info["gray_level"])
         self.display_default_greyscale()
@@ -84,15 +82,13 @@ class VisualStim(VisualStimBase):
 
     def loop_grating(self, grating_name: str, stimulus_duration: float):
         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
-        self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
-        # self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration,
-        #                                                                       self.presenter_commands))
-        # self.active_process = Thread(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
+        self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration,
+                                                                              self.presenter_commands))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
         self.gratings_on = True
         self.active_process.start()
 
-    def loop_grating_process(self, grating_name: str, stimulus_duration: float): #, queue: Queue = None):
+    def loop_grating_process(self, grating_name: str, stimulus_duration: float, queue: Queue = None):
         self.gratings_on = True
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
         tstart = time.perf_counter()
@@ -107,16 +103,13 @@ class VisualStim(VisualStimBase):
             else:
                 time.sleep(self.session_info["inter_grating_interval"])
 
-        # threading
-        self.gratings_on = False
-        self.presenter_commands.append('reset_stimuli')
-        # multiprocessing
-        # queue.put('reset_stimuli')
+        queue.put('reset_stimuli')
+        ic("stimulus loop_grating_process done")
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
-    def end_gratings_callback(self):
-        self.gratings_on = False
-        self.presenter_commands.append('reset_stimuli')
+    # def end_gratings_callback(self):
+    #     self.gratings_on = False
+    #     self.presenter_commands.append('reset_stimuli')
 
     # this is the function that is launched by show_grating to run in a different process
     def process_function(self, grating_name):

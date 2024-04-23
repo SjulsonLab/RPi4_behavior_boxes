@@ -99,7 +99,6 @@ class VisualStim(VisualStimBase):
                 time.sleep(self.session_info["inter_grating_interval"])
 
         ic("stimulus loop_grating_process done")
-        # self.gratings_on = False
         queue.put('reset_stimuli')
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
