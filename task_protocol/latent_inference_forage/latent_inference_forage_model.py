@@ -269,4 +269,3 @@ class LatentInferenceForageModel(Model):  # subclass from base task
             self.switch_to_left_patch()
         else:
             self.switch_to_right_patch()
-

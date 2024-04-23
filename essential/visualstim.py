@@ -101,8 +101,12 @@ class VisualStim(VisualStimBase):
                 time.sleep(self.session_info["inter_grating_interval"])
 
         self.gratings_on = False
-        self.presenter_commands.append("reset_stimuli")
+        self.presenter_commands.append('reset_stimuli')
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
+
+    def end_gratings_callback(self):
+        self.gratings_on = False
+        self.presenter_commands.append('reset_stimuli')
 
     # this is the function that is launched by show_grating to run in a different process
     def process_function(self, grating_name):

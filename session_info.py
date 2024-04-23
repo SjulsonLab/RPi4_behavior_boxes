@@ -108,18 +108,13 @@ def make_session_info() -> Dict[str, Any]:
 
     try:
         solenoid_coeff = get_solenoid_coefficients()
-    except Exception as e:
-        print(e)
-        solenoid_coeff = None
-
-    if solenoid_coeff:
         session_info["calibration_coefficient"]['1'] = solenoid_coeff["1"]
         session_info["calibration_coefficient"]['2'] = solenoid_coeff["2"]
         session_info["calibration_coefficient"]['3'] = solenoid_coeff["3"]
         session_info["calibration_coefficient"]['4'] = solenoid_coeff["4"]
-    else:
+    except Exception as e:
+        print(e)
         print("No coefficients, generate the default")
-        # solenoid valve linear fit coefficient for each pump
         session_info["calibration_coefficient"]['1'] = [7, 0]
         session_info["calibration_coefficient"]['2'] = [7, 0]
         session_info["calibration_coefficient"]['3'] = [7, 0]

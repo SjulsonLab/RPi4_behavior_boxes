@@ -23,7 +23,6 @@ trial_choice_map = {'right': 0, 'left': 1}
 class LatentInferenceForagePresenter(Presenter):
 
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
-
         self.task = model
         self.gui = gui
         self.box = box
@@ -32,13 +31,6 @@ class LatentInferenceForagePresenter(Presenter):
         self.pump_keys = (session_info["reward_pump1"], session_info['reward_pump2'])
         self.reward_size_large = session_info['reward_size_large']
         self.reward_size_small = session_info['reward_size_small']
-
-        ###############################################################################################
-        # event list trigger by the interaction between the RPi and the animal for visualization
-        # interact_list: lick, choice interaction between the board and the animal for visualization
-        ###############################################################################################
-        self.interact_list = []  # todo - remove references to this
-
         self.keypress_training_reward = False
         self.automatic_training_rewards = False
 
