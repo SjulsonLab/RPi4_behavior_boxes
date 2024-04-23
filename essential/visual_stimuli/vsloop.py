@@ -28,9 +28,10 @@ def repeat_stimulus(stimulus_path: str, t_stimulus: int):
 
 
 def alternate_process():
-    for i in range(5):
-        ic('iter {}'.format(i))
-        time.sleep(1)
+    st = time.perf_counter()
+    while time.perf_counter() - st < 5:
+        ic('{} sec elapsed'.format(time.perf_counter() - st))
+        time.sleep(.5)
 
 
 def repeat_stimulus_process(visualstim: VisualStim, stimulus_name: str, t_stimulus: float):
