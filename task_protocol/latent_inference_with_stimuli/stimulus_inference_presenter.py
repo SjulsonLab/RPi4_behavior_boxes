@@ -64,7 +64,6 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.box.visualstim.end_gratings_process()
         self.box.visualstim.myscreen.display_greyscale(0)
 
-
     def match_command(self, command: str, correct_pump: int, incorrect_pump: int) -> None:
         # give reward if
         # 1. training reward/human reward (give reward, regardless of action)

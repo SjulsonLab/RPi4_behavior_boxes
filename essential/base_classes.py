@@ -57,9 +57,9 @@ class VisualStimBase(ABC):
         ...
 
     def end_gratings_process(self):
-        self.gratings_on = False
         if self.active_process is not None:
             self.active_process.join()
+        self.gratings_on = False
 
 
 class Box(ABC):

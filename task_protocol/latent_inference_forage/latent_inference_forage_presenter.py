@@ -23,7 +23,6 @@ trial_choice_map = {'right': 0, 'left': 1}
 class LatentInferenceForagePresenter(Presenter):
 
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
-
         self.task = model
         self.gui = gui
         self.box = box

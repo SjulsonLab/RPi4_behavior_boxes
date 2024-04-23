@@ -5,6 +5,7 @@ from essential.base_classes import Box, PumpBase, Presenter, Model, GUI, VisualS
 from threading import Timer, Thread
 from icecream import ic
 from multiprocessing import Process
+import concurrent.futures
 from threading import Thread
 
 
@@ -64,19 +65,25 @@ class VisualStim(VisualStimBase):
         self.active_process = None
 
     def loop_grating(self, grating_name: str, stimulus_duration: float):
-        """
-        Ideally update this so matplotlib shows either a static grating or a grayscreen matching the
-        physical stimulus.
-        """
-        # pass
         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
         # self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
         self.active_process = Thread(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
+        self.gratings_on = True
         self.active_process.start()
 
+    # def loop_grating(self, grating_name: str, stimulus_duration: float):
+    #     logging.info(";" + str(time.time()) + ";[configuration];starting process")
+    #     self.gratings_on = True
+    #     with concurrent.futures.ThreadPoolExecutor() as executor:
+    #         f = executor.submit(self.loop_grating_process, grating_name, stimulus_duration)
+    #         f.add_done_callback(self.end_gratings_callback)
+
+    def end_gratings_callback(self):
+        self.gratings_on = False
+        self.presenter_commands.append('reset_stimuli')
+
     def loop_grating_process(self, grating_name: str, stimulus_duration: float):
-        self.gratings_on = True
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
         tstart = time.perf_counter()
         while self.gratings_on and time.perf_counter() - tstart < stimulus_duration:
@@ -88,11 +95,8 @@ class VisualStim(VisualStimBase):
             else:
                 time.sleep(self.session_info["inter_grating_interval"])
 
-        ic("loop_grating_process done")
-        ic(self.gratings_on)
+        ic("stimulus loop_grating_process done")
         self.gratings_on = False
-        ic(self.gratings_on)
-        self.presenter_commands.append('reset_stimuli')
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
     def display_default_greyscale(self):
