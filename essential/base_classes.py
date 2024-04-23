@@ -11,7 +11,8 @@ import matplotlib.lines
 import collections
 import pygame
 import threading
-from multiprocessing import Process
+from multiprocessing import Process, Queue
+from threading import Thread
 
 
 class PumpBase(ABC):
@@ -45,8 +46,8 @@ class GUI(ABC):
 class VisualStimBase(ABC):
 
     gratings_on = False
-    presenter_commands: List[str]
-    active_process: Process
+    presenter_commands: Union[List[str], Queue]
+    active_process: Union[Thread, Process, None]
 
     @abstractmethod
     def loop_grating(self, grating_name: str, duration: float):

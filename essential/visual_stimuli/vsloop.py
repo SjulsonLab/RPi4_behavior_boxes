@@ -1,5 +1,3 @@
-#Test file from https://github.com/bill-connelly/rpg
-################
 import rpg
 import time
 import threading
@@ -8,6 +6,7 @@ from icecream import ic
 import sys
 sys.path.append('/home/pi/RPi4_behavior_boxes')
 from essential.visualstim import VisualStim
+from essential.visual_stimuli.visualstim_concurrent import VisualStimThreaded, VisualStimMultiprocess
 from session_info import make_session_info
 
 
@@ -23,10 +22,10 @@ def repeat_stimulus(stimulus_path: str, t_stimulus: int):
             time.sleep(.5)
 
 
-def alternate_process():
+def alternate_process(t_stimulus: int):
     st = time.perf_counter()
-    while time.perf_counter() - st < 5:
-        ic('{} sec elapsed'.format(time.perf_counter() - st))
+    while time.perf_counter() - st < t_stimulus:
+        ic(time.perf_counter() - st, 'sec elapsed')
         time.sleep(.5)
 
 
@@ -45,19 +44,61 @@ def repeat_grayscreen(visualstim: VisualStim, t_stimulus: int):
             time.sleep(1)
 
 
-t_stimulus = 5
-gratings_dir = Path('/home/pi/gratings')  # './dummy_vis'
-grating = gratings_dir / "vertical_grating_0.5s.dat"
-t_stim = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
-t_iter = threading.Thread(target=alternate_process)
-t_stim.start()
-t_iter.start()
+# def run_multithreading():
+#     t_stimulus = 10
+#     gratings_dir = Path('/home/pi/gratings')
+#     grating = gratings_dir / "vertical_grating_0.5s.dat"
+#
+#     tstart = time.perf_counter()
+#     t_stim = threading.Thread(target=repeat_stimulus, args=(grating, t_stimulus))
+#     t_stim.start()
+#     alternate_process(t_stimulus=t_stimulus)
+#     # t_iter = threading.Thread(target=alternate_process, args=(t_stimulus,))
+#     # t_iter.start()
+#
+#     t_stim.join()
+#     ic("Total time elapsed:", time.perf_counter() - tstart)
 
-# session_info = make_session_info()
-# visualstim = VisualStim(session_info)
-# visualstim.list_gratings()
 
-# threading.Thread(target=repeat_grayscreen, args=(t_stimulus,)).start()
-# threading.Thread(target=ion_test).start()
-# repeat_stimulus_process(visualstim, "vertical_grating_0.5s.dat", t_stimulus)
+def run_multithreading():
+    t_stimulus = 10
 
+    session_info = make_session_info()
+    visualstim = VisualStimThreaded(session_info)
+    grating_name = 'vertical_grating_{}s.dat'.format(session_info['grating_duration'])
+
+    tstart = time.perf_counter()
+    visualstim.loop_grating(grating_name, t_stimulus)
+    alternate_process(t_stimulus=t_stimulus)
+
+    visualstim.end_gratings_process()
+    ic("Total time elapsed:", time.perf_counter() - tstart)
+    ic(visualstim.presenter_commands.pop())
+
+
+def run_multiprocessing():
+    t_stimulus = 10
+
+    session_info = make_session_info()
+    visualstim = VisualStimMultiprocess(session_info)
+    grating_name = 'vertical_grating_{}s.dat'.format(session_info['grating_duration'])
+
+    tstart = time.perf_counter()
+    visualstim.loop_grating(grating_name, t_stimulus)
+    alternate_process(t_stimulus=t_stimulus)
+
+    visualstim.end_gratings_process()
+    ic("Total time elapsed:", time.perf_counter() - tstart)
+    ic(visualstim.presenter_commands.get())
+
+
+def main():
+    run_multithreading()
+    run_multiprocessing()
+
+    # threading.Thread(target=repeat_grayscreen, args=(t_stimulus,)).start()
+    # repeat_stimulus_process(visualstim, "vertical_grating_0.5s.dat", t_stimulus)
+
+
+if __name__ == '__main__':
+    main()
