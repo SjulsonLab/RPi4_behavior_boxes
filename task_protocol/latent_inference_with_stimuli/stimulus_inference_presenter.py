@@ -160,8 +160,10 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             c = self.task.presenter_commands.pop(0)
             self.match_command(c, correct_pump, incorrect_pump)
 
-        for i in range(len(self.box.visualstim.presenter_commands)):
-            c = self.box.visualstim.presenter_commands.pop(0)
+        # for i in range(len(self.box.visualstim.presenter_commands)):
+        for i in range(self.box.visualstim.presenter_commands.qsize()):
+            # c = self.box.visualstim.presenter_commands.pop(0)
+            c = self.box.visualstim.presenter_commands.get()
             self.match_command(c, correct_pump, incorrect_pump)
 
     def update_plot(self, save_fig=False) -> None:

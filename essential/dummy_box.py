@@ -4,7 +4,7 @@ from typing import List, Tuple, Union
 from essential.base_classes import Box, PumpBase, Presenter, Model, GUI, VisualStimBase
 from threading import Timer, Thread
 from icecream import ic
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 import concurrent.futures
 from threading import Thread
 
@@ -59,15 +59,17 @@ class VisualStim(VisualStimBase):
 
     def __init__(self, session_info):
         self.session_info = session_info
-        self.presenter_commands = []
+        # self.presenter_commands = []
+        self.presenter_commands = Queue()
         self.gratings_on = False
         self.myscreen = LED()
         self.active_process = None
 
     def loop_grating(self, grating_name: str, stimulus_duration: float):
         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
-        # self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
-        self.active_process = Thread(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
+        self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration,
+                                                                              self.presenter_commands))
+        # self.active_process = Thread(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
         self.gratings_on = True
         self.active_process.start()
@@ -80,10 +82,11 @@ class VisualStim(VisualStimBase):
     #         f.add_done_callback(self.end_gratings_callback)
 
     def end_gratings_callback(self):
-        self.gratings_on = False
+        # self.gratings_on = False
+        self.end_gratings_process()
         self.presenter_commands.append('reset_stimuli')
 
-    def loop_grating_process(self, grating_name: str, stimulus_duration: float):
+    def loop_grating_process(self, grating_name: str, stimulus_duration: float, queue: Queue = None):
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
         tstart = time.perf_counter()
         while self.gratings_on and time.perf_counter() - tstart < stimulus_duration:
@@ -96,7 +99,8 @@ class VisualStim(VisualStimBase):
                 time.sleep(self.session_info["inter_grating_interval"])
 
         ic("stimulus loop_grating_process done")
-        self.gratings_on = False
+        # self.gratings_on = False
+        queue.put('reset_stimuli')
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
     def display_default_greyscale(self):
