@@ -15,6 +15,7 @@ import os
 from collections import OrderedDict
 from icecream import ic
 from multiprocessing import Process
+sys.path.append('/home/pi/RPi4_behavior_boxes')
 from base_classes import VisualStimBase
 
 

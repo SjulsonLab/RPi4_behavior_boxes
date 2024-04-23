@@ -73,8 +73,8 @@ def confirm_options(session_info: dict) -> bool:
         print("Invalid input")
     return correct
 
-def main():
 
+def main():
     try:
         # load in session_info file, check that dates are correct, put in automatic
         # time and date stamps for when the experiment was run
