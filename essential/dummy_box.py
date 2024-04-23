@@ -74,18 +74,6 @@ class VisualStim(VisualStimBase):
         self.gratings_on = True
         self.active_process.start()
 
-    # def loop_grating(self, grating_name: str, stimulus_duration: float):
-    #     logging.info(";" + str(time.time()) + ";[configuration];starting process")
-    #     self.gratings_on = True
-    #     with concurrent.futures.ThreadPoolExecutor() as executor:
-    #         f = executor.submit(self.loop_grating_process, grating_name, stimulus_duration)
-    #         f.add_done_callback(self.end_gratings_callback)
-
-    def end_gratings_callback(self):
-        # self.gratings_on = False
-        self.end_gratings_process()
-        self.presenter_commands.append('reset_stimuli')
-
     def loop_grating_process(self, grating_name: str, stimulus_duration: float, queue: Queue = None):
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
         tstart = time.perf_counter()
