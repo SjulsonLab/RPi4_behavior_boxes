@@ -20,7 +20,8 @@ from collections import deque
 
 import logging
 from colorama import Fore, Style
-from visualstim import VisualStim
+# from visualstim import VisualStim
+from essential.visual_stimuli.visualstim_concurrent import VisualStimMultiprocess
 
 import scipy.io, pickle
 
@@ -140,7 +141,7 @@ class BehavBox(Box):
         ###############################################################################################
         if self.session_info["visual_stimulus"]:
             try:
-                self.visualstim = VisualStim(self.session_info)
+                self.visualstim = VisualStimMultiprocess(self.session_info)
             except Exception as error_message:
                 print("visualstim issue\n")
                 print(str(error_message))
