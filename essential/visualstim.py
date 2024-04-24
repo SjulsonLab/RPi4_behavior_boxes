@@ -13,7 +13,7 @@ import logging
 import os
 from collections import OrderedDict
 from icecream import ic
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 import sys
 sys.path.append('/home/pi/RPi4_behavior_boxes')
 from essential.base_classes import VisualStimBase
@@ -26,17 +26,12 @@ class VisualStim(VisualStimBase):
         self.gratings = OrderedDict()
         self.myscreen = rpg.Screen()
         self.load_session_gratings()
-        self.display_default_greyscale()
         self.active_process = None
+        self.presenter_commands = Queue()
         logging.info(";" + str(time.time()) + ";[initialization];screen_opened")
 
     def display_default_greyscale(self):
         self.myscreen.display_greyscale(self.session_info["gray_level"])
-
-    # def end_gratings_process(self):
-    #     self.gratings_on = False
-    #     if self.active_process is not None:
-    #         self.active_process.join()
 
     def load_grating_file(self, grating_file: str):  # best if grating_file is an absolute path
         fname = os.path.split(grating_file)

@@ -137,6 +137,7 @@ class VisualStim(VisualStimBase):
         self.presenter_commands = Queue()
         self.stimulus_commands = Queue()
         self.t_start = time.perf_counter()
+        self.active_process = None
 
     def stimulus_A_on(self) -> None:
         self.stimulus_commands.put('vertical_gratings')
@@ -158,6 +159,9 @@ class VisualStim(VisualStimBase):
         pass
 
     def _display_dark_greyscale(self):
+        pass
+
+    def loop_grating(self, grating_name: str, stimulus_duration: float):
         pass
 
     def run_eventloop(self):
