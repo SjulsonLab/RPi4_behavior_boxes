@@ -23,7 +23,7 @@ class VisualStimMultiprocess(VisualStim):
     def loop_grating(self, grating_name: str, stimulus_duration: float):
         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
         self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration,
-                                                                              self.presenter_commands))
+                                                                              self.presenter_commands, self.stimulus_commands))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
         self.gratings_on = True
         self.t_start = time.perf_counter()
