@@ -94,9 +94,17 @@ class VisualStimMultiprocess(VisualStim):
         self.gratings_on = True
 
     def display_default_greyscale(self):
-        self.myscreen.display_greyscale(self.session_info["gray_level"])
+        self.stimulus_commands.put('gratings_off')
+        self.gratings_on = False
 
     def display_dark_greyscale(self):
+        self.stimulus_commands.put('gratings_off')
+        self.gratings_on = False
+
+    def _display_default_greyscale(self):
+        self.myscreen.display_greyscale(self.session_info["gray_level"])
+
+    def _display_dark_greyscale(self):
         self.myscreen.display_greyscale(0)
 
     def run_eventloop(self):
@@ -114,11 +122,13 @@ class VisualStimMultiprocess(VisualStim):
                     grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
                     self.loop_grating_process(grating_name, in_queue, out_queue)
                 elif command == 'default_greyscale':
-                    self.display_default_greyscale()
+                    self._display_default_greyscale()
                 elif command == 'dark_greyscale':
-                    self.myscreen.display_greyscale(0)
+                    self._display_dark_greyscale()
                 elif command == 'gratings_off':
-                    self.display_default_greyscale()
+                    pass
+                elif command == 'end_process':
+                    break
                 else:
                     raise ValueError("Unknown command: " + str(command))
 
@@ -132,9 +142,8 @@ class VisualStimMultiprocess(VisualStim):
         while gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
             logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
             self.myscreen.display_grating(self.gratings[grating_name])
-
             logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
-            self.display_default_greyscale()
+            self._display_default_greyscale()
 
             try:
                 command = in_queue.get(block=False)
@@ -142,23 +151,25 @@ class VisualStimMultiprocess(VisualStim):
                     ic("gratings_off command received")
                     gratings_on = False
                     break
-                elif command == 'vertical_gratings':
-                    grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
-                    ic('last stimulus time', time.perf_counter() - t_start)
-                    t_start = time.perf_counter()
-                elif command == 'horizontal_gratings':
-                    grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
-                    ic('last stimulus time', time.perf_counter() - t_start)
-                    t_start = time.perf_counter()
                 elif command == 'default_greyscale':
-                    self.display_default_greyscale()
+                    self._display_default_greyscale()
+                    gratings_on = False
                     break
                 elif command == 'dark_greyscale':
-                    self.myscreen.display_greyscale(0)
+                    self._display_dark_greyscale()
+                    gratings_on = False
                     break
                 elif command == 'end_process':
                     gratings_on = False
                     break
+                elif command == 'vertical_gratings':
+                    grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                    ic('abbrev stimulus time', time.perf_counter() - t_start)
+                    t_start = time.perf_counter()
+                elif command == 'horizontal_gratings':
+                    grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                    ic('abbrev stimulus time', time.perf_counter() - t_start)
+                    t_start = time.perf_counter()
                 else:
                     raise ValueError("Unknown command: " + str(command))
             except queue.Empty:
@@ -177,18 +188,9 @@ class VisualStimMultiprocess(VisualStim):
         ic('stimulus time', time.perf_counter() - t_start)
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
-    def loop_grating(self, grating_name: str, stimulus_duration: float):
-        logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
-        self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration,
-                                                                              self.presenter_commands, self.stimulus_commands))
-        logging.info(";" + str(time.time()) + ";[configuration];starting process")
-        self.gratings_on = True
-        self.t_start = time.perf_counter()
-        self.active_process.start()
-
     def end_gratings_process(self):
         if self.active_process is not None and self.gratings_on:
-            self.stimulus_commands.put('gratings_off')
+            self.stimulus_commands.put('end_process')
             self.active_process.join()
             ic('full process time', time.perf_counter() - self.t_start)
 
