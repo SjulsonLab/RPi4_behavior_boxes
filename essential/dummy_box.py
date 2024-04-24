@@ -66,6 +66,7 @@ class VisualStim(VisualStimBase):
         self.gratings_on = False
         self.myscreen = LED()
         self.active_process = None
+        self.t_start = time.perf_counter()
 
     def loop_grating(self, grating_name: str, stimulus_duration: float):
         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
@@ -75,6 +76,7 @@ class VisualStim(VisualStimBase):
         # self.active_process = Thread(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
         self.gratings_on = True
+        self.t_start = time.perf_counter()
         self.active_process.start()
 
     def loop_grating_process(self, grating_name: str, stimulus_duration: float,
@@ -102,6 +104,7 @@ class VisualStim(VisualStimBase):
                 break
 
         ic("stimulus loop_grating_process done")
+        ic('stimulus time', time.perf_counter() - tstart)
         from_visualstim_commands.put('reset_stimuli')
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
@@ -109,9 +112,10 @@ class VisualStim(VisualStimBase):
         pass
 
     def end_gratings_process(self):
-        if self.active_process is not None:
+        if self.active_process is not None and self.gratings_on:
             self.stimulus_commands.put('gratings_off')
             self.active_process.join()
+            ic('full process time', time.perf_counter() - self.t_start)
 
         self.gratings_on = False
         try:
