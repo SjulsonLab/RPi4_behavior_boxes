@@ -36,9 +36,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             self.R_stimulus_on = self.stimulus_A_on
 
     def stimulus_A_on(self) -> None:
-        self.box.sound1.off()
-        self.box.sound2.off()
-
+        self.sounds_off()
         self.box.sound1.blink(0.1, 0.1)
         # grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
         # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
@@ -46,9 +44,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.box.visualstim.stimulus_A_on()
 
     def stimulus_B_on(self) -> None:
-        self.box.sound1.off()
-        self.box.sound2.off()
-
+        self.sounds_off()
         self.box.sound1.blink(0.2, 0.1)
         # grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
         # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
@@ -60,16 +56,18 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.box.visualstim.display_default_greyscale()
 
     def stimuli_reset(self) -> None:
-        self.box.sound1.off()
-        self.box.sound2.off()
+        self.sounds_off()
         # self.box.visualstim.end_gratings_process()
         self.box.visualstim.display_default_greyscale()
+
+    def sounds_off(self) -> None:
+        self.box.sound1.off()
+        self.box.sound2.off()
 
     def stimuli_off(self) -> None:
         self.box.cueLED1.off()
         self.box.cueLED2.off()
-        self.box.sound1.off()
-        self.box.sound2.off()
+        self.sounds_off()
         # self.box.visualstim.end_gratings_process()
         # self.box.visualstim.myscreen.display_greyscale(0)
         # self.box.visualstim.gratings_on = False
@@ -114,6 +112,10 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         elif command == 'reset_stimuli':
             self.stimuli_reset()
             logging.info(";" + str(time.time()) + ";[action];stimuli_reset;" + str(""))
+
+        elif command == 'sounds_off':
+            self.sounds_off()
+            logging.info(";" + str(time.time()) + ";[action];sounds_off;" + str(""))
 
         elif command == 'turn_stimuli_off':
             self.stimuli_off()
