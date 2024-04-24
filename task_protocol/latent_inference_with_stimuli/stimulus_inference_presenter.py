@@ -57,7 +57,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
     def stimuli_reset(self) -> None:
         self.sounds_off()
-        # self.box.visualstim.end_gratings_process()
+        self.box.visualstim.end_gratings_process()
         self.box.visualstim.display_default_greyscale()
 
     def sounds_off(self) -> None:

@@ -150,6 +150,7 @@ class VisualStimMultiprocess(VisualStim):
 
     def loop_grating(self, grating_name: str, stimulus_duration: float):
         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
+        self.empty_stimulus_queue()
         self.active_process = Process(target=self._loop_grating, args=(grating_name, self.stimulus_commands,
                                                                        self.presenter_commands))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
@@ -202,6 +203,7 @@ class VisualStimMultiprocess(VisualStim):
             ic('loop done')
 
         self.gratings_on = False
+        self.empty_stimulus_queue()
         ic('secondary process gratings off')
         out_queue.put('reset_stimuli')
         # out_queue.put('sounds_off')
@@ -210,17 +212,16 @@ class VisualStimMultiprocess(VisualStim):
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
     def end_gratings_process(self):
-        if self.active_process is not None and self.gratings_on:
-            self.stimulus_commands.put('end_process')
-            self.active_process.join()
-            ic('full process time', time.perf_counter() - self.t_start)
-
-        if self.active_process is not None and self.active_process.is_alive():
-            self.stimulus_commands.put('end_process')
+        # join the process and empty any remaining commands
+        if self.active_process is not None:# and self.active_process.is_alive():
+            self.stimulus_commands.put('gratings_off')
             self.active_process.join()
             ic('full process time', time.perf_counter() - self.t_start)
 
         self.gratings_on = False
+        self.empty_stimulus_queue()
+
+    def empty_stimulus_queue(self):
         while not self.stimulus_commands.empty():
             try:
                 self.stimulus_commands.get(block=False)
