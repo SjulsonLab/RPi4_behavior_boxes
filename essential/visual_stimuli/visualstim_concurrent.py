@@ -151,6 +151,9 @@ class VisualStimMultiprocess(VisualStim):
 
     def loop_grating(self, grating_name: str, stimulus_duration: float):
         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
+        if self.active_process is not None and self.active_process.is_alive():
+            raise ValueError("A Process is already running!! Time to debug")
+
         self.active_process = Process(target=self._loop_grating, args=(grating_name, self.stimulus_commands,
                                                                        self.presenter_commands))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
