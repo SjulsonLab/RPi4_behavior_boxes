@@ -29,41 +29,29 @@ class StimulusInferenceModel(LatentInferenceForageModel):
 
     def __init__(self, session_info: dict):
         super().__init__(session_info)
-        self.L_stimulus_active = False
-        self.R_stimulus_active = False
-        # self.stimulus_duration = session_info['stimulus_duration']
-        # self.stimulus_thread = None
-        # self.t_stimulus_start = None
-        # self.p_stimulus = session_info['p_stimulus']
+        # self.L_stimulus_active = False
+        # self.R_stimulus_active = False
 
     def L_stimulus_on(self) -> None:
-        self.L_stimulus_active = True
+        # self.L_stimulus_active = True
         self.presenter_commands.append('turn_L_stimulus_on')
-        # t = threading.Timer(interval=self.stimulus_duration, function=self.L_stimulus_off)
-        # self.t_stimulus_start = time.perf_counter()
-        # t.start()
-        # self.stimulus_thread = t
 
     def L_stimulus_off(self) -> None:
-        self.L_stimulus_active = False
+        # self.L_stimulus_active = False
         self.presenter_commands.append('turn_L_stimulus_off')
 
     def R_stimulus_on(self) -> None:
-        self.R_stimulus_active = True
+        # self.R_stimulus_active = True
         self.presenter_commands.append('turn_R_stimulus_on')
-        # t = threading.Timer(interval=self.stimulus_duration, function=self.R_stimulus_off)
-        # self.t_stimulus_start = time.perf_counter()
-        # t.start()
-        # self.stimulus_thread = t
 
     def stimuli_off(self) -> None:
-        self.L_stimulus_active = False
-        self.R_stimulus_active = False
+        # self.L_stimulus_active = False
+        # self.R_stimulus_active = False
         self.presenter_commands.append('turn_stimuli_off')
 
     def reset_stimuli(self) -> None:
-        self.L_stimulus_active = False
-        self.R_stimulus_active = False
+        # self.L_stimulus_active = False
+        # self.R_stimulus_active = False
         self.presenter_commands.append('reset_stimuli')
 
     def R_stimulus_off(self) -> None:
@@ -72,10 +60,7 @@ class StimulusInferenceModel(LatentInferenceForageModel):
 
     def enter_left_patch(self) -> None:
         logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(""))
-        sample = random.random()
-        # if random.random() < self.session_info['p_stimulus']:
-        if sample < self.session_info['p_stimulus']:
-            ic("left stimulus on", sample)
+        if random.random() < self.session_info['p_stimulus']:
             self.L_stimulus_on()
             logging.info(";" + str(time.time()) + ";[action];left_stimulus_on;" + str(""))
 
@@ -85,10 +70,7 @@ class StimulusInferenceModel(LatentInferenceForageModel):
 
     def enter_right_patch(self) -> None:
         logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(""))
-        sample = random.random()
-        # if random.random() < self.session_info['p_stimulus']:
-        if sample < self.session_info['p_stimulus']:
-            ic("right stimulus on", sample)
+        if random.random() < self.session_info['p_stimulus']:
             self.R_stimulus_on()
             logging.info(";" + str(time.time()) + ";[action];right_stimulus_on;" + str(""))
 

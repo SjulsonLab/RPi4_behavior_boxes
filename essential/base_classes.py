@@ -47,6 +47,7 @@ class VisualStimBase(ABC):
 
     gratings_on = False
     presenter_commands: Union[List[str], Queue]
+    stimulus_commands: Union[List[str], Queue]
     active_process: Union[Thread, Process, None]
 
     @abstractmethod
