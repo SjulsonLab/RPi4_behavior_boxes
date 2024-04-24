@@ -141,12 +141,12 @@ class VisualStim(VisualStimBase):
     def stimulus_A_on(self) -> None:
         self.stimulus_commands.put('vertical_gratings')
         self.gratings_on = True
-        ic('main process gratings on')
+        ic('vertical_gratings command sent; main process gratings on')
 
     def stimulus_B_on(self) -> None:
         self.stimulus_commands.put('horizontal_gratings')
         self.gratings_on = True
-        ic('main process gratings on')
+        ic('horizontal_gratings command sent; main process gratings on')
 
     def display_default_greyscale(self):
         self.stimulus_commands.put('default_greyscale')
@@ -171,6 +171,7 @@ class VisualStim(VisualStimBase):
 
     def run_eventloop(self):
         self.active_process = Process(target=self.eventloop, args=(self.stimulus_commands, self.presenter_commands))
+        ic('starting eventloop')
         self.active_process.start()
 
     def eventloop(self, in_queue: Queue, out_queue: Queue):
