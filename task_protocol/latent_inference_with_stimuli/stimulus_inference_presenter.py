@@ -36,6 +36,9 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             self.R_stimulus_on = self.stimulus_A_on
 
     def stimulus_A_on(self) -> None:
+        self.box.sound1.off()
+        self.box.sound2.off()
+
         self.box.sound1.blink(0.1, 0.1)
         # grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
         # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
@@ -43,12 +46,16 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.box.visualstim.stimulus_A_on()
 
     def stimulus_B_on(self) -> None:
+        self.box.sound1.off()
+        self.box.sound2.off()
+
         self.box.sound1.blink(0.2, 0.1)
         # grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
         # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
         self.box.visualstim.stimulus_B_on()
 
     def stimulus_C_on(self) -> None:
+        self.box.sound1.off()
         self.box.sound2.on()
         self.box.visualstim.display_default_greyscale()
 
@@ -206,3 +213,13 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
                                                                          self.task.ITI_active))
         self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.box.visualstim.gratings_on))
         self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)
+
+    def K_z_callback(self) -> None:
+        # L stimulus on
+        self.task.L_stimulus_on()
+        logging.info(";" + str(time.time()) + ";[action];user_triggered_L_stimulus_on;" + str(""))
+
+    def K_x_callback(self) -> None:
+        # R stimulus on
+        self.task.R_stimulus_on()
+        logging.info(";" + str(time.time()) + ";[action];user_triggered_R_stimulus_on;" + str(""))

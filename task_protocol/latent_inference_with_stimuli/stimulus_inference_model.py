@@ -65,7 +65,7 @@ class StimulusInferenceModel(LatentInferenceForageModel):
             logging.info(";" + str(time.time()) + ";[action];left_stimulus_on;" + str(""))
 
     def exit_left_patch(self):
-        self.reset_stimuli()
+        # self.reset_stimuli()
         logging.info(";" + str(time.time()) + ";[transition];exit_left_patch;" + str(""))
 
     def enter_right_patch(self) -> None:
@@ -75,7 +75,7 @@ class StimulusInferenceModel(LatentInferenceForageModel):
             logging.info(";" + str(time.time()) + ";[action];right_stimulus_on;" + str(""))
 
     def exit_right_patch(self):
-        self.reset_stimuli()
+        # self.reset_stimuli()
         logging.info(";" + str(time.time()) + ";[transition];exit_right_patch;" + str(""))
 
     def exit_standby(self):
@@ -87,13 +87,13 @@ class StimulusInferenceModel(LatentInferenceForageModel):
     def enter_dark_period(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_dark_period;" + str(""))
         self.rewards_earned_in_block = 0
-        self.trial_running = False
         self.stimuli_off()
+        # self.trial_running = False
 
     def exit_dark_period(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_dark_period;" + str())
         self.next_dark_time = time.time() + self.session_info['epoch_length']
-        self.reset_stimuli()
+        # self.reset_stimuli()
 
     def activate_dark_period(self):
         # make sure this overrides ITI, so you don't get an LED turned on after darkmode starts
