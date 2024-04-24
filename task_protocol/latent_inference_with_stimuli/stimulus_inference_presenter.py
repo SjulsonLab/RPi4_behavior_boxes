@@ -37,7 +37,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             self.R_stimulus_on = self.stimulus_A_on
 
     def stimulus_A_on(self) -> None:
-        self.box.visualstim.end_gratings_process()
+        # self.box.visualstim.end_gratings_process()
         self.sounds_off()
         self.box.sound1.blink(0.1, 0.1)
         # grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
@@ -46,7 +46,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.box.visualstim.stimulus_A_on()
 
     def stimulus_B_on(self) -> None:
-        self.box.visualstim.end_gratings_process()
+        # self.box.visualstim.end_gratings_process()
         self.sounds_off()
         self.box.sound1.blink(0.2, 0.1)
         # grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])

@@ -23,21 +23,21 @@ class VisualStimMultiprocess(VisualStim):
         self.display_default_greyscale()
 
     def stimulus_A_on(self) -> None:
-        # if self.active_process is not None and self.active_process.is_alive():
-        #     self.stimulus_commands.put('vertical_gratings')
-        #     ic("vertical_gratings command sent; main process gratings on")
-        # else:
-        grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+        if self.active_process is not None and self.active_process.is_alive():
+            self.stimulus_commands.put('vertical_gratings')
+            ic("vertical_gratings command sent; main process gratings on")
+        else:
+            grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
         self.loop_grating(grating_name, self.session_info['stimulus_duration'])
 
         self.gratings_on = True
 
     def stimulus_B_on(self) -> None:
-        # if self.active_process is not None and self.active_process.is_alive():
-        #     self.stimulus_commands.put('horizontal_gratings')
-        #     ic("horizontal_gratings command sent; main process gratings on")
-        # else:
-        grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+        if self.active_process is not None and self.active_process.is_alive():
+            self.stimulus_commands.put('horizontal_gratings')
+            ic("horizontal_gratings command sent; main process gratings on")
+        else:
+            grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
         self.loop_grating(grating_name, self.session_info['stimulus_duration'])
 
         self.gratings_on = True
@@ -174,28 +174,31 @@ class VisualStimMultiprocess(VisualStim):
             self.myscreen.display_greyscale(self.session_info["gray_level"])
 
             try:
-                # maybe I need to change this section to expire the whole queue??
-                commands = self.empty_stimulus_queue()
-                for c in commands:
-                    if c in ['default_greyscale', 'gratings_off']:
-                        self._display_default_greyscale()
-                        ic('ending stimulus loop with default greyscale')
-                        break
-                    elif c == 'dark_greyscale':
-                        ic('ending stimulus loop with dark greyscale')
-                        self._display_dark_greyscale()
-                        break
-                    # elif command == 'vertical_gratings':
-                    #     grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
-                    #     ic('abbrev stimulus time', time.perf_counter() - t_start)
-                    #     t_start = time.perf_counter()
-                    # elif command == 'horizontal_gratings':
-                    #     grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
-                    #     ic('abbrev stimulus time', time.perf_counter() - t_start)
-                    #     t_start = time.perf_counter()
-                    else:
-                        raise ValueError("Unknown command: " + str(c))
-
+                c = self.stimulus_commands.get(block=False)
+            #     # maybe I need to change this section to expire the whole queue??
+            # commands = self.empty_stimulus_queue()
+            # for c in commands:
+                if c in ['default_greyscale', 'gratings_off']:
+                    self._display_default_greyscale()
+                    ic('ending stimulus loop with default greyscale')
+                    break
+                elif c == 'dark_greyscale':
+                    ic('ending stimulus loop with dark greyscale')
+                    self._display_dark_greyscale()
+                    break
+                elif c == 'vertical_gratings':
+                    grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                    ic('abbrev stimulus time', time.perf_counter() - t_start)
+                    t_start = time.perf_counter()
+                    # break
+                elif c == 'horizontal_gratings':
+                    grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                    ic('abbrev stimulus time', time.perf_counter() - t_start)
+                    t_start = time.perf_counter()
+                    # break
+                else:
+                    raise ValueError("Unknown command: " + str(c))
+            #
             except queue.Empty:
                 pass
 
