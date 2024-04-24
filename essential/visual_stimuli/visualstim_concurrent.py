@@ -26,8 +26,8 @@ class VisualStimMultiprocess(VisualStim):
                                                                               self.presenter_commands))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
         self.gratings_on = True
-        self.active_process.start()
         self.t_start = time.perf_counter()
+        self.active_process.start()
 
     def loop_grating_process(self, grating_name: str, stimulus_duration: float,
                              from_visualstim_commands: Queue, to_visualstim_commands: Queue):
@@ -57,13 +57,14 @@ class VisualStimMultiprocess(VisualStim):
 
         from_visualstim_commands.put('reset_stimuli')
         ic("stimulus loop_grating_process done")
+        ic('stimulus time', time.perf_counter() - tstart)
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
     def end_gratings_process(self):
-        if self.active_process is not None:
+        if self.active_process is not None and self.gratings_on:
             self.stimulus_commands.put('gratings_off')
             self.active_process.join()
-            ic(time.perf_counter() - self.t_start)
+            ic('full process time', time.perf_counter() - self.t_start)
 
         self.gratings_on = False
         try:
