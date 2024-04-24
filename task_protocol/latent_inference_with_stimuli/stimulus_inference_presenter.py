@@ -27,7 +27,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
         super().__init__(model, box, pump, gui, session_info)
-        self.box.visualstim.run_eventloop()
+        # self.box.visualstim.run_eventloop()
         if session_info['counterbalance_type'] == 'leftA':
             self.L_stimulus_on = self.stimulus_A_on
             self.R_stimulus_on = self.stimulus_B_on
