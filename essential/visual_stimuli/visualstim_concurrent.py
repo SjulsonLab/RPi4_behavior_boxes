@@ -174,8 +174,10 @@ class VisualStimMultiprocess(VisualStim):
                 command = in_queue.get(block=False)
                 if command in ['default_greyscale', 'gratings_off']:
                     self._display_default_greyscale()
+                    ic('ending stimulus loop with default greyscale')
                     break
                 elif command == 'dark_greyscale':
+                    ic('ending stimulus loop with dark greyscale')
                     self._display_dark_greyscale()
                     break
                 # elif command == 'vertical_gratings':
@@ -192,12 +194,14 @@ class VisualStimMultiprocess(VisualStim):
             except queue.Empty:
                 pass
 
-            if self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
+            elapsed_time = time.perf_counter() - t_start
+            if self.gratings_on and elapsed_time < self.session_info['stimulus_duration']:
                 sleeptime = min(self.session_info["inter_grating_interval"],
                                 self.session_info['stimulus_duration'] - (time.perf_counter() - t_start))
                 time.sleep(sleeptime)
                 # time.sleep(self.session_info["inter_grating_interval"])
             else:
+                ic('ending stimulus loop with time', elapsed_time, 'or gratings_on', self.gratings_on)
                 break
 
             ic('loop done')
