@@ -3,7 +3,7 @@ import time
 import logging
 from icecream import ic
 from threading import Thread
-from multiprocessing import Process, Queue, Pipe
+from multiprocessing import Process, Queue
 import queue
 import sys
 
@@ -84,6 +84,7 @@ class VisualStimMultiprocess(VisualStim):
         self.presenter_commands = Queue()
         self.stimulus_commands = Queue()
         self.t_start = time.perf_counter()
+        self._display_default_greyscale()
 
     def stimulus_A_on(self) -> None:
         self.stimulus_commands.put('vertical_gratings')
