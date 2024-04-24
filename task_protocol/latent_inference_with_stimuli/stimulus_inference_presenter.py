@@ -27,6 +27,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
         super().__init__(model, box, pump, gui, session_info)
+        self.box.visualstim.run_eventloop()
         if session_info['counterbalance_type'] == 'leftA':
             self.L_stimulus_on = self.stimulus_A_on
             self.R_stimulus_on = self.stimulus_B_on
@@ -38,13 +39,14 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.box.sound1.blink(0.1, 0.1)
         grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
         # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
-        self.box.visualstim.loop_grating(grating_name, self.session_info['stimulus_duration'])
+        # self.box.visualstim.loop_grating(grating_name, self.session_info['stimulus_duration'])
+        self.box.visualstim.stimulus_A_on()
 
     def stimulus_B_on(self) -> None:
         self.box.sound1.blink(0.2, 0.1)
         grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
         # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
-        self.box.visualstim.loop_grating(grating_name, self.session_info['stimulus_duration'])
+        self.box.visualstim.stimulus_B_on()
 
     def stimulus_C_on(self) -> None:
         self.box.sound2.on()
@@ -53,16 +55,19 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
     def stimuli_reset(self) -> None:
         self.box.sound1.off()
         self.box.sound2.off()
-        self.box.visualstim.end_gratings_process()
+        # self.box.visualstim.end_gratings_process()
         self.box.visualstim.display_default_greyscale()
+        self.box.visualstim.gratings_on = False
 
     def stimuli_off(self) -> None:
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.box.sound1.off()
         self.box.sound2.off()
-        self.box.visualstim.end_gratings_process()
-        self.box.visualstim.myscreen.display_greyscale(0)
+        # self.box.visualstim.end_gratings_process()
+        # self.box.visualstim.myscreen.display_greyscale(0)
+        self.box.visualstim.display_dark_greyscale()
+        self.box.visualstim.gratings_on = False
 
     def match_command(self, command: str, correct_pump: int, incorrect_pump: int) -> None:
         # give reward if

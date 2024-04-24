@@ -56,72 +56,201 @@ class LED:
         pass
 
 
+# class VisualStim(VisualStimBase):
+#
+#     def __init__(self, session_info):
+#         self.session_info = session_info
+#         # self.presenter_commands = []
+#         self.presenter_commands = Queue()
+#         self.stimulus_commands = Queue()
+#         self.gratings_on = False
+#         self.myscreen = LED()
+#         self.active_process = None
+#         self.t_start = time.perf_counter()
+#
+#     def loop_grating(self, grating_name: str, stimulus_duration: float):
+#         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
+#         self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration,
+#                                                                               self.presenter_commands, self.stimulus_commands))
+#
+#         # self.active_process = Thread(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
+#         logging.info(";" + str(time.time()) + ";[configuration];starting process")
+#         self.gratings_on = True
+#         self.t_start = time.perf_counter()
+#         self.active_process.start()
+#
+#     def loop_grating_process(self, grating_name: str, stimulus_duration: float,
+#                              from_visualstim_commands: Queue, to_visualstim_commands: Queue):
+#         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
+#         tstart = time.perf_counter()
+#         gratings_on = True
+#         while gratings_on and time.perf_counter() - tstart < stimulus_duration:
+#             logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
+#             time.sleep(.5)
+#             logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
+#
+#             try:
+#                 command = to_visualstim_commands.get(block=False)
+#                 if command == 'gratings_off':
+#                     ic("gratings_off command received")
+#                     gratings_on = False
+#                 else:
+#                     raise ValueError("Unknown command: " + str(command))
+#             except queue.Empty:
+#                 pass
+#
+#             if gratings_on and time.perf_counter() - tstart < stimulus_duration:
+#                 # sleeptime = min(self.session_info["inter_grating_interval"],
+#                 #                 stimulus_duration - (time.perf_counter() - tstart))
+#                 time.sleep(min(self.session_info["inter_grating_interval"],
+#                                 stimulus_duration - (time.perf_counter() - tstart)))
+#                 # time.sleep(self.session_info["inter_grating_interval"])
+#             else:
+#                 break
+#
+#         ic("stimulus loop_grating_process done")
+#         ic('stimulus time', time.perf_counter() - tstart)
+#         from_visualstim_commands.put('reset_stimuli')
+#         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
+#
+#     def display_default_greyscale(self):
+#         pass
+#
+#     def end_gratings_process(self):
+#         if self.active_process is not None and self.gratings_on:
+#             self.stimulus_commands.put('gratings_off')
+#             self.active_process.join()
+#             ic('full process time', time.perf_counter() - self.t_start)
+#
+#         self.gratings_on = False
+#         try:
+#             self.stimulus_commands.get(block=False)
+#         except queue.Empty:
+#             pass
+
+
 class VisualStim(VisualStimBase):
 
     def __init__(self, session_info):
         self.session_info = session_info
-        # self.presenter_commands = []
+        self.gratings_on = False
         self.presenter_commands = Queue()
         self.stimulus_commands = Queue()
-        self.gratings_on = False
-        self.myscreen = LED()
-        self.active_process = None
         self.t_start = time.perf_counter()
 
-    def loop_grating(self, grating_name: str, stimulus_duration: float):
-        logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
-        self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration,
-                                                                              self.presenter_commands, self.stimulus_commands))
-
-        # self.active_process = Thread(target=self.loop_grating_process, args=(grating_name, stimulus_duration))
-        logging.info(";" + str(time.time()) + ";[configuration];starting process")
-        self.gratings_on = True
-        self.t_start = time.perf_counter()
+    def run_eventloop(self):
+        self.active_process = Process(target=self.eventloop, args=(self.stimulus_commands, self.presenter_commands))
         self.active_process.start()
 
-    def loop_grating_process(self, grating_name: str, stimulus_duration: float,
-                             from_visualstim_commands: Queue, to_visualstim_commands: Queue):
+    def stimulus_A_on(self) -> None:
+        self.stimulus_commands.put('vertical_gratings')
+        self.gratings_on = True
+
+    def stimulus_B_on(self) -> None:
+        self.stimulus_commands.put('horizontal_gratings')
+        self.gratings_on = True
+
+    def eventloop(self, in_queue: Queue, out_queue: Queue):
+        while True:
+            try:
+                command = self.stimulus_commands.get(block=False)
+                if command == 'vertical_gratings':
+                    grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                    self.loop_grating_process(grating_name, in_queue, out_queue)
+                elif command == 'horizontal_gratings':
+                    grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                    self.loop_grating_process(grating_name, in_queue, out_queue)
+                elif command == 'default_greyscale':
+                    pass
+                elif command == 'dark_greyscale':
+                    pass
+                elif command == 'gratings_off':
+                    pass
+                elif command == 'end_process':
+                    break
+                else:
+                    raise ValueError("Unknown command: " + str(command))
+
+            except queue.Empty:
+                pass
+
+    def loop_grating_process(self, grating_name: str, in_queue: Queue, out_queue: Queue):
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
-        tstart = time.perf_counter()
-        gratings_on = True
-        while gratings_on and time.perf_counter() - tstart < stimulus_duration:
+        t_start = time.perf_counter()
+        gratings_on = True  # the multiprocess loop can't access the original process variable
+        while gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
             logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
             time.sleep(.5)
-            logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
 
+            logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
             try:
-                command = to_visualstim_commands.get(block=False)
+                command = in_queue.get(block=False)
                 if command == 'gratings_off':
+                    ic("gratings_off command received")
                     gratings_on = False
+                elif command == 'vertical_gratings':
+                    grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                    ic('last stimulus time', time.perf_counter() - t_start)
+                    t_start = time.perf_counter()
+                elif command == 'horizontal_gratings':
+                    grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                    ic('last stimulus time', time.perf_counter() - t_start)
+                    t_start = time.perf_counter()
+                elif command == 'default_greyscale':
+                    pass
+                elif command == 'dark_greyscale':
+                    pass
+                elif command == 'gratings_off':
+                    gratings_on = False
+                elif command == 'end_process':
+                    gratings_on = False
+                    break
                 else:
                     raise ValueError("Unknown command: " + str(command))
             except queue.Empty:
                 pass
 
-            if gratings_on and time.perf_counter() - tstart < stimulus_duration:
-                time.sleep(self.session_info["inter_grating_interval"])
+            if gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
+                sleeptime = min(self.session_info["inter_grating_interval"],
+                                self.session_info['stimulus_duration'] - (time.perf_counter() - t_start))
+                time.sleep(sleeptime)
+                # time.sleep(self.session_info["inter_grating_interval"])
             else:
                 break
 
+        out_queue.put('reset_stimuli')
         ic("stimulus loop_grating_process done")
-        ic('stimulus time', time.perf_counter() - tstart)
-        from_visualstim_commands.put('reset_stimuli')
+        ic('stimulus time', time.perf_counter() - t_start)
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
-    def display_default_greyscale(self):
-        pass
+    def loop_grating(self, grating_name: str, stimulus_duration: float):
+        logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
+        self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration,
+                                                                              self.presenter_commands, self.stimulus_commands))
+        logging.info(";" + str(time.time()) + ";[configuration];starting process")
+        self.gratings_on = True
+        self.t_start = time.perf_counter()
+        self.active_process.start()
 
     def end_gratings_process(self):
         if self.active_process is not None and self.gratings_on:
-            self.stimulus_commands.put('gratings_off')
+            # self.stimulus_commands.put('gratings_off')
+            self.stimulus_commands.put('end_process')
             self.active_process.join()
             ic('full process time', time.perf_counter() - self.t_start)
 
         self.gratings_on = False
-        try:
-            self.stimulus_commands.get(block=False)
-        except queue.Empty:
-            pass
+        while not self.stimulus_commands.empty():
+            try:
+                self.stimulus_commands.get(block=False)
+            except queue.Empty:
+                break
+
+    def display_default_greyscale(self):
+        pass
+
+    def display_dark_greyscale(self):
+        pass
 
 
 class BehavBox(Box):
