@@ -140,34 +140,36 @@ class LatentInferenceForageModel(Model):  # subclass from base task
             return time_since_start
 
         choice_side = self.determine_choice()
-        if choice_side == 'right':
+        choice_flag = choice_side in ['right', 'left', 'switch']
+        training_reward_flag = (self.error_count >= self.errors_to_reward and self.automate_training_rewards) or self.give_training_reward
+        if choice_flag or training_reward_flag:
             self.activate_ITI()
+
+        if choice_side == 'right':
+            # self.activate_ITI()
             if self.state == 'right_patch':
-                # logging.info(";" + str(time.time()) + ";[transition];correct_choice_right_patch;" + str())
                 self.log_correct_choice(RIGHT_IX, time_since_start, choice_side)
                 self.give_correct_reward()
-            else:
-                # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str())
+            elif self.state == 'left_patch':
                 self.log_incorrect_choice(RIGHT_IX, time_since_start, choice_side)
                 self.give_incorrect_reward()
 
         elif choice_side == 'left':
-            self.activate_ITI()
+            # self.activate_ITI()
             if self.state == 'left_patch':
-                # logging.info(";" + str(time.time()) + ";[transition];correct_choice_left_patch;" + str())
                 self.log_correct_choice(LEFT_IX, time_since_start, choice_side)
                 self.give_correct_reward()
-            else:
-                # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_left_patch;" + str(""))
+            elif self.state == 'right_patch':
                 self.log_incorrect_choice(LEFT_IX, time_since_start, choice_side)
                 self.give_incorrect_reward()
 
-        elif choice_side == 'switch':
-            self.activate_ITI()
+        # elif choice_side == 'switch':
+        #     self.activate_ITI()
 
-        elif (self.error_count >= self.errors_to_reward and self.automate_training_rewards)\
-                or self.give_training_reward:
-            self.activate_ITI()
+        # elif (self.error_count >= self.errors_to_reward and self.automate_training_rewards)\
+        #         or self.give_training_reward:
+        elif training_reward_flag:
+            # self.activate_ITI()
             self.presenter_commands.append('give_training_reward')
             if self.state == 'right_patch':
                 choice_ix = RIGHT_IX

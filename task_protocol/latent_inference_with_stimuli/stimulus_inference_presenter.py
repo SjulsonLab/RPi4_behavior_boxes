@@ -12,6 +12,8 @@ from icecream import ic
 import time
 import logging
 from essential.base_classes import Presenter, Model, GUI, Box, PumpBase
+from multiprocessing import Queue
+import queue
 
 
 # SEED = 0
@@ -163,9 +165,11 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             # c = self.box.visualstim.presenter_commands.pop(0)
 
         # multiprocessing
-        for i in range(self.box.visualstim.presenter_commands.qsize()):
-            c = self.box.visualstim.presenter_commands.get()
+        try:
+            c = self.box.visualstim.presenter_commands.get(block=False)
             self.match_command(c, correct_pump, incorrect_pump)
+        except queue.Empty:
+            pass
 
     def update_plot(self, save_fig=False) -> None:
         if self.task.trial_choice_list:
@@ -197,5 +201,4 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.gui.figure_window.state_text.set_text('State: {}; ITI: {}'.format(self.task.state,
                                                                          self.task.ITI_active))
         self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.box.visualstim.gratings_on))
-
         self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)

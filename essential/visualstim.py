@@ -33,10 +33,10 @@ class VisualStim(VisualStimBase):
     def display_default_greyscale(self):
         self.myscreen.display_greyscale(self.session_info["gray_level"])
 
-    def end_gratings_process(self):
-        self.gratings_on = False
-        if self.active_process is not None:
-            self.active_process.join()
+    # def end_gratings_process(self):
+    #     self.gratings_on = False
+    #     if self.active_process is not None:
+    #         self.active_process.join()
 
     def load_grating_file(self, grating_file: str):  # best if grating_file is an absolute path
         fname = os.path.split(grating_file)
