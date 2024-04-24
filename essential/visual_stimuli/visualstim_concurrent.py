@@ -3,7 +3,7 @@ import time
 import logging
 from icecream import ic
 from threading import Thread
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, BoundedSemaphore
 import queue
 import sys
 from typing import List
@@ -151,7 +151,9 @@ class VisualStimMultiprocess(VisualStim):
 
     def loop_grating(self, grating_name: str, stimulus_duration: float):
         logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
-        self.empty_stimulus_queue()
+        if self.active_process is not None and self.active_process.is_alive():
+            raise ValueError("A Process is already running!! Time to debug")
+
         self.active_process = Process(target=self._loop_grating, args=(grating_name, self.stimulus_commands,
                                                                        self.presenter_commands))
         logging.info(";" + str(time.time()) + ";[configuration];starting process")
@@ -161,10 +163,10 @@ class VisualStimMultiprocess(VisualStim):
 
     def _loop_grating(self, grating_name: str, in_queue: Queue, out_queue: Queue):
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
-        t_start = time.perf_counter()
         self.empty_stimulus_queue()
         self.gratings_on = True  # the multiprocess loop can't access the original process variable
         ic('secondary process gratings on')
+        t_start = time.perf_counter()
         while self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
             logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
             self.myscreen.display_grating(self.gratings[grating_name])
