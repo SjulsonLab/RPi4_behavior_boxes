@@ -161,9 +161,9 @@ class VisualStimMultiprocess(VisualStim):
     def _loop_grating(self, grating_name: str, in_queue: Queue, out_queue: Queue):
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
         t_start = time.perf_counter()
+        self.empty_stimulus_queue()
         self.gratings_on = True  # the multiprocess loop can't access the original process variable
         ic('secondary process gratings on')
-
         while self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
             logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
             self.myscreen.display_grating(self.gratings[grating_name])
@@ -173,7 +173,8 @@ class VisualStimMultiprocess(VisualStim):
             try:
                 command = in_queue.get(block=False)
                 if command in ['default_greyscale', 'gratings_off']:
-                    self._display_default_greyscale()
+                    # self._display_default_greyscale()
+                    self.gratings_on = False
                     ic('ending stimulus loop with default greyscale')
                     break
                 elif command == 'dark_greyscale':
@@ -197,14 +198,12 @@ class VisualStimMultiprocess(VisualStim):
             elapsed_time = time.perf_counter() - t_start
             if self.gratings_on and elapsed_time < self.session_info['stimulus_duration']:
                 sleeptime = min(self.session_info["inter_grating_interval"],
-                                self.session_info['stimulus_duration'] - (time.perf_counter() - t_start))
+                                self.session_info['stimulus_duration'] - elapsed_time)
                 time.sleep(sleeptime)
                 # time.sleep(self.session_info["inter_grating_interval"])
             else:
                 ic('ending stimulus loop with time', elapsed_time, 'or gratings_on', self.gratings_on)
                 break
-
-            ic('loop done')
 
         self.gratings_on = False
         self.empty_stimulus_queue()
@@ -217,7 +216,7 @@ class VisualStimMultiprocess(VisualStim):
 
     def end_gratings_process(self):
         # join the process and empty any remaining commands
-        if self.active_process is not None:# and self.active_process.is_alive():
+        if self.active_process is not None and self.active_process.is_alive():
             self.stimulus_commands.put('gratings_off')
             self.active_process.join()
             ic('full process time', time.perf_counter() - self.t_start)

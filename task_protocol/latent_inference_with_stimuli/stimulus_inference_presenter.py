@@ -23,6 +23,7 @@ PUMP1_IX = 0
 PUMP2_IX = 1
 trial_choice_map = {'right': 0, 'left': 1}
 
+
 class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass from base task
 
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
@@ -37,6 +38,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
     def stimulus_A_on(self) -> None:
         self.sounds_off()
+        self.box.visualstim.end_gratings_process()
         self.box.sound1.blink(0.1, 0.1)
         # grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
         # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
@@ -45,6 +47,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
     def stimulus_B_on(self) -> None:
         self.sounds_off()
+        self.box.visualstim.end_gratings_process()
         self.box.sound1.blink(0.2, 0.1)
         # grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
         # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
