@@ -138,10 +138,6 @@ class VisualStim(VisualStimBase):
         self.stimulus_commands = Queue()
         self.t_start = time.perf_counter()
 
-    def run_eventloop(self):
-        self.active_process = Process(target=self.eventloop, args=(self.stimulus_commands, self.presenter_commands))
-        self.active_process.start()
-
     def stimulus_A_on(self) -> None:
         self.stimulus_commands.put('vertical_gratings')
         self.gratings_on = True
@@ -149,6 +145,24 @@ class VisualStim(VisualStimBase):
     def stimulus_B_on(self) -> None:
         self.stimulus_commands.put('horizontal_gratings')
         self.gratings_on = True
+
+    def display_default_greyscale(self):
+        self.stimulus_commands.put('gratings_off')
+        self.gratings_on = False
+
+    def display_dark_greyscale(self):
+        self.stimulus_commands.put('gratings_off')
+        self.gratings_on = False
+
+    def _display_default_greyscale(self):
+        pass
+
+    def _display_dark_greyscale(self):
+        pass
+
+    def run_eventloop(self):
+        self.active_process = Process(target=self.eventloop, args=(self.stimulus_commands, self.presenter_commands))
+        self.active_process.start()
 
     def eventloop(self, in_queue: Queue, out_queue: Queue):
         while True:
@@ -188,14 +202,7 @@ class VisualStim(VisualStimBase):
                 if command == 'gratings_off':
                     ic("gratings_off command received")
                     gratings_on = False
-                elif command == 'vertical_gratings':
-                    grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
-                    ic('last stimulus time', time.perf_counter() - t_start)
-                    t_start = time.perf_counter()
-                elif command == 'horizontal_gratings':
-                    grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
-                    ic('last stimulus time', time.perf_counter() - t_start)
-                    t_start = time.perf_counter()
+                    break
                 elif command == 'default_greyscale':
                     pass
                 elif command == 'dark_greyscale':
@@ -205,6 +212,14 @@ class VisualStim(VisualStimBase):
                 elif command == 'end_process':
                     gratings_on = False
                     break
+                elif command == 'vertical_gratings':
+                    grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                    ic('last stimulus time', time.perf_counter() - t_start)
+                    t_start = time.perf_counter()
+                elif command == 'horizontal_gratings':
+                    grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                    ic('last stimulus time', time.perf_counter() - t_start)
+                    t_start = time.perf_counter()
                 else:
                     raise ValueError("Unknown command: " + str(command))
             except queue.Empty:
@@ -223,15 +238,6 @@ class VisualStim(VisualStimBase):
         ic('stimulus time', time.perf_counter() - t_start)
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
-    def loop_grating(self, grating_name: str, stimulus_duration: float):
-        logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
-        self.active_process = Process(target=self.loop_grating_process, args=(grating_name, stimulus_duration,
-                                                                              self.presenter_commands, self.stimulus_commands))
-        logging.info(";" + str(time.time()) + ";[configuration];starting process")
-        self.gratings_on = True
-        self.t_start = time.perf_counter()
-        self.active_process.start()
-
     def end_gratings_process(self):
         if self.active_process is not None and self.gratings_on:
             # self.stimulus_commands.put('gratings_off')
@@ -245,12 +251,6 @@ class VisualStim(VisualStimBase):
                 self.stimulus_commands.get(block=False)
             except queue.Empty:
                 break
-
-    def display_default_greyscale(self):
-        pass
-
-    def display_dark_greyscale(self):
-        pass
 
 
 class BehavBox(Box):
