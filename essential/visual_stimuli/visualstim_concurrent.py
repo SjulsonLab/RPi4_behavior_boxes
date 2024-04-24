@@ -177,14 +177,14 @@ class VisualStimMultiprocess(VisualStim):
                 elif command == 'dark_greyscale':
                     self._display_dark_greyscale()
                     break
-                elif command == 'vertical_gratings':
-                    grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
-                    ic('abbrev stimulus time', time.perf_counter() - t_start)
-                    t_start = time.perf_counter()
-                elif command == 'horizontal_gratings':
-                    grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
-                    ic('abbrev stimulus time', time.perf_counter() - t_start)
-                    t_start = time.perf_counter()
+                # elif command == 'vertical_gratings':
+                #     grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                #     ic('abbrev stimulus time', time.perf_counter() - t_start)
+                #     t_start = time.perf_counter()
+                # elif command == 'horizontal_gratings':
+                #     grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+                #     ic('abbrev stimulus time', time.perf_counter() - t_start)
+                #     t_start = time.perf_counter()
                 else:
                     raise ValueError("Unknown command: " + str(command))
 
@@ -203,8 +203,9 @@ class VisualStimMultiprocess(VisualStim):
 
         self.gratings_on = False
         ic('secondary process gratings off')
-        # out_queue.put('reset_stimuli')
-        out_queue.put('sounds_off')
+        out_queue.put('reset_stimuli')
+        # out_queue.put('sounds_off')
+        # out_queue.put('turn_stimulus_C_on')
         ic('stimulus loop_grating_process done', time.perf_counter() - t_start)
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
 
