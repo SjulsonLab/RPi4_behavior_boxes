@@ -130,7 +130,8 @@ class VisualStimMultiprocess(VisualStim):
             except queue.Empty:
                 pass
 
-            if self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
+            elapsed_time = time.perf_counter() - t_start
+            if self.gratings_on and elapsed_time < self.session_info['stimulus_duration']:
                 sleeptime = min(self.session_info["inter_grating_interval"],
                                 self.session_info['stimulus_duration'] - (time.perf_counter() - t_start))
                 time.sleep(sleeptime)
@@ -138,7 +139,7 @@ class VisualStimMultiprocess(VisualStim):
             else:
                 ic('ending stimulus loop:')
                 ic(self.gratings_on)
-                ic(time.perf_counter() - t_start < self.session_info['stimulus_duration'])
+                ic(elapsed_time)
                 break
 
         self.gratings_on = False
