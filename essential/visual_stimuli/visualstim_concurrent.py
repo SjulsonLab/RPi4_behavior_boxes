@@ -28,7 +28,7 @@ class VisualStimMultiprocess(VisualStim):
             ic("vertical_gratings command sent; main process gratings on")
         else:
             grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
-        self.loop_grating(grating_name, self.session_info['stimulus_duration'])
+            self.loop_grating(grating_name, self.session_info['stimulus_duration'])
 
         self.gratings_on = True
 
@@ -38,7 +38,7 @@ class VisualStimMultiprocess(VisualStim):
             ic("horizontal_gratings command sent; main process gratings on")
         else:
             grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
-        self.loop_grating(grating_name, self.session_info['stimulus_duration'])
+            self.loop_grating(grating_name, self.session_info['stimulus_duration'])
 
         self.gratings_on = True
 
@@ -175,6 +175,7 @@ class VisualStimMultiprocess(VisualStim):
 
             try:
                 c = in_queue.get(block=False)
+                ic(c, 'command received in _loop_grating')
             #     # maybe I need to change this section to expire the whole queue??
             # commands = self.empty_stimulus_queue()
             # for c in commands:
