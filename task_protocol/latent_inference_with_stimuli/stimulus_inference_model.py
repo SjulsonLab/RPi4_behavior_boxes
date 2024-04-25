@@ -65,7 +65,7 @@ class StimulusInferenceModel(LatentInferenceForageModel):
             logging.info(";" + str(time.time()) + ";[action];left_stimulus_on;" + str(""))
 
     def exit_left_patch(self):
-        self.reset_stimuli()
+        # self.reset_stimuli()
         logging.info(";" + str(time.time()) + ";[transition];exit_left_patch;" + str(""))
 
     def enter_right_patch(self) -> None:
@@ -75,7 +75,7 @@ class StimulusInferenceModel(LatentInferenceForageModel):
             logging.info(";" + str(time.time()) + ";[action];right_stimulus_on;" + str(""))
 
     def exit_right_patch(self):
-        self.reset_stimuli()
+        # self.reset_stimuli()
         logging.info(";" + str(time.time()) + ";[transition];exit_right_patch;" + str(""))
 
     def exit_standby(self):
