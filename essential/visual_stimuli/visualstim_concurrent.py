@@ -174,7 +174,7 @@ class VisualStimMultiprocess(VisualStim):
             self.myscreen.display_greyscale(self.session_info["gray_level"])
 
             try:
-                c = self.stimulus_commands.get(block=False)
+                c = in_queue.get(block=False)
             #     # maybe I need to change this section to expire the whole queue??
             # commands = self.empty_stimulus_queue()
             # for c in commands:
