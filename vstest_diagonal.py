@@ -8,7 +8,7 @@ options_nogo = {"duration": 3, "angle": 135, "spac_freq": 0.3, "temp_freq": 2}
 rpg.build_grating("~/first_grating_nogo_diag.dat", options_nogo)
 
 with rpg.Screen() as myscreen:
- grating_go = myscreen.load_grating("~/first_grating_go.dat")
+ grating_go = myscreen.load_grating("~/first_grating_go_diag.dat")
  myscreen.display_grating(grating_go)
- grating_nogo = myscreen.load_grating("~/first_grating_nogo.dat")
+ grating_nogo = myscreen.load_grating("~/first_grating_nogo_diag.dat")
  myscreen.display_grating(grating_nogo)
