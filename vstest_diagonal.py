@@ -1,10 +1,10 @@
 #Test file from https://github.com/bill-connelly/rpg 
 ################
 import rpg
-options_go = {"duration": 3, "angle": 45, "spac_freq": 0.1, "temp_freq": 0.66}
+options_go = {"duration": 3, "angle": 45, "spac_freq": 0.04, "temp_freq": 2}
 rpg.build_grating("~/first_grating_go_diag.dat", options_go)
 
-options_nogo = {"duration": 3, "angle": 135, "spac_freq": 0.1, "temp_freq":0.66}
+options_nogo = {"duration": 3, "angle": 135, "spac_freq": 0.04, "temp_freq":2}
 rpg.build_grating("~/first_grating_nogo_diag.dat", options_nogo)
 
 with rpg.Screen() as myscreen:
