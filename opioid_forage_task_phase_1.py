@@ -4,11 +4,11 @@
 # In[ ]:
 
 
-# python3: liquid_SA_task_dual_lever.py
+# python3: opioid_forage_task_phase_1.py
 """
 author: Mitch Farrell
-date: 2023-12-05
-name: liquid_SA_task_dual_lever.py
+date: 2024-05-1
+name: opioid_forage_task_phase_1.py
 """
 import importlib
 from transitions import Machine
@@ -50,7 +50,7 @@ import behavbox
 class TimedStateMachine(Machine):
     pass
 
-class LiquidSATaskDualLever(object):
+class OpioidForageTaskPhase1(object):
     # Define states. States where the animals is waited to make their decision
 
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
@@ -125,10 +125,8 @@ class LiquidSATaskDualLever(object):
         self.reward_pump1 = self.session_info["reward_pump1"]
         self.reward_pump2 = self.session_info['reward_pump2']
 
-        self.reward_size1 = self.session_info["reward_size1"] #large, right
-        self.reward_size2 = self.session_info['reward_size2'] #small, left
-        self.reward_size3 = self.session_info['reward_size3'] #large, left
-        self.reward_size4 = self.session_info['reward_size4'] #small, right
+        self.reward_size1 = self.session_info["reward_size1"] #right
+        self.reward_size2 = self.session_info['reward_size2'] #left
 
         self.ContextA_time = 0
         self.ContextB_time = 0
