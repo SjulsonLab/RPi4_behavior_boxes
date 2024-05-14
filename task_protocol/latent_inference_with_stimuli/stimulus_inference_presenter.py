@@ -1,7 +1,7 @@
 from task_protocol.latent_inference_forage.latent_inference_forage_presenter import LatentInferenceForagePresenter
 
 import collections
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -12,6 +12,7 @@ from icecream import ic
 import time
 import logging
 from essential.base_classes import Presenter, Model, GUI, Box, PumpBase
+from threading import Thread
 from multiprocessing import Queue
 import queue
 
@@ -28,6 +29,10 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
         super().__init__(model, box, pump, gui, session_info)
+        self.stimulus_A_thread = None
+        self.stimulus_B_thread = None
+        self.gratings_on = False
+
         # self.box.visualstim.run_eventloop()
         if session_info['counterbalance_type'] == 'leftA':
             self.L_stimulus_on = self.stimulus_A_on
@@ -36,22 +41,34 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             self.L_stimulus_on = self.stimulus_B_on
             self.R_stimulus_on = self.stimulus_A_on
 
+    # def stimulus_A_on(self) -> None:
+    #     # self.box.visualstim.end_gratings_process()
+    #     self.sounds_off()
+    #     self.box.sound1.blink(0.1, 0.1)
+    #     # grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+    #     # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
+    #     # self.box.visualstim.loop_grating(grating_name, self.session_info['stimulus_duration'])
+    #     self.box.visualstim.stimulus_A_on()
+
+    # def stimulus_B_on(self) -> None:
+    #     # self.box.visualstim.end_gratings_process()
+    #     self.sounds_off()
+    #     self.box.sound1.blink(0.2, 0.1)
+    #     # grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+    #     # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
+    #     self.box.visualstim.stimulus_B_on()
+
     def stimulus_A_on(self) -> None:
-        # self.box.visualstim.end_gratings_process()
-        self.sounds_off()
-        self.box.sound1.blink(0.1, 0.1)
-        # grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
-        # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
-        # self.box.visualstim.loop_grating(grating_name, self.session_info['stimulus_duration'])
-        self.box.visualstim.stimulus_A_on()
+        grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+        sound_on_time = 0.1
+        self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread))
+        self.stimulus_A_thread.start()
 
     def stimulus_B_on(self) -> None:
-        # self.box.visualstim.end_gratings_process()
-        self.sounds_off()
-        self.box.sound1.blink(0.2, 0.1)
-        # grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
-        # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
-        self.box.visualstim.stimulus_B_on()
+        grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+        sound_on_time = 0.2
+        self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread))
+        self.stimulus_B_thread.start()
 
     def stimulus_C_on(self) -> None:
         self.box.sound1.off()
@@ -62,6 +79,20 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.sounds_off()
         self.box.visualstim.end_gratings_process()
         self.box.visualstim.display_default_greyscale()
+
+    def stimulus_loop(self, grating_name: str, sound_on_time: float, prev_stim_thread: Thread) -> None:
+        if prev_stim_thread is not None:
+            self.gratings_on = False
+            prev_stim_thread.join()
+
+        t_start = time.perf_counter()
+        self.gratings_on = True
+        while self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
+            self.box.visualstim.show_grating(grating_name)
+            self.box.sound1.blink(sound_on_time, 0.1)
+            time.sleep(self.session_info['grating_duration'])
+            self.sounds_off()
+            time.sleep(self.session_info['inter_grating_interval'])
 
     def sounds_off(self) -> None:
         self.box.sound1.off()

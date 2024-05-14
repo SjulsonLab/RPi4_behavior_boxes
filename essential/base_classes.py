@@ -50,6 +50,10 @@ class VisualStimBase(ABC):
     active_process: Union[Thread, Process, None]
 
     @abstractmethod
+    def show_grating(self, grating_name: str):
+        ...
+
+    @abstractmethod
     def loop_grating(self, grating_name: str, duration: float):
         ...
 
