@@ -76,6 +76,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         self.end_dark_time = 0
         self.next_dark_time = 0
         self.dark_period_thread = None
+        self.dark_period_length = 0
 
         # debugging
         self.t_ITI_start = 0

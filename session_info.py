@@ -70,8 +70,8 @@ def make_session_info() -> Dict[str, Any]:
         session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
         # session_info['vis_gratings']				= ['/home/pi/gratings/context_a.dat',
         #                                                '/home/pi/gratings/context_b.dat',]
-        session_info['vis_gratings'] = ['/home/pi/gratings/vertical_grating_0.5s.dat',
-                                        '/home/pi/gratings/horizontal_grating_0.5s.dat', ]
+        session_info['vis_gratings'] = ['/home/pi/gratings/vertical_grating_0.5s.dat', '/home/pi/gratings/vertical_grating_1.0s.dat',
+                                        '/home/pi/gratings/horizontal_grating_0.5s.dat', '/home/pi/gratings/horizontal_grating_1.0s.dat']
         session_info['vis_raws']					= []
         session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
         session_info['grating_duration'] = 1
