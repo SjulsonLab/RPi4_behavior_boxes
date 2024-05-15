@@ -1,7 +1,7 @@
 from task_protocol.latent_inference_forage.latent_inference_forage_presenter import LatentInferenceForagePresenter
 
 import collections
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -12,6 +12,7 @@ from icecream import ic
 import time
 import logging
 from essential.base_classes import Presenter, Model, GUI, Box, PumpBase
+from threading import Thread
 from multiprocessing import Queue
 import queue
 
@@ -28,52 +29,115 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
         super().__init__(model, box, pump, gui, session_info)
+
+        # simple AV sync
+        self.stimulus_A_thread = None
+        self.stimulus_B_thread = None
+        self.gratings_on = False
+        self.dark_period_thread = None
+
+        # complex AV sync
+        self.cur_sound_fn = None
+
         # self.box.visualstim.run_eventloop()
         if session_info['counterbalance_type'] == 'leftA':
             self.L_stimulus_on = self.stimulus_A_on
             self.R_stimulus_on = self.stimulus_B_on
+
+            self.L_sound_on = self.stimulus_A_sound_on
+            self.R_sound_on = self.stimulus_B_sound_on
+
         elif session_info['counterbalance_type'] == 'rightA':
             self.L_stimulus_on = self.stimulus_B_on
             self.R_stimulus_on = self.stimulus_A_on
 
-    def stimulus_A_on(self) -> None:
-        # self.box.visualstim.end_gratings_process()
+            self.L_sound_on = self.stimulus_B_sound_on
+            self.R_sound_on = self.stimulus_A_sound_on
+
+    def stimulus_A_sound_on(self) -> None:
         self.sounds_off()
         self.box.sound1.blink(0.1, 0.1)
-        # grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
-        # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
-        # self.box.visualstim.loop_grating(grating_name, self.session_info['stimulus_duration'])
-        self.box.visualstim.stimulus_A_on()
 
-    def stimulus_B_on(self) -> None:
-        # self.box.visualstim.end_gratings_process()
+    def stimulus_B_sound_on(self) -> None:
         self.sounds_off()
         self.box.sound1.blink(0.2, 0.1)
-        # grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
-        # self.box.visualstim.loop_grating(self.session_info['gratings'][grating_name])
-        self.box.visualstim.stimulus_B_on()
+
+    # for multiprocessing AV sync
+    # def stimulus_A_on(self) -> None:
+    #     self.cur_sound_fn = self.stimulus_A_sound_on
+    #     self.box.visualstim.stimulus_A_on()
+    #
+    # def stimulus_B_on(self) -> None:
+    #     self.cur_sound_fn = self.stimulus_B_sound_on
+    #     self.box.visualstim.stimulus_B_on()
+
+    # for multithreaded AV sync
+    def stimulus_A_on(self) -> None:
+        grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+        sound_on_time = 0.1
+        self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread))
+        self.stimulus_A_thread.start()
+
+    def stimulus_B_on(self) -> None:
+        grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+        sound_on_time = 0.2
+        self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread))
+        self.stimulus_B_thread.start()
 
     def stimulus_C_on(self) -> None:
         self.box.sound1.off()
         self.box.sound2.on()
         self.box.visualstim.display_default_greyscale()
 
-    def stimuli_reset(self) -> None:
-        self.sounds_off()
-        self.box.visualstim.end_gratings_process()
-        self.box.visualstim.display_default_greyscale()
+    def join_stimulus_threads(self) -> None:
+        # threads
+        self.gratings_on = False
+        if self.stimulus_A_thread is not None:
+            self.stimulus_A_thread.join()
+        if self.stimulus_B_thread is not None:
+            self.stimulus_B_thread.join()
+
+        # parallel processes
+        # self.box.visualstim.end_gratings_process()
+
+    def stimulus_loop(self, grating_name: str, sound_on_time: float, prev_stim_thread: Thread) -> None:
+        if prev_stim_thread is not None:
+            self.gratings_on = False
+            prev_stim_thread.join()
+
+        t_start = time.perf_counter()
+        self.gratings_on = True
+        while self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
+            self.box.visualstim.show_grating(grating_name)
+            self.box.sound1.blink(sound_on_time, 0.1)
+            time.sleep(self.session_info['grating_duration'])
+            self.sounds_off()
+            # self.stimulus_C_on()
+            time.sleep(self.session_info['inter_grating_interval'])
+
+    def set_dark_period_stimuli(self) -> None:
+        # Set all stimuli off during dark period. To be run in a thread which waits for the stimulus loop or parallel
+        # process to finish before turning off the stimuli.
+        self.join_stimulus_threads()
+        if self.task.state == 'dark_period':
+            self.stimuli_off()
+            self.task.reset_dark_period_timer()  # guarantee a full interval of darkness
 
     def sounds_off(self) -> None:
         self.box.sound1.off()
         self.box.sound2.off()
 
+    def stimuli_reset(self) -> None:
+        self.sounds_off()
+        self.join_stimulus_threads()
+        self.box.visualstim.display_default_greyscale()
+        # self.stimulus_C_on()
+
     def stimuli_off(self) -> None:
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.sounds_off()
-        # self.box.visualstim.end_gratings_process()
-        # self.box.visualstim.myscreen.display_greyscale(0)
-        # self.box.visualstim.gratings_on = False
+        self.join_stimulus_threads()
         self.box.visualstim.display_dark_greyscale()
 
     def match_command(self, command: str, correct_pump: int, incorrect_pump: int) -> None:
@@ -116,7 +180,11 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             self.stimuli_reset()
             logging.info(";" + str(time.time()) + ";[action];stimuli_reset;" + str(""))
 
-        elif command == 'sounds_off':
+        elif command == 'turn_sounds_on':
+            self.cur_sound_fn()
+            logging.info(";" + str(time.time()) + ";[action];sounds_off;" + str(""))
+
+        elif command == 'turn_sounds_off':
             self.sounds_off()
             logging.info(";" + str(time.time()) + ";[action];sounds_off;" + str(""))
 
@@ -155,6 +223,10 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
                                                                           self.task.rewards_earned_in_block))
             self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
 
+        elif command == 'set_dark_period_stimuli':
+            self.dark_period_thread = Thread(target=self.set_dark_period_stimuli)
+            self.dark_period_thread.start()
+
         else:
             raise ValueError('Presenter command not recognized')
 
@@ -176,14 +248,11 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             c = self.task.presenter_commands.pop(0)
             self.match_command(c, correct_pump, incorrect_pump)
 
-        # multithreading
-        # for i in range(len(self.box.visualstim.presenter_commands)):
-            # c = self.box.visualstim.presenter_commands.pop(0)
-
         # multiprocessing
         try:
-            c = self.box.visualstim.presenter_commands.get(block=False)
-            self.match_command(c, correct_pump, incorrect_pump)
+            while True:
+                c = self.box.visualstim.presenter_commands.get(block=False)
+                self.match_command(c, correct_pump, incorrect_pump)
         except queue.Empty:
             pass
 
@@ -228,3 +297,12 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         # R stimulus on
         self.task.R_stimulus_on()
         logging.info(";" + str(time.time()) + ";[action];user_triggered_R_stimulus_on;" + str(""))
+
+    def print_controls(self) -> None:
+        print("[***] KEYBOARD CONTROLS [***]")
+        print("1, 2, 3: left/center/right nosepoke entry")
+        print("q, w, e, r: pump 1/2/3/4 reward delivery")
+        print("t: vacuum activation")
+        print("a: toggle automated training rewards")
+        print("g: give training reward")
+        print("z, x: L/R stimulus on")

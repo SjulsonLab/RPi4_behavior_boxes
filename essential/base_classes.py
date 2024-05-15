@@ -50,6 +50,10 @@ class VisualStimBase(ABC):
     active_process: Union[Thread, Process, None]
 
     @abstractmethod
+    def show_grating(self, grating_name: str):
+        ...
+
+    @abstractmethod
     def loop_grating(self, grating_name: str, duration: float):
         ...
 
@@ -350,6 +354,12 @@ class Presenter(ABC):
         self.task.presenter_commands.append('blink_LED')
         logging.info(";" + str(time.time()) + ";[action];blink_LED")
 
+    def K_z_callback(self) -> None:
+        pass
+
+    def K_x_callback(self) -> None:
+        pass
+
     def print_controls(self) -> None:
         print("[***] KEYBOARD CONTROLS [***]")
         print("1, 2, 3: left/center/right nosepoke entry")
@@ -390,6 +400,10 @@ class Presenter(ABC):
                         self.K_g_callback()
                     elif event.key == pygame.K_l:
                         self.K_l_callback()
+                    elif event.key == pygame.K_z:
+                        self.K_z_callback()
+                    elif event.key == pygame.K_x:
+                        self.K_x_callback()
 
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:

@@ -29,8 +29,8 @@ def make_session_info() -> Dict[str, Any]:
     session_info['reward_size']					= 10  # in microliters
     session_info["lick_threshold"]              = 2
     session_info['reward_time_delay']           = 20
-    session_info['intertrial_interval']         = 2  # in seconds
-    session_info['quiet_ITI']          = True
+    session_info['intertrial_interval']         = 4  # in seconds
+    session_info['quiet_ITI']          = False
     session_info['initiation_timeout'] = 120  # s
 
     # session_info['entry_interval'] = 1  # this is the one that delays between choices - ITI? or intertrial_interval? or entry_interval?
@@ -70,13 +70,13 @@ def make_session_info() -> Dict[str, Any]:
         session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
         # session_info['vis_gratings']				= ['/home/pi/gratings/context_a.dat',
         #                                                '/home/pi/gratings/context_b.dat',]
-        session_info['vis_gratings'] = ['/home/pi/gratings/vertical_grating_0.5s.dat',
-                                        '/home/pi/gratings/horizontal_grating_0.5s.dat', ]
+        session_info['vis_gratings'] = ['/home/pi/gratings/vertical_grating_0.5s.dat', '/home/pi/gratings/vertical_grating_1.0s.dat',
+                                        '/home/pi/gratings/horizontal_grating_0.5s.dat', '/home/pi/gratings/horizontal_grating_1.0s.dat']
         session_info['vis_raws']					= []
         session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
-        session_info['grating_duration'] = .5
-        session_info['inter_grating_interval'] = .5
-        session_info['stimulus_duration'] = 5
+        session_info['grating_duration'] = 1
+        session_info['inter_grating_interval'] = 2
+        session_info['stimulus_duration'] = 10
         session_info['p_stimulus'] = 1
 
     # times = [15, 20, 25, 30, 35]
@@ -125,6 +125,7 @@ def sanity_checks(session_info: dict):
         assert session_info['vis_gratings'], "No visual stimuli specified"
         assert session_info['counterbalance_type'], "No counterbalance type specified"
         assert session_info['task_config'] in ['latent_inference_with_stimuli'], "Invalid task config for stimulus task"
+        assert session_info['grating_duration'] + session_info['inter_grating_interval'] <= session_info['intertrial_interval'], "Intertrial interval too short for visual stimuli"
 
 
 def get_solenoid_coefficients():
