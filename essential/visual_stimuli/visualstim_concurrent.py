@@ -43,10 +43,10 @@ class VisualStimMultiprocess(VisualStim):
         self.gratings_on = True
 
     def display_default_greyscale(self):
-        # if self.active_process is not None and self.active_process.is_alive():
-        #     self.stimulus_commands.put('default_greyscale')
-        # else:
-        self.myscreen.display_greyscale(self.session_info["gray_level"])
+        if self.active_process is not None and self.active_process.is_alive():
+            self.stimulus_commands.put('default_greyscale')
+        else:
+            self.myscreen.display_greyscale(self.session_info["gray_level"])
 
         self.gratings_on = False
         ic('main process gratings off')
@@ -195,6 +195,7 @@ class VisualStimMultiprocess(VisualStim):
         self.gratings_on = False
         self.empty_stimulus_queue()
         ic('secondary process gratings off')
+        out_queue.put('stimulus_process_done')
         # out_queue.put('reset_stimuli')
         # out_queue.put('sounds_off')
         # out_queue.put('turn_stimulus_C_on')
