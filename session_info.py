@@ -75,6 +75,7 @@ def make_session_info() -> Dict[str, Any]:
         # times = [15, 20, 25, 30, 35]
         times = [.5, 1, 2]
         session_info['vis_gratings'] = ['vertical_grating_{}s.dat'.format(t) for t in times] + ['horizontal_grating_{}s.dat'.format(t) for t in times]
+        session_info['vis_gratings'] = [gratings_dir + '/' + g for g in session_info['vis_gratings']]
         session_info['vis_raws']					= []
         session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
         session_info['grating_duration'] = 1
