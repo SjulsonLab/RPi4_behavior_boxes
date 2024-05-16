@@ -70,24 +70,17 @@ def make_session_info() -> Dict[str, Any]:
         session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
         # session_info['vis_gratings']				= ['/home/pi/gratings/context_a.dat',
         #                                                '/home/pi/gratings/context_b.dat',]
-        session_info['vis_gratings'] = ['/home/pi/gratings/vertical_grating_0.5s.dat', '/home/pi/gratings/vertical_grating_1.0s.dat',
-                                        '/home/pi/gratings/horizontal_grating_0.5s.dat', '/home/pi/gratings/horizontal_grating_1.0s.dat']
+        # session_info['vis_gratings'] = ['/home/pi/gratings/vertical_grating_0.5s.dat', '/home/pi/gratings/vertical_grating_1.0s.dat',
+        #                                 '/home/pi/gratings/horizontal_grating_0.5s.dat', '/home/pi/gratings/horizontal_grating_1.0s.dat']
+        # times = [15, 20, 25, 30, 35]
+        times = [.5, 1, 2]
+        session_info['vis_gratings'] = ['vertical_grating_{}s.dat'.format(t) for t in times] + ['horizontal_grating_{}s.dat'.format(t) for t in times]
         session_info['vis_raws']					= []
         session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
         session_info['grating_duration'] = 1
         session_info['inter_grating_interval'] = 2
         session_info['stimulus_duration'] = 10
         session_info['p_stimulus'] = 1
-
-    # times = [15, 20, 25, 30, 35]
-    times = [.5, 1, 2]
-    gratings = {}
-    for t in times:
-        gratings['vertical_{}.grating'.format(t)] = Path(gratings_dir) / 'vertical_grating_{}s.dat'.format(t)
-        gratings['horizontal_{}.grating'.format(t)] = Path(gratings_dir) / 'horizontal_grating_{}s.dat'.format(t)
-
-        # gratings['a_{}.grating'.format(t)] = Path(gratings_dir) / 'vertical_grating_{}s.dat'.format(session_info['stimulus_duration'])
-        # gratings['b_{}.grating'.format(t)] = Path(gratings_dir) / 'horizontal_grating_{}s.dat'.format(session_info['stimulus_duration'])
 
     session_info['treadmill_setup']             = {}
     session_info['treadmill']                   = True
