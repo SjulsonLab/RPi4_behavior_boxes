@@ -63,26 +63,26 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.box.sound1.blink(0.2, 0.1)
 
     # multiprocessing AV sync
-    # def stimulus_A_on(self) -> None:
-    #     self.cur_sound_fn = self.stimulus_A_sound_on
-    #     self.box.visualstim.stimulus_A_on()
-    #
-    # def stimulus_B_on(self) -> None:
-    #     self.cur_sound_fn = self.stimulus_B_sound_on
-    #     self.box.visualstim.stimulus_B_on()
-
-    # multithreaded AV sync
     def stimulus_A_on(self) -> None:
-        grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
-        sound_on_time = 0.1
-        self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread))
-        self.stimulus_A_thread.start()
+        self.cur_sound_fn = self.stimulus_A_sound_on
+        self.box.visualstim.stimulus_A_on()
 
     def stimulus_B_on(self) -> None:
-        grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
-        sound_on_time = 0.2
-        self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread))
-        self.stimulus_B_thread.start()
+        self.cur_sound_fn = self.stimulus_B_sound_on
+        self.box.visualstim.stimulus_B_on()
+
+    # multithreaded AV sync
+    # def stimulus_A_on(self) -> None:
+    #     grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+    #     sound_on_time = 0.1
+    #     self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread))
+    #     self.stimulus_A_thread.start()
+    #
+    # def stimulus_B_on(self) -> None:
+    #     grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+    #     sound_on_time = 0.2
+    #     self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread))
+    #     self.stimulus_B_thread.start()
 
     def stimulus_C_on(self) -> None:
         self.box.sound1.off()
@@ -294,8 +294,8 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
         self.gui.figure_window.state_text.set_text('State: {}; ITI: {}'.format(self.task.state,
                                                                          self.task.ITI_active))
-        # self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.box.visualstim.gratings_on))
-        self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.gratings_on))
+        self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.box.visualstim.gratings_on))
+        # self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.gratings_on))
         self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)
 
     def K_z_callback(self) -> None:
