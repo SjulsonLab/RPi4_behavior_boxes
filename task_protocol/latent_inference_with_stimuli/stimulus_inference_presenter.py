@@ -55,11 +55,11 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             self.R_sound_on = self.stimulus_A_sound_on
 
     def stimulus_A_sound_on(self) -> None:
-        self.sounds_off()
+        # self.sounds_off()
         self.box.sound1.blink(0.1, 0.1)
 
     def stimulus_B_sound_on(self) -> None:
-        self.sounds_off()
+        # self.sounds_off()
         self.box.sound1.blink(0.2, 0.1)
 
     # multiprocessing AV sync
@@ -188,7 +188,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
         elif command == 'turn_sounds_on':
             self.cur_sound_fn()
-            logging.info(";" + str(time.time()) + ";[action];sounds_off;" + str(""))
+            logging.info(";" + str(time.time()) + ";[action];sounds_on;" + str(""))
 
         elif command == 'turn_sounds_off':
             self.sounds_off()
