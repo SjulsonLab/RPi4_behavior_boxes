@@ -30,13 +30,13 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
         super().__init__(model, box, pump, gui, session_info)
 
-        # simple AV sync
+        # threaded AV sync
         self.stimulus_A_thread = None
         self.stimulus_B_thread = None
         self.gratings_on = False
         self.dark_period_thread = None
 
-        # complex AV sync
+        # multiprocess AV sync
         self.cur_sound_fn = None
 
         # self.box.visualstim.run_eventloop()
@@ -62,7 +62,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.sounds_off()
         self.box.sound1.blink(0.2, 0.1)
 
-    # for multiprocessing AV sync
+    # multiprocessing AV sync
     # def stimulus_A_on(self) -> None:
     #     self.cur_sound_fn = self.stimulus_A_sound_on
     #     self.box.visualstim.stimulus_A_on()
@@ -71,7 +71,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
     #     self.cur_sound_fn = self.stimulus_B_sound_on
     #     self.box.visualstim.stimulus_B_on()
 
-    # for multithreaded AV sync
+    # multithreaded AV sync
     def stimulus_A_on(self) -> None:
         grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
         sound_on_time = 0.1
@@ -98,7 +98,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             self.stimulus_B_thread.join()
 
         # parallel processes
-        # self.box.visualstim.end_gratings_process()
+        self.box.visualstim.end_gratings_process()
 
     def stimulus_loop(self, grating_name: str, sound_on_time: float, prev_stim_thread: Thread) -> None:
         if prev_stim_thread is not None:
@@ -114,6 +114,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             self.sounds_off()
             # self.stimulus_C_on()
             time.sleep(self.session_info['inter_grating_interval'])
+        self.gratings_on = False
 
     def set_dark_period_stimuli(self) -> None:
         # Set all stimuli off during dark period. To be run in a thread which waits for the stimulus loop or parallel
@@ -130,6 +131,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
     def stimuli_reset(self) -> None:
         self.sounds_off()
         self.join_stimulus_threads()
+        self.box.visualstim.gratings_on = False
         self.box.visualstim.display_default_greyscale()
         # self.stimulus_C_on()
 
@@ -140,12 +142,16 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.join_stimulus_threads()
         self.box.visualstim.display_dark_greyscale()
 
+    def stimulus_process_done(self) -> None:
+        self.box.visualstim.gratings_on = False
+
     def match_command(self, command: str, correct_pump: int, incorrect_pump: int) -> None:
         # give reward if
         # 1. training reward/human reward (give reward, regardless of action)
         # 2. correct choice and meets correct reward probability
         # 3. incorrect but REAL choice (i.e. not a switch) and meets incorrect reward probability
         # state changes if choice is correct and switch probability is met
+        ic('received command:', command)
         if command == 'turn_LED_on':
             self.box.cueLED1.on()
             self.box.cueLED2.on()
@@ -191,6 +197,9 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         elif command == 'turn_stimuli_off':
             self.stimuli_off()
             logging.info(";" + str(time.time()) + ";[action];stimuli_off;" + str(""))
+
+        elif command == 'stimulus_process_done':
+            self.stimulus_process_done()
 
         elif command == 'give_training_reward':
             reward_size = self.reward_size_large
@@ -285,7 +294,8 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
         self.gui.figure_window.state_text.set_text('State: {}; ITI: {}'.format(self.task.state,
                                                                          self.task.ITI_active))
-        self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.box.visualstim.gratings_on))
+        # self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.box.visualstim.gratings_on))
+        self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.gratings_on))
         self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)
 
     def K_z_callback(self) -> None:
