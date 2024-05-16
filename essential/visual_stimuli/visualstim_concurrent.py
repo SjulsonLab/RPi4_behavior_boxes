@@ -70,10 +70,10 @@ class VisualStimMultiprocess(VisualStim):
         self.gratings_on = False
         ic('secondary process gratings off')
 
-    def run_eventloop(self):
-        self.active_process = Process(target=self.eventloop, args=(self.stimulus_commands, self.presenter_commands))
-        ic('starting eventloop')
-        self.active_process.start()
+    # def run_eventloop(self):
+    #     self.active_process = Process(target=self.eventloop, args=(self.stimulus_commands, self.presenter_commands))
+    #     ic('starting eventloop')
+    #     self.active_process.start()
 
     # def eventloop(self, in_queue: Queue, out_queue: Queue):
     #     while True:
