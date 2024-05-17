@@ -54,6 +54,8 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             self.L_sound_on = self.stimulus_B_sound_on
             self.R_sound_on = self.stimulus_A_sound_on
 
+        self.stimulus_C_on()
+
     def stimulus_A_sound_on(self) -> None:
         # self.sounds_off()
         self.box.sound1.blink(0.1, 0.1)
@@ -63,28 +65,31 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.box.sound1.blink(0.2, 0.1)
 
     # multiprocessing AV sync
-    def stimulus_A_on(self) -> None:
-        self.cur_sound_fn = self.stimulus_A_sound_on
-        self.box.visualstim.stimulus_A_on()
-
-    def stimulus_B_on(self) -> None:
-        self.cur_sound_fn = self.stimulus_B_sound_on
-        self.box.visualstim.stimulus_B_on()
-
-    # multithreaded AV sync
     # def stimulus_A_on(self) -> None:
-    #     grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
-    #     sound_on_time = 0.1
-    #     self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread))
-    #     self.stimulus_A_thread.start()
+    #     self.cur_sound_fn = self.stimulus_A_sound_on
+    #     self.box.visualstim.stimulus_A_on()
     #
     # def stimulus_B_on(self) -> None:
-    #     grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
-    #     sound_on_time = 0.2
-    #     self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread))
-    #     self.stimulus_B_thread.start()
+    #     self.cur_sound_fn = self.stimulus_B_sound_on
+    #     self.box.visualstim.stimulus_B_on()
+
+    # multithreaded AV sync
+    def stimulus_A_on(self) -> None:
+        grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+        sound_on_time = 0.1
+        self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread))
+        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_on")
+        self.stimulus_A_thread.start()
+
+    def stimulus_B_on(self) -> None:
+        grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+        sound_on_time = 0.2
+        self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread))
+        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_on")
+        self.stimulus_B_thread.start()
 
     def stimulus_C_on(self) -> None:
+        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_C_on")
         self.box.sound1.off()
         self.box.sound2.on()
         self.box.visualstim.display_default_greyscale()
@@ -98,7 +103,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             self.stimulus_B_thread.join()
 
         # parallel processes
-        self.box.visualstim.end_gratings_process()
+        # self.box.visualstim.end_gratings_process()
 
     def stimulus_loop(self, grating_name: str, sound_on_time: float, prev_stim_thread: Thread) -> None:
         if prev_stim_thread is not None:
@@ -109,11 +114,14 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.gratings_on = True
         while self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
             self.box.visualstim.show_grating(grating_name)
+            self.box.sound2.off()
             self.box.sound1.blink(sound_on_time, 0.1)
+
             time.sleep(self.session_info['grating_duration'])
-            self.sounds_off()
-            # self.stimulus_C_on()
+            # self.sounds_off()
+            self.stimulus_C_on()
             time.sleep(self.session_info['inter_grating_interval'])
+
         self.gratings_on = False
 
     def set_dark_period_stimuli(self) -> None:
@@ -292,8 +300,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
                 T = [times[-1] - .5, times[-1] + .5]
             plt.xlim(T)
 
-        self.gui.figure_window.state_text.set_text('State: {}; ITI: {}'.format(self.task.state,
-                                                                         self.task.ITI_active))
+        self.gui.figure_window.state_text.set_text('State: {}; ITI: {}'.format(self.task.state, self.task.ITI_active))
         self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.box.visualstim.gratings_on))
         # self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.gratings_on))
         self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)

@@ -68,12 +68,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info["visual_stimulus"]             = True
     if session_info["visual_stimulus"]:
         session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
-        # session_info['vis_gratings']				= ['/home/pi/gratings/context_a.dat',
-        #                                                '/home/pi/gratings/context_b.dat',]
-        # session_info['vis_gratings'] = ['/home/pi/gratings/vertical_grating_0.5s.dat', '/home/pi/gratings/vertical_grating_1.0s.dat',
-        #                                 '/home/pi/gratings/horizontal_grating_0.5s.dat', '/home/pi/gratings/horizontal_grating_1.0s.dat']
-        # times = [15, 20, 25, 30, 35]
-        times = [.5, 1, 2]
+        times = [.5, 1]  # , 2]
         session_info['vis_gratings'] = ['vertical_grating_{}s.dat'.format(t) for t in times] + ['horizontal_grating_{}s.dat'.format(t) for t in times]
         session_info['vis_gratings'] = [gratings_dir + '/' + g for g in session_info['vis_gratings']]
         session_info['vis_raws']					= []

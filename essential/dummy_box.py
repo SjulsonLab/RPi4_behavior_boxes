@@ -249,7 +249,7 @@ class VisualStim(VisualStimBase):
     def process_function(self, grating_name):
         # simulate showing the grating
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
-        time.sleep(self.session_info['stimulus_duration'])
+        time.sleep(self.session_info['grating_duration'])
         logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_off")
         logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
 
