@@ -6,7 +6,6 @@ name: behavbox.py
 goal: base framework for running wide range of behavioral task
 description:
     an updated test version for online behavior performance visualization
-
 """
 
 # contains the behavior box class, which includes pin numbers and whether DIO pins are

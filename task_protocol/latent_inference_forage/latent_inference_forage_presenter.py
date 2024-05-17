@@ -50,7 +50,8 @@ class LatentInferenceForagePresenter(Presenter):
             incorrect_pump = None
             # raise RuntimeError('state not recognized')
 
-        time_since_start = self.task.run_event_loop()  # determine choice, trigger ITI
+        if self.task.state in ['right_patch', 'left_patch']:
+            time_since_start = self.task.run_event_loop()  # determine choice, trigger ITI
         self.perform_task_commands(correct_pump, incorrect_pump)  # switch state, give rewards, toggle stimuli, etc.
         self.update_plot()
 

@@ -120,3 +120,12 @@ class StimulusInferenceModel(LatentInferenceForageModel):
         t = threading.Timer(random.choice(self.session_info['dark_period_times']), self.end_dark_period)
         t.start()
         self.dark_period_thread = t
+
+    def end_ITI(self):
+        # ic(time.perf_counter() - self.t_ITI_start)
+        self.lick_side_buffer *= 0
+        self.ITI_active = False
+        if self.state == 'dark_period':
+            self.set_dark_period_stimuli()
+        else:
+            self.turn_LED_on()
