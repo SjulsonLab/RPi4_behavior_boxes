@@ -135,6 +135,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
             return time_since_start
 
         if self.ITI_active:
+            self.lick_side_buffer *= 0
             if self.session_info['quiet_ITI'] and self.lick_side_buffer.sum() > 0:
                 self.ITI_thread.cancel()
                 self.activate_ITI()
