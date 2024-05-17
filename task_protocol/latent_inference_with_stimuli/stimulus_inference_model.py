@@ -69,9 +69,9 @@ class StimulusInferenceModel(LatentInferenceForageModel):
         if random.random() < self.session_info['p_stimulus']:
             self.L_stimulus_on()
             logging.info(";" + str(time.time()) + ";[action];left_stimulus_on;" + str(""))
-        # else:
-        #     self.stimulus_C_on()
-        #     logging.info(";" + str(time.time()) + ";[action];stimulus_C_on;" + str(""))
+        else:
+            self.stimulus_C_on()
+            logging.info(";" + str(time.time()) + ";[action];stimulus_C_on;" + str(""))
 
     def exit_left_patch(self):
         # self.reset_stimuli()
@@ -82,9 +82,9 @@ class StimulusInferenceModel(LatentInferenceForageModel):
         if random.random() < self.session_info['p_stimulus']:
             self.R_stimulus_on()
             logging.info(";" + str(time.time()) + ";[action];right_stimulus_on;" + str(""))
-        # else:
-        #     self.stimulus_C_on()
-        #     logging.info(";" + str(time.time()) + ";[action];stimulus_C_on;" + str(""))
+        else:
+            self.stimulus_C_on()
+            logging.info(";" + str(time.time()) + ";[action];stimulus_C_on;" + str(""))
 
     def exit_right_patch(self):
         # self.reset_stimuli()
@@ -99,29 +99,24 @@ class StimulusInferenceModel(LatentInferenceForageModel):
     def enter_dark_period(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_dark_period;" + str(""))
         self.rewards_earned_in_block = 0
-        self.stimuli_off()
+        self.set_dark_period_stimuli()
 
     def exit_dark_period(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_dark_period;" + str())
         self.next_dark_time = time.time() + self.session_info['epoch_length']
 
     def activate_dark_period(self):
-        # make sure this overrides ITI and prevents new choices + reward deliveries
         self.ITI_active = False
         if self.ITI_thread:
             self.ITI_thread.cancel()
 
-        # self.turn_LED_off()
-        # self.stimuli_off()
         self.reset_counters()
         self.switch_to_dark_period()
-
-        self.dark_period_length = random.choice(self.session_info['dark_period_times'])
-        self.reset_dark_period_timer()
 
     def reset_dark_period_timer(self):
         if self.dark_period_thread is not None:
             self.dark_period_thread.cancel()
-        t = threading.Timer(self.dark_period_length, self.end_dark_period)
+        # self.dark_period_length = random.choice(self.session_info['dark_period_times'])
+        t = threading.Timer(random.choice(self.session_info['dark_period_times']), self.end_dark_period)
         t.start()
         self.dark_period_thread = t
