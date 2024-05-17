@@ -167,7 +167,6 @@ class VisualStimMultiprocess(VisualStim):
         self.gratings_on = True  # the multiprocess loop can't access the original process variable
         ic('secondary process gratings on')
         t_start = time.perf_counter()
-        # new_context = False
         while self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
             # stim on
             logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
