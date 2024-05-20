@@ -408,7 +408,7 @@ class go_nogo_phase1(object):
         else:
             event_name = ""
 
-        if event_name == "left_entry":
+        if event_name == "left_IR_entry":
             self.lick_times = np.append(self.lick_times, time.time() - self.trial_start_time)
 
         # in standby state, get the shared memory variables of the task to be used by the plot function
@@ -430,7 +430,7 @@ class go_nogo_phase1(object):
             self.start_temp1()  # trigger state transition to temp1
 
         elif self.state == "temp1":
-            if event_name == "left_entry":
+            if event_name == "left_IR_entry":
                 self.trial_outcome = 1  # Hit!
             # transition to vacuum state when vstim 3s countdown ends
             elif event_name == "trial countdown ends":
@@ -462,7 +462,7 @@ class go_nogo_phase1(object):
         else:
             event_name = ""
 
-        if event_name == "left_entry":
+        if event_name == "left_IR_entry":
             self.lick_times = np.append(self.lick_times, time.time() - self.trial_start_time)
 
         if self.state == "standby":
@@ -474,7 +474,7 @@ class go_nogo_phase1(object):
         elif self.state == "lick_count":
             # if lick is detected, transition to temp2
             # otherwise, transition to vacuum after 2s
-            if event_name == "left_entry":
+            if event_name == "left_IR_entry":
                 self.start_temp2()
             elif event_name == "trial countdown ends":
                 self.start_vacuum_lick_count()  # trigger transition to vacuum state
