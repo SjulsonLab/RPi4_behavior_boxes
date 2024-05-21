@@ -27,6 +27,9 @@ import matplotlib.pyplot as plt
 import matplotlib.figure as fg
 import numpy as np
 
+# Ensure using TkAgg backend for larger windows (if applicable)
+matplotlib.use('TkAgg')
+
 logging.config.dictConfig(
     {
         "version": 1,
@@ -233,7 +236,7 @@ class OpioidForageTaskPhase1(object):
         current_time = time.time()
         self.event_times.append(current_time)
 
-        fig, ax = plt.subplots(4, 1, figsize=(10, 12))
+        fig, ax = plt.subplots(4, 1, figsize=(12, 14))
         ax[0].plot(self.timeline_right_entry, np.arange(1, len(self.timeline_right_entry) + 1), 'r-', label='Right Entry')
         ax[0].set_title('Right Entry Events Over Time')
         ax[0].set_xlabel('Time (s)')
@@ -261,6 +264,17 @@ class OpioidForageTaskPhase1(object):
         plt.tight_layout()
         fig.subplots_adjust(hspace=0.5)  # Adjust the height space between plots
         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info['basename'] + "_event_counts.png")
+
+        # Maximize the plot window if possible
+        manager = plt.get_current_fig_manager()
+        try:
+            manager.window.state('zoomed')  # This works on Windows
+        except AttributeError:
+            try:
+                manager.resize(*manager.window.maxsize())  # This works on Linux
+            except AttributeError:
+                pass  # If neither works, just pass
+
         self.box.check_plot(fig)
         plt.close(fig)
 
