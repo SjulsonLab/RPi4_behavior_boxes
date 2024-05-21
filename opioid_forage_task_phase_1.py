@@ -157,10 +157,12 @@ class OpioidForageTaskPhase1(object):
         # Event counters for plotting
         self.right_entry_count = 0
         self.left_entry_count = 0
-        self.reward_event_count = 0
+        self.right_reward_count = 0
+        self.left_reward_count = 0
         self.timeline_right_entry = []
         self.timeline_left_entry = []
-        self.timeline_reward_event = []
+        self.timeline_right_reward = []
+        self.timeline_left_reward = []
         self.event_times = []
 
     def run(self):
@@ -185,15 +187,15 @@ class OpioidForageTaskPhase1(object):
                 self.right_entry_count += 1
                 self.timeline_right_entry.append(current_time)
                 self.pump.reward(self.reward_pump2, self.reward_size2)
-                self.reward_event_count += 1
-                self.timeline_reward_event.append(current_time)
+                self.right_reward_count += 1
+                self.timeline_right_reward.append(current_time)
                 self.switch_to_timeout()
             if self.event_name == 'left_entry':
                 self.left_entry_count += 1
                 self.timeline_left_entry.append(current_time)
                 self.pump.reward(self.reward_pump1, self.reward_size1)
-                self.reward_event_count += 1
-                self.timeline_reward_event.append(current_time)
+                self.left_reward_count += 1
+                self.timeline_left_reward.append(current_time)
                 self.switch_to_timeout()
         self.box.check_keybd()
 
@@ -231,7 +233,7 @@ class OpioidForageTaskPhase1(object):
         current_time = time.time()
         self.event_times.append(current_time)
 
-        fig, ax = plt.subplots(3, 1, figsize=(8, 6))
+        fig, ax = plt.subplots(4, 1, figsize=(10, 12))
         ax[0].plot(self.timeline_right_entry, np.arange(1, len(self.timeline_right_entry) + 1), 'r-', label='Right Entry')
         ax[0].set_title('Right Entry Events Over Time')
         ax[0].set_xlabel('Time (s)')
@@ -244,68 +246,23 @@ class OpioidForageTaskPhase1(object):
         ax[1].set_ylabel('Count')
         ax[1].legend()
 
-        ax[2].plot(self.timeline_reward_event, np.arange(1, len(self.timeline_reward_event) + 1), 'g-', label='Reward Events')
-        ax[2].set_title('Reward Events Over Time')
+        ax[2].plot(self.timeline_right_reward, np.arange(1, len(self.timeline_right_reward) + 1), 'g-', label='Right Reward')
+        ax[2].set_title('Right Reward Events Over Time')
         ax[2].set_xlabel('Time (s)')
         ax[2].set_ylabel('Count')
         ax[2].legend()
+
+        ax[3].plot(self.timeline_left_reward, np.arange(1, len(self.timeline_left_reward) + 1), 'm-', label='Left Reward')
+        ax[3].set_title('Left Reward Events Over Time')
+        ax[3].set_xlabel('Time (s)')
+        ax[3].set_ylabel('Count')
+        ax[3].legend()
 
         plt.tight_layout()
         fig.subplots_adjust(hspace=0.5)  # Adjust the height space between plots
         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info['basename'] + "_event_counts.png")
         self.box.check_plot(fig)
         plt.close(fig)
-
-    # def update_plot_error(self):
-    #     error_event = self.error_list
-    #     labels, counts = np.unique(error_event, return_counts=True)
-    #     ticks = range(len(counts))
-    #     fig, ax = plt.subplots(1, 1, )
-    #     ax.bar(ticks, counts, align='center', tick_label=labels)
-    #     ax.set_xticks(ticks)
-    #     ax.set_xticklabels(labels=labels, rotation=70)
-    #     self.box.check_plot(fig)
-    #     plt.close(fig)
-
-    # def update_plot_choice(self, save_fig=False):
-    #     trajectory_active = self.left_poke_count_list
-    #     time_active = self.timeline_left_poke
-    #     trajectory_inactive = self.right_poke_count_list
-    #     time_inactive = self.timeline_right_poke
-    #     fig, ax = plt.subplots(1, 1, )
-    #
-    #     ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
-    #     ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
-    #     if save_fig:
-    #         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-    #             'basename'] + "_lever_choice_plot" + '.png')
-    #     self.box.check_plot(fig)
-    #     plt.close(fig)
-
-    # def integrate_plot(self, save_fig=False):
-    #
-    #     fig, ax = plt.subplots(2, 1)
-    #
-    #     trajectory_left = self.active_press
-    #     time_active_press = self.timeline_active_press
-    #     trajectory_right = self.right_poke_count_list
-    #     time_inactive_press = self.timeline_inactive_press
-    #
-    #     ax[0].plot(time_active_press, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
-    #     ax[0].plot(time_inactive_press, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
-    #
-    #     error_event = self.error_list
-    #     labels, counts = np.unique(error_event, return_counts=True)
-    #     ticks = range(len(counts))
-    #     ax[1].bar(ticks, counts, align='center', tick_label=labels)
-    #     ax[1].set_xticks(ticks)
-    #     ax[1].set_xticklabels(labels=labels, rotation=70)
-    #
-    #     if save_fig:
-    #         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-    #             'basename'] + "_summery" + '.png')
-    #     self.box.check_plot(fig)
-    #     plt.close(fig)
 
     ########################################################################
     # methods to start and end the behavioral session
@@ -317,5 +274,4 @@ class OpioidForageTaskPhase1(object):
 
     def end_session(self):
         ic("TODO: stop video")
-        # self.update_plot_choice(save_fig=True)
         self.box.video_stop()
