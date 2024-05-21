@@ -256,56 +256,56 @@ class OpioidForageTaskPhase1(object):
         self.box.check_plot(fig)
         plt.close(fig)
 
-    def update_plot_error(self):
-        error_event = self.error_list
-        labels, counts = np.unique(error_event, return_counts=True)
-        ticks = range(len(counts))
-        fig, ax = plt.subplots(1, 1, )
-        ax.bar(ticks, counts, align='center', tick_label=labels)
-        ax.set_xticks(ticks)
-        ax.set_xticklabels(labels=labels, rotation=70)
-        self.box.check_plot(fig)
-        plt.close(fig)
+    # def update_plot_error(self):
+    #     error_event = self.error_list
+    #     labels, counts = np.unique(error_event, return_counts=True)
+    #     ticks = range(len(counts))
+    #     fig, ax = plt.subplots(1, 1, )
+    #     ax.bar(ticks, counts, align='center', tick_label=labels)
+    #     ax.set_xticks(ticks)
+    #     ax.set_xticklabels(labels=labels, rotation=70)
+    #     self.box.check_plot(fig)
+    #     plt.close(fig)
 
-    def update_plot_choice(self, save_fig=False):
-        trajectory_active = self.left_poke_count_list
-        time_active = self.timeline_left_poke
-        trajectory_inactive = self.right_poke_count_list
-        time_inactive = self.timeline_right_poke
-        fig, ax = plt.subplots(1, 1, )
+    # def update_plot_choice(self, save_fig=False):
+    #     trajectory_active = self.left_poke_count_list
+    #     time_active = self.timeline_left_poke
+    #     trajectory_inactive = self.right_poke_count_list
+    #     time_inactive = self.timeline_right_poke
+    #     fig, ax = plt.subplots(1, 1, )
+    #
+    #     ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
+    #     ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
+    #     if save_fig:
+    #         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
+    #             'basename'] + "_lever_choice_plot" + '.png')
+    #     self.box.check_plot(fig)
+    #     plt.close(fig)
 
-        ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
-        ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
-        if save_fig:
-            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-                'basename'] + "_lever_choice_plot" + '.png')
-        self.box.check_plot(fig)
-        plt.close(fig)
-
-    def integrate_plot(self, save_fig=False):
-
-        fig, ax = plt.subplots(2, 1)
-
-        trajectory_left = self.active_press
-        time_active_press = self.timeline_active_press
-        trajectory_right = self.right_poke_count_list
-        time_inactive_press = self.timeline_inactive_press
-
-        ax[0].plot(time_active_press, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
-        ax[0].plot(time_inactive_press, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
-
-        error_event = self.error_list
-        labels, counts = np.unique(error_event, return_counts=True)
-        ticks = range(len(counts))
-        ax[1].bar(ticks, counts, align='center', tick_label=labels)
-        ax[1].set_xticks(ticks)
-        ax[1].set_xticklabels(labels=labels, rotation=70)
-
-        if save_fig:
-            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-                'basename'] + "_summery" + '.png')
-        self.box.check_plot(fig)
-        plt.close(fig)
+    # def integrate_plot(self, save_fig=False):
+    #
+    #     fig, ax = plt.subplots(2, 1)
+    #
+    #     trajectory_left = self.active_press
+    #     time_active_press = self.timeline_active_press
+    #     trajectory_right = self.right_poke_count_list
+    #     time_inactive_press = self.timeline_inactive_press
+    #
+    #     ax[0].plot(time_active_press, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
+    #     ax[0].plot(time_inactive_press, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
+    #
+    #     error_event = self.error_list
+    #     labels, counts = np.unique(error_event, return_counts=True)
+    #     ticks = range(len(counts))
+    #     ax[1].bar(ticks, counts, align='center', tick_label=labels)
+    #     ax[1].set_xticks(ticks)
+    #     ax[1].set_xticklabels(labels=labels, rotation=70)
+    #
+    #     if save_fig:
+    #         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
+    #             'basename'] + "_summery" + '.png')
+    #     self.box.check_plot(fig)
+    #     plt.close(fig)
 
     ########################################################################
     # methods to start and end the behavioral session
