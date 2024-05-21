@@ -82,7 +82,7 @@ class OpioidForageTaskPhase1(object):
                   on_enter=["enter_reward_available"],
                   on_exit=["exit_reward_available"]),
             Timeout(name='timeout',
-                    on_enter=['enter_timeout'],
+                    on_enter=['enter_timeout', 'update_plot'],
                     on_exit=['exit_timeout'],
                     timeout=self.session_info['timeout_time'],  # session_info
                     on_timeout=['switch_to_reward_available'])]
@@ -110,7 +110,7 @@ class OpioidForageTaskPhase1(object):
         self.error_count = 0
         self.error_list = []
         self.error_repeat = False
-        self.entry_time = 0.0
+        self.previous_reward_time = 0.0
         self.entry_interval = self.session_info["entry_interval"]  # update lever_press_interval to entry_interval--make this 3s instead of 1s
         self.reward_time = 10
         self.reward_times_up = False
@@ -165,9 +165,17 @@ class OpioidForageTaskPhase1(object):
 
     def run(self):
         current_time = time.time()
-
         if self.state == "standby" or self.state == 'timeout':
-            pass
+            if self.box.event_list:
+                self.event_name = self.box.event_list.popleft()
+            else:
+                self.event_name = ''
+            if self.event_name == 'right_entry':
+                self.right_entry_count += 1
+                self.timeline_right_entry.append(current_time)
+            if self.event_name == 'left_entry':
+                self.left_entry_count += 1
+                self.timeline_left_entry.append(current_time)
         elif self.state == 'reward_available':
             if self.box.event_list:
                 self.event_name = self.box.event_list.popleft()
@@ -176,27 +184,18 @@ class OpioidForageTaskPhase1(object):
             if self.event_name == 'right_entry':
                 self.right_entry_count += 1
                 self.timeline_right_entry.append(current_time)
-                entry_time_temp = time.time()
-                entry_dt = entry_time_temp - self.entry_time
-                if entry_dt >= self.entry_interval:
-                    self.pump.reward(self.reward_pump2, self.reward_size2)
-                    self.reward_event_count += 1
-                    self.timeline_reward_event.append(current_time)
-                    self.entry_time = entry_time_temp
-                    self.switch_to_timeout()
+                self.pump.reward(self.reward_pump2, self.reward_size2)
+                self.reward_event_count += 1
+                self.timeline_reward_event.append(current_time)
+                self.switch_to_timeout()
             if self.event_name == 'left_entry':
                 self.left_entry_count += 1
                 self.timeline_left_entry.append(current_time)
-                entry_time_temp = time.time()
-                entry_dt = entry_time_temp - self.entry_time
-                if entry_dt >= self.entry_interval:
-                    self.pump.reward(self.reward_pump1, self.reward_size1)
-                    self.reward_event_count += 1
-                    self.timeline_reward_event.append(current_time)
-                    self.entry_time = entry_time_temp
-                    self.switch_to_timeout()
+                self.pump.reward(self.reward_pump1, self.reward_size1)
+                self.reward_event_count += 1
+                self.timeline_reward_event.append(current_time)
+                self.switch_to_timeout()
         self.box.check_keybd()
-        self.update_plot()  # Update plot periodically
 
     def enter_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
@@ -221,9 +220,7 @@ class OpioidForageTaskPhase1(object):
 
     def enter_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_timeout;" + str(self.error_repeat))
-        self.trial_running = False
-        # self.box.cueLED1.off()
-        # self.box.cueLED2.off()
+        self.trial_running = True
         self.box.event_list.clear()
 
     def exit_timeout(self):
@@ -321,4 +318,3 @@ class OpioidForageTaskPhase1(object):
         ic("TODO: stop video")
         self.update_plot_choice(save_fig=True)
         self.box.video_stop()
-        # self.box.cueLED2.off()
