@@ -233,7 +233,7 @@ class OpioidForageTaskPhase1(object):
         current_time = time.time()
         self.event_times.append(current_time)
 
-        fig, ax = plt.subplots(4, 1, figsize=(5, 7))
+        fig, ax = plt.subplots(4, 1, figsize=(10, 4))
         ax[0].plot(self.timeline_right_entry, np.arange(1, len(self.timeline_right_entry) + 1), 'r-', label='Right Entry')
         ax[0].set_title('Right Entry Events Over Time')
         ax[0].set_xlabel('Time (s)')
