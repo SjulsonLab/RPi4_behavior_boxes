@@ -251,6 +251,7 @@ class OpioidForageTaskPhase1(object):
         ax[2].legend()
 
         plt.tight_layout()
+        fig.subplots_adjust(hspace=0.5)  # Adjust the height space between plots
         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info['basename'] + "_event_counts.png")
         self.box.check_plot(fig)
         plt.close(fig)
