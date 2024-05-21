@@ -132,9 +132,9 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         # Set all stimuli off during dark period. To be run in a thread which waits for the stimulus loop or parallel
         # process to finish before turning off the stimuli.
         self.join_stimulus_threads()
-        if self.task.state == 'dark_period':
-            self.stimuli_off()
-            self.task.reset_dark_period_timer()  # guarantee a full interval of darkness
+        # if self.task.state == 'dark_period':
+        self.stimuli_off()
+        self.task.reset_dark_period_timer()  # guarantee a full interval of darkness
 
     def sounds_off(self) -> None:
         self.box.sound1.off()
@@ -151,7 +151,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         self.box.cueLED1.off()
         self.box.cueLED2.off()
         self.sounds_off()
-        self.join_stimulus_threads()
+        # self.join_stimulus_threads()
         self.box.visualstim.display_dark_greyscale()
         logging.info(";" + str(time.time()) + ";[stimulus];" + "stimuli_off")
 
@@ -306,8 +306,8 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             plt.xlim(T)
 
         self.gui.figure_window.state_text.set_text('State: {}; ITI: {}'.format(self.task.state, self.task.ITI_active))
-        self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.box.visualstim.gratings_on))
-        # self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.gratings_on))
+        # self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.box.visualstim.gratings_on))
+        self.gui.figure_window.stimulus_text.set_text('Stimulus on: {}'.format(self.gratings_on))
         self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)
 
     def K_z_callback(self) -> None:

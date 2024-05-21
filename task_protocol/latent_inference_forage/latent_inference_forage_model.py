@@ -200,6 +200,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
         self.next_dark_time = time.time() + self.session_info['epoch_length']
         self.reset_counters()
+        self.turn_LED_on()
 
     def enter_right_patch(self):
         self.trial_running = True
@@ -267,9 +268,9 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         self.dark_period_thread = t
 
     def end_dark_period(self):
-        self.turn_LED_on()
         self.reset_counters()
         if random.random() > 0.5:
             self.switch_to_left_patch()
         else:
             self.switch_to_right_patch()
+        self.turn_LED_on()
