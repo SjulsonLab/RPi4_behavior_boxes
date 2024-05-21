@@ -27,9 +27,6 @@ import matplotlib.pyplot as plt
 import matplotlib.figure as fg
 import numpy as np
 
-# Ensure using TkAgg backend for larger windows (if applicable)
-matplotlib.use('TkAgg')
-
 logging.config.dictConfig(
     {
         "version": 1,
