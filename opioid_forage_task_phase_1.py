@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
-# python3: opioid_forage_task_phase_1.py
 """
 author: Mitch Farrell
 date: 2024-05-1
@@ -205,16 +202,18 @@ class OpioidForageTaskPhase1(object):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;" + str(self.error_repeat))
         self.trial_running = False
         self.box.event_list.clear()
+        self.box.cueLED1.off()
+        self.box.cueLED2.off()
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(self.error_repeat))
         self.box.event_list.clear()
+        self.box.cueLED1.on()
+        self.box.cueLED2.on()
 
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;" + str(self.error_repeat))
         self.trial_running = True
-        self.box.cueLED1.on()
-        self.box.cueLED2.on()
 
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;" + str(self.error_repeat))
@@ -223,8 +222,8 @@ class OpioidForageTaskPhase1(object):
     def enter_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_timeout;" + str(self.error_repeat))
         self.trial_running = False
-        self.box.cueLED1.off()
-        self.box.cueLED2.off()
+        # self.box.cueLED1.off()
+        # self.box.cueLED2.off()
         self.box.event_list.clear()
 
     def exit_timeout(self):
@@ -257,6 +256,7 @@ class OpioidForageTaskPhase1(object):
         plt.tight_layout()
         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info['basename'] + "_event_counts.png")
         self.box.check_plot(fig)
+        plt.close(fig)
 
     def update_plot_error(self):
         error_event = self.error_list
@@ -267,6 +267,7 @@ class OpioidForageTaskPhase1(object):
         ax.set_xticks(ticks)
         ax.set_xticklabels(labels=labels, rotation=70)
         self.box.check_plot(fig)
+        plt.close(fig)
 
     def update_plot_choice(self, save_fig=False):
         trajectory_active = self.left_poke_count_list
@@ -281,6 +282,7 @@ class OpioidForageTaskPhase1(object):
             plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
                 'basename'] + "_lever_choice_plot" + '.png')
         self.box.check_plot(fig)
+        plt.close(fig)
 
     def integrate_plot(self, save_fig=False):
 
@@ -305,6 +307,7 @@ class OpioidForageTaskPhase1(object):
             plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
                 'basename'] + "_summery" + '.png')
         self.box.check_plot(fig)
+        plt.close(fig)
 
     ########################################################################
     # methods to start and end the behavioral session
