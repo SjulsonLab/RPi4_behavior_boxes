@@ -86,14 +86,14 @@ class VisualStim(VisualStimBase):
         self.gratings_on = False
         ic('main process gratings off')
 
+    def _display_default_greyscale(self):
+        # self.gratings_on = False
+        ic('secondary process gratings off')
+
     def display_dark_greyscale(self):
         self.stimulus_commands.put('dark_greyscale')
         self.gratings_on = False
         ic('main process gratings off')
-
-    def _display_default_greyscale(self):
-        # self.gratings_on = False
-        ic('secondary process gratings off')
 
     def _display_dark_greyscale(self):
         self.gratings_on = False

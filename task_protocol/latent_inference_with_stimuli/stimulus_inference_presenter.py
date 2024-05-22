@@ -99,6 +99,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
     def join_stimulus_threads(self) -> None:
         # threads
         self.gratings_on = False
+        # ic('joining stimulus threads', self.gratings_on, self.task.state)
         if self.stimulus_A_thread is not None:
             self.stimulus_A_thread.join()
         if self.stimulus_B_thread is not None:
@@ -114,7 +115,8 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
         t_start = time.perf_counter()
         self.gratings_on = True
-        while self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
+        while (self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration'] and
+               self.task.state != 'dark_period'):
             self.box.visualstim.show_grating(grating_name)
             # self.box.sound2.off()
             # self.box.sound1.blink(sound_on_time, 0.1)
@@ -123,6 +125,10 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
             time.sleep(self.session_info['grating_duration'])
             # self.sounds_off()
+            if self.task.state == 'dark_period':
+                self.stimuli_off()
+                break
+
             self.stimulus_C_on()
             time.sleep(self.session_info['inter_grating_interval'])
 
@@ -132,7 +138,6 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         # Set all stimuli off during dark period. To be run in a thread which waits for the stimulus loop or parallel
         # process to finish before turning off the stimuli.
         self.join_stimulus_threads()
-        # if self.task.state == 'dark_period':
         self.stimuli_off()
         self.task.reset_dark_period_timer()  # guarantee a full interval of darkness
 
