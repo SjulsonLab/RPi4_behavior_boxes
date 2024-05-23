@@ -355,7 +355,7 @@ class go_nogo_phase2(object):
 
     def enter_assessment(self):
         logging.info(str(time.time()) + ", entering assessment")
-        logging.info(str(time.time()) + ","+ str(self.trial_outcome))
+        logging.info(str(time.time()) + ", " + str(self.trial_outcome))
 
     def exit_assessment(self):
         logging.info(str(time.time()) + ", exiting assessment")
