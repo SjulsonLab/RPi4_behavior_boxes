@@ -94,8 +94,8 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
             f"percent hit : {round(((hit_count[current_trial] / (hit_count[current_trial] + miss_count[current_trial]))*100), 1)}%",
             f" "))
 
-    ax1.set_title('Trial Outcome', fontsize=11)
-    ax1.text(0.05, 0.95, textstr, fontsize=11, verticalalignment='top')
+    ax1.set_title('Trial Outcome', fontsize=9)
+    ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
     ax1.set_xticklabels([])
     ax1.set_xticks([])
     ax1.set_yticks([])
@@ -156,7 +156,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     ax3.plot(outcome_xvalue, outcome_fa_count_yvalue, 'm-')
     ax3.lines[-1].set_label('FA')
 
-    ax3.set_title('Cummulative outcome', fontsize=11)
+    ax3.set_title('Cummulative outcome', fontsize=9)
     ax3.set_xlim([0, current_trial + 1])
     ax3.set_xlabel('Current trial', fontsize=9)
     ax3.set_ylabel('Number of trials', fontsize=9)
@@ -170,7 +170,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
         ax4_x_values = np.linspace(0, current_trial, num=current_trial + 1)
         ax4_y_values = dprimebinp[0:current_trial+1]
         ax4.plot(ax4_x_values, ax4_y_values, 'r-')
-        ax4.set_title('D-prime', fontsize=11)
+        ax4.set_title('D-prime', fontsize=9)
         ax4.set_xlim([0, current_trial + 1])
         ax4.set_xlabel('Current trial', fontsize=9)
 
@@ -182,7 +182,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     renderer = canvas.get_renderer()
     raw_data = renderer.tostring_rgb()
     pygame.init()
-    window = pygame.display.set_mode((1400, 900), DOUBLEBUF)
+    window = pygame.display.set_mode((1100, 700), DOUBLEBUF)
     screen = pygame.display.get_surface()
     size = canvas.get_width_height()
     surf = pygame.image.fromstring(raw_data, size, "RGB")
