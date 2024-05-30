@@ -95,7 +95,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
             f" "))
 
     ax1.set_title('Trial Outcome', fontsize=9)
-    ax1.text(0.05, 0.95, textstr, fontsize=7, verticalalignment='top')
+    ax1.text(0.05, 0.95, textstr, fontsize=9, verticalalignment='top')
     ax1.set_xticklabels([])
     ax1.set_xticks([])
     ax1.set_yticks([])
@@ -158,8 +158,8 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
 
     ax3.set_title('Cummulative outcome', fontsize=9)
     ax3.set_xlim([0, current_trial + 1])
-    ax3.set_xlabel('Current trial', fontsize=7)
-    ax3.set_ylabel('Number of trials', fontsize=7)
+    ax3.set_xlabel('Current trial', fontsize=9)
+    ax3.set_ylabel('Number of trials', fontsize=9)
     ax3.legend()
 
     ########################################################################
@@ -172,7 +172,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
         ax4.plot(ax4_x_values, ax4_y_values, 'r-')
         ax4.set_title('D-prime', fontsize=9)
         ax4.set_xlim([0, current_trial + 1])
-        ax4.set_xlabel('Current trial', fontsize=7)
+        ax4.set_xlabel('Current trial', fontsize=9)
 
     ########################################################################
     # draw on canvas to display via pygame
