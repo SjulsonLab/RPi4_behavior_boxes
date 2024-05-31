@@ -53,6 +53,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['reward_size_small'] = 0
     session_info['errors_to_reward_delivery'] = 5
     session_info['key_reward_amount'] = 3
+    session_info['flush_duration'] = 2
 
     # Parameters - file saving
     session_info['file_basename']               = 'place_holder'

@@ -31,6 +31,8 @@ class FlushPresenter(Presenter):
         self.stimulus_A_thread = None
         self.stimulus_B_thread = None
 
+        self.LEDs_on()
+
     def run(self) -> None:
         self.task.run_event_loop()
         self.perform_task_commands()
@@ -67,15 +69,14 @@ class FlushPresenter(Presenter):
         self.sound2_is_on = False
 
     def perform_task_commands(self) -> None:
-        pump_duration = 1  # .5 or 1
         for c in self.task.presenter_commands:
             if c == 'give_right_reward':
                 logging.info(";" + str(time.time()) + ";[reward];giving_right_reward;" + str(""))
-                self.pump.blink(self.pump_keys[PUMP1_IX], pump_duration)
+                self.pump.blink(self.pump_keys[PUMP1_IX], self.session_info['flush_duration'])
 
             elif c == 'give_left_reward':
                 logging.info(";" + str(time.time()) + ";[reward];giving_left_reward;" + str(""))
-                self.pump.blink(self.pump_keys[PUMP2_IX], pump_duration)
+                self.pump.blink(self.pump_keys[PUMP2_IX], self.session_info['flush_duration'])
 
             elif c == 'blink_LED':
                 if self.LED_is_on:
@@ -112,6 +113,10 @@ class FlushPresenter(Presenter):
         # self.sound2_on()
         self.task.presenter_commands.append('blink_sound2')
         logging.info(";" + str(time.time()) + ";[action];user_triggered_sound2_on;" + str(""))
+
+    def end_ITI(self):
+        self.ITI_active = False
+        self.LEDs_on()
 
     def print_controls(self) -> None:
         print("[***] KEYBOARD CONTROLS [***]")
