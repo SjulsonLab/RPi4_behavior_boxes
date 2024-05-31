@@ -22,7 +22,10 @@ class FlushPresenter(Presenter):
         self.pump_keys = (session_info["reward_pump1"], session_info['reward_pump2'])
         self.reward_size = 20
         self.interact_list = []
+
         self.LED_is_on = False
+        self.sound1_is_on = False
+        self.sound2_is_on = False
 
     def run(self) -> None:
         self.task.run_event_loop()
@@ -41,8 +44,26 @@ class FlushPresenter(Presenter):
         self.LED_is_on = False
         ic("LEDs off")
 
+    def sound1_on(self):
+        self.box.sound2.off()
+        self.box.sound1.on()
+        self.sound1_is_on = True
+        self.sound2_is_on = False
+
+    def sound2_on(self):
+        self.box.sound1.off()
+        self.box.sound2.on()
+        self.sound1_is_on = False
+        self.sound2_is_on = True
+
+    def sounds_off(self) -> None:
+        self.box.sound1.off()
+        self.box.sound2.off()
+        self.sound1_is_on = False
+        self.sound2_is_on = False
+
     def perform_task_commands(self) -> None:
-        pump_duration = 0.5
+        pump_duration = 1  # .5 or 1
         for c in self.task.presenter_commands:
             if c == 'give_right_reward':
                 logging.info(";" + str(time.time()) + ";[reward];giving_right_reward;" + str(""))
@@ -60,8 +81,21 @@ class FlushPresenter(Presenter):
                     self.LEDs_on()
                     threading.Timer(1, self.LEDs_off).start()
 
-            elif c == 'blink_sound':
-                pass
+            elif c == 'blink_sound1':
+                if self.sound1_is_on:
+                    pass
+                else:
+                    logging.info(";" + str(time.time()) + ";[action];blinking_sound1;" + str(""))
+                    self.sound1_on()
+                    threading.Timer(1, self.sounds_off).start()
+
+            elif c == 'blink_sound2':
+                if self.sound2_is_on:
+                    pass
+                else:
+                    logging.info(";" + str(time.time()) + ";[action];blinking_sound2;" + str(""))
+                    self.sound2_on()
+                    threading.Timer(1, self.sounds_off).start()
 
         self.task.presenter_commands.clear()
 

@@ -81,7 +81,6 @@ class FlushModel(Model):
         pass
 
 
-
 def main():
     session_info = defaultdict(list)
     session_info['timeout_time'] = 1

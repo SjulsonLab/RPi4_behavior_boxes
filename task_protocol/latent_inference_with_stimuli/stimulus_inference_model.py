@@ -31,7 +31,7 @@ class StimulusInferenceModel(LatentInferenceForageModel):
         super().__init__(session_info)
         # self.L_stimulus_active = False
         # self.R_stimulus_active = False
-
+    
     def L_stimulus_on(self) -> None:
         # self.L_stimulus_active = True
         self.presenter_commands.append('turn_L_stimulus_on')
