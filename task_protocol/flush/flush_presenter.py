@@ -4,6 +4,7 @@ from icecream import ic
 import time
 import logging
 import threading
+from threading import Thread
 from essential.base_classes import Presenter, Model, GUI, Box, PumpBase
 
 PUMP1_IX = 0
@@ -26,6 +27,9 @@ class FlushPresenter(Presenter):
         self.LED_is_on = False
         self.sound1_is_on = False
         self.sound2_is_on = False
+        self.gratings_on = False
+        self.stimulus_A_thread = None
+        self.stimulus_B_thread = None
 
     def run(self) -> None:
         self.task.run_event_loop()
@@ -99,9 +103,20 @@ class FlushPresenter(Presenter):
 
         self.task.presenter_commands.clear()
 
+    def K_z_callback(self) -> None:
+        # self.sound1_on()
+        self.task.presenter_commands.append('blink_sound1')
+        logging.info(";" + str(time.time()) + ";[action];user_triggered_sound1_on;" + str(""))
+
+    def K_x_callback(self) -> None:
+        # self.sound2_on()
+        self.task.presenter_commands.append('blink_sound2')
+        logging.info(";" + str(time.time()) + ";[action];user_triggered_sound2_on;" + str(""))
+
     def print_controls(self) -> None:
         print("[***] KEYBOARD CONTROLS [***]")
         print("1, 3: left/right nosepoke entry + 1s reward delivery")
         print("q, w, e, r: pump 1/2/3/4 reward delivery")
         print("t: vacuum activation")
         print("l: blink LED")
+        print("z, x: sound 1/2 on")
