@@ -53,6 +53,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['reward_size_small'] = 0
     session_info['errors_to_reward_delivery'] = 5
     session_info['key_reward_amount'] = 3
+    session_info['flush_duration'] = 2
 
     # Parameters - file saving
     session_info['file_basename']               = 'place_holder'
@@ -113,7 +114,7 @@ def sanity_checks(session_info: dict):
     if session_info['visual_stimulus']:
         assert session_info['vis_gratings'], "No visual stimuli specified"
         assert session_info['counterbalance_type'], "No counterbalance type specified"
-        assert session_info['task_config'] in ['latent_inference_with_stimuli'], "Invalid task config for stimulus task"
+        assert session_info['task_config'] in ['latent_inference_with_stimuli', 'flush'], "Invalid task config for stimulus task"
         assert session_info['grating_duration'] + session_info['inter_grating_interval'] <= session_info['intertrial_interval'], \
             "Intertrial interval too short for visual stimuli"
         assert session_info['grating_duration'] + session_info['inter_grating_interval'] < np.amin(session_info['dark_period_times']), \
