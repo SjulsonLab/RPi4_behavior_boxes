@@ -31,7 +31,6 @@ class FlushPresenter(Presenter):
         self.stimulus_A_thread = None
         self.stimulus_B_thread = None
 
-        self.LEDs_on()
 
     def run(self) -> None:
         self.task.run_event_loop()
@@ -101,6 +100,16 @@ class FlushPresenter(Presenter):
                     logging.info(";" + str(time.time()) + ";[action];blinking_sound2;" + str(""))
                     self.sound2_on()
                     threading.Timer(1, self.sounds_off).start()
+
+            if c == 'turn_LED_on':
+                self.box.cueLED1.on()
+                self.box.cueLED2.on()
+                logging.info(";" + str(time.time()) + ";[action];LED_on;" + str(""))
+
+            elif c == 'turn_LED_off':
+                self.box.cueLED1.off()
+                self.box.cueLED2.off()
+                logging.info(";" + str(time.time()) + ";[action];LED_off;" + str(""))
 
         self.task.presenter_commands.clear()
 

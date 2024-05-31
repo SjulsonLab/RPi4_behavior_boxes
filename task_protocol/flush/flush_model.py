@@ -42,6 +42,7 @@ class FlushModel(Model):
 
     def activate_ITI(self):
         self.lick_side_buffer *= 0
+        self.presenter_commands.append('turn_LED_off')
         self.ITI_active = True
         t = threading.Timer(interval=self.ITI, function=self.end_ITI)
         self.t_ITI_start = time.perf_counter()
@@ -52,6 +53,7 @@ class FlushModel(Model):
         # ic(time.perf_counter() - self.t_ITI_start)
         self.lick_side_buffer *= 0
         self.ITI_active = False
+        self.presenter_commands.append('turn_LED_on')
 
     def run_event_loop(self) -> None:
         if self.event_list:
@@ -78,7 +80,7 @@ class FlushModel(Model):
         self.presenter_commands.append('give_right_reward')
 
     def start_task(self):
-        pass
+        self.presenter_commands.append('turn_LED_on')
 
 
 def main():
