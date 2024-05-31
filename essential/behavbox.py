@@ -12,15 +12,20 @@ description:
 # configured as input or output
 
 from gpiozero import PWMLED, LED, Button
-import os
+import os, sys
 import socket
 import time
 from collections import deque
 
 import logging
 from colorama import Fore, Style
-# from visualstim import VisualStim
+
+# from essential.visualstim import VisualStim
 from essential.visual_stimuli.visualstim_concurrent import VisualStimMultiprocess
+
+# sys.path.insert(0, '.')  # essential (this folder) holds behavbox and equipment classes
+# from visualstim import VisualStim
+# from visual_stimuli.visualstim_concurrent import VisualStimMultiprocess
 
 import scipy.io, pickle
 
@@ -141,8 +146,9 @@ class BehavBox(Box):
         if self.session_info["visual_stimulus"]:
             try:
                 self.visualstim = VisualStimMultiprocess(self.session_info)
+                # self.visualstim = VisualStim(self.session_info)
             except Exception as error_message:
-                print("visualstim issue\n")
+                print("visualstim issue - module not loaded \n")
                 print(str(error_message))
         else:
             pass

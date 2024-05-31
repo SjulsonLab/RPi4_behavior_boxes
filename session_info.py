@@ -21,7 +21,7 @@ def make_session_info() -> Dict[str, Any]:
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					= datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
-    session_info['task_config']				    = 'latent_inference_with_stimuli'   # 'alternating_latent', 'latent_inference_forage', 'flush', 'latent_inference_with_stimuli'
+    session_info['task_config']				    = 'flush'   # 'alternating_latent', 'latent_inference_forage', 'flush', 'latent_inference_with_stimuli'
 
     # behavior parameters - ideally set these to a default for each session type, which is adjustable
     session_info['max_trial_number']            = 100
@@ -42,7 +42,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['incorrect_reward_probability'] = 0
     session_info['switch_probability'] = 1
 
-    session_info['epoch_length'] = 30  # 120
+    session_info['epoch_length'] = 120
     session_info['dark_period_times'] = [10]
 
     # Reward pump parameters
@@ -65,7 +65,7 @@ def make_session_info() -> Dict[str, Any]:
 
     # Parameters - visual stimuli
     gratings_dir = '/home/pi/gratings'  # './dummy_vis'
-    session_info["visual_stimulus"]             = True
+    session_info["visual_stimulus"]             = False
     if session_info["visual_stimulus"]:
         session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
         times = [.5, 1]  # , 2]
