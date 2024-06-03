@@ -54,6 +54,9 @@ class LED:
         # an empty function for debugging compatibility
         pass
 
+    def toggle(self):
+        self.is_on = not self.is_on
+
 
 class VisualStim(VisualStimBase):
 
@@ -340,3 +343,23 @@ class Pump(PumpBase):
         elif pump_key in ["vacuum", "key_vacuum"]:
             self.pump_vacuum.blink(on_time, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump_vacuum, duration: " + str(self.duration_vac) + ")")
+
+    def toggle(self, pump_key: str) -> None:
+        if pump_key in ["1", "key_1"]:
+            self.pump1.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump1_toggle")
+        elif pump_key in ["2", "key_2"]:
+            self.pump2.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump2_toggle")
+        elif pump_key in ["3", "key_3"]:
+            self.pump3.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump3_toggle")
+        elif pump_key in ["4", "key_4"]:
+            self.pump4.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump4_toggle")
+        elif pump_key in ["air_puff", "key_air_puff"]:
+            self.pump_air.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump_air_toggle")
+        elif pump_key in ["vacuum", "key_vacuum"]:
+            self.pump_vacuum.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum_toggle")

@@ -66,22 +66,22 @@ class FlushModel(Model):
             return
 
         if event == 'right_entry':
-            self.activate_ITI()
-            self.give_right_reward()
+            # self.activate_ITI()
+            self.toggle_right_water()
 
         elif event == 'left_entry':
-            self.activate_ITI()
-            self.give_left_reward()
+            # self.activate_ITI()
+            self.toggle_left_water()
 
-    def give_left_reward(self) -> None:
-        self.presenter_commands.append('give_left_reward')
+    def toggle_left_water(self) -> None:
+        self.presenter_commands.append('toggle_left_water')
 
-    def give_right_reward(self) -> None:
-        self.presenter_commands.append('give_right_reward')
+    def toggle_right_water(self) -> None:
+        self.presenter_commands.append('toggle_right_water')
 
     def start_task(self):
-        self.presenter_commands.append('turn_LED_on')
-
+        # self.presenter_commands.append('turn_LED_on')
+        pass
 
 def main():
     session_info = defaultdict(list)
