@@ -116,13 +116,11 @@ class FlushPresenter(Presenter):
         self.task.presenter_commands.clear()
 
     def K_z_callback(self) -> None:
-        # white noise on
         # self.sound1_on()
         self.task.presenter_commands.append('blink_sound1')
         # logging.info(";" + str(time.time()) + ";[action];user_triggered_sound1_on;" + str(""))
 
     def K_x_callback(self) -> None:
-        # beep on
         # self.sound2_on()
         self.task.presenter_commands.append('blink_sound2')
         # logging.info(";" + str(time.time()) + ";[action];user_triggered_sound2_on;" + str(""))

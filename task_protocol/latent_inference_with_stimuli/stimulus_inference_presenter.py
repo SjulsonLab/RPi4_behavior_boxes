@@ -90,10 +90,10 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
 
     def stimulus_C_on(self) -> None:
         logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_C_on")
-        # self.box.sound1.off()
-        # self.box.sound2.on()
-        self.box.sound2.off()
-        self.box.sound1.on()
+        self.box.sound1.off()
+        self.box.sound2.on()
+        # self.box.sound2.off()
+        # self.box.sound1.on()
         self.box.visualstim.display_default_greyscale()
 
     def join_stimulus_threads(self) -> None:
@@ -118,10 +118,10 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         while (self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration'] and
                self.task.state != 'dark_period'):
             self.box.visualstim.show_grating(grating_name)
-            # self.box.sound2.off()
-            # self.box.sound1.blink(sound_on_time, 0.1)
-            self.box.sound1.off()
-            self.box.sound2.blink(sound_on_time, 0.1)
+            self.box.sound2.off()
+            self.box.sound1.blink(sound_on_time, 0.1)
+            # self.box.sound1.off()
+            # self.box.sound2.blink(sound_on_time, 0.1)
 
             time.sleep(self.session_info['grating_duration'])
             # self.sounds_off()
