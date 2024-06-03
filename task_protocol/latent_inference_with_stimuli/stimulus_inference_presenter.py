@@ -130,7 +130,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
                 break
 
             self.stimulus_C_on()
-            time.sleep(self.session_info['inter_grating_interval'])
+            time.sleep(self.  session_info['inter_grating_interval'])
 
         self.gratings_on = False
 
@@ -276,12 +276,12 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
             self.match_command(c, correct_pump, incorrect_pump)
 
         # multiprocessing
-        try:
-            while True:
-                c = self.box.visualstim.presenter_commands.get(block=False)
-                self.match_command(c, correct_pump, incorrect_pump)
-        except queue.Empty:
-            pass
+        # try:
+        #     while True:
+        #         c = self.box.visualstim.presenter_commands.get(block=False)
+        #         self.match_command(c, correct_pump, incorrect_pump)
+        # except queue.Empty:
+        #     pass
 
     def update_plot(self, save_fig=False) -> None:
         if self.task.trial_choice_list:

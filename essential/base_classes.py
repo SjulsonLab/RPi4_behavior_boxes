@@ -25,6 +25,10 @@ class PumpBase(ABC):
     def blink(self, pump_key: str, on_time: float):
         ...
 
+    @abstractmethod
+    def toggle(self, pump_key: str):
+        ...
+
 
 class PerformanceFigure(ABC):
     figure: plt.Figure
@@ -350,9 +354,7 @@ class Presenter(ABC):
         logging.info(";" + str(time.time()) + ";[action];set_give_reward_true")
 
     def K_l_callback(self) -> None:
-        # blink LED
-        self.task.presenter_commands.append('blink_LED')
-        logging.info(";" + str(time.time()) + ";[action];blink_LED")
+        pass
 
     def K_z_callback(self) -> None:
         pass

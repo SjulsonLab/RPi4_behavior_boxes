@@ -417,3 +417,24 @@ class Pump(PumpBase):
             self.pump_vacuum.blink(self.duration_vac, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump_vacuum" + str(self.duration_vac))
 
+    def toggle(self, pump_key: str) -> None:
+        if pump_key in ["1", "key_1"]:
+            self.pump1.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump1_toggle")
+        elif pump_key in ["2", "key_2"]:
+            self.pump2.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump2_toggle")
+        elif pump_key in ["3", "key_3"]:
+            self.pump3.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump3_toggle")
+        elif pump_key in ["4", "key_4"]:
+            self.pump4.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump4_toggle")
+        elif pump_key in ["air_puff", "key_air_puff"]:
+            self.pump_air.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump_air_toggle")
+        elif pump_key in ["vacuum", "key_vacuum"]:
+            self.pump_vacuum.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum_toggle")
+
+

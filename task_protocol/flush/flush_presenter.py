@@ -71,59 +71,56 @@ class FlushPresenter(Presenter):
 
     def perform_task_commands(self) -> None:
         for c in self.task.presenter_commands:
-            if c == 'give_right_reward':
-                logging.info(";" + str(time.time()) + ";[reward];giving_right_reward;" + str(""))
-                self.pump.blink(self.pump_keys[PUMP1_IX], self.session_info['flush_duration'])
+            if c == 'toggle_right_water':
+                logging.info(";" + str(time.time()) + ";[reward];toggling_right_water;" + str(""))
+                self.pump.toggle(self.pump_keys[PUMP1_IX])
 
-            elif c == 'give_left_reward':
+            elif c == 'toggle_left_water':
                 logging.info(";" + str(time.time()) + ";[reward];giving_left_reward;" + str(""))
                 self.pump.blink(self.pump_keys[PUMP2_IX], self.session_info['flush_duration'])
 
-            elif c == 'blink_LED':
-                if self.LED_is_on:
-                    pass  # don't blink until the LEDs are off
-                else:
-                    logging.info(";" + str(time.time()) + ";[action];blinking_LEDs;" + str(""))
-                    self.LEDs_on()
-                    threading.Timer(1, self.LEDs_off).start()
+            elif c == 'toggle_sound1':
+                self.box.sound1.toggle()
 
-            elif c == 'blink_sound1':
-                if self.sound1_is_on:
-                    pass
-                else:
-                    logging.info(";" + str(time.time()) + ";[action];blinking_sound1;" + str(""))
-                    self.sound1_on()
-                    threading.Timer(1, self.sounds_off).start()
+            elif c == 'toggle_sound2':
+                self.box.sound2.toggle()
+                # if self.sound1_is_on:
+                #     pass
+                # else:
+                #     logging.info(";" + str(time.time()) + ";[action];blinking_sound1;" + str(""))
+                #     # self.sound1_on()
+                #     self.box.sound1.toggle()
+                #     threading.Timer(1, self.sounds_off).start()
 
-            elif c == 'blink_sound2':
-                if self.sound2_is_on:
-                    pass
-                else:
-                    logging.info(";" + str(time.time()) + ";[action];blinking_sound2;" + str(""))
-                    self.sound2_on()
-                    threading.Timer(1, self.sounds_off).start()
+            # elif c == 'blink_sound2':
+            #     if self.sound2_is_on:
+            #         pass
+            #     else:
+            #         logging.info(";" + str(time.time()) + ";[action];blinking_sound2;" + str(""))
+            #         self.sound2_on()
+            #         threading.Timer(1, self.sounds_off).start()
 
-            if c == 'turn_LED_on':
-                self.box.cueLED1.on()
-                self.box.cueLED2.on()
-                logging.info(";" + str(time.time()) + ";[action];LED_on;" + str(""))
+            elif c == 'toggle_LED':
+                self.box.cueLED1.toggle()
+                self.box.cueLED2.toggle()
 
-            elif c == 'turn_LED_off':
-                self.box.cueLED1.off()
-                self.box.cueLED2.off()
-                logging.info(";" + str(time.time()) + ";[action];LED_off;" + str(""))
+            else:
+                logging.info(";" + str(time.time()) + ";[action];unknown_command;" + str(c))
+                ic("Unknown command:", c)
 
         self.task.presenter_commands.clear()
 
     def K_z_callback(self) -> None:
-        # self.sound1_on()
-        self.task.presenter_commands.append('blink_sound1')
-        # logging.info(";" + str(time.time()) + ";[action];user_triggered_sound1_on;" + str(""))
+        self.task.presenter_commands.append('toggle_sound1')
+        logging.info(";" + str(time.time()) + ";[action];user_triggered_sound1_on;" + str(""))
 
     def K_x_callback(self) -> None:
-        # self.sound2_on()
-        self.task.presenter_commands.append('blink_sound2')
-        # logging.info(";" + str(time.time()) + ";[action];user_triggered_sound2_on;" + str(""))
+        self.task.presenter_commands.append('toggle_sound2')
+        logging.info(";" + str(time.time()) + ";[action];user_triggered_sound2_on;" + str(""))
+
+    def K_l_callback(self) -> None:
+        self.task.presenter_commands.append('toggle_LED')
+        logging.info(";" + str(time.time()) + ";[action];toggle_LED")
 
     def end_ITI(self):
         self.ITI_active = False
@@ -134,5 +131,5 @@ class FlushPresenter(Presenter):
         print("1, 3: left/right nosepoke entry + 1s reward delivery")
         print("q, w, e, r: pump 1/2/3/4 reward delivery")
         print("t: vacuum activation")
-        print("l: blink LED")
+        print("l: toggle LED")
         print("z, x: sound 1 (white noise) / 2 (beep) on")
