@@ -27,10 +27,9 @@ class FlushPresenter(Presenter):
         self.LED_is_on = False
         self.sound1_is_on = False
         self.sound2_is_on = False
-        self.gratings_on = False
-        self.stimulus_A_thread = None
-        self.stimulus_B_thread = None
-
+        # self.gratings_on = False
+        # self.stimulus_A_thread = None
+        # self.stimulus_B_thread = None
 
     def run(self) -> None:
         self.task.run_event_loop()
@@ -54,18 +53,21 @@ class FlushPresenter(Presenter):
         self.box.sound1.on()
         self.sound1_is_on = True
         self.sound2_is_on = False
+        ic("sound 1 on")
 
     def sound2_on(self):
         self.box.sound1.off()
         self.box.sound2.on()
         self.sound1_is_on = False
         self.sound2_is_on = True
+        ic("sound 2 on")
 
     def sounds_off(self) -> None:
         self.box.sound1.off()
         self.box.sound2.off()
         self.sound1_is_on = False
         self.sound2_is_on = False
+        ic("sounds off")
 
     def perform_task_commands(self) -> None:
         for c in self.task.presenter_commands:
@@ -114,14 +116,16 @@ class FlushPresenter(Presenter):
         self.task.presenter_commands.clear()
 
     def K_z_callback(self) -> None:
+        # white noise on
         # self.sound1_on()
         self.task.presenter_commands.append('blink_sound1')
-        logging.info(";" + str(time.time()) + ";[action];user_triggered_sound1_on;" + str(""))
+        # logging.info(";" + str(time.time()) + ";[action];user_triggered_sound1_on;" + str(""))
 
     def K_x_callback(self) -> None:
+        # beep on
         # self.sound2_on()
         self.task.presenter_commands.append('blink_sound2')
-        logging.info(";" + str(time.time()) + ";[action];user_triggered_sound2_on;" + str(""))
+        # logging.info(";" + str(time.time()) + ";[action];user_triggered_sound2_on;" + str(""))
 
     def end_ITI(self):
         self.ITI_active = False
@@ -133,4 +137,4 @@ class FlushPresenter(Presenter):
         print("q, w, e, r: pump 1/2/3/4 reward delivery")
         print("t: vacuum activation")
         print("l: blink LED")
-        print("z, x: sound 1/2 on")
+        print("z, x: sound 1 (white noise) / 2 (beep) on")
