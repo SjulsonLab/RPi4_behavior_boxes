@@ -32,7 +32,7 @@ class FlushPresenter(Presenter):
         self.stimulus_B_thread = None
 
     def run(self) -> None:
-        # self.task.run_event_loop()
+        self.task.run_event_loop()
         self.perform_task_commands()
         self.check_keyboard()
 
