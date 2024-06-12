@@ -133,13 +133,13 @@ class FlushPresenter(Presenter):
         self.gratings_on = False
 
     def K_z_callback(self) -> None:
-        # self.task.presenter_commands.append('toggle_sound1')
-        self.task.presenter_commands.append('turn_stimulus_A_on')
+        self.task.presenter_commands.append('toggle_sound1')
+        # self.task.presenter_commands.append('turn_stimulus_A_on')
         logging.info(";" + str(time.time()) + ";[action];user_triggered_sound1_on;" + str(""))
 
     def K_x_callback(self) -> None:
-        # self.task.presenter_commands.append('toggle_sound2')
-        self.task.presenter_commands.append('turn_stimulus_B_on')
+        self.task.presenter_commands.append('toggle_sound2')
+        # self.task.presenter_commands.append('turn_stimulus_B_on')
         logging.info(";" + str(time.time()) + ";[action];user_triggered_sound2_on;" + str(""))
 
     def K_l_callback(self) -> None:
@@ -156,4 +156,4 @@ class FlushPresenter(Presenter):
         print("q, w, e, r: pump 1/2/3/4 reward delivery")
         print("t: vacuum activation")
         print("l: toggle LED")
-        print("z, x: sound 1 (beep) / 2 (white noise) on")
+        print("z, x: sound 1 (white noise) / 2 (beep) on")
