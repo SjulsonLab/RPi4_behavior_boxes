@@ -130,7 +130,7 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
                 break
 
             self.stimulus_C_on()
-            time.sleep(self.  session_info['inter_grating_interval'])
+            time.sleep(self.session_info['inter_grating_interval'])
 
         self.gratings_on = False
 

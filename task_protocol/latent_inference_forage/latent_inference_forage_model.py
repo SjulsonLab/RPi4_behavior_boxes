@@ -234,6 +234,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
             self.switch_to_left_patch()
         else:
             self.switch_to_right_patch()
+        self.turn_LED_on()
 
     def activate_ITI(self):
         self.lick_side_buffer *= 0
