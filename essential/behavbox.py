@@ -16,6 +16,7 @@ import os, sys
 import socket
 import time
 from collections import deque
+from icecream import ic
 
 import logging
 from colorama import Fore, Style
@@ -421,20 +422,26 @@ class Pump(PumpBase):
         if pump_key in ["1", "key_1"]:
             self.pump1.toggle()
             logging.info(";" + str(time.time()) + ";[reward];pump1_toggle")
+            ic(self.pump1.value)
         elif pump_key in ["2", "key_2"]:
             self.pump2.toggle()
             logging.info(";" + str(time.time()) + ";[reward];pump2_toggle")
+            ic(self.pump2.value)
         elif pump_key in ["3", "key_3"]:
             self.pump3.toggle()
+            ic(self.pump3.value)
             logging.info(";" + str(time.time()) + ";[reward];pump3_toggle")
         elif pump_key in ["4", "key_4"]:
             self.pump4.toggle()
             logging.info(";" + str(time.time()) + ";[reward];pump4_toggle")
+            ic(self.pump4.value)
         elif pump_key in ["air_puff", "key_air_puff"]:
             self.pump_air.toggle()
             logging.info(";" + str(time.time()) + ";[reward];pump_air_toggle")
+            ic(self.pump_air.value)
         elif pump_key in ["vacuum", "key_vacuum"]:
             self.pump_vacuum.toggle()
             logging.info(";" + str(time.time()) + ";[reward];pump_vacuum_toggle")
+            ic(self.pump_vacuum.value)
 
 

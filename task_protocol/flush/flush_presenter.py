@@ -47,7 +47,7 @@ class FlushPresenter(Presenter):
         self.box.cueLED2.off()
         self.LED_is_on = False
         ic("LEDs off")
-
+    
     def sound1_on(self):
         self.box.sound2.off()
         self.box.sound1.on()
@@ -156,4 +156,4 @@ class FlushPresenter(Presenter):
         print("q, w, e, r: pump 1/2/3/4 reward delivery")
         print("t: vacuum activation")
         print("l: toggle LED")
-        print("z, x: sound 1 (white noise) / 2 (beep) on")
+        print("z, x: sound 1 (beep) / 2 (white noise) on")
