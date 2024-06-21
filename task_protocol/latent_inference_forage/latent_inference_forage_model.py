@@ -184,6 +184,57 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         self.give_training_reward = False
         return time_since_start
 
+    def run_control_loop(self):
+        cur_time = time.time()
+        time_since_start = cur_time - self.t_session_start
+
+        if self.event_list:
+            event = self.event_list.popleft()
+        else:
+            event = ''
+
+        if event == 'right_entry':
+            self.lick_side_buffer[RIGHT_IX] += 1
+        elif event == 'left_entry':
+            self.lick_side_buffer[LEFT_IX] += 1
+
+        if self.state in ['standby', 'dark_period']:
+            self.lick_side_buffer *= 0
+            return time_since_start
+
+        if self.state in ['left_patch', 'right_patch'] and cur_time >= self.next_dark_time:
+            self.lick_side_buffer *= 0
+            self.activate_dark_period()
+            return time_since_start
+
+        if self.ITI_active:
+            self.lick_side_buffer *= 0
+            if self.session_info['quiet_ITI'] and self.lick_side_buffer.sum() > 0:
+                self.ITI_thread.cancel()
+                self.activate_ITI()
+            return time_since_start
+
+        choice_side = self.determine_choice()
+        choice_flag = choice_side in ['right', 'left', 'switch']
+        training_reward_flag = (self.error_count >= self.errors_to_reward and self.automate_training_rewards) or self.give_training_reward
+        if choice_flag or training_reward_flag:
+            self.activate_ITI()
+
+        if choice_side == 'right':
+            self.log_correct_choice(RIGHT_IX, time_since_start, choice_side)
+            self.give_correct_reward()
+
+        elif choice_side == 'left':
+            self.log_incorrect_choice(LEFT_IX, time_since_start, choice_side)
+            self.give_incorrect_reward()
+
+        elif training_reward_flag:
+            self.presenter_commands.append('give_training_reward')
+            self.log_training_reward(RIGHT_IX, time_since_start)
+
+        self.give_training_reward = False
+        return time_since_start
+
     def turn_LED_on(self) -> None:
         self.presenter_commands.append('turn_LED_on')
 
@@ -230,10 +281,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
     def start_task(self):
         ic('starting task')
         self.next_dark_time = time.time() + self.session_info['epoch_length']
-        if random.random() > 0.5:
-            self.switch_to_left_patch()
-        else:
-            self.switch_to_right_patch()
+        self.switch_to_next_patch()
         self.turn_LED_on()
 
     def activate_ITI(self):
@@ -270,8 +318,16 @@ class LatentInferenceForageModel(Model):  # subclass from base task
 
     def end_dark_period(self):
         self.reset_counters()
+        self.switch_to_next_patch()
+        self.turn_LED_on()
+
+    def switch_to_next_patch(self):
         if random.random() > 0.5:
             self.switch_to_left_patch()
         else:
             self.switch_to_right_patch()
-        self.turn_LED_on()
+
+        # if random.random() < 0.5 or self.session_info['control']:
+        #     self.switch_to_right_patch()
+        # else:
+        #     self.switch_to_left_patch()

@@ -57,6 +57,19 @@ class LatentInferenceForagePresenter(Presenter):
 
         self.check_keyboard()
 
+    def run_control(self) -> None:
+        if self.task.state in ['right_patch', 'left_patch']:
+            correct_pump = PUMP1_IX
+            incorrect_pump = PUMP2_IX
+            time_since_start = self.task.run_control_loop()  # determine choice, trigger ITI
+        else:
+            correct_pump = None
+            incorrect_pump = None
+
+        self.perform_task_commands(correct_pump, incorrect_pump)  # switch state, give rewards, toggle stimuli, etc.
+        self.update_plot()
+        self.check_keyboard()
+
     def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:
         # give reward if
         # 1. training reward/human reward (give reward, regardless of action)
@@ -108,6 +121,10 @@ class LatentInferenceForagePresenter(Presenter):
                 pass
 
             if c in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info['switch_probability']:
+                # if self.session_info['control']:  # control should only ever use right port/patch
+                #     self.task.switch_to_right_patch()
+                # elif
+
                 if self.task.state == 'right_patch':
                     self.task.switch_to_left_patch()
                 elif self.task.state == 'left_patch':

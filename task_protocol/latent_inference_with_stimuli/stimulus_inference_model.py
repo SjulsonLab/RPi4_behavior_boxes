@@ -116,6 +116,7 @@ class StimulusInferenceModel(LatentInferenceForageModel):
     def reset_dark_period_timer(self):
         if self.dark_period_thread is not None:
             self.dark_period_thread.cancel()
+
         # self.dark_period_length = random.choice(self.session_info['dark_period_times'])
         t = threading.Timer(random.choice(self.session_info['dark_period_times']), self.end_dark_period)
         t.start()

@@ -18,10 +18,12 @@ def make_session_info() -> Dict[str, Any]:
     # Information for this session (the user should edit this each session)
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test_mouse'
+    session_info['debug']                     	= False
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					= datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
     session_info['task_config']				    = 'flush'   # 'alternating_latent', 'latent_inference_forage', 'flush', 'latent_inference_with_stimuli'
+    session_info['control']                     = False
 
     # behavior parameters - ideally set these to a default for each session type, which is adjustable
     session_info['max_trial_number']            = 100
@@ -66,7 +68,7 @@ def make_session_info() -> Dict[str, Any]:
 
     # Parameters - visual stimuli
     gratings_dir = '/home/pi/gratings'  # './dummy_vis'
-    session_info["visual_stimulus"]             = False
+    session_info["visual_stimulus"]             = True
     if session_info["visual_stimulus"]:
         session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
         times = [.5, 1]  # , 2]
