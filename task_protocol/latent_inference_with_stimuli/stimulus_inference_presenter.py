@@ -257,8 +257,10 @@ class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass fr
         else:
             raise ValueError('Presenter command not recognized')
 
-        if command in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info[
-            'switch_probability']:
+        if command in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info['switch_probability']:
+            # if self.session_info['control']:  # control should only ever use right port/patch
+            #     self.task.switch_to_right_patch()
+            # elif
             if self.task.state == 'right_patch':
                 self.task.switch_to_left_patch()
             elif self.task.state == 'left_patch':

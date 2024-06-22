@@ -26,14 +26,13 @@ from session_info import make_session_info
 sys.path.insert(0, './essential')  # essential holds behavbox and equipment classes
 sys.path.insert(0, '.')
 
-debug_startup = False
-debug_task = True
-if debug_startup or debug_task:
-    from essential import dummy_box as behavbox
-else:
-    from essential import behavbox
-
-debug_enable = False
+# debug_enable = False
+# if debug_enable:
+#     # enabling debugger
+#     from IPython import get_ipython
+#     ipython = get_ipython()
+#     ipython.magic("pdb on")
+#     ipython.magic("xmode Verbose")
 
 
 # all modules above this line will have logging disabled
@@ -42,13 +41,6 @@ logging.config.dictConfig({
     'disable_existing_loggers': True,
 })
 
-
-# if debug_enable:
-#     # enabling debugger
-#     from IPython import get_ipython
-#     ipython = get_ipython()
-#     ipython.magic("pdb on")
-#     ipython.magic("xmode Verbose")
 
 # import your task class here
 sys.path.insert(0,'./task_protocol')
@@ -92,6 +84,11 @@ def main():
         # mouse_info = tempmod.mouse_info
 
         session_info = make_session_info()
+        if session_info['debug']:
+            from essential import dummy_box as behavbox
+        else:
+            from essential import behavbox
+
         # if (session_info['mouse_name'] == 'test_mouse' or session_info['weight'] == 0) and not (debug_startup or debug_task):
         #     print(Fore.RED + Style.BRIGHT + 'ERROR: Mouse info not set! Exiting now' + Style.RESET_ALL)
         #     quit()
@@ -99,7 +96,7 @@ def main():
         session_info['date'] = datestr
         session_info['time'] = timestr
         session_info['datetime'] = session_info['date'] + '_' + session_info['time']
-        if debug_startup or debug_task:
+        if session_info['debug']:
             session_info['basename'] = ''
             session_info['dir_name'] = "./outputs/"
         else:
@@ -110,14 +107,14 @@ def main():
         if not os.path.exists(session_info['dir_name']):
             os.makedirs(session_info['dir_name'])
 
-        if debug_startup or debug_task:
+        if session_info['debug']:
             session_info['file_basename'] = 'test_debug'
         else:
             session_info['file_basename'] = session_info['dir_name'] + '/' + session_info['basename']
 
         log_path = Path(session_info['dir_name']) / (session_info['file_basename'] + '.log')
         # if not debugging, stop if log path exists
-        if debug_startup or debug_task:
+        if session_info['debug']:
             pass
         elif os.path.exists(log_path):
             print(Fore.RED + Style.BRIGHT + 'ERROR: Log file already exists! Exiting now' + Style.RESET_ALL)
@@ -192,24 +189,28 @@ def main():
             pickle.dump(session_info, f)
 
         presenter.start_session()
-        if debug_startup:
-            pass
-        else:
-            # time.sleep(5)
-            # loop over trials
-            # Set a timer
-            t_minute = int(input("Enter the time in minutes: "))
-            t_end = time.time() + 60 * t_minute
+        # if debug_startup:
+        #     pass
+        # else:
 
-            run = True
-            presenter.print_controls()
-            task.start_task()
-            while run:
-                if time.time() < t_end:
-                    presenter.run()
+        # time.sleep(5)
+        # loop over trials
+        # Set a timer
+        t_minute = int(input("Enter the time in minutes: "))
+        t_end = time.time() + 60 * t_minute
+
+        run = True
+        presenter.print_controls()
+        task.start_task()
+        while run:
+            if time.time() < t_end:
+                if session_info['control']:
+                    presenter.run_control()
                 else:
-                    run = False
-                    print("Times up, finishing up")
+                    presenter.run()
+            else:
+                run = False
+                print("Times up, finishing up")
 
         raise SystemExit
 
