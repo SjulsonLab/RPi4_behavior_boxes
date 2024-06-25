@@ -2,7 +2,7 @@
 ################################### GO/NO-GO TASK PHASE 4 ################################################
 # Edited November 29th 2023
 # LEARNING TASK
-#  modified from Duy Tran
+#  modified by Julie Jouvion from Duy Tran
 # This task include go and no-go trials but with features below:
 # Punishment time included
 # Variable ITIs
