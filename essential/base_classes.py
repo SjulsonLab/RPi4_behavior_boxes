@@ -362,6 +362,18 @@ class Presenter(ABC):
     def K_x_callback(self) -> None:
         pass
 
+    def K_c_callback(self) -> None:
+        pass
+
+    def K_v_callback(self) -> None:
+        pass
+
+    def K_d_callback(self) -> None:
+        pass
+
+    def K_f_callback(self) -> None:
+        pass
+
     def print_controls(self) -> None:
         print("[***] KEYBOARD CONTROLS [***]")
         print("1, 2, 3: left/center/right nosepoke entry")
