@@ -180,5 +180,6 @@ class FlushPresenter(Presenter):
         print("q, w, e, r: pump 1/2/3/4 reward delivery")
         print("t: vacuum activation")
         print("l: toggle LED")
-        # print("z, x: sound 1 (beep) / 2 (white noise) on")
         print("z, x: stimulus A / B on")
+        print("d, f: toggle sound 1 (beep) / 2 (white noise)")
+        print("c, v: horizontal/vertical gratings on")
