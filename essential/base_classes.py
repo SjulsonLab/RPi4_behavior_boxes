@@ -418,6 +418,14 @@ class Presenter(ABC):
                         self.K_z_callback()
                     elif event.key == pygame.K_x:
                         self.K_x_callback()
+                    elif event.key == pygame.K_c:
+                        self.K_c_callback()
+                    elif event.key == pygame.K_v:
+                        self.K_v_callback()
+                    elif event.key == pygame.K_d:
+                        self.K_d_callback()
+                    elif event.key == pygame.K_f:
+                        self.K_f_callback()
 
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:
