@@ -158,7 +158,7 @@ class FlushPresenter(Presenter):
         self.task.presenter_commands.append('toggle_sound2')
         logging.info(";" + str(time.time()) + ";[action];user_triggered_sound2_on;" + str(""))
 
-    def K_c_callback(self) -> None:
+    def K_b_callback(self) -> None:
         self.task.presenter_commands.append('turn_horizontal_grating_on')
         logging.info(";" + str(time.time()) + ";[action];user_triggered_horizontal_grating_on;" + str(""))
 
@@ -182,4 +182,4 @@ class FlushPresenter(Presenter):
         print("l: toggle LED")
         print("z, x: stimulus A / B on")
         print("d, f: toggle sound 1 (beep) / 2 (white noise)")
-        print("c, v: horizontal/vertical gratings on")
+        print("b, v: horizontal/vertical gratings on")

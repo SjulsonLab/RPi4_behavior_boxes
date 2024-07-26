@@ -362,7 +362,7 @@ class Presenter(ABC):
     def K_x_callback(self) -> None:
         pass
 
-    def K_c_callback(self) -> None:
+    def K_b_callback(self) -> None:
         pass
 
     def K_v_callback(self) -> None:
@@ -418,8 +418,8 @@ class Presenter(ABC):
                         self.K_z_callback()
                     elif event.key == pygame.K_x:
                         self.K_x_callback()
-                    elif event.key == pygame.K_c:
-                        self.K_c_callback()
+                    elif event.key == pygame.K_b:
+                        self.K_b_callback()
                     elif event.key == pygame.K_v:
                         self.K_v_callback()
                     elif event.key == pygame.K_d:
