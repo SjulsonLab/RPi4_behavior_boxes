@@ -58,7 +58,8 @@ class AlternatingLatentModel(Model):
         # maybe move them into a parameters class
         self.ITI = session_info['intertrial_interval']
         self.lick_threshold = session_info['lick_threshold']
-        self.machine = self.make_state_machine(session_info['timeout_time'])
+        # self.machine = self.make_state_machine(session_info['timeout_time'])
+        self.machine = self.make_state_machine(session_info['intertrial_interval'])
         self.block_type_counter = np.zeros(2)
 
         # revise these later to make sure you need them

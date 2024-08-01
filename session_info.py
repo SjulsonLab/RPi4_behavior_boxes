@@ -18,10 +18,10 @@ def make_session_info() -> Dict[str, Any]:
     # Information for this session (the user should edit this each session)
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test_mouse'
-    session_info['debug']                     	= False
+    session_info['debug']                     	= True
 
     session_info['weight']                	    = 0  # in grams
-    session_info['date']					= datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
+    session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
     session_info['task_config']				    = 'flush'   # 'alternating_latent', 'latent_inference_forage', 'flush', 'latent_inference_with_stimuli'
     session_info['control']                     = False
 
@@ -35,8 +35,8 @@ def make_session_info() -> Dict[str, Any]:
     session_info['quiet_ITI']          = False
     session_info['initiation_timeout'] = 120  # s
 
-    # session_info['entry_interval'] = 1  # this is the one that delays between choices - ITI? or intertrial_interval? or entry_interval?
     # session_info['timeout_time'] = 2
+    # session_info['entry_interval'] = 1  # this is the one that delays between choices - ITI? or intertrial_interval? or entry_interval?
     # session_info['ContextA_reward_probability'] = 1
     # session_info['ContextB_reward_probability'] = 1
 
@@ -68,7 +68,12 @@ def make_session_info() -> Dict[str, Any]:
 
     # Parameters - visual stimuli
     gratings_dir = '/home/pi/gratings'  # './dummy_vis'
-    session_info["visual_stimulus"]             = True
+
+    if session_info['task_config'] in ['latent_inference_with_stimuli', 'flush']:
+        session_info["visual_stimulus"]             = True
+    else:
+        session_info["visual_stimulus"]             = False
+
     if session_info["visual_stimulus"]:
         session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
         times = [.5, 1]  # , 2]
@@ -113,6 +118,8 @@ def make_session_info() -> Dict[str, Any]:
 
 
 def sanity_checks(session_info: dict):
+    assert session_info['task_config'] in ['alternating_latent', 'latent_inference_forage', 'flush', 'latent_inference_with_stimuli'], "Invalid task config, check your spelling!!"
+
     if session_info['visual_stimulus']:
         assert session_info['vis_gratings'], "No visual stimuli specified"
         assert session_info['counterbalance_type'], "No counterbalance type specified"
