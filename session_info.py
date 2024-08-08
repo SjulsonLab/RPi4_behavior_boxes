@@ -54,7 +54,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['reward_size_large'] = 5
     session_info['reward_size_small'] = 0
     session_info['errors_to_reward_delivery'] = 5
-    session_info['key_reward_amount'] = 3
+    session_info['key_reward_amount'] = 5  # session_info['reward_size_large']  # this was 3 before but play with it
     session_info['flush_duration'] = 2
 
     # Parameters - file saving
@@ -98,6 +98,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['air_duration'] = 0
     session_info["vacuum_duration"] = 1
     session_info["calibration_coefficient"] = {}
+    session_info['default_calibration_coefficient'] = [7, 0]
 
     try:
         solenoid_coeff = get_solenoid_coefficients()
@@ -105,13 +106,14 @@ def make_session_info() -> Dict[str, Any]:
         session_info["calibration_coefficient"]['2'] = solenoid_coeff["2"]
         session_info["calibration_coefficient"]['3'] = solenoid_coeff["3"]
         session_info["calibration_coefficient"]['4'] = solenoid_coeff["4"]
+
     except Exception as e:
         print(e)
         print("No coefficients, generate the default")
-        session_info["calibration_coefficient"]['1'] = [7, 0]
-        session_info["calibration_coefficient"]['2'] = [7, 0]
-        session_info["calibration_coefficient"]['3'] = [7, 0]
-        session_info["calibration_coefficient"]['4'] = [7, 0]
+        session_info["calibration_coefficient"]['1'] = session_info['default_calibration_coefficient']
+        session_info["calibration_coefficient"]['2'] = session_info['default_calibration_coefficient']
+        session_info["calibration_coefficient"]['3'] = session_info['default_calibration_coefficient']
+        session_info["calibration_coefficient"]['4'] = session_info['default_calibration_coefficient']
 
     sanity_checks(session_info)
     return session_info

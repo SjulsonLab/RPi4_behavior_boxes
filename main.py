@@ -101,7 +101,7 @@ def main():
             session_info['dir_name'] = "./outputs/"
         else:
             session_info['basename'] = session_info['mouse_name'] + '_' + session_info['datetime']
-            session_info['dir_name'] = session_info['basedir'] + "/" + session_info['basename']
+            session_info['dir_name'] = session_info['basedir'] + '/' + session_info['basename']
 
         # make data directory and initialize logfile
         if not os.path.exists(session_info['dir_name']):
@@ -125,7 +125,6 @@ def main():
         session_info['log_path'] = str(log_path)
 
         logger = logging.getLogger(__name__)
-
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
