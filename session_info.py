@@ -40,9 +40,9 @@ def make_session_info() -> Dict[str, Any]:
     # session_info['ContextA_reward_probability'] = 1
     # session_info['ContextB_reward_probability'] = 1
 
-    session_info['correct_reward_probability'] = 1
-    session_info['incorrect_reward_probability'] = 0
-    session_info['switch_probability'] = 1
+    session_info['correct_reward_probability'] = 1  # shared between alternating_latent and latent inference
+    session_info['incorrect_reward_probability'] = 0  # shared between alternating_latent and latent inference
+    session_info['switch_probability'] = 1  # only used by latent inference
 
     session_info['epoch_length'] = 120
     session_info['dark_period_times'] = [10]
@@ -54,8 +54,8 @@ def make_session_info() -> Dict[str, Any]:
     session_info['reward_size_large'] = 5
     session_info['reward_size_small'] = 0
     session_info['errors_to_reward_delivery'] = 5
-    session_info['key_reward_amount'] = 5  # session_info['reward_size_large']  # this was 3 before but play with it
-    session_info['flush_duration'] = 2
+    session_info['key_reward_amount'] = session_info['reward_size_large']  # this was 3 before but play with it
+    # session_info['flush_duration'] = 2
 
     # Parameters - file saving
     session_info['file_basename']               = 'place_holder'
@@ -115,11 +115,11 @@ def make_session_info() -> Dict[str, Any]:
         session_info["calibration_coefficient"]['3'] = session_info['default_calibration_coefficient']
         session_info["calibration_coefficient"]['4'] = session_info['default_calibration_coefficient']
 
-    sanity_checks(session_info)
+    session_info = sanity_checks(session_info)
     return session_info
 
 
-def sanity_checks(session_info: dict):
+def sanity_checks(session_info: dict) -> dict:
     assert session_info['task_config'] in ['alternating_latent', 'latent_inference_forage', 'flush', 'latent_inference_with_stimuli'], "Invalid task config, check your spelling!!"
 
     if session_info['visual_stimulus']:
@@ -130,6 +130,12 @@ def sanity_checks(session_info: dict):
             "Intertrial interval too short for visual stimuli"
         assert session_info['grating_duration'] + session_info['inter_grating_interval'] < np.amin(session_info['dark_period_times']), \
             "Intertrial interval too short for dark period"
+
+    if session_info['task_config'] == 'flush':
+        ic('Defaulting intertrial interval to 4 seconds')
+        session_info['intertrial_interval'] = 4  # in seconds
+
+    return session_info
 
 
 def get_solenoid_coefficients():

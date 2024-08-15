@@ -40,6 +40,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         self.right_active = True
         self.trial_running = False
         self.trial_number = 0  # I don't think stopping at max trials is implemented - do that
+        self.consecutive_correct_trials = 0
 
         self.last_choice_time = -np.inf
         self.rewards_earned_in_block = 0
@@ -53,6 +54,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         self.give_training_reward = False  # keep here, use in controller
         self.error_count = 0
         self.errors_to_reward = 5
+        self.max_consecutive_correct_trials = 30
 
         # These can't be refactored, session parameters needed for behavbox
         # maybe move them into a parameters class

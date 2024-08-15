@@ -32,9 +32,8 @@ class AlternatingLatentPresenter(Presenter):
         self.reward_size_large = session_info['reward_size_large']
         self.reward_size_small = session_info['reward_size_small']
 
-        self.keypress_training_reward = False
-        self.automatic_training_rewards = False
-        self.interact_list = []  # todo - remove references to this
+        # self.keypress_training_reward = False
+        # self.automatic_training_rewards = False
 
     def run(self) -> None:
         """
@@ -50,7 +49,14 @@ class AlternatingLatentPresenter(Presenter):
             correct_pump = None
             incorrect_pump = None
 
-        self.task.run_event_loop()
+        # if self.task.state in ['right_patch', 'left_patch', 'A', 'B', 'C1', 'C2']:
+        #     self.task.run_event_loop()  # determine choice, trigger ITI
+        if self.task.state == 'standby' or self.task.ITI_active:
+            self.task.lick_side_buffer *= 0
+            self.event_list.clear()
+        else:
+            self.task.run_event_loop()
+
         self.perform_task_commands(correct_pump, incorrect_pump)
         self.update_plot()
 
@@ -68,36 +74,43 @@ class AlternatingLatentPresenter(Presenter):
         for c in self.task.presenter_commands:
             if c == 'give_training_reward':
                 reward_size = self.reward_size_large
-                self.task.rewards_earned_in_block += 1
+                # self.task.rewards_earned_in_block += 1  # trying this out - not incrementing collected rewards if they are given by experimenter
                 self.task.trial_reward_given.append(True)
                 logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
                 self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
 
             elif c == 'give_correct_reward':
-                if random.random() < self.session_info['correct_reward_probability']:
-                    reward_size = self.reward_size_large
-                    self.task.rewards_earned_in_block += 1
-                    self.task.trial_reward_given.append(True)
-                else:
-                    reward_size = 0
-                    self.task.trial_reward_given.append(False)
+                reward_size = self.reward_size_large
+                self.task.rewards_earned_in_block += 1
+                self.task.trial_reward_given.append(True)
+
+                # alternating_latent is being used as a pretraining module, so we don't want to use probabilistic rewards anymore
+                # if random.random() < self.session_info['correct_reward_probability']:
+                #     reward_size = self.reward_size_large
+                #     self.task.rewards_earned_in_block += 1
+                #     self.task.trial_reward_given.append(True)
+                # else:
+                #     reward_size = 0
+                #     self.task.trial_reward_given.append(False)
 
                 print('current state: {}; rewards earned in block: {}'.format(self.task.state,
                                                                               self.task.rewards_earned_in_block))
                 self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
 
             elif c == 'give_incorrect_reward':
-                if random.random() < self.session_info['incorrect_reward_probability']:
-                    reward_size = self.reward_size_small  # can modify these to a single value, reward large and reward small
-                    self.task.rewards_earned_in_block += 1
-                    self.task.trial_reward_given.append(True)
-                else:
-                    reward_size = 0
-                    self.task.trial_reward_given.append(False)
+                self.task.trial_reward_given.append(False)
+
+                # alternating_latent is being used as a pretraining module, so we don't want to use probabilistic rewards anymore
+                # if random.random() < self.session_info['incorrect_reward_probability']:
+                #     reward_size = self.reward_size_small  # can modify these to a single value, reward large and reward small
+                #     self.task.rewards_earned_in_block += 1
+                #     self.task.trial_reward_given.append(True)
+                # else:
+                #     reward_size = 0
+                #     self.task.trial_reward_given.append(False)
 
                 print('current state: {}; rewards earned in block: {}'.format(self.task.state,
                                                                               self.task.rewards_earned_in_block))
                 self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
 
         self.task.presenter_commands.clear()
-
