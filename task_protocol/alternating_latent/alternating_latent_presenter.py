@@ -53,7 +53,7 @@ class AlternatingLatentPresenter(Presenter):
         #     self.task.run_event_loop()  # determine choice, trigger ITI
         if self.task.state == 'standby' or self.task.ITI_active:
             self.task.lick_side_buffer *= 0
-            self.event_list.clear()
+            self.task.event_list.clear()
         else:
             self.task.run_event_loop()
 
