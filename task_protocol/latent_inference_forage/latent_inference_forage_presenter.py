@@ -88,7 +88,7 @@ class LatentInferenceForagePresenter(Presenter):
 
             elif c == 'give_training_reward':
                 reward_size = self.reward_size_large
-                self.task.rewards_earned_in_block += 1
+                # self.task.rewards_earned_in_block += 1
                 self.task.trial_reward_given.append(True)
                 logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
                 self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)

@@ -125,7 +125,6 @@ class Model(ABC):
             # made a switch, reset the counter
             self.lick_side_buffer *= 0
             choice = 'switch'
-
         elif np.amax(self.lick_side_buffer) >= self.lick_threshold:
             choice_ix = np.argmax(self.lick_side_buffer)  # either 0 or 1
             choice = ['right', 'left'][choice_ix]
