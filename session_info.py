@@ -18,22 +18,22 @@ def make_session_info() -> Dict[str, Any]:
     # Information for this session (the user should edit this each session)
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test_mouse'
-    session_info['debug']                     	= True
+    session_info['debug']                     	= False
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
-    session_info['task_config']				    = 'latent_inference_with_stimuli'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
+    session_info['task_config']				    = 'flush'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
     session_info['control']                     = False
 
     # behavior parameters - ideally set these to a default for each session type, which is adjustable
     # session_info['max_trial_number']            = 100  # we use max session time instead
+    # session_info['reward_time_delay']           = 20  # s; does anything use this?
+    # session_info['initiation_timeout'] = 120  # s; does anything use this?
     session_info['timeout_length']              = 5  # in seconds, not currently implemented
     session_info['reward_size']					= 10  # in microliters
     session_info["lick_threshold"]              = 2  # number of consecutive licks to one side to indicate a choice
-    session_info['reward_time_delay']           = 20
     session_info['intertrial_interval']         = 4  # in seconds
     session_info['quiet_ITI']          = False
-    session_info['initiation_timeout'] = 120  # s
 
     # session_info['timeout_time'] = 2
     # session_info['entry_interval'] = 1  # this is the one that delays between choices - ITI? or intertrial_interval? or entry_interval?
@@ -44,7 +44,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['correct_reward_probability'] = .9
     session_info['incorrect_reward_probability'] = 0
     session_info['switch_probability'] = .1
-    session_info['epoch_length'] = 20
+    session_info['epoch_length'] = 120
     session_info['dark_period_times'] = [10]
 
     # Reward pump parameters
