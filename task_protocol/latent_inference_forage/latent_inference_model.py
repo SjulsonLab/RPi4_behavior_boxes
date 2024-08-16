@@ -31,14 +31,14 @@ RIGHT_IX = 0
 LEFT_IX = 1
 
 
-class LatentInferenceForageModel(Model):  # subclass from base task
+class LatentInferenceModel(Model):  # subclass from base task
 
     def __init__(self, session_info: dict):
         self.session_info = session_info
 
         # TASK + BEHAVIOR STATUS
-        self.right_active = True
-        self.trial_running = False
+        # self.right_active = True
+        # self.trial_running = False
         self.trial_number = 0  # I don't think stopping at max trials is implemented - do that
         self.consecutive_correct_trials = 0
 
@@ -288,13 +288,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
     def start_task(self):
         ic('starting task')
         self.next_dark_time = time.time() + self.session_info['epoch_length']
-        # self.switch_to_next_patch()
-        self.consecutive_correct_trials = 0
-        if random.random() > 0.5:
-            self.switch_to_left_patch()
-        else:
-            self.switch_to_right_patch()
-
+        self.sample_next_patch()
         self.turn_LED_on()
 
     def activate_ITI(self):
@@ -331,17 +325,17 @@ class LatentInferenceForageModel(Model):  # subclass from base task
 
     def end_dark_period(self):
         self.reset_counters()
-        self.switch_to_next_patch()
+        self.sample_next_patch()
         self.turn_LED_on()
 
-    # def switch_to_next_patch(self):
-    #     self.consecutive_correct_trials = 0
-    #     if random.random() > 0.5:
-    #         self.switch_to_left_patch()
-    #     else:
-    #         self.switch_to_right_patch()
-    #
-    #     # if random.random() < 0.5 or self.session_info['control']:
-    #     #     self.switch_to_right_patch()
-    #     # else:
-    #     #     self.switch_to_left_patch()
+    def sample_next_patch(self):
+        self.consecutive_correct_trials = 0
+        if random.random() > 0.5:
+            self.switch_to_left_patch()
+        else:
+            self.switch_to_right_patch()
+
+        # if random.random() < 0.5 or self.session_info['control']:
+        #     self.switch_to_right_patch()
+        # else:
+        #     self.switch_to_left_patch()
