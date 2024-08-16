@@ -1,4 +1,4 @@
-from task_protocol.latent_inference_forage.latent_inference_forage_presenter import LatentInferenceForagePresenter
+from task_protocol.latent_inference_forage.latent_inference_presenter import LatentInferenceForagePresenter
 
 import collections
 from typing import Tuple, List, Callable

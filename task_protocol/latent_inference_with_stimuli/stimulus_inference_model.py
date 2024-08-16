@@ -1,4 +1,4 @@
-from task_protocol.latent_inference_forage.latent_inference_forage_model import LatentInferenceForageModel
+from task_protocol.latent_inference_forage.latent_inference_model import LatentInferenceForageModel
 
 from icecream import ic
 import logging
