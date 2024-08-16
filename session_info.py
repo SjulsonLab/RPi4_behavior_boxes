@@ -22,16 +22,16 @@ def make_session_info() -> Dict[str, Any]:
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
-    session_info['task_config']				    = 'latent_inference'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
+    session_info['task_config']				    = 'latent_inference_with_stimuli'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
     session_info['control']                     = False
 
     # behavior parameters - ideally set these to a default for each session type, which is adjustable
-    session_info['max_trial_number']            = 100
-    session_info['timeout_length']              = 5  # in seconds
+    # session_info['max_trial_number']            = 100  # we use max session time instead
+    session_info['timeout_length']              = 5  # in seconds, not currently implemented
     session_info['reward_size']					= 10  # in microliters
-    session_info["lick_threshold"]              = 2
+    session_info["lick_threshold"]              = 2  # number of consecutive licks to one side to indicate a choice
     session_info['reward_time_delay']           = 20
-    session_info['intertrial_interval']         = 2  # in seconds
+    session_info['intertrial_interval']         = 4  # in seconds
     session_info['quiet_ITI']          = False
     session_info['initiation_timeout'] = 120  # s
 
@@ -44,7 +44,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['correct_reward_probability'] = .9
     session_info['incorrect_reward_probability'] = 0
     session_info['switch_probability'] = .1
-    session_info['epoch_length'] = 20 #120
+    session_info['epoch_length'] = 20
     session_info['dark_period_times'] = [10]
 
     # Reward pump parameters
@@ -116,6 +116,7 @@ def make_session_info() -> Dict[str, Any]:
         session_info["calibration_coefficient"]['4'] = session_info['default_calibration_coefficient']
 
     session_info = sanity_checks(session_info)
+    session_info = session_defaults(session_info)
     return session_info
 
 
@@ -124,9 +125,11 @@ def session_defaults(session_info: dict) -> dict:
         ic('Defaulting intertrial interval to 4 seconds')
         session_info['intertrial_interval'] = 4  # in seconds
 
-    if session_info['task_config'] == 'alternating_latent':
+    elif session_info['task_config'] == 'alternating_latent':
         ic('Defaulting intertrial interval to 2 seconds')
         session_info['intertrial_interval'] = 2  # in seconds
+
+    return session_info
 
 
 def sanity_checks(session_info: dict) -> dict:
@@ -140,10 +143,6 @@ def sanity_checks(session_info: dict) -> dict:
             "Intertrial interval too short for visual stimuli"
         assert session_info['grating_duration'] + session_info['inter_grating_interval'] < np.amin(session_info['dark_period_times']), \
             "Intertrial interval too short for dark period"
-
-    if session_info['task_config'] == 'flush':
-        ic('Defaulting intertrial interval to 4 seconds')
-        session_info['intertrial_interval'] = 4  # in seconds
 
     return session_info
 

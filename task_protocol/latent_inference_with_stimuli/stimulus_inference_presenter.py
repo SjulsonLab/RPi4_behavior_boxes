@@ -1,4 +1,4 @@
-from task_protocol.latent_inference_forage.latent_inference_presenter import LatentInferenceForagePresenter
+from task_protocol.latent_inference_forage.latent_inference_presenter import LatentInferencePresenter
 
 import collections
 from typing import Tuple, List, Callable
@@ -25,7 +25,7 @@ PUMP2_IX = 1
 trial_choice_map = {'right': 0, 'left': 1}
 
 
-class StimulusInferencePresenter(LatentInferenceForagePresenter):  # subclass from base task
+class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from base task
 
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
         super().__init__(model, box, pump, gui, session_info)

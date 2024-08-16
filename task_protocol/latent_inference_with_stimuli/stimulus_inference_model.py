@@ -1,4 +1,4 @@
-from task_protocol.latent_inference_forage.latent_inference_model import LatentInferenceForageModel
+from task_protocol.latent_inference_forage.latent_inference_model import LatentInferenceModel
 
 from icecream import ic
 import logging
@@ -20,7 +20,7 @@ RIGHT_IX = 0
 LEFT_IX = 1
 
 
-class StimulusInferenceModel(LatentInferenceForageModel):
+class StimulusInferenceModel(LatentInferenceModel):
     """
     Subclass of the LatentInferenceForageModel class, which is a subclass of the Model class from the essential package.
     The only thing this needs to add on top of the LatentInferenceForageModel is the ability to (probabilistically)
