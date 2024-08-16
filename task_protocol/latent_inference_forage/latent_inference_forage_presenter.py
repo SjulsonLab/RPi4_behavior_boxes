@@ -52,9 +52,9 @@ class LatentInferenceForagePresenter(Presenter):
 
         if self.task.state in ['right_patch', 'left_patch']:
             time_since_start = self.task.run_event_loop()  # determine choice, trigger ITI
+
         self.perform_task_commands(correct_pump, incorrect_pump)  # switch state, give rewards, toggle stimuli, etc.
         self.update_plot()
-
         self.check_keyboard()
 
     def run_control(self) -> None:
@@ -120,18 +120,22 @@ class LatentInferenceForagePresenter(Presenter):
             else:
                 pass
 
-            if c in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info['switch_probability']:
+            switch_flag = ((c in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info['switch_probability'])
+                           or self.task.consecutive_correct_trials >= self.task.max_consecutive_correct_trials)
+
+            if c in ['give_training_reward', 'give_correct_reward'] and switch_flag:
                 # if self.session_info['control']:  # control should only ever use right port/patch
                 #     self.task.switch_to_right_patch()
                 # elif
 
+                self.task.consecutive_correct_trials = 0
                 if self.task.state == 'right_patch':
                     self.task.switch_to_left_patch()
                 elif self.task.state == 'left_patch':
                     self.task.switch_to_right_patch()
                 else:
                     pass
-                    # raise RuntimeError('state not recognized')
+                    # raise RuntimeError('state not recognized') self.consecutive_correct_trials = 0
 
             print('current state: {}; rewards earned in block: {}'.format(self.task.state,
                                                                           self.task.rewards_earned_in_block))

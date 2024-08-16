@@ -154,18 +154,22 @@ class LatentInferenceForageModel(Model):  # subclass from base task
             if self.state == 'right_patch':
                 self.log_correct_choice(RIGHT_IX, time_since_start, choice_side)
                 self.give_correct_reward()
+                self.consecutive_correct_trials += 1
             elif self.state == 'left_patch':
                 self.log_incorrect_choice(RIGHT_IX, time_since_start, choice_side)
                 self.give_incorrect_reward()
+                self.consecutive_correct_trials = 0
 
         elif choice_side == 'left':
             # self.activate_ITI()
             if self.state == 'left_patch':
                 self.log_correct_choice(LEFT_IX, time_since_start, choice_side)
                 self.give_correct_reward()
+                self.consecutive_correct_trials += 1
             elif self.state == 'right_patch':
                 self.log_incorrect_choice(LEFT_IX, time_since_start, choice_side)
                 self.give_incorrect_reward()
+                self.consecutive_correct_trials = 0
 
         # elif choice_side == 'switch':
         #     self.activate_ITI()
@@ -175,6 +179,7 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         elif training_reward_flag:
             # self.activate_ITI()
             self.presenter_commands.append('give_training_reward')
+            self.consecutive_correct_trials += 1
             if self.state == 'right_patch':
                 choice_ix = RIGHT_IX
             elif self.state == 'left_patch':
@@ -283,7 +288,13 @@ class LatentInferenceForageModel(Model):  # subclass from base task
     def start_task(self):
         ic('starting task')
         self.next_dark_time = time.time() + self.session_info['epoch_length']
-        self.switch_to_next_patch()
+        # self.switch_to_next_patch()
+        self.consecutive_correct_trials = 0
+        if random.random() > 0.5:
+            self.switch_to_left_patch()
+        else:
+            self.switch_to_right_patch()
+
         self.turn_LED_on()
 
     def activate_ITI(self):
@@ -323,13 +334,14 @@ class LatentInferenceForageModel(Model):  # subclass from base task
         self.switch_to_next_patch()
         self.turn_LED_on()
 
-    def switch_to_next_patch(self):
-        if random.random() > 0.5:
-            self.switch_to_left_patch()
-        else:
-            self.switch_to_right_patch()
-
-        # if random.random() < 0.5 or self.session_info['control']:
-        #     self.switch_to_right_patch()
-        # else:
-        #     self.switch_to_left_patch()
+    # def switch_to_next_patch(self):
+    #     self.consecutive_correct_trials = 0
+    #     if random.random() > 0.5:
+    #         self.switch_to_left_patch()
+    #     else:
+    #         self.switch_to_right_patch()
+    #
+    #     # if random.random() < 0.5 or self.session_info['control']:
+    #     #     self.switch_to_right_patch()
+    #     # else:
+    #     #     self.switch_to_left_patch()
