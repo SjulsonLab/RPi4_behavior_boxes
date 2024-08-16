@@ -99,6 +99,7 @@ class AlternatingLatentPresenter(Presenter):
 
             elif c == 'give_incorrect_reward':
                 self.task.trial_reward_given.append(False)
+                reward_size = 0
 
                 # alternating_latent is being used as a pretraining module, so we don't want to use probabilistic rewards anymore
                 # if random.random() < self.session_info['incorrect_reward_probability']:
