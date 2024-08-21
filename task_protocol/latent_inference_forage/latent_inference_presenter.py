@@ -58,10 +58,13 @@ class LatentInferencePresenter(Presenter):
         self.check_keyboard()
 
     def run_control(self) -> None:
+        """
+        Controls switch between left and right patches as before, but only reward the right spout.
+        """
         if self.task.state in ['right_patch', 'left_patch']:
             correct_pump = PUMP1_IX
             incorrect_pump = PUMP2_IX
-            time_since_start = self.task.run_control_loop()  # determine choice, trigger ITI
+            time_since_start = self.task.run_event_loop(control=True)  # determine choice, trigger ITI
         else:
             correct_pump = None
             incorrect_pump = None
@@ -88,57 +91,50 @@ class LatentInferencePresenter(Presenter):
 
             elif c == 'give_training_reward':
                 reward_size = self.reward_size_large
-                # self.task.rewards_earned_in_block += 1
-                self.task.trial_reward_given.append(True)
                 logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
                 self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
 
             elif c == 'give_correct_reward':
-                if random.random() < self.session_info['correct_reward_probability']:
-                    reward_size = self.reward_size_large
-                    self.task.rewards_earned_in_block += 1
-                    self.task.trial_reward_given.append(True)
-                else:
-                    reward_size = 0
-                    self.task.trial_reward_given.append(False)
+                reward_size = self.reward_size_large
+                # if random.random() < self.session_info['correct_reward_probability']:
+                #     reward_size = self.reward_size_large
+                #     self.task.rewards_earned_in_block += 1
+                #     self.task.trial_reward_given.append(True)
+                # else:
+                #     reward_size = 0
+                #     self.task.trial_reward_given.append(False)
 
                 self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
 
             elif c == 'give_incorrect_reward':
-                if random.random() < self.session_info['incorrect_reward_probability']:
-                    reward_size = self.reward_size_small
-                    self.task.rewards_earned_in_block += 1
-                    self.task.trial_reward_given.append(True)
-                else:
-                    reward_size = 0
-                    self.task.trial_reward_given.append(False)
+                reward_size = self.reward_size_small
+                # if random.random() < self.session_info['incorrect_reward_probability']:
+                #     self.task.rewards_earned_in_block += 1
+                #     self.task.trial_reward_given.append(True)
+                # else:
+                #     reward_size = 0
+                #     self.task.trial_reward_given.append(False)
 
-                print('current state: {}; rewards earned in block: {}'.format(self.task.state,
-                                                                              self.task.rewards_earned_in_block))
                 self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
 
             else:
                 pass
 
-            switch_flag = ((c in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info['switch_probability'])
-                           or self.task.consecutive_correct_trials >= self.task.max_consecutive_correct_trials)
+            # switch_flag = ((c in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info['switch_probability'])
+            #                or self.task.rewards_earned_in_block >= self.task.max_consecutive_correct_trials)
+            #
+            # if c in ['give_training_reward', 'give_correct_reward'] and switch_flag:
+            #     self.task.rewards_earned_in_block = 0
+            #     if self.task.state == 'right_patch':
+            #         self.task.switch_to_left_patch()
+            #     elif self.task.state == 'left_patch':
+            #         self.task.switch_to_right_patch()
+            #     else:
+            #         pass
+                    # raise RuntimeError('state not recognized')
 
-            if c in ['give_training_reward', 'give_correct_reward'] and switch_flag:
-                # if self.session_info['control']:  # control should only ever use right port/patch
-                #     self.task.switch_to_right_patch()
-                # elif
-
-                self.task.consecutive_correct_trials = 0
-                if self.task.state == 'right_patch':
-                    self.task.switch_to_left_patch()
-                elif self.task.state == 'left_patch':
-                    self.task.switch_to_right_patch()
-                else:
-                    pass
-                    # raise RuntimeError('state not recognized') self.consecutive_correct_trials = 0
-
-            print('current state: {}; rewards earned in block: {}'.format(self.task.state,
-                                                                          self.task.rewards_earned_in_block))
+            # print('current state: {}; rewards earned in block: {}'.format(self.task.state,
+            #                                                               self.task.rewards_earned_in_block))
 
         self.task.presenter_commands.clear()
 

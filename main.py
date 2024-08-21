@@ -66,6 +66,16 @@ def confirm_options(session_info: dict) -> bool:
     return correct
 
 
+def set_session_time():
+    time = 0
+    while time == 0:
+        try:
+            time = int(input("Enter the time in minutes: "))
+        except ValueError:
+            print("Invalid input, please enter an integer number")
+    return time
+
+
 def main():
     try:
         # load in session_info file, check that dates are correct, put in automatic
@@ -89,7 +99,7 @@ def main():
         else:
             from essential import behavbox
 
-        # if (session_info['mouse_name'] == 'test_mouse' or session_info['weight'] == 0) and not (debug_startup or debug_task):
+        # if (session_info['mouse_name'] == 'test_mouse' or session_info['weight'] == 0) and not debug_task:
         #     print(Fore.RED + Style.BRIGHT + 'ERROR: Mouse info not set! Exiting now' + Style.RESET_ALL)
         #     quit()
 
@@ -172,6 +182,11 @@ def main():
             task = flush_model.FlushModel(session_info=session_info)
             Presenter = flush_presenter.FlushPresenter
             # name = 'flush'
+        elif task_type == 'test_video':
+            pass
+            # from task_protocol.test_video import test_video_model, test_video_presenter
+            # task = test_video_model.TestVideoModel(session_info=session_info)
+            # Presenter = test_video_presenter.TestVideoPresenter
         else:
             raise RuntimeError('[***] Specified task not recognized!! [***]')
 
@@ -188,14 +203,12 @@ def main():
             pickle.dump(session_info, f)
 
         presenter.start_session()
-        # if debug_startup:
-        #     pass
-        # else:
 
         # time.sleep(5)
         # loop over trials
         # Set a timer
-        t_minute = int(input("Enter the time in minutes: "))
+        # t_minute = int(input("Enter the time in minutes: "))
+        t_minute = set_session_time()
         t_end = time.time() + 60 * t_minute
 
         run = True
