@@ -29,32 +29,24 @@ class StimulusInferenceModel(LatentInferenceModel):
 
     def __init__(self, session_info: dict):
         super().__init__(session_info)
-        # self.L_stimulus_active = False
-        # self.R_stimulus_active = False
     
     def L_stimulus_on(self) -> None:
         # self.L_stimulus_active = True
         self.presenter_commands.append('turn_L_stimulus_on')
 
     def L_stimulus_off(self) -> None:
-        # self.L_stimulus_active = False
         self.presenter_commands.append('turn_L_stimulus_off')
 
     def R_stimulus_on(self) -> None:
-        # self.R_stimulus_active = True
         self.presenter_commands.append('turn_R_stimulus_on')
 
     def stimulus_C_on(self) -> None:
         self.presenter_commands.append('turn_stimulus_C_on')
 
     def stimuli_off(self) -> None:
-        # self.L_stimulus_active = False
-        # self.R_stimulus_active = False
         self.presenter_commands.append('turn_stimuli_off')
 
     def reset_stimuli(self) -> None:
-        # self.L_stimulus_active = False
-        # self.R_stimulus_active = False
         self.presenter_commands.append('reset_stimuli')
 
     def R_stimulus_off(self) -> None:
@@ -87,7 +79,6 @@ class StimulusInferenceModel(LatentInferenceModel):
             logging.info(";" + str(time.time()) + ";[action];stimulus_C_on;" + str(""))
 
     def exit_right_patch(self):
-        # self.reset_stimuli()
         logging.info(";" + str(time.time()) + ";[transition];exit_right_patch;" + str(""))
 
     def exit_standby(self):

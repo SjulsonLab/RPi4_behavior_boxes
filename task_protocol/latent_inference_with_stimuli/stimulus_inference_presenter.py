@@ -36,42 +36,15 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.gratings_on = False
         self.dark_period_thread = None
 
-        # multiprocess AV sync
-        self.cur_sound_fn = None
-
-        # self.box.visualstim.run_eventloop()
         if session_info['counterbalance_type'] == 'leftA':
             self.L_stimulus_on = self.stimulus_A_on
             self.R_stimulus_on = self.stimulus_B_on
-
-            # self.L_sound_on = self.stimulus_A_sound_on
-            # self.R_sound_on = self.stimulus_B_sound_on
 
         elif session_info['counterbalance_type'] == 'rightA':
             self.L_stimulus_on = self.stimulus_B_on
             self.R_stimulus_on = self.stimulus_A_on
 
-            # self.L_sound_on = self.stimulus_B_sound_on
-            # self.R_sound_on = self.stimulus_A_sound_on
-
         self.stimulus_C_on()
-
-    # def stimulus_A_sound_on(self) -> None:
-    #     # self.sounds_off()
-    #     self.box.sound1.blink(0.1, 0.1)
-    #
-    # def stimulus_B_sound_on(self) -> None:
-    #     # self.sounds_off()
-    #     self.box.sound1.blink(0.2, 0.1)
-
-    # multiprocessing AV sync
-    # def stimulus_A_on(self) -> None:
-    #     self.cur_sound_fn = self.stimulus_A_sound_on
-    #     self.box.visualstim.stimulus_A_on()
-    #
-    # def stimulus_B_on(self) -> None:
-    #     self.cur_sound_fn = self.stimulus_B_sound_on
-    #     self.box.visualstim.stimulus_B_on()
 
     # multithreaded AV sync
     def stimulus_A_on(self) -> None:
@@ -97,16 +70,11 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.box.visualstim.display_default_greyscale()
 
     def join_stimulus_threads(self) -> None:
-        # threads
         self.gratings_on = False
-        # ic('joining stimulus threads', self.gratings_on, self.task.state)
         if self.stimulus_A_thread is not None:
             self.stimulus_A_thread.join()
         if self.stimulus_B_thread is not None:
             self.stimulus_B_thread.join()
-
-        # parallel processes
-        # self.box.visualstim.end_gratings_process()
 
     def stimulus_loop(self, grating_name: str, sound_on_time: float, prev_stim_thread: Thread) -> None:
         if prev_stim_thread is not None:
@@ -118,8 +86,12 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         while (self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration'] and
                self.task.state != 'dark_period'):
             self.box.visualstim.show_grating(grating_name)
+
+            # for some reason the wires are all reversed
             self.box.sound2.off()
             self.box.sound1.blink(sound_on_time, 0.1)
+
+            # use this if the wires are not reversed
             # self.box.sound1.off()
             # self.box.sound2.blink(sound_on_time, 0.1)
 
@@ -164,11 +136,6 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.box.visualstim.gratings_on = False
 
     def match_command(self, command: str, correct_pump: int, incorrect_pump: int) -> None:
-        # give reward if
-        # 1. training reward/human reward (give reward, regardless of action)
-        # 2. correct choice and meets correct reward probability
-        # 3. incorrect but REAL choice (i.e. not a switch) and meets incorrect reward probability
-        # state changes if choice is correct and switch probability is met
         ic('received command:', command)
         if command == 'turn_LED_on':
             self.box.cueLED1.on()
@@ -204,10 +171,6 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
             self.stimuli_reset()
             logging.info(";" + str(time.time()) + ";[action];stimuli_reset;" + str(""))
 
-        elif command == 'turn_sounds_on':
-            self.cur_sound_fn()
-            logging.info(";" + str(time.time()) + ";[action];sounds_on;" + str(""))
-
         elif command == 'turn_sounds_off':
             self.sounds_off()
             logging.info(";" + str(time.time()) + ";[action];sounds_off;" + str(""))
@@ -221,33 +184,16 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
 
         elif command == 'give_training_reward':
             reward_size = self.reward_size_large
-            # self.task.rewards_earned_in_block += 1
-            self.task.trial_reward_given.append(True)
             logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
             self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
 
         elif command == 'give_correct_reward':
-            if random.random() < self.session_info['correct_reward_probability']:
-                reward_size = self.reward_size_large
-                self.task.rewards_earned_in_block += 1
-                self.task.trial_reward_given.append(True)
-            else:
-                reward_size = 0
-                self.task.trial_reward_given.append(False)
-
+            reward_size = self.reward_size_large
             self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
 
         elif command == 'give_incorrect_reward':
-            if random.random() < self.session_info['incorrect_reward_probability']:
-                reward_size = self.reward_size_small
-                self.task.rewards_earned_in_block += 1
-                self.task.trial_reward_given.append(True)
-            else:
-                reward_size = 0
-                self.task.trial_reward_given.append(False)
-
-            print('current state: {}; rewards earned in block: {}'.format(self.task.state,
-                                                                          self.task.rewards_earned_in_block))
+            reward_size = self.reward_size_small
+            self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
             self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
 
         elif command == 'set_dark_period_stimuli':
@@ -257,24 +203,24 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         else:
             raise ValueError('Presenter command not recognized')
 
-        switch_flag = ((command in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info['switch_probability']) or
-                       self.task.consecutive_correct_trials >= self.task.max_consecutive_correct_trials)
-        if switch_flag:
-            # if self.session_info['control']:  # control should only ever use right port/patch
-            #     self.task.switch_to_right_patch()
-            # elif
-
-            self.task.consecutive_correct_trials = 0
-            if self.task.state == 'right_patch':
-                self.task.switch_to_left_patch()
-            elif self.task.state == 'left_patch':
-                self.task.switch_to_right_patch()
-            else:
-                pass
+        # switch_flag = ((command in ['give_training_reward', 'give_correct_reward'] and random.random() < self.session_info['switch_probability']) or
+        #                self.task.consecutive_correct_trials >= self.task.max_consecutive_correct_trials)
+        # if switch_flag:
+        #     # if self.session_info['control']:  # control should only ever use right port/patch
+        #     #     self.task.switch_to_right_patch()
+        #     # elif
+        #
+        #     self.task.consecutive_correct_trials = 0
+        #     if self.task.state == 'right_patch':
+        #         self.task.switch_to_left_patch()
+        #     elif self.task.state == 'left_patch':
+        #         self.task.switch_to_right_patch()
+        #     else:
+        #         pass
                 # raise RuntimeError('state not recognized')
 
-            print('current state: {}; rewards earned in block: {}'.format(self.task.state,
-                                                                          self.task.rewards_earned_in_block))
+        # print('current state: {}; rewards earned in block: {}'.format(self.task.state,
+        #                                                               self.task.rewards_earned_in_block))
 
     def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:
         for i in range(len(self.task.presenter_commands)):

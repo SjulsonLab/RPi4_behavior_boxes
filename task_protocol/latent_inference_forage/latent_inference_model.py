@@ -40,10 +40,9 @@ class LatentInferenceModel(Model):  # subclass from base task
         # self.right_active = True
         # self.trial_running = False
         self.trial_number = 0  # I don't think stopping at max trials is implemented - do that
-        self.consecutive_correct_trials = 0
+        self.rewards_earned_in_block = 0
 
         self.last_choice_time = -np.inf
-        self.rewards_earned_in_block = 0
         self.rewards_available_in_block = random.randint(1, 4)
 
         # Lick detection
@@ -113,131 +112,108 @@ class LatentInferenceModel(Model):  # subclass from base task
         )
         return machine
 
-    def run_event_loop(self):
-        cur_time = time.time()
-        time_since_start = cur_time - self.t_session_start
+    def determine_experimental_rewards(self, choice_side: str, training_reward_flag: bool, time_since_start: float) -> bool:
+        reward_earned = False
+        if training_reward_flag:
+            self.presenter_commands.append('give_training_reward')
+            self.trial_reward_given.append(True)
+            if self.state == 'right_patch':
+                self.log_training_reward(RIGHT_IX, time_since_start)
+            elif self.state == 'left_patch':
+                self.log_training_reward(LEFT_IX, time_since_start)
 
-        if self.event_list:
-            event = self.event_list.popleft()
-        else:
-            event = ''
-
-        if event == 'right_entry':
-            self.lick_side_buffer[RIGHT_IX] += 1
-        elif event == 'left_entry':
-            self.lick_side_buffer[LEFT_IX] += 1
-
-        if self.state in ['standby', 'dark_period']:
-            self.lick_side_buffer *= 0
-            return time_since_start
-
-        if self.state in ['left_patch', 'right_patch'] and cur_time >= self.next_dark_time:
-            self.lick_side_buffer *= 0
-            self.activate_dark_period()
-            return time_since_start
-
-        if self.ITI_active:
-            self.lick_side_buffer *= 0
-            if self.session_info['quiet_ITI'] and self.lick_side_buffer.sum() > 0:
-                self.ITI_thread.cancel()
-                self.activate_ITI()
-            return time_since_start
-
-        choice_side = self.determine_choice()
-        choice_flag = choice_side in ['right', 'left', 'switch']
-        training_reward_flag = (self.error_count >= self.errors_to_reward and self.automate_training_rewards) or self.give_training_reward
-        if choice_flag or training_reward_flag:
-            self.activate_ITI()
-
-        if choice_side == 'right':
-            # self.activate_ITI()
+        elif choice_side == 'right':
             if self.state == 'right_patch':
                 self.log_correct_choice(RIGHT_IX, time_since_start, choice_side)
                 self.give_correct_reward()
-                self.consecutive_correct_trials += 1
+                reward_earned = True
             elif self.state == 'left_patch':
                 self.log_incorrect_choice(RIGHT_IX, time_since_start, choice_side)
                 self.give_incorrect_reward()
-                self.consecutive_correct_trials = 0
 
         elif choice_side == 'left':
-            # self.activate_ITI()
             if self.state == 'left_patch':
                 self.log_correct_choice(LEFT_IX, time_since_start, choice_side)
                 self.give_correct_reward()
-                self.consecutive_correct_trials += 1
+                reward_earned = True
             elif self.state == 'right_patch':
                 self.log_incorrect_choice(LEFT_IX, time_since_start, choice_side)
                 self.give_incorrect_reward()
-                self.consecutive_correct_trials = 0
 
-        # elif choice_side == 'switch':
-        #     self.activate_ITI()
+        return reward_earned
 
-        # elif (self.error_count >= self.errors_to_reward and self.automate_training_rewards)\
-        #         or self.give_training_reward:
-        elif training_reward_flag:
-            # self.activate_ITI()
+    def determine_control_rewards(self, choice_side: str, training_reward_flag: bool, time_since_start: float) -> bool:
+        reward_earned = False
+        if training_reward_flag:
             self.presenter_commands.append('give_training_reward')
-            self.consecutive_correct_trials += 1
-            if self.state == 'right_patch':
-                choice_ix = RIGHT_IX
-            elif self.state == 'left_patch':
-                choice_ix = LEFT_IX
-            else:
-                raise RuntimeError('state not recognized')
-            self.log_training_reward(choice_ix, time_since_start)
+            self.trial_reward_given.append(True)
+            self.log_training_reward(RIGHT_IX, time_since_start)
 
-        self.give_training_reward = False
-        return time_since_start
-
-    def run_control_loop(self):
-        cur_time = time.time()
-        time_since_start = cur_time - self.t_session_start
-
-        if self.event_list:
-            event = self.event_list.popleft()
-        else:
-            event = ''
-
-        if event == 'right_entry':
-            self.lick_side_buffer[RIGHT_IX] += 1
-        elif event == 'left_entry':
-            self.lick_side_buffer[LEFT_IX] += 1
-
-        if self.state in ['standby', 'dark_period']:
-            self.lick_side_buffer *= 0
-            return time_since_start
-
-        if self.state in ['left_patch', 'right_patch'] and cur_time >= self.next_dark_time:
-            self.lick_side_buffer *= 0
-            self.activate_dark_period()
-            return time_since_start
-
-        if self.ITI_active:
-            self.lick_side_buffer *= 0
-            if self.session_info['quiet_ITI'] and self.lick_side_buffer.sum() > 0:
-                self.ITI_thread.cancel()
-                self.activate_ITI()
-            return time_since_start
-
-        choice_side = self.determine_choice()
-        choice_flag = choice_side in ['right', 'left', 'switch']
-        training_reward_flag = (self.error_count >= self.errors_to_reward and self.automate_training_rewards) or self.give_training_reward
-        if choice_flag or training_reward_flag:
-            self.activate_ITI()
-
-        if choice_side == 'right':
+        elif choice_side == 'right':
             self.log_correct_choice(RIGHT_IX, time_since_start, choice_side)
+            reward_earned = True
             self.give_correct_reward()
 
         elif choice_side == 'left':
             self.log_incorrect_choice(LEFT_IX, time_since_start, choice_side)
             self.give_incorrect_reward()
 
-        elif training_reward_flag:
-            self.presenter_commands.append('give_training_reward')
-            self.log_training_reward(RIGHT_IX, time_since_start)
+        return reward_earned
+
+    def run_event_loop(self, control: bool = False):
+        cur_time = time.time()
+        time_since_start = cur_time - self.t_session_start
+
+        if self.event_list:
+            event = self.event_list.popleft()
+        else:
+            event = ''
+
+        if event == 'right_entry':
+            self.lick_side_buffer[RIGHT_IX] += 1
+        elif event == 'left_entry':
+            self.lick_side_buffer[LEFT_IX] += 1
+
+        if self.state in ['standby', 'dark_period']:
+            self.lick_side_buffer *= 0
+            return time_since_start
+
+        if self.state in ['left_patch', 'right_patch'] and cur_time >= self.next_dark_time:
+            self.lick_side_buffer *= 0
+            self.activate_dark_period()
+            return time_since_start
+
+        if self.ITI_active:
+            self.lick_side_buffer *= 0
+            if self.session_info['quiet_ITI'] and self.lick_side_buffer.sum() > 0:
+                self.ITI_thread.cancel()
+                self.activate_ITI()
+            return time_since_start
+
+        choice_side = self.determine_choice()
+        choice_flag = choice_side in ['right', 'left', 'switch']
+        training_reward_flag = ((self.error_count >= self.errors_to_reward and self.automate_training_rewards)
+                                or self.give_training_reward)
+        if choice_flag or training_reward_flag:
+            self.activate_ITI()
+
+        reward_earned = False
+        if choice_side in ['right', 'left'] or training_reward_flag:  # no rewards for switch
+            if control:
+                reward_earned = self.determine_control_rewards(choice_side, training_reward_flag, time_since_start)
+            else:
+                reward_earned = self.determine_experimental_rewards(choice_side, training_reward_flag, time_since_start)
+
+        if ((reward_earned and random.random() < self.session_info['switch_probability']) or
+                self.rewards_earned_in_block >= self.max_consecutive_correct_trials):
+            self.rewards_earned_in_block = 0
+            if self.state == 'right_patch':
+                self.switch_to_left_patch()
+            elif self.state == 'left_patch':
+                self.switch_to_right_patch()
+            else:
+                pass
+                # raise RuntimeError('state not recognized')
 
         self.give_training_reward = False
         return time_since_start
@@ -249,9 +225,21 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.presenter_commands.append('turn_LED_off')
 
     def give_correct_reward(self) -> None:
+        if random.random() < self.session_info['correct_reward_probability']:
+            self.rewards_earned_in_block += 1
+            self.trial_reward_given.append(True)
+        else:
+            self.trial_reward_given.append(False)
+
         self.presenter_commands.append('give_correct_reward')
 
     def give_incorrect_reward(self) -> None:
+        if random.random() < self.session_info['incorrect_reward_probability']:
+            self.rewards_earned_in_block += 1
+            self.trial_reward_given.append(True)
+        else:
+            self.trial_reward_given.append(False)
+
         self.presenter_commands.append('give_incorrect_reward')
 
     def exit_standby(self):
@@ -329,13 +317,8 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.turn_LED_on()
 
     def sample_next_patch(self):
-        self.consecutive_correct_trials = 0
+        self.rewards_earned_in_block = 0
         if random.random() > 0.5:
             self.switch_to_left_patch()
         else:
             self.switch_to_right_patch()
-
-        # if random.random() < 0.5 or self.session_info['control']:
-        #     self.switch_to_right_patch()
-        # else:
-        #     self.switch_to_left_patch()
