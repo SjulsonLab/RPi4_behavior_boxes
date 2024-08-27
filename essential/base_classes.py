@@ -444,21 +444,21 @@ class Presenter(ABC):
         if self.gui:
             self.update_plot(save_fig=True)
 
-    def update_plot(self, save_fig=False) -> None:
+    def update_plot(self, save_fig=False, n_plot=20) -> None:
         if self.task.trial_choice_list:
-            ix = np.array(self.task.trial_correct_list)
-            choices = np.array(self.task.trial_choice_list)
-            times = np.array(self.task.trial_choice_times)
-            rewards = np.array(self.task.trial_reward_given)
+            correct_ix = np.array(self.task.trial_correct_list)[-n_plot:]
+            reward_ix = np.array(self.task.trial_reward_given)[-n_plot:]
+            choices = np.array(self.task.trial_choice_list)[-n_plot:]
+            times = np.array(self.task.trial_choice_times)[-n_plot:]
 
-            correct_trials = choices[ix]
-            correct_times = times[ix]
+            correct_trials = choices[correct_ix]
+            correct_times = times[correct_ix]
 
-            incorrect_trials = choices[~ix]
-            incorrect_times = times[~ix]
+            incorrect_trials = choices[~correct_ix]
+            incorrect_times = times[~correct_ix]
 
-            reward_trials = choices[rewards]
-            reward_times = times[rewards]
+            reward_trials = choices[reward_ix]
+            reward_times = times[reward_ix]
 
             self.gui.figure_window.correct_line.set_data(correct_times, correct_trials)
             self.gui.figure_window.error_line.set_data(incorrect_times, incorrect_trials)
@@ -466,13 +466,13 @@ class Presenter(ABC):
 
             # update this to show the last 20-ish trials
             if times.size > 1:
-                T = [times[-20:][0], times[-1]]
+                T = [times[-n_plot:][0], times[-1]]
             else:
                 T = [times[-1] - .5, times[-1] + .5]
             plt.xlim(T)
 
         self.gui.figure_window.state_text.set_text('State: {}; ITI: {}'.format(self.task.state,
-                                                                         self.task.ITI_active))
+                                                                               self.task.ITI_active))
         self.gui.check_plot(figure=self.gui.figure_window.figure, savefig=save_fig)
 
     @abstractmethod

@@ -13,8 +13,6 @@ import time
 import logging
 from essential.base_classes import Presenter, Model, GUI, Box, PumpBase
 from threading import Thread
-from multiprocessing import Queue
-import queue
 
 
 # SEED = 0
@@ -226,14 +224,6 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         for i in range(len(self.task.presenter_commands)):
             c = self.task.presenter_commands.pop(0)
             self.match_command(c, correct_pump, incorrect_pump)
-
-        # multiprocessing
-        # try:
-        #     while True:
-        #         c = self.box.visualstim.presenter_commands.get(block=False)
-        #         self.match_command(c, correct_pump, incorrect_pump)
-        # except queue.Empty:
-        #     pass
 
     def update_plot(self, save_fig=False) -> None:
         if self.task.trial_choice_list:

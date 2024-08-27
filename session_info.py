@@ -1,5 +1,3 @@
-# put all of your mouse and session info in here
-
 import collections
 import socket
 from datetime import datetime
@@ -34,11 +32,6 @@ def make_session_info() -> Dict[str, Any]:
     session_info["lick_threshold"]              = 2  # number of consecutive licks to one side to indicate a choice
     session_info['intertrial_interval']         = 4  # in seconds
     session_info['quiet_ITI']          = False
-
-    # session_info['timeout_time'] = 2
-    # session_info['entry_interval'] = 1  # this is the one that delays between choices - ITI? or intertrial_interval? or entry_interval?
-    # session_info['ContextA_reward_probability'] = 1
-    # session_info['ContextB_reward_probability'] = 1
 
     # Parameters for latent inference tasks
     session_info['correct_reward_probability'] = .9
@@ -128,6 +121,9 @@ def session_defaults(session_info: dict) -> dict:
     elif session_info['task_config'] == 'alternating_latent':
         ic('Defaulting intertrial interval to 2 seconds')
         session_info['intertrial_interval'] = 2  # in seconds
+
+    if session_info['debug']:
+        pass
 
     return session_info
 
