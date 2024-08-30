@@ -127,10 +127,9 @@ class CocaineSelfAdminLeverTask(object):
         self.syringe_pump = LED(17)
         self.treadmill = self.box.treadmill
         # for refining the lick detection REMOVING
-
+        self.reward_list = []
         # session_statistics
         self.total_reward = 0
-
 
     def reward(self):  # prototype mouse weight equals 30
         infusion_duration = (self.session_info['weight'] / 30)
@@ -138,12 +137,9 @@ class CocaineSelfAdminLeverTask(object):
         self.reward_list.append(("syringe_pump_reward", infusion_duration))
         logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(infusion_duration))
 
-
     def fill_cath(self):
-        self.syringe_pump.blink(2.2, 0.1,
-                                1)  # 5ul/second, calculated cath holds ~11.74ul; 2.2seconds delivers ~12ul into cath (is this right for cocaine??)
+        self.syringe_pump.blink(2.2, 0.1, 1)  # 5ul/second, calculated cath holds ~11.74ul; 2.2seconds delivers ~12ul into cath (is this right for cocaine??)
         logging.info(";" + str(time.time()) + ";[reward];catheter_filled_with_~12ul;" + '2.2_second_infusion')
-
 
     def run(self):
         if self.state == "standby" or self.state == 'timeout':
@@ -154,12 +150,8 @@ class CocaineSelfAdminLeverTask(object):
             else:
                 self.event_name = ''
             if self.event_name == 'right_entry':
-                entry_time_temp = time.time()
-                entry_dt = entry_time_temp - self.entry_time
-                if entry_dt >= self.entry_interval:
-                    self.reward()
-                    self.entry_time = entry_time_temp
-                    self.switch_to_timeout()
+                self.reward()
+                self.switch_to_timeout()
         self.box.check_keybd()
 
     def enter_standby(self):
@@ -168,45 +160,37 @@ class CocaineSelfAdminLeverTask(object):
         self.trial_running = False
         self.box.event_list.clear()
 
-
     def exit_standby(self):
         # self.error_repeat = False
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;")
         self.box.event_list.clear()
         self.fill_cath()
 
-
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;")
+        self.box.cueLED2.off()
+        self.box.sound1.off()
         self.trial_running = True
-        self.box.cueLED2.on()
-        # how can I also add a tone?
-
 
     def exit_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_reward_available;")
         self.box.event_list.clear()
 
-
     def enter_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_timeout;")
         self.trial_running = False
+        self.box.cueLED2.on()
         self.box.sound1.on()
         self.box.event_list.clear()
-        self.box.cueLED2.off()
-
 
     def exit_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_timeout;")
-        self.box.sound1.off()
         self.box.event_list.clear()
-
 
     def update_plot(self):
         fig, axes = plt.subplots(1, 1, )
         axes.plot([1, 2], [1, 2], color='green', label='test')
         self.box.check_plot(fig)
-
 
     def update_plot_error(self):
         error_event = self.error_list
