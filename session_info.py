@@ -72,12 +72,12 @@ def make_session_info() -> Dict[str, Any]:
         times = [.5, 1]  # , 2]
         session_info['vis_gratings'] = ['vertical_grating_{}s.dat'.format(t) for t in times] + ['horizontal_grating_{}s.dat'.format(t) for t in times]
         session_info['vis_gratings'] = [gratings_dir + '/' + g for g in session_info['vis_gratings']]
-        session_info['vis_raws']					= []
+        session_info['vis_raws']     = []
         session_info['counterbalance_type'] = 'rightA'  # 'leftA', 'rightA'
         session_info['grating_duration'] = 1
         session_info['inter_grating_interval'] = 2
         session_info['stimulus_duration'] = 10
-        session_info['p_stimulus'] = 1
+        session_info['p_stimulus'] = 0
 
     session_info['treadmill_setup']             = {}
     session_info['treadmill']                   = True
