@@ -124,6 +124,7 @@ class CocaineSelfAdminLeverTask(object):
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
         self.pump = self.box.pump
+        self.syringe_pump = LED(17)
         self.treadmill = self.box.treadmill
         # for refining the lick detection REMOVING
 
