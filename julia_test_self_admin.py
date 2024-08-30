@@ -128,6 +128,8 @@ class CocaineSelfAdminLeverTask(object):
         self.treadmill = self.box.treadmill
         # for refining the lick detection REMOVING
         self.reward_list = []
+        self.left_poke_count_list = []
+        self.right_poke_count_list = []
         # session_statistics
         self.total_reward = 0
 
