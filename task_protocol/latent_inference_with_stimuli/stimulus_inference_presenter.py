@@ -33,6 +33,8 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.stimulus_B_thread = None
         self.gratings_on = False
         self.dark_period_thread = None
+        self.current_stimulus = None
+        self.previous_stimulus = None
 
         if session_info['counterbalance_type'] == 'leftA':
             self.L_stimulus_on = self.stimulus_A_on
@@ -44,19 +46,20 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
 
         self.stimulus_C_on()
 
-    # multithreaded AV sync
     def stimulus_A_on(self) -> None:
         grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
         sound_on_time = 0.1
         self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread))
-        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_on")
+        # logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_on")
+        self.current_stimulus = 'A'
         self.stimulus_A_thread.start()
 
     def stimulus_B_on(self) -> None:
         grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
         sound_on_time = 0.2
         self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread))
-        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_on")
+        # logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_on")
+        self.current_stimulus = 'B'
         self.stimulus_B_thread.start()
 
     def stimulus_C_on(self) -> None:
@@ -75,12 +78,15 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
             self.stimulus_B_thread.join()
 
     def stimulus_loop(self, grating_name: str, sound_on_time: float, prev_stim_thread: Thread) -> None:
-        if prev_stim_thread is not None:
+        if prev_stim_thread is not None and prev_stim_thread.is_alive():
             self.gratings_on = False
             prev_stim_thread.join()
+            logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_{}_off".format(self.previous_stimulus))
 
         t_start = time.perf_counter()
         self.gratings_on = True
+        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_{}_on".format(self.current_stimulus))
+        self.previous_stimulus = self.current_stimulus
         while (self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration'] and
                self.task.state != 'dark_period'):
             self.box.visualstim.show_grating(grating_name)
@@ -102,6 +108,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
             self.stimulus_C_on()
             time.sleep(self.session_info['inter_grating_interval'])
 
+        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_{}_off".format(self.current_stimulus))
         self.gratings_on = False
 
     def set_dark_period_stimuli(self) -> None:
