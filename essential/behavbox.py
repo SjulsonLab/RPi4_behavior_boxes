@@ -63,7 +63,7 @@ class BehavBox(Box):
                     logging.StreamHandler()  # sends copy of log output to screen
                 ]
             )
-            logging.info(";" + str(time.time()) + ";[initialization];behavior_box_initialized")
+            logging.info(";" + str(time.time()) + ";[initialization];behavior_box_initialized;")
         except Exception as error_message:
             print("Logging error")
             print(str(error_message))
@@ -365,22 +365,22 @@ class Pump(PumpBase):
         """Blink a pump-port once for testing purposes."""
         if pump_key in ["1", "key_1"]:
             self.pump1.blink(on_time=on_time, off_time=0.1, n=1)
-            logging.info(";" + str(time.time()) + ";[reward];pump1_blink, duration: " + str(on_time) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump1_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["2", "key_2"]:
             self.pump2.blink(on_time=on_time, off_time=0.1, n=1)
-            logging.info(";" + str(time.time()) + ";[reward];pump2_blink, duration: " + str(on_time) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump2_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["3", "key_3"]:
             self.pump3.blink(on_time=on_time, off_time=0.1, n=1)
-            logging.info(";" + str(time.time()) + ";[reward];pump3_blink, duration: " + str(on_time) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump3_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["4", "key_4"]:
             self.pump4.blink(on_time=on_time, off_time=0.1, n=1)
-            logging.info(";" + str(time.time()) + ";[reward];pump4_blink, duration: " + str(on_time) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump4_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["air_puff", "key_air_puff"]:
             self.pump_air.blink(on_time, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[reward];pump_air, duration: " + str(self.duration_air) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump_air, duration: " + str(self.duration_air) + ";")
         elif pump_key in ["vacuum", "key_vacuum"]:
             self.pump_vacuum.blink(on_time, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum, duration: " + str(self.duration_vac) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum, duration: " + str(self.duration_vac) + ";")
 
     def reward(self, which_pump: str, reward_size: float) -> None:
         if which_pump in ["1", "key_1"]:
@@ -388,58 +388,58 @@ class Pump(PumpBase):
                              5)  # linear function
             self.pump1.blink(duration, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward(reward_coeff: " + str(self.coefficient_p1) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
+                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
         elif which_pump in ["2", "key_2"]:
             duration = round((self.coefficient_p2[0] * (reward_size / 1000) + self.coefficient_p2[1]),
                              5)  # linear function
             self.pump2.blink(duration, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump2_reward(reward_coeff: " + str(self.coefficient_p2) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
+                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
         elif which_pump in ["3", "key_3"]:
             duration = round((self.coefficient_p3[0] * (reward_size / 1000) + self.coefficient_p3[1]),
                              5)  # linear function
             self.pump3.blink(duration, 0.1, 1)
             logging.info(";" + str(time.time()) + ";[reward];pump3_reward(reward_coeff: " + str(self.coefficient_p3) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
+                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
         elif which_pump in ["4", "key_4"]:
             duration = round((self.coefficient_p4[0] * (reward_size / 1000) + self.coefficient_p4[1]),
                              5)  # linear function
             self.pump4.blink(duration, 0.1, 1)
             # self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward(reward_coeff: " + str(self.coefficient_p4) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
+                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
         elif which_pump in ["air_puff", "key_air_puff"]:
             self.pump_air.blink(self.duration_air, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[reward];pump_air" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump_air" + str(reward_size) + ";")
             # self.reward_list.append(("air_puff", reward_size))
         elif which_pump in ["vacuum", "key_vacuum"]:
             self.pump_vacuum.blink(self.duration_vac, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum" + str(self.duration_vac))
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum" + str(self.duration_vac) + ";")
 
     def toggle(self, pump_key: str) -> None:
         if pump_key in ["1", "key_1"]:
             self.pump1.toggle()
-            logging.info(";" + str(time.time()) + ";[reward];pump1_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump1_toggle;")
             ic(self.pump1.value)
         elif pump_key in ["2", "key_2"]:
             self.pump2.toggle()
-            logging.info(";" + str(time.time()) + ";[reward];pump2_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump2_toggle;")
             ic(self.pump2.value)
         elif pump_key in ["3", "key_3"]:
             self.pump3.toggle()
             ic(self.pump3.value)
-            logging.info(";" + str(time.time()) + ";[reward];pump3_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump3_toggle;")
         elif pump_key in ["4", "key_4"]:
             self.pump4.toggle()
-            logging.info(";" + str(time.time()) + ";[reward];pump4_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump4_toggle;")
             ic(self.pump4.value)
         elif pump_key in ["air_puff", "key_air_puff"]:
             self.pump_air.toggle()
-            logging.info(";" + str(time.time()) + ";[reward];pump_air_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump_air_toggle;")
             ic(self.pump_air.value)
         elif pump_key in ["vacuum", "key_vacuum"]:
             self.pump_vacuum.toggle()
-            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum_toggle;")
             ic(self.pump_vacuum.value)
 
 

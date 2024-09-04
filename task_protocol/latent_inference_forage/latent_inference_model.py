@@ -124,21 +124,21 @@ class LatentInferenceModel(Model):  # subclass from base task
 
         elif choice_side == 'right':
             if self.state == 'right_patch':
-                self.log_correct_choice(RIGHT_IX, time_since_start, choice_side)
-                self.give_correct_reward()
+                reward_given = self.give_correct_reward()
+                self.log_correct_choice(RIGHT_IX, time_since_start, reward_given)
                 reward_earned = True
             elif self.state == 'left_patch':
-                self.log_incorrect_choice(RIGHT_IX, time_since_start, choice_side)
-                self.give_incorrect_reward()
+                reward_given = self.give_incorrect_reward()
+                self.log_incorrect_choice(RIGHT_IX, time_since_start, reward_given)
 
         elif choice_side == 'left':
             if self.state == 'left_patch':
-                self.log_correct_choice(LEFT_IX, time_since_start, choice_side)
-                self.give_correct_reward()
+                reward_given = self.give_correct_reward()
+                self.log_correct_choice(LEFT_IX, time_since_start, reward_given)
                 reward_earned = True
             elif self.state == 'right_patch':
-                self.log_incorrect_choice(LEFT_IX, time_since_start, choice_side)
-                self.give_incorrect_reward()
+                reward_given = self.give_incorrect_reward()
+                self.log_incorrect_choice(LEFT_IX, time_since_start, reward_given)
 
         return reward_earned
 
@@ -224,23 +224,25 @@ class LatentInferenceModel(Model):  # subclass from base task
     def turn_LED_off(self) -> None:
         self.presenter_commands.append('turn_LED_off')
 
-    def give_correct_reward(self) -> None:
+    def give_correct_reward(self) -> bool:
         if random.random() < self.session_info['correct_reward_probability']:
             self.rewards_earned_in_block += 1
             self.trial_reward_given.append(True)
+            self.presenter_commands.append('give_correct_reward')
+            return True
         else:
             self.trial_reward_given.append(False)
+            return False
 
-        self.presenter_commands.append('give_correct_reward')
-
-    def give_incorrect_reward(self) -> None:
+    def give_incorrect_reward(self) -> bool:
         if random.random() < self.session_info['incorrect_reward_probability']:
             self.rewards_earned_in_block += 1
             self.trial_reward_given.append(True)
+            self.presenter_commands.append('give_incorrect_reward')
+            return True
         else:
             self.trial_reward_given.append(False)
-
-        self.presenter_commands.append('give_incorrect_reward')
+            return False
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
