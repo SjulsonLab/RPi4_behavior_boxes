@@ -125,20 +125,20 @@ class LatentInferenceModel(Model):  # subclass from base task
         elif choice_side == 'right':
             if self.state == 'right_patch':
                 reward_given = self.give_correct_reward()
-                self.log_correct_choice(RIGHT_IX, time_since_start, choice_side, reward_given)
+                self.log_correct_choice(RIGHT_IX, time_since_start, reward_given)
                 reward_earned = True
             elif self.state == 'left_patch':
                 reward_given = self.give_incorrect_reward()
-                self.log_incorrect_choice(RIGHT_IX, time_since_start, choice_side, reward_given)
+                self.log_incorrect_choice(RIGHT_IX, time_since_start, reward_given)
 
         elif choice_side == 'left':
             if self.state == 'left_patch':
                 reward_given = self.give_correct_reward()
-                self.log_correct_choice(LEFT_IX, time_since_start, choice_side, reward_given)
+                self.log_correct_choice(LEFT_IX, time_since_start, reward_given)
                 reward_earned = True
             elif self.state == 'right_patch':
                 reward_given = self.give_incorrect_reward()
-                self.log_incorrect_choice(LEFT_IX, time_since_start, choice_side, reward_given)
+                self.log_incorrect_choice(LEFT_IX, time_since_start, reward_given)
 
         return reward_earned
 

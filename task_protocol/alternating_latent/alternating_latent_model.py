@@ -208,20 +208,20 @@ class AlternatingLatentModel(Model):
             self.activate_ITI()
             if self.state == 'right_patch':
                 reward_given = self.give_correct_reward()
-                self.log_correct_choice(RIGHT_IX, time_since_start, choice_side, reward_given)
+                self.log_correct_choice(RIGHT_IX, time_since_start, reward_given)
             else:
                 reward_given = self.give_incorrect_reward()
-                self.log_incorrect_choice(RIGHT_IX, time_since_start, choice_side, reward_given)
+                self.log_incorrect_choice(RIGHT_IX, time_since_start, reward_given)
                 # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str())
 
         elif choice_side == 'left':
             self.activate_ITI()
             if self.state == 'left_patch':
                 reward_given = self.give_correct_reward()
-                self.log_correct_choice(LEFT_IX, time_since_start, choice_side, reward_given)
+                self.log_correct_choice(LEFT_IX, time_since_start, reward_given)
             elif self.state == 'right_patch':
                 reward_given = self.give_incorrect_reward()
-                self.log_incorrect_choice(LEFT_IX, time_since_start, choice_side, reward_given)
+                self.log_incorrect_choice(LEFT_IX, time_since_start, reward_given)
                 # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str(""))
 
         elif choice_side == 'switch':
