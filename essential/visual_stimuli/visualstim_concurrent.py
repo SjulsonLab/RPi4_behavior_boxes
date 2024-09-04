@@ -71,31 +71,31 @@ class VisualStimMultiprocess(VisualStim):
         ic('secondary process gratings off')
 
     def loop_grating(self, grating_name: str, stimulus_duration: float):
-        logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
+        logging.info(";" + str(time.time()) + ";[configuration];ready to make process;")
         if self.active_process is not None and self.active_process.is_alive():
             raise ValueError("A Process is already running!! Time to debug")
 
         self.active_process = Process(target=self._loop_grating, args=(grating_name, self.stimulus_commands,
                                                                        self.presenter_commands))
-        logging.info(";" + str(time.time()) + ";[configuration];starting process")
+        logging.info(";" + str(time.time()) + ";[configuration];starting process;")
         self.gratings_on = True
         self.t_start = time.perf_counter()
         self.active_process.start()
 
     def _loop_grating(self, grating_name: str, in_queue: Queue, out_queue: Queue):
-        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start;")
         self.empty_stimulus_queue()
         self.gratings_on = True  # the multiprocess loop can't access the original process variable
         ic('secondary process gratings on')
         t_start = time.perf_counter()
         while self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
             # stim on
-            logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
+            logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on;")
             out_queue.put('turn_sounds_on')
             self.myscreen.display_grating(self.gratings[grating_name])
 
             # stim off
-            logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
+            logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on;")
             out_queue.put('turn_sounds_off')
             # out_queue.put('turn_stimulus_C_on')
             self.myscreen.display_greyscale(self.session_info["gray_level"])
@@ -120,7 +120,7 @@ class VisualStimMultiprocess(VisualStim):
         # out_queue.put('sounds_off')
         # out_queue.put('turn_stimulus_C_on')
         ic('stimulus loop_grating_process done', time.perf_counter() - t_start)
-        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end;")
 
     def check_in_queue(self, in_queue: Queue, grating_name: str, t_start: float) -> Tuple[str, float]:
         try:

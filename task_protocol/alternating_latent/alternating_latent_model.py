@@ -207,21 +207,21 @@ class AlternatingLatentModel(Model):
         if choice_side == 'right':
             self.activate_ITI()
             if self.state == 'right_patch':
-                self.log_correct_choice(RIGHT_IX, time_since_start, choice_side)
-                self.give_correct_reward()
+                reward_given = self.give_correct_reward()
+                self.log_correct_choice(RIGHT_IX, time_since_start, choice_side, reward_given)
             else:
-                self.log_incorrect_choice(RIGHT_IX, time_since_start, choice_side)
-                self.give_incorrect_reward()
+                reward_given = self.give_incorrect_reward()
+                self.log_incorrect_choice(RIGHT_IX, time_since_start, choice_side, reward_given)
                 # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str())
 
         elif choice_side == 'left':
             self.activate_ITI()
             if self.state == 'left_patch':
-                self.log_correct_choice(LEFT_IX, time_since_start, choice_side)
-                self.give_correct_reward()
+                reward_given = self.give_correct_reward()
+                self.log_correct_choice(LEFT_IX, time_since_start, choice_side, reward_given)
             elif self.state == 'right_patch':
-                self.log_incorrect_choice(LEFT_IX, time_since_start, choice_side)
-                self.give_incorrect_reward()
+                reward_given = self.give_incorrect_reward()
+                self.log_incorrect_choice(LEFT_IX, time_since_start, choice_side, reward_given)
                 # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str(""))
 
         elif choice_side == 'switch':
@@ -250,11 +250,13 @@ class AlternatingLatentModel(Model):
         ic('starting task')
         self.sample_next_block()
 
-    def give_correct_reward(self) -> None:
+    def give_correct_reward(self) -> bool:
         self.presenter_commands.append('give_correct_reward')
+        return True
 
-    def give_incorrect_reward(self) -> None:
+    def give_incorrect_reward(self) -> bool:
         self.presenter_commands.append('give_incorrect_reward')
+        return False
 
 
 def main():

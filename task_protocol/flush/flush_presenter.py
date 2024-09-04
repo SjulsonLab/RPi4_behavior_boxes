@@ -114,14 +114,14 @@ class FlushPresenter(Presenter):
         grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
         sound_on_time = 0.1
         self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread, play_sound))
-        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_on")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_on;")
         self.stimulus_A_thread.start()
 
     def stimulus_B_on(self, play_sound=True) -> None:
         grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
         sound_on_time = 0.2
         self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread, play_sound))
-        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_on")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_on;")
         self.stimulus_B_thread.start()
 
     def stimulus_loop(self, grating_name: str, sound_on_time: float, prev_stim_thread: Thread, play_sound=True) -> None:
@@ -168,7 +168,7 @@ class FlushPresenter(Presenter):
 
     def K_l_callback(self) -> None:
         self.task.presenter_commands.append('toggle_LED')
-        logging.info(";" + str(time.time()) + ";[action];toggle_LED")
+        logging.info(";" + str(time.time()) + ";[action];toggle_LED;")
 
     def end_ITI(self):
         self.ITI_active = False
@@ -183,3 +183,9 @@ class FlushPresenter(Presenter):
         print("z, x: stimulus A / B on")
         print("d, f: toggle sound 1 (beep) / 2 (white noise)")
         print("b, v: horizontal/vertical gratings on")
+
+    def give_correct_reward(self) -> bool:
+        return False
+
+    def give_incorrect_reward(self) -> bool:
+        return False

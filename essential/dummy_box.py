@@ -106,31 +106,31 @@ class VisualStim(VisualStimBase):
         ic('secondary process gratings off')
 
     def loop_grating(self, grating_name: str, stimulus_duration: float):
-        logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
+        logging.info(";" + str(time.time()) + ";[configuration];ready to make process;")
         if self.active_process is not None and self.active_process.is_alive():
             raise ValueError("A Process is already running!! Time to debug")
 
         self.active_process = Process(target=self._loop_grating, args=(grating_name, self.stimulus_commands,
                                                                        self.presenter_commands))
-        logging.info(";" + str(time.time()) + ";[configuration];starting process")
+        logging.info(";" + str(time.time()) + ";[configuration];starting process;")
         self.gratings_on = True
         self.t_start = time.perf_counter()
         self.active_process.start()
 
     def _loop_grating(self, grating_name: str, in_queue: Queue, out_queue: Queue):
-        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start;")
         self.empty_stimulus_queue()
         self.gratings_on = True  # the multiprocess loop can't access the original process variable
         ic('secondary process gratings on')
         t_start = time.perf_counter()
         while self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
             # stim on
-            logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
+            logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on;")
             out_queue.put('turn_sounds_on')
             time.sleep(self.session_info['grating_duration'])
 
             # stim off
-            logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
+            logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on;")
             out_queue.put('turn_sounds_off')
             # out_queue.put('turn_stimulus_C_on')
             if self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
@@ -148,7 +148,7 @@ class VisualStim(VisualStimBase):
         out_queue.put('stimulus_process_done')
         ic('secondary process gratings off')
         ic('stimulus loop_grating_process done', time.perf_counter() - t_start)
-        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end;")
 
     def check_in_queue(self, in_queue: Queue, grating_name: str, t_start: float) -> Tuple[str, float]:
         try:
@@ -182,15 +182,15 @@ class VisualStim(VisualStimBase):
         return grating_name, t_start
 
     def loop_grating_process(self, grating_name: str, in_queue: Queue, out_queue: Queue):
-        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_start;")
         t_start = time.perf_counter()
         self.gratings_on = True  # the multiprocess loop can't access the original process variable
         ic('secondary process gratings on')
         while self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration']:
-            logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
+            logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on;")
             time.sleep(.5)
 
-            logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
+            logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on;")
             try:
                 command = in_queue.get(block=False)
                 ic(command, 'command received in loop_grating_process')
@@ -225,7 +225,7 @@ class VisualStim(VisualStimBase):
         ic('secondary process gratings off')
         out_queue.put('reset_stimuli')
         ic('stimulus loop_grating_process done', time.perf_counter() - t_start)
-        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "loop_end;")
 
     def end_gratings_process(self):
         # join the process and empty any remaining commands
@@ -247,17 +247,17 @@ class VisualStim(VisualStimBase):
         return commands
 
     def show_grating(self, grating_name):
-        logging.info(";" + str(time.time()) + ";[configuration];ready to make process")
+        logging.info(";" + str(time.time()) + ";[configuration];ready to make process;")
         self.active_process = Process(target=self.process_function, args=(grating_name,))
-        logging.info(";" + str(time.time()) + ";[configuration];starting process")
+        logging.info(";" + str(time.time()) + ";[configuration];starting process;")
         self.active_process.start()
 
     def process_function(self, grating_name):
         # simulate showing the grating
-        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_on;")
         time.sleep(self.session_info['grating_duration'])
-        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_off")
-        logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + str(grating_name) + "_off;")
+        logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on;")
 
 
 class BehavBox(Box):
@@ -305,70 +305,70 @@ class Pump(PumpBase):
             duration = round((self.coefficient_p1[0] * (reward_size / 1000) + self.coefficient_p1[1]),
                              5)  # linear function
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward(reward_coeff: " + str(self.coefficient_p1) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
+                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
         elif which_pump in ["2", "key_2"]:
             duration = round((self.coefficient_p2[0] * (reward_size / 1000) + self.coefficient_p2[1]),
                              5)  # linear function
             logging.info(";" + str(time.time()) + ";[reward];pump2_reward(reward_coeff: " + str(self.coefficient_p2) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
+                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
         elif which_pump in ["3", "key_3"]:
             duration = round((self.coefficient_p3[0] * (reward_size / 1000) + self.coefficient_p3[1]),
                              5)  # linear function
             logging.info(";" + str(time.time()) + ";[reward];pump3_reward(reward_coeff: " + str(self.coefficient_p3) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
+                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
         elif which_pump in ["4", "key_4"]:
             duration = round((self.coefficient_p4[0] * (reward_size / 1000) + self.coefficient_p4[1]),
                              5)  # linear function
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward(reward_coeff: " + str(self.coefficient_p4) +
-                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ")")
+                         ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
         elif which_pump in ["air_puff", "key_air_puff"]:
-            logging.info(";" + str(time.time()) + ";[reward];pump_air" + str(reward_size))
+            logging.info(";" + str(time.time()) + ";[reward];pump_air;" + str(reward_size) + ";")
         elif which_pump in ["vacuum", "key_vacuum"]:
-            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum" + str(self.duration_vac))
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum;" + str(self.duration_vac) + ";")
 
     def blink(self, pump_key: str, on_time: float) -> None:
         """Blink a pump-port once for testing purposes."""
         if pump_key in ["1", "key_1"]:
             self.pump1.blink(on_time=on_time, off_time=0.1, n=1)
-            logging.info(";" + str(time.time()) + ";[reward];pump1_blink, duration: " + str(on_time) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump1_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["2", "key_2"]:
             self.pump2.blink(on_time=on_time, off_time=0.1, n=1)
-            logging.info(";" + str(time.time()) + ";[reward];pump2_blink, duration: " + str(on_time) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump2_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["3", "key_3"]:
             self.pump3.blink(on_time=on_time, off_time=0.1, n=1)
-            logging.info(";" + str(time.time()) + ";[reward];pump3_blink, duration: " + str(on_time) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump3_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["4", "key_4"]:
             self.pump4.blink(on_time=on_time, off_time=0.1, n=1)
-            logging.info(";" + str(time.time()) + ";[reward];pump4_blink, duration: " + str(on_time) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump4_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["air_puff", "key_air_puff"]:
             self.pump_air.blink(on_time, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[reward];pump_air, duration: " + str(self.duration_air) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump_air, duration: " + str(self.duration_air) + ";")
         elif pump_key in ["vacuum", "key_vacuum"]:
             self.pump_vacuum.blink(on_time, 0.1, 1)
-            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum, duration: " + str(self.duration_vac) + ")")
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum, duration: " + str(self.duration_vac) + ";")
 
     def toggle(self, pump_key: str) -> None:
         if pump_key in ["1", "key_1"]:
             self.pump1.toggle()
-            logging.info(";" + str(time.time()) + ";[reward];pump1_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump1_toggle;")
             ic(self.pump1.value)
         elif pump_key in ["2", "key_2"]:
             self.pump2.toggle()
-            logging.info(";" + str(time.time()) + ";[reward];pump2_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump2_toggle;")
             ic(self.pump2.value)
         elif pump_key in ["3", "key_3"]:
             self.pump3.toggle()
             ic(self.pump3.value)
-            logging.info(";" + str(time.time()) + ";[reward];pump3_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump3_toggle;")
         elif pump_key in ["4", "key_4"]:
             self.pump4.toggle()
-            logging.info(";" + str(time.time()) + ";[reward];pump4_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump4_toggle;")
             ic(self.pump4.value)
         elif pump_key in ["air_puff", "key_air_puff"]:
             self.pump_air.toggle()
-            logging.info(";" + str(time.time()) + ";[reward];pump_air_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump_air_toggle;")
             ic(self.pump_air.value)
         elif pump_key in ["vacuum", "key_vacuum"]:
             self.pump_vacuum.toggle()
-            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum_toggle")
+            logging.info(";" + str(time.time()) + ";[reward];pump_vacuum_toggle;")
             ic(self.pump_vacuum.value)
