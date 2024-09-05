@@ -373,62 +373,62 @@ class CocaineSelfAdminLeverTask(object):
     #     time.sleep(3)  # sleep for 3 seconds for pygame to remain displayed
     #     pygame.quit()
 
-    def update_plot(self):
-        fig, axes = plt.subplots(1, 1, )
-        axes.plot([1, 2], [1, 2], color='green', label='test')
-        self.box.check_plot(fig)
-
-    def update_plot_error(self):
-        error_event = self.error_list
-        labels, counts = np.unique(error_event, return_counts=True)
-        ticks = range(len(counts))
-        fig, ax = plt.subplots(1, 1, )
-        ax.bar(ticks, counts, align='center', tick_label=labels)
-        # plt.xticks(ticks, labels)
-        # plt.title(session_name)
-        ax = plt.gca()
-        ax.set_xticks(ticks, labels)
-        ax.set_xticklabels(labels=labels, rotation=70)
-        self.box.check_plot(fig)
-
-
-    def update_plot_choice(self, save_fig=False):
-        trajectory_active = self.left_poke_count_list
-        time_active = self.timeline_left_poke
-        trajectory_inactive = self.right_poke_count_list
-        time_inactive = self.timeline_right_poke
-        fig, ax = plt.subplots(1, 1, )
-        print(type(fig))
-        ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
-        ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
-        if save_fig:
-            plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
-                'basename'] + "_lever_choice_plot" + '.png')
-        self.box.check_plot(fig)
-        ## not sure if the above is right with the licks?
-
-
-    def integrate_plot(self, save_fig=False):
-        fig, ax = plt.subplots(2, 1)
-        trajectory_left = self.active_press
-        time_active_press = self.timeline_active_press
-        trajectory_right = self.right_poke_count_list
-        time_inactive_press = self.timeline_inactive_press
-        print(type(fig))
-        ax[0].plot(time_active_press, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
-        ax[0].plot(time_inactive_press, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
-        error_event = self.error_list
-        labels, counts = np.unique(error_event, return_counts=True)
-        ticks = range(len(counts))
-        ax[1].bar(ticks, counts, align='center', tick_label=labels)
-        # plt.xticks(ticks, labels)
-        # plt.title(session_name)
-        ax[1] = plt.gca()
-        ax[1].set_xticks(ticks, labels)
-        ax[1].set_xticklabels(labels=labels, rotation=70)
-        ########################################################################
-        # methods to start and end the behavioral session
-        ########################################################################
+    # def update_plot(self):
+    #     fig, axes = plt.subplots(1, 1, )
+    #     axes.plot([1, 2], [1, 2], color='green', label='test')
+    #     self.box.check_plot(fig)
+    #
+    # def update_plot_error(self):
+    #     error_event = self.error_list
+    #     labels, counts = np.unique(error_event, return_counts=True)
+    #     ticks = range(len(counts))
+    #     fig, ax = plt.subplots(1, 1, )
+    #     ax.bar(ticks, counts, align='center', tick_label=labels)
+    #     # plt.xticks(ticks, labels)
+    #     # plt.title(session_name)
+    #     ax = plt.gca()
+    #     ax.set_xticks(ticks, labels)
+    #     ax.set_xticklabels(labels=labels, rotation=70)
+    #     self.box.check_plot(fig)
+    #
+    #
+    # def update_plot_choice(self, save_fig=False):
+    #     trajectory_active = self.left_poke_count_list
+    #     time_active = self.timeline_left_poke
+    #     trajectory_inactive = self.right_poke_count_list
+    #     time_inactive = self.timeline_right_poke
+    #     fig, ax = plt.subplots(1, 1, )
+    #     print(type(fig))
+    #     ax.plot(time_active, trajectory_active, color='b', marker="o", label='active_trajectory')
+    #     ax.plot(time_inactive, trajectory_inactive, color='r', marker="o", label='inactive_trajectory')
+    #     if save_fig:
+    #         plt.savefig(self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + self.session_info[
+    #             'basename'] + "_lever_choice_plot" + '.png')
+    #     self.box.check_plot(fig)
+    #     ## not sure if the above is right with the licks?
+    #
+    #
+    # def integrate_plot(self, save_fig=False):
+    #     fig, ax = plt.subplots(2, 1)
+    #     trajectory_left = self.active_press
+    #     time_active_press = self.timeline_active_press
+    #     trajectory_right = self.right_poke_count_list
+    #     time_inactive_press = self.timeline_inactive_press
+    #     print(type(fig))
+    #     ax[0].plot(time_active_press, trajectory_left, color='b', marker="o", label='left_lick_trajectory')
+    #     ax[0].plot(time_inactive_press, trajectory_right, color='r', marker="o", label='right_lick_trajectory')
+    #     error_event = self.error_list
+    #     labels, counts = np.unique(error_event, return_counts=True)
+    #     ticks = range(len(counts))
+    #     ax[1].bar(ticks, counts, align='center', tick_label=labels)
+    #     # plt.xticks(ticks, labels)
+    #     # plt.title(session_name)
+    #     ax[1] = plt.gca()
+    #     ax[1].set_xticks(ticks, labels)
+    #     ax[1].set_xticklabels(labels=labels, rotation=70)
+    #     ########################################################################
+    #     # methods to start and end the behavioral session
+    #     ########################################################################
 
     def start_session(self):
         ic("TODO: start video")
