@@ -87,7 +87,7 @@ class CocaineSelfAdminLeverTask(object):
             on_exit=['exit_timeout'],
             timeout=self.session_info['timeout_time'],
             on_timeout=['switch_to_reward_available'])]
-# kept these the same unclear how to edit?
+
         self.transitions = [
     ['start_trial_logic', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
     ['switch_to_standby', 'reward_available', 'standby'],
@@ -173,6 +173,7 @@ class CocaineSelfAdminLeverTask(object):
     def enter_reward_available(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_reward_available;")
         self.box.cueLED2.on()
+        self.box.event_list.clear()
         self.trial_running = True
 
     def exit_reward_available(self):
