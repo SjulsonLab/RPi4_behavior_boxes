@@ -121,6 +121,8 @@ class CocaineSelfAdminLeverTask(object):
         self.active_press_count_list = []
         self.timeline_inactive_press = []
         self.inactive_press_count_list = []
+        self.timeline_left_poke = []
+        self.timeline_right_poke = []
         # initialize behavior box
         self.box = behavbox.BehavBox(self.session_info)
         self.pump = self.box.pump
@@ -181,12 +183,12 @@ class CocaineSelfAdminLeverTask(object):
     def enter_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_timeout;")
         self.trial_running = False
-        self.box.sound1.on()
+        self.box.sound2.on()
         self.box.event_list.clear()
 
     def exit_timeout(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_timeout;")
-        self.box.sound1.off()
+        self.box.sound2.off()
         self.box.event_list.clear()
 
     #duy_visualization code commented out below#
