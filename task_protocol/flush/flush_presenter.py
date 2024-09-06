@@ -184,8 +184,4 @@ class FlushPresenter(Presenter):
         print("d, f: toggle sound 1 (beep) / 2 (white noise)")
         print("b, v: horizontal/vertical gratings on")
 
-    def give_correct_reward(self) -> bool:
-        return False
 
-    def give_incorrect_reward(self) -> bool:
-        return False

@@ -83,6 +83,13 @@ class FlushModel(Model):
         # self.presenter_commands.append('turn_LED_on')
         pass
 
+    def give_correct_reward(self) -> bool:
+        return False
+
+    def give_incorrect_reward(self) -> bool:
+        return False
+
+
 def main():
     session_info = defaultdict(list)
     session_info['timeout_time'] = 1
