@@ -144,8 +144,8 @@ class BehavBox(Box):
         ###############################################################################################
         if self.session_info["visual_stimulus"]:
             try:
-                # self.visualstim = VisualStimMultiprocess(self.session_info)
-                self.visualstim = VisualStim(self.session_info)
+                self.visualstim = VisualStimMultiprocess(self.session_info)
+                # self.visualstim = VisualStim(self.session_info)
             except Exception as error_message:
                 print("visualstim issue - module not loaded \n")
                 print(str(error_message))
