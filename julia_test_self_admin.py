@@ -153,7 +153,7 @@ class CocaineSelfAdminLeverTask(object):
                 self.event_name = self.box.event_list.popleft()
             else:
                 self.event_name = ''
-            if self.event_name == 'right_entry':
+            if self.event_name == 'reserved_rx1_pressed':
                 self.reward()
                 self.switch_to_timeout()
         self.box.check_keybd()
