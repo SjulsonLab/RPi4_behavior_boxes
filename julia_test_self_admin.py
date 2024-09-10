@@ -138,7 +138,7 @@ class CocaineSelfAdminLeverTask(object):
     def reward(self):  # prototype mouse weight equals 30
         infusion_duration = (self.session_info['weight'] / 30) #6.25 uL for a 30g mouse
         self.syringe_pump.blink(2*infusion_duration, 0.1, 1) #2 second infusion duration for 6.25 ul (hence 2*)
-        self.reward_list.append(("syringe_pump_reward", 2*infusion_duration))
+        self.reward_list.append(("syringe_pump_reward; ", 2*infusion_duration))
         logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(2*infusion_duration))
 
     def fill_cath(self):
