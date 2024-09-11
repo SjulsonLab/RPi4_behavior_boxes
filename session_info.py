@@ -39,6 +39,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['switch_probability'] = .1
     session_info['epoch_length'] = 120
     session_info['dark_period_times'] = [10]
+    session_info['max_correct_trials_in_block'] = 30
 
     # Reward pump parameters
     session_info["reward_pump1"] = '2'

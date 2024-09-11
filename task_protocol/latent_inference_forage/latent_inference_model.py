@@ -37,10 +37,9 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.session_info = session_info
 
         # TASK + BEHAVIOR STATUS
-        # self.right_active = True
-        # self.trial_running = False
         self.trial_number = 0  # I don't think stopping at max trials is implemented - do that
         self.rewards_earned_in_block = 0
+        self.correct_trials_in_block = 0
 
         self.last_choice_time = -np.inf
         self.rewards_available_in_block = random.randint(1, 4)
@@ -53,7 +52,7 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.give_training_reward = False  # keep here, use in controller
         self.error_count = 0
         self.errors_to_reward = 5
-        self.max_consecutive_correct_trials = 30
+        self.max_correct_trials_in_block = session_info['max_correct_trials_in_block']
 
         # These can't be refactored, session parameters needed for behavbox
         # maybe move them into a parameters class
@@ -205,7 +204,8 @@ class LatentInferenceModel(Model):  # subclass from base task
                 reward_earned = self.determine_experimental_rewards(choice_side, training_reward_flag, time_since_start)
 
         if ((reward_earned and random.random() < self.session_info['switch_probability']) or
-                self.rewards_earned_in_block >= self.max_consecutive_correct_trials):
+                self.correct_trials_in_block >= self.max_correct_trials_in_block):
+                # self.rewards_earned_in_block >= self.max_consecutive_correct_trials):
             self.rewards_earned_in_block = 0
             if self.state == 'right_patch':
                 self.switch_to_left_patch()
@@ -225,6 +225,7 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.presenter_commands.append('turn_LED_off')
 
     def give_correct_reward(self) -> bool:
+        self.correct_trials_in_block += 1
         if random.random() < self.session_info['correct_reward_probability']:
             self.rewards_earned_in_block += 1
             self.trial_reward_given.append(True)
@@ -245,33 +246,44 @@ class LatentInferenceModel(Model):  # subclass from base task
             return False
 
     def exit_standby(self):
+        self.rewards_earned_in_block = 0
+        self.correct_trials_in_block = 0
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
         self.next_dark_time = time.time() + self.session_info['epoch_length']
         self.reset_counters()
         self.turn_LED_on()
 
     def enter_right_patch(self):
-        self.trial_running = True
+        self.rewards_earned_in_block = 0
+        self.correct_trials_in_block = 0
         # self.last_state_fxn = self.switch_to_right_patch
         logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(""))
 
     def exit_right_patch(self):
+        self.rewards_earned_in_block = 0
+        self.correct_trials_in_block = 0
         logging.info(";" + str(time.time()) + ";[transition];exit_right_patch;" + str(""))
 
     def enter_left_patch(self):
-        self.trial_running = True
+        self.rewards_earned_in_block = 0
+        self.correct_trials_in_block = 0
         # self.last_state_fxn = self.switch_to_left_patch
         logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(""))
 
     def exit_left_patch(self):
+        self.rewards_earned_in_block = 0
+        self.correct_trials_in_block = 0
         logging.info(";" + str(time.time()) + ";[transition];exit_left_patch;" + str(""))
 
     def enter_dark_period(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_dark_period;" + str(""))
         self.rewards_earned_in_block = 0
+        self.correct_trials_in_block = 0
         self.trial_running = False
 
     def exit_dark_period(self):
+        self.correct_trials_in_block = 0
+        self.rewards_earned_in_block = 0
         logging.info(";" + str(time.time()) + ";[transition];exit_dark_period;" + str())
         self.next_dark_time = time.time() + self.session_info['epoch_length']
 
@@ -314,12 +326,15 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.dark_period_thread = t
 
     def end_dark_period(self):
+        self.rewards_earned_in_block = 0
+        self.correct_trials_in_block = 0
         self.reset_counters()
         self.sample_next_patch()
         self.turn_LED_on()
 
     def sample_next_patch(self):
         self.rewards_earned_in_block = 0
+        self.correct_trials_in_block = 0
         if random.random() > 0.5:
             self.switch_to_left_patch()
         else:

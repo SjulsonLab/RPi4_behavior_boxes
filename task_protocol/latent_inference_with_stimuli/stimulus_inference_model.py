@@ -23,7 +23,7 @@ LEFT_IX = 1
 class StimulusInferenceModel(LatentInferenceModel):
     """
     Subclass of the LatentInferenceForageModel class, which is a subclass of the Model class from the essential package.
-    The only thing this needs to add on top of the LatentInferenceForageModel is the ability to (probabilistically)
+    The only thing this should add on top of the LatentInferenceForageModel is the ability to (probabilistically)
     turn on and off stimuli.
     """
 
