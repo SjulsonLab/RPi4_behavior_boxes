@@ -138,8 +138,8 @@ class CocaineSelfAdminLeverTask(object):
     def reward(self):  # prototype mouse weight equals 30
         infusion_duration = (self.session_info['weight'] / 30) #6.25 uL for a 30g mouse
         self.syringe_pump.blink(2*infusion_duration, 0.1, 1) #2 second infusion duration for 6.25 ul (hence 2*)
-        self.reward_list.append(("syringe_pump_reward", 2*infusion_duration))
-        logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward" + str(2*infusion_duration))
+        self.reward_list.append(("syringe_pump_reward;", 2*infusion_duration))
+        logging.info(";" + str(time.time()) + ";[reward];syringe_pump_reward;" + str(2*infusion_duration))
 
     def fill_cath(self):
         self.syringe_pump.blink(3.76, 0.1, 1) #3.125ul/second, calculated cath holds ~11.74ul; 3.76 seconds delivers ~12ul into cath; will need to update based on instech catheters
@@ -153,7 +153,7 @@ class CocaineSelfAdminLeverTask(object):
                 self.event_name = self.box.event_list.popleft()
             else:
                 self.event_name = ''
-            if self.event_name == 'right_entry':
+            if self.event_name == 'reserved_rx1_pressed':
                 self.reward()
                 self.switch_to_timeout()
         self.box.check_keybd()
