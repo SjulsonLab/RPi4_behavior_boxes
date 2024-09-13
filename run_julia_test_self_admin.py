@@ -110,7 +110,6 @@ try:
             i = False
             print("Times up, finishing up")
             task.end_task()
-            break
         while task.trial_running and t_end < time.time(): #trial running in both standby and reward_available
             task.run() #breaks out of this while loop during transitions between blocks; this will permit checking the t_end clock in this loop
     raise SystemExit

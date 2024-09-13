@@ -77,7 +77,6 @@ class CocaineSelfAdminLeverTask(object):
     # initialize the state for DRUG CUE LEARNING ONLY
         self.states = [
         State(name='standby',
-          on_enter=['switch_to_reward_available'],
           on_exit=["exit_standby"]),
         State(name="reward_available",
           on_enter=["enter_reward_available"],
@@ -157,12 +156,6 @@ class CocaineSelfAdminLeverTask(object):
                 self.reward()
                 self.switch_to_timeout()
         self.box.check_keybd()
-
-    def enter_standby(self):
-        # self.error_repeat = False
-        logging.info(";" + str(time.time()) + ";[transition];enter_standby;")
-        self.trial_running = False
-        self.box.event_list.clear()
 
     def exit_standby(self):
         # self.error_repeat = False
