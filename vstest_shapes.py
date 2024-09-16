@@ -6,6 +6,7 @@ import rpg
 options_go = {
     "shape": "circle",               # Defining it as a circle
     "color": (0, 0, 0),              # Black color
+    "angle": 0,                      # Angle doesn't affect the circle
     "duration": 3,                   # Duration in seconds
     "percent_diameter": 50,          # Diameter of the circle as a percentage of the screen
     "percent_center_left": 50,       # Center of the circle in x
@@ -17,6 +18,7 @@ rpg.build_grating("~/first_grating_go_shape.dat", options_go)
 options_nogo = {
     "shape": "square",               # Defining it as a square
     "color": (0, 0, 0),              # Black color
+    "angle": 0,                      # Set to 0 for an upright square
     "duration": 3,                   # Duration in seconds
     "percent_size": 30,              # Size of the square as a percentage of the screen
     "percent_center_left": 50,       # Center of the square in x
