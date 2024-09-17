@@ -3,17 +3,7 @@
 import rpg
 
 # Define the "Go" stimulus as a black circle
-options_go = {
-    "shape": "circle",               # Defining it as a circle
-    "color": (0, 0, 0),              # Black color
-    "angle": 0,                      # Angle doesn't affect the circle
-    "spac_freq": 0.1,                # Spatial frequency in cycles per degree
-    "temp_freq": 0.3                 # Temporal frequency in cycles per second
-    "duration": 3,                  
-    "percent_diameter": 50,          # Diameter of the circle as a percentage of the screen
-    "percent_center_left": 50,       # Center of the circle in x
-    "percent_center_top": 50         # Center of the circle in y
-}
+options_go = {"shape": "circle", "color": (0, 0, 0), "angle": 0, "spac_freq": 0.1, "temp_freq": 0.3, "duration": 3, "percent_diameter": 50, "percent_center_left": 50, "percent_center_top": 50}
 rpg.build_grating("~/first_grating_go_shape.dat", options_go)
 
 # Define the "No-Go" stimulus as a black square
