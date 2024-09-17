@@ -7,6 +7,8 @@ options_go = {
     "shape": "circle",               # Defining it as a circle
     "color": (0, 0, 0),              # Black color
     "angle": 0,                      # Angle doesn't affect the circle
+    "spac_freq": 0.1,                # Spatial frequency in cycles per degree
+    "temp_freq": 0.3                 # Temporal frequency in cycles per second
     "duration": 3,                   # Duration in seconds
     "percent_diameter": 50,          # Diameter of the circle as a percentage of the screen
     "percent_center_left": 50,       # Center of the circle in x
@@ -19,6 +21,8 @@ options_nogo = {
     "shape": "square",               # Defining it as a square
     "color": (0, 0, 0),              # Black color
     "angle": 0,                      # Set to 0 for an upright square
+    "spac_freq": 0.1,                # Spatial frequency in cycles per degree
+    "temp_freq": 0.3                 # Temporal frequency in cycles per second
     "duration": 3,                   # Duration in seconds
     "percent_size": 30,              # Size of the square as a percentage of the screen
     "percent_center_left": 50,       # Center of the square in x
