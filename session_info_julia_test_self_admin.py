@@ -33,15 +33,6 @@ session_info['max_trial_number']            = 100 #safetyprecaution
 # behavior parameters
 session_info['timeout_length']              = 20  # in seconds
 
-
-#removed below for visual stim
-# visual stimulus
-#session_info["visual_stimulus"]             = False
-# session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen between stimuli
-# session_info['vis_gratings']				= ['/home/pi/first_grating.dat',
-# 											   '/home/pi/second_grating.dat']
-# session_info['vis_raws']					= []
-
 # task related information
 
 session_info['config']	                    = 'headfixed_self_admin'
