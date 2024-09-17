@@ -7,17 +7,7 @@ options_go = {"shape": "circle", "color": (0, 0, 0), "angle": 0, "spac_freq": 0.
 rpg.build_grating("~/first_grating_go_shape.dat", options_go)
 
 # Define the "No-Go" stimulus as a black square
-options_nogo = {
-    "shape": "square",               # Defining it as a square
-    "color": (0, 0, 0),              # Black color
-    "angle": 0,                      # Set to 0 for an upright square
-    "spac_freq": 0.1,                # Spatial frequency in cycles per degree
-    "temp_freq": 0.3                 # Temporal frequency in cycles per second
-    "duration": 3,                  
-    "percent_size": 30,              # Size of the square as a percentage of the screen
-    "percent_center_left": 50,       # Center of the square in x
-    "percent_center_top": 50         # Center of the square in y
-}
+options_nogo = {"shape": "square", "color": (0, 0, 0), "angle": 0, "spac_freq": 0.1, "temp_freq": 0.3, "duration": 3, "percent_size": 30, "percent_center_left": 50, "percent_center_top": 50}
 rpg.build_grating("~/first_grating_nogo_shape.dat", options_nogo)
 
 
