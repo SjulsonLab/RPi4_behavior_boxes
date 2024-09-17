@@ -106,14 +106,12 @@ try:
     i = True
     task.start_trial_logic()
     while i:
-        if time.time() >= t_end:
+        if t_end < time.time():
             i = False
-            print("Times up, finishing up")
             task.end_task()
-            break
-        while task.trial_running: #trial running in both standby and reward_available
-            if time.time() < t_end:
-                task.run() #breaks out of this while loop during transitions between blocks; this will permit checking the t_end clock in this loop
+            print("Times up, finishing up")
+        while task.trial_running and t_end < time.time(): #trial running in both standby and reward_available
+            task.run() #breaks out of this while loop during transitions between blocks; this will permit checking the t_end clock in this loop
     raise SystemExit
 
 # graceful exit
@@ -134,4 +132,3 @@ except RuntimeError as ex:
     scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info': session_info})
     pickle.dump(session_info, open(session_info['file_basename'] + '_session_info.pkl', "wb"))
     task.end_session()
-
