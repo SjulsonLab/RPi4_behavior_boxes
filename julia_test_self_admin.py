@@ -77,7 +77,6 @@ class CocaineSelfAdminLeverTask(object):
     # initialize the state for DRUG CUE LEARNING ONLY
         self.states = [
         State(name='standby',
-          on_enter=['switch_to_reward_available'],
           on_exit=["exit_standby"]),
         State(name="reward_available",
           on_enter=["enter_reward_available"],
@@ -87,6 +86,12 @@ class CocaineSelfAdminLeverTask(object):
             on_exit=['exit_timeout'],
             timeout=self.session_info['timeout_time'],
             on_timeout=['switch_to_reward_available'])]
+        #adding new timeout state to avoid entry to reward available during cath filling
+        Timeout(name='cath_fill',
+                on_enter=['enter_cath_fill'],
+                on_exit=['exit_cath_fill'],
+                timeout=self.session_info['cath_fill'],
+                on_timeout=['switch_to_reward_available'])]
 
         self.transitions = [
     ['start_trial_logic', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
@@ -157,12 +162,6 @@ class CocaineSelfAdminLeverTask(object):
                 self.reward()
                 self.switch_to_timeout()
         self.box.check_keybd()
-
-    def enter_standby(self):
-        # self.error_repeat = False
-        logging.info(";" + str(time.time()) + ";[transition];enter_standby;")
-        self.trial_running = False
-        self.box.event_list.clear()
 
     def exit_standby(self):
         # self.error_repeat = False
