@@ -12,8 +12,8 @@ rpg.build_masked_grating("~/first_grating_nogo_round.dat", options_nogo)
 
 
 with rpg.Screen() as myscreen:
-    grating_go = myscreen.load_grating("~/first_grating_go_shape.dat")
+    grating_go = myscreen.load_grating("~/first_grating_go_round.dat")
     myscreen.display_grating(grating_go)
   
-    grating_nogo = myscreen.load_grating("~/first_grating_nogo_shape.dat")
+    grating_nogo = myscreen.load_grating("~/first_grating_nogo_round.dat")
     myscreen.display_grating(grating_nogo)
