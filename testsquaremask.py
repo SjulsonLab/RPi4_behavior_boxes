@@ -137,9 +137,8 @@ options_nogo = {
     "percent_side_length": 50, "percent_center_left": 50, "percent_center_top": 50, "background": RGB565MODE, 
     "width": 800, "height": 600, "percent_padding": 0.1, "waveform": SQUARE 
 }
-    
-rpg.build_grating("~/first_grating_nogo_smask.dat", options_nogo)
 
+rpg.build_square_shape_grating("~/first_grating_nogo_smask.dat", options_nogo)
 
 
 with rpg.Screen() as myscreen:
