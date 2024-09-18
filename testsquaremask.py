@@ -134,8 +134,8 @@ def build_square_shape_grating(filename, options):
 
 options_nogo = {
     "angle": 90, "spac_freq": 0.1, "temp_freq": 0.3, "duration": 3, "contrast": 0, "colormode": RGB888MODE,
-    "percent_side_length": 50, "percent_center_left": 50, "percent_center_top": 50, "background": 255, 
-    "width": 800, "height": 600, "percent_padding": 1, "waveform": SQUARE 
+    "percent_side_length": 50, "percent_center_left": 50, "percent_center_top": 50, "background": RGB565MODE, 
+    "width": 800, "height": 600, "percent_padding": 0.1, "waveform": SQUARE 
 }
     
 rpg.build_grating("~/first_grating_nogo_smask.dat", options_nogo)
