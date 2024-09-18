@@ -157,7 +157,7 @@ void * build_frame(int t, double angle, fb_config framebuffer, int wavelength, i
     return (void *)array_start;
 }
 
-int build_grating(char * filename, double duration, double angle, double sf, double tf, double contrast, int background, int width, int height, int waveform, 
+int build_square_shape_grating(char * filename, double duration, double angle, double sf, double tf, double contrast, int background, int width, int height, int waveform, 
                   double percent_sigma, double percent_side_length, double percent_center_left, double percent_center_top, double percent_padding, int colormode){ 
 
     int fps = get_refresh_rate();
@@ -207,7 +207,7 @@ int build_grating(char * filename, double duration, double angle, double sf, dou
 }
 
 options_nogo = {"angle": 90, "spac_freq": 0.1, "temp_freq": 0.3, "duration": 3,  "contrast": 0, "colormode": 0, "percent_side_length": 50, "percent_center_left": 50, "percent_center_top": 50, "background": 255}
-rpg.build_square_shape_grating("~/first_grating_nogo_smask.dat", options_nogo)
+build_square_shape_grating("~/first_grating_nogo_smask.dat", options_nogo)
 
 
 with rpg.Screen() as myscreen:
