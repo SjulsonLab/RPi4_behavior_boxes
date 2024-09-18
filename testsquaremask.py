@@ -1,6 +1,6 @@
 #Piece of code removed from bill-connelly and modified to build a square mask - IN PROCESS
 
-import RPG
+import rpg
 
 # Define the "Go" stimulus - white circle, black background
 
