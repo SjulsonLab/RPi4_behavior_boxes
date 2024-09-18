@@ -1,13 +1,13 @@
-#Piece of code removed from bill-connelly and modified to build a square mask - IN PROCESS
-
+#Piece of code removed from bill-connelly and modified to build a square mask 
 import rpg
+import _rpigratings as rg
 
 # Define the "Go" stimulus - white circle, black background
 
 options_go = {"angle": 90, "spac_freq": 0.1, "temp_freq": 0.3, "duration": 3,  "contrast": 0, "percent_diameter": 50, "percent_center_left": 50, "percent_center_top": 50, "background": 0}
 rpg.build_masked_grating("~/first_grating_go_smask.dat", options_go)
 
-# Define the "No Go" stimulus - black square, white background
+# Create a Square Mask
 
 import numpy as np
 import math
@@ -130,15 +130,16 @@ def build_square_shape_grating(filename, options):
         with open(filename, 'ab') as f:
             frame.tofile(f)
 
-# Example options for the "No Go" stimulus
+# Define the "No Go" stimulus - black square, white background
 
 options_nogo = {
     "angle": 90, "spac_freq": 0.1, "temp_freq": 0.3, "duration": 3, "contrast": 0, "colormode": RGB888MODE,
     "percent_side_length": 50, "percent_center_left": 50, "percent_center_top": 50, "background": 255, 
     "width": 800, "height": 600, "percent_padding": 0, "waveform": SQUARE 
 }
+    
+rpg.build_grating("~/first_grating_nogo_smask.dat", options_nogo)
 
-build_square_shape_grating('~/first_grating_nogo_smask.dat', options_nogo)
 
 
 with rpg.Screen() as myscreen:
