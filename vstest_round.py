@@ -3,7 +3,7 @@
 import rpg
 
 # Define the "Go" stimulus
-options_go = {"angle": 90, "spac_freq": 0.01, "temp_freq": 0.3, "duration": 3,  "contrast": 1, "percent_diameter": 30, "percent_center_left": 50, "percent_center_top": 50, "background": 0, "waveform": rpg.SQUARE}
+options_go = {"angle": 90, "spac_freq": 0.05, "temp_freq": 0.0, "duration": 3,  "contrast": 1, "percent_diameter": 30, "percent_center_left": 50, "percent_center_top": 50, "background": 0, "waveform": rpg.SQUARE}
 rpg.build_grating("~/first_grating_go_ret.dat", options_go)
 
 # Define the "No-Go" stimulus
