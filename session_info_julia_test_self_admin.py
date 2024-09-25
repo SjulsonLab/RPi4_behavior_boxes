@@ -25,8 +25,8 @@ session_info['weight']                	    = 32.18
 session_info['manual_date']					= '202x-xx-xx'
 session_info['box_name']             		= socket.gethostname()
 
-# session_info['config']						= 'freely_moving_v1' #??
-session_info['config']						= 'self_admin' #??
+# session_info['config']						= 'freely_moving_v1' 
+session_info['config']						= 'self_admin' 
 
 session_info['max_trial_number']            = 100 #safetyprecaution
 
