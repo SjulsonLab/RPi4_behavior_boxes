@@ -74,26 +74,33 @@ class CocaineSelfAdminLeverTask(object):
         else:
             self.session_info = kwargs.get("session_info", None)
         ic(self.session_info)
-    # initialize the state for DRUG CUE LEARNING ONLY
+    # initialize the state for DRUG CUE LEARNING ONLY, this is NEW with the cath filling problem edited
         self.states = [
         State(name='standby',
-          on_enter=['switch_to_reward_available'],
-          on_exit=["exit_standby"]),
+            on_exit=["exit_standby"]),
         State(name="reward_available",
-          on_enter=["enter_reward_available"],
-          on_exit=["exit_reward_available"]),
+            on_enter=["enter_reward_available"],
+            on_exit=["exit_reward_available"]),
         Timeout(name='timeout',
             on_enter=['enter_timeout'],
             on_exit=['exit_timeout'],
             timeout=self.session_info['timeout_time'],
+            on_timeout=['switch_to_reward_available']), 
+        Timeout(name='cath_fill',
+            on_enter=['enter_cath_fill'],
+            on_exit=['exit_cath_fill'],
+            timeout=self.session_info['cath_fill'],
             on_timeout=['switch_to_reward_available'])]
 
+        #edited relevant to updates with syringe filling issue
+
         self.transitions = [
-    ['start_trial_logic', 'standby', 'reward_available'],  # format: ['trigger', 'origin', 'destination']
-    ['switch_to_standby', 'reward_available', 'standby'],
-    ['switch_to_reward_available', ['standby', 'timeout'], 'reward_available'],
+    ['start_trial_logic', 'standby', 'cath_fill'],  # format: ['trigger', 'origin', 'destination']
+    ['switch_to_reward_available', [‘cath_fill’, 'timeout'], 'reward_available'],
     ['switch_to_timeout', 'reward_available', 'timeout'],
     ['end_task', ['reward_available', 'timeout'], 'standby']]
+
+        
         self.machine = TimedStateMachine(
     model=self,
     states=self.states,
@@ -191,6 +198,12 @@ class CocaineSelfAdminLeverTask(object):
         logging.info(";" + str(time.time()) + ";[transition];exit_timeout;")
         self.box.sound2.off()
         self.box.event_list.clear()
+
+    def enter_cath_fill(self):
+        # self.error_repeat = False
+        logging.info(";" + str(time.time()) + ";[transition];exit_standby;")
+        self.box.event_list.clear()
+        self.fill_cath()
 
     #duy_visualization code commented out below#
     # # import packages for starting a new process and plotting trial progress in real time
