@@ -62,7 +62,7 @@ class CocaineSelfAdminLeverTask(object):
         self.states = [
             State(name='standby', on_exit=["exit_standby"]),
             State(name="reward_available", on_enter=["enter_reward_available"], on_exit=["exit_reward_available"]),
-            Timeout(name='timeout', on_enter=['enter_timeout'], on_exit=['exit_timeout'], timeout=self.session_info['timeout_time'], on_timeout=['switch_to_reward_available']),
+            Timeout(name='timeout', on_enter=['enter_timeout'], on_exit=['exit_timeout'], timeout=23, on_timeout=['switch_to_reward_available']),  # Timeout lasts 23 seconds
             Timeout(name='cath_fill', on_enter=['enter_cath_fill'], on_exit=['exit_cath_fill'], timeout=self.session_info['cath_fill'], on_timeout=['switch_to_reward_available'])
         ]
 
@@ -126,15 +126,19 @@ class CocaineSelfAdminLeverTask(object):
 
     def process_active_lever_press(self):
         logging.info(";" + str(time.time()) + ";[lever_press];active_lever_pressed;")
-        self.box.cueLED2.off()  # Turn off LED
-        self.box.sound2.on()  # Play sound
-        sleep(2)
-        self.box.sound2.off()  # Turn sound off
-        self.box.cueLED2.on()  # Turn LED back on
-        sleep(1)
-        self.reward()  # Infuse drug
+        self.box.cueLED2.off()  # Turn off LED immediately at time 0
+        self.box.sound2.on()  # Play sound immediately at time 0
+        
+        # Schedule LED and sound events after specific delays
+        threading.Timer(2, self._handle_led_sound_switch).start()  # Switch LED on and sound off at second 2
+        threading.Timer(3, self.reward).start()  # Start the infusion at second 3
+        
         self.infusions += 1
         self.switch_to_timeout()
+
+    def _handle_led_sound_switch(self):
+        self.box.sound2.off()  # Turn sound off at second 2
+        self.box.cueLED2.on()  # Turn LED back on at second 2
 
     def enter_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];enter_standby;")
@@ -190,5 +194,5 @@ class CocaineSelfAdminLeverTask(object):
 
 # To run as a script
 if __name__ == "__main__":
-    task = CocaineSelfAdminLeverTask(name="MouseTest", session_info={'weight': 30, 'timeout_time': 10, 'cath_fill': 3})
+    task = CocaineSelfAdminLeverTask(name="MouseTest", session_info={'weight': 30, 'timeout_time': 23, 'cath_fill': 3})
     task.run()
