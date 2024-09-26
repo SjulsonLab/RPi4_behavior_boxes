@@ -7,6 +7,8 @@
 #
 # TODO: make show_random() method to show a random grating from the list
 # TODO: (someday) implement triggering of visual gratings
+#----------------------
+#09/26/24: this code only allows gratings as vstim, but not raw images - it was renamed to: visualstim_nogo_original.py. The new updated code: visualstim_nogo.py
 
 import rpg
 import time
