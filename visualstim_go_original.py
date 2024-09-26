@@ -9,7 +9,7 @@
 # TODO: (someday) implement triggering of visual gratings
 
 #----------------------
-#09/26/24: this code only permits gratings as vstim, but not raw images - it was renamed to: visualstim_go_original.py. The new updated code: visualstim_go.py
+#09/26/24: this code only allows gratings as vstim, but not raw images - it was renamed to: visualstim_go_original.py. The new updated code: visualstim_go.py
 
 import rpg
 import time
