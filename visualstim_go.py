@@ -7,6 +7,8 @@
 #
 # TODO: make show_random() method to show a random grating from the list
 # TODO: (someday) implement triggering of visual gratings
+#----------------------
+#09/26/24: Code modified by Geoffrey for allowing raw images as a visual stimulus, besides the gratings
 
 import rpg
 import time
