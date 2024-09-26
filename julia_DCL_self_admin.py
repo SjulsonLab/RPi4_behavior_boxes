@@ -62,7 +62,7 @@ class CocaineSelfAdminLeverTask(object):
         self.states = [
             State(name='standby', on_exit=["exit_standby"]),
             State(name="reward_available", on_enter=["enter_reward_available"], on_exit=["exit_reward_available"]),
-            Timeout(name='timeout', on_enter=['enter_timeout'], on_exit=['exit_timeout'], timeout=23, on_timeout=['switch_to_reward_available']),  # Timeout lasts 23 seconds
+            Timeout(name='timeout', on_enter=['enter_timeout'], on_exit=['exit_timeout'], timeout=20, on_timeout=['switch_to_reward_available']),  # Timeout lasts 20 seconds after infusion
             Timeout(name='cath_fill', on_enter=['enter_cath_fill'], on_exit=['exit_cath_fill'], timeout=self.session_info['cath_fill'], on_timeout=['switch_to_reward_available'])
         ]
 
@@ -134,7 +134,8 @@ class CocaineSelfAdminLeverTask(object):
         threading.Timer(3, self.reward).start()  # Start the infusion at second 3
         
         self.infusions += 1
-        self.switch_to_timeout()
+        # Start the 20-second timeout after the 3-second infusion
+        threading.Timer(3, self.switch_to_timeout).start()  # Switch to timeout 3 seconds after the lever press
 
     def _handle_led_sound_switch(self):
         self.box.sound2.off()  # Turn sound off at second 2
