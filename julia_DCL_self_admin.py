@@ -58,9 +58,26 @@ class CocaineSelfAdminLeverTask(object):
         self.mouse_weight = self.session_info['weight']  # Read mouse weight from session_info
 
         # Define drug dosage parameters
-        self.dosage_mg_per_kg = 0.75  # 0.75 mg/kg
-        self.infusion_rate_ul_per_sec = 3.125  # Infusion rate in µL/sec
-        self.bolus_volume_ul = 12.5  # Bolus volume per infusion in µL
+        self.dosage_mg_per_kg = 0.75  # 0.75 mg/kg dosage per infusion
+        self.infusion_rate_ul_per_sec = 6.25  # Infusion rate in µL/sec (converted from 375 µL/min)
+        self.solution_concentration_mg_per_ml = 1.8  # Concentration of cocaine solution in mg/mL
+
+        # Calculate the required dosage for this mouse in mg per infusion
+        dosage_mg = self.dosage_mg_per_kg * self.mouse_weight  # Amount of cocaine in mg needed per infusion
+
+        # Calculate the required bolus volume in µL based on the solution concentration
+        self.bolus_volume_ul = (dosage_mg / self.solution_concentration_mg_per_ml) * 1000  # Convert from mL to µL
+
+        # Calculate infusion time in seconds based on bolus volume and infusion rate
+        self.infusion_time_sec = self.bolus_volume_ul / self.infusion_rate_ul_per_sec
+
+        # Print statements for debugging (optional)
+        print(f"Mouse weight: {self.mouse_weight} kg")
+        print(f"Dosage per infusion: {dosage_mg} mg")
+        print(f"Bolus volume: {self.bolus_volume_ul} µL")
+        print(f"Infusion time: {self.infusion_time_sec} seconds")
+
+# Now, you can use self.bolus_volume_ul and self.infusion_time_sec to control your infusion pump.
 
         # Define states and transitions
         self.states = [
