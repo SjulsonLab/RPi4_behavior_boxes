@@ -86,6 +86,10 @@ class Box(ABC):
     def video_stop(self):
         ...
 
+    @abstractmethod
+    def transfer_files_to_external_storage(self):
+        ...
+
 
 # probably remove this
 @add_state_features(Timeout)
@@ -443,6 +447,7 @@ class Presenter(ABC):
     def end_session(self) -> None:
         ic("TODO: stop video")
         self.box.video_stop()
+        self.box.transfer_files_to_external_storage()
         if self.gui:
             self.update_plot(save_fig=True)
 

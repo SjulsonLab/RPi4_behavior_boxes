@@ -31,7 +31,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['reward_size']					= 10  # in microliters
     session_info["lick_threshold"]              = 2  # number of consecutive licks to one side to indicate a choice
     session_info['intertrial_interval']         = 4  # in seconds
-    session_info['quiet_ITI']          = False
+    session_info['quiet_ITI']                   = False
 
     # Parameters for latent inference tasks
     session_info['correct_reward_probability'] = .9
@@ -52,10 +52,12 @@ def make_session_info() -> Dict[str, Any]:
     # session_info['flush_duration'] = 2
 
     # Parameters - file saving
-    session_info['file_basename']               = 'place_holder'
-    session_info['basedir']					  	= '/home/pi/buffer'
-    session_info['external_storage']            = '/mnt/hd'
+    session_info['file_basename']               = None
+    # session_info['basedir']					  	= '/home/pi/buffer'
+    session_info['buffer_dir']					  	= '/home/pi/buffer'
+    session_info['external_storage']            = '/mnt/hd'  # /mnt/sda
     session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
+
 
     # Parameters - box and rig
     session_info['box_name']             		= socket.gethostname()

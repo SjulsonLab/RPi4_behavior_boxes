@@ -13,7 +13,9 @@ description:
 
 from gpiozero import PWMLED, LED, Button
 import os, sys
+from pathlib import Path
 import socket
+import subprocess
 import time
 from collections import deque
 from icecream import ic
@@ -36,6 +38,8 @@ from FlipperOutput import FlipperOutput
 from base_classes import Presenter, PumpBase, Box
 from typing import List, Tuple, Union, Dict, Any
 
+from task_protocol.to_be_refactored.run_A_B_task import session_info
+
 
 class BehavBox(Box):
     event_list = (
@@ -46,35 +50,21 @@ class BehavBox(Box):
         try:
             # set up the external hard drive path for the flipper output
             self.session_info = session_info
-            storage_path = self.session_info['external_storage'] + '/' + self.session_info['basename']
-            self.session_info['flipper_filename'] = storage_path + '/' + self.session_info[
-                'basename'] + '_flipper_output'
-
-            # make data directory and initialize logfile
-            os.makedirs(session_info['dir_name'])
-            os.chdir(session_info['dir_name'])
-            session_info['file_basename'] = session_info['dir_name'] + '/' + session_info['mouse_name'] + "_" + session_info['datetime']
-            logging.basicConfig(
-                level=logging.INFO,
-                format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
-                datefmt=('%H:%M:%S'),
-                handlers=[
-                    logging.FileHandler(session_info['file_basename'] + '.log'),
-                    logging.StreamHandler()  # sends copy of log output to screen
-                ]
-            )
             logging.info(";" + str(time.time()) + ";[initialization];behavior_box_initialized;")
+
         except Exception as error_message:
             print("Logging error")
             print(str(error_message))
 
-        from subprocess import check_output
-        IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
-        self.IP_address = IP_address
-        IP_address_video_list = list(IP_address)
+        IP_address = subprocess.check_output(['hostname', '-I']).decode('ascii')[:-2]
+        self.IP_address = IP_address.split(' ')[0]  # if there is an ethernet and wifi connection, this will take the
+        # first IP assuming that one is the ethernet connection. Make sure you confirm this is the case!!!
+        self.hostname = socket.gethostname()
+        IP_address_video_list = list(self.IP_address)
         # IP_address_video_list[-3] = "2"
         IP_address_video_list[-1] = "2"
         self.IP_address_video = "".join(IP_address_video_list)
+        ic(self.IP_address_video)
 
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
@@ -163,12 +153,12 @@ class BehavBox(Box):
         # ###############################################################################################
         # # treadmill setup
         # ###############################################################################################
-        if session_info['treadmill'] == True:
+        if session_info['treadmill']:
             try:
                 self.treadmill = Treadmill.Treadmill(self.session_info)
             except Exception as error_message:
                 print("treadmill issue\n")
-                # print("Ignore following erro if no treadmill is connected: ")
+                # print("Ignore following error if no treadmill is connected: ")
                 print(str(error_message))
         else:
             self.treadmill = False
@@ -207,44 +197,33 @@ class BehavBox(Box):
 
     ###############################################################################################
     # methods to start and stop video
-    # These work with fake video files but haven't been tested with real ones
     ###############################################################################################
     def video_start(self):
-        IP_address_video = self.IP_address_video
-        dir_name = self.session_info['dir_name']
-        basename = self.session_info['basename']
-        file_name = dir_name + "/" + basename
         # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
-
-        # create directory on the external storage
-        base_dir = self.session_info['external_storage'] + '/'
-        hd_dir = base_dir + basename
-        os.mkdir(hd_dir)
-
-        # Preview check per Kelly request
         print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
         try:
-            os.system("ssh pi@" + IP_address_video + " pkill python")
+            os.system("ssh pi@" + self.IP_address_video + " pkill python")
+
+            # Preview check
             print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)
             print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
+            os.system("ssh pi@" + self.IP_address_video + " '/home/pi/RPi4_behavior_boxes/start_preview.py'")
 
-            os.system("ssh pi@" + IP_address_video + " '/home/pi/RPi4_behavior_boxes/start_preview.py'")
             # Kill any python process before start recording
             print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
-
-            os.system("ssh pi@" + IP_address_video + " pkill python")
+            os.system("ssh pi@" + self.IP_address_video + " pkill python")
             time.sleep(2)
 
             # Prepare the path for recording
-            os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name)
-            os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
+            os.system("ssh pi@" + self.IP_address_video + " mkdir " + self.session_info['output_dir'])
+            os.system("ssh pi@" + self.IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
             tempstr = (
-                    "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
-                    + file_name
+                    "ssh pi@" + self.IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
+                    + self.session_info['file_basename']
                     + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
             )
-            # start the flipper before the recording start
-            # initiate the flipper
+
+            # start the flipper before the recording starts
             try:
                 self.flipper.flip()
             except Exception as error_message:
@@ -263,69 +242,73 @@ class BehavBox(Box):
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
 
-            print(
-                Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
-
-            # start initiating the dumping of the session information when available
-            scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
-            print("dumping session_info")
-            pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
+            print(Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
 
         except Exception as e:
             print(e)
 
     def video_stop(self):
-        # Get the basename from the session information
-        basename = self.session_info['basename']
-        dir_name = self.session_info['dir_name']
-        # Get the ip address for the box video:
-        IP_address_video = self.IP_address_video
         try:
             # Run the stop_video script in the box video
             os.system(
-                "ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
+                "ssh pi@" + self.IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
             time.sleep(2)
             # now stop the flipper after the video stopped recording
             try:  # try to stop the flipper
                 self.flipper.close()
             except:
                 pass
+
             time.sleep(2)
             if self.treadmill is not False:
                 try:  # try to stop recording the treadmill
                     self.treadmill.close()
                 except:
                     pass
-            hostname = socket.gethostname()
-            print("Moving video files from " + hostname + "video to " + hostname + ":")
-
-            # Create a directory for storage on the hard drive mounted on the box behavior
-            base_dir = self.session_info['external_storage'] + '/'
-            hd_dir = base_dir + basename
-
-            scipy.io.savemat(hd_dir + "/" + basename + '_session_info.mat', {'session_info': self.session_info})
-            print("dumping session_info")
-            pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
-
-            # Move the video + log from the box_video SD card to the box_behavior external hard drive
-            os.system(
-                "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + "/ "
-                + hd_dir
-            )
-            os.system(
-                "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":~/video/*.log "
-                + hd_dir
-            )
-
-            os.system(
-                "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/ "
-                + hd_dir
-            )
-            print("rsync finished!")
-            # print("Control-C to quit (ignore the error for now)")
 
         except Exception as e:
             print(e)
+
+    def transfer_files_to_external_storage(self):
+        print("saving session_info")
+        scipy.io.savemat(session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.mat', {'session_info': self.session_info})
+        with open(session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.pkl', "wb") as f:
+            pickle.dump(self.session_info, f)
+
+        n_fails = 0
+        while True:
+            shell_output = subprocess.run(['sh', './transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
+                            self.session_info['external_storage_dir']])
+
+            if shell_output.returncode == 0:
+                print("rsync finished!")
+                break
+            else:
+                n_fails += 1
+                if n_fails > 5:
+                    print("rsync failed 5 times, giving up")
+                    break
+                else:
+                    print("rsync failed, retrying in 2 seconds")
+                time.sleep(2)
+        # # Move the video + log from the box_video SD card to the box_behavior external hard drive
+        # print("Moving video files from " + self.hostname + "video to " + self.hostname + ":")
+        # os.system(
+        #     "rsync -av --progress --remove-source-files pi@{}:{}/ {}".format(self.IP_address_video,
+        #                                                                      self.session_info['output_dir'],
+        #                                                                      self.session_info['external_storage_dir'])
+        # )
+        #
+        # os.system(
+        #     "rsync -av --progress --remove-source-files pi@{}:~/video/*.log {}".format(self.IP_address_video,
+        #                                                                                self.session_info['external_storage_dir'])
+        # )
+        #
+        # os.system(
+        #     "rsync -arvz --progress --remove-source-files {}/ {}".format(self.session_info['output_dir'],
+        #                                                                  self.session_info['external_storage_dir'])
+        # )
+        # print("rsync finished!")
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
@@ -342,6 +325,7 @@ class BoxLED(PWMLED):
 # pump: trigger signal output to a driver board induce the solenoid valve to deliver reward
 ###############################################################################################
 class Pump(PumpBase):
+
     def __init__(self, session_info: Dict[str, Any]):
         self.pump1 = LED(19)
         self.pump2 = LED(20)
@@ -441,5 +425,3 @@ class Pump(PumpBase):
             self.pump_vacuum.toggle()
             logging.info(";" + str(time.time()) + ";[reward];pump_vacuum_toggle;")
             ic(self.pump_vacuum.value)
-
-
