@@ -21,7 +21,6 @@ import logging.config
 from time import sleep
 import random
 import threading
-import matplotlib.pyplot as plt
 import numpy as np
 import behavbox
 
