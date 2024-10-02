@@ -46,6 +46,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # Import your task class here
+import julia_DCL_self_admin
 from julia_DCL_self_admin import CocaineSelfAdminLeverTask
 
 try:
