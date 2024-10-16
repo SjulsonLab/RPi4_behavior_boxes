@@ -38,8 +38,6 @@ from FlipperOutput import FlipperOutput
 from base_classes import Presenter, PumpBase, Box
 from typing import List, Tuple, Union, Dict, Any
 
-from task_protocol.to_be_refactored.run_A_B_task import session_info
-
 
 class BehavBox(Box):
     event_list = (
@@ -153,7 +151,7 @@ class BehavBox(Box):
         # ###############################################################################################
         # # treadmill setup
         # ###############################################################################################
-        if session_info['treadmill']:
+        if self.session_info['treadmill']:
             try:
                 self.treadmill = Treadmill.Treadmill(self.session_info)
             except Exception as error_message:
@@ -271,8 +269,8 @@ class BehavBox(Box):
 
     def transfer_files_to_external_storage(self):
         print("saving session_info")
-        scipy.io.savemat(session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.mat', {'session_info': self.session_info})
-        with open(session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.pkl', "wb") as f:
+        scipy.io.savemat(self.session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.mat', {'session_info': self.session_info})
+        with open(self.session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.pkl', "wb") as f:
             pickle.dump(self.session_info, f)
 
         n_fails = 0
@@ -291,6 +289,7 @@ class BehavBox(Box):
                 else:
                     print("rsync failed, retrying in 2 seconds")
                 time.sleep(2)
+
         # # Move the video + log from the box_video SD card to the box_behavior external hard drive
         # print("Moving video files from " + self.hostname + "video to " + self.hostname + ":")
         # os.system(
