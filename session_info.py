@@ -17,6 +17,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test_mouse'
     session_info['debug']                     	= False
+    session_info['ephys_rig']                 	= False
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
@@ -42,8 +43,14 @@ def make_session_info() -> Dict[str, Any]:
     session_info['max_correct_trials_in_block'] = 30
 
     # Reward pump parameters
-    session_info["reward_pump1"] = '2'
+    session_info["reward_pump1"] = '2'  # for ephys rig,
     session_info['reward_pump2'] = '1'
+
+    session_info['pump1_ix'] = 0
+    session_info['pump2_ix'] = 1
+    session_info['right_ix'] = 0
+    session_info['left_ix'] = 1
+    session_info['trial_choice_map'] = {'right': 0, 'left': 1}  # probably not needed
 
     session_info['reward_size_large'] = 5
     session_info['reward_size_small'] = 0
@@ -55,9 +62,8 @@ def make_session_info() -> Dict[str, Any]:
     session_info['file_basename']               = None
     # session_info['basedir']					  	= '/home/pi/buffer'
     session_info['buffer_dir']					  	= '/home/pi/buffer'
-    session_info['external_storage']            = '/mnt/hd'  # /mnt/sda
+    session_info['external_storage']            = '/mnt/sda'  # /mnt/sda
     session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
-
 
     # Parameters - box and rig
     session_info['box_name']             		= socket.gethostname()

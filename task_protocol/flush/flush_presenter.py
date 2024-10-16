@@ -79,6 +79,22 @@ class FlushPresenter(Presenter):
                 logging.info(";" + str(time.time()) + ";[reward];toggling_left_water;" + str(""))
                 self.pump.toggle(self.pump_keys[PUMP2_IX])
 
+            if c == 'toggle_pump1':
+                logging.info(";" + str(time.time()) + ";[reward];toggling_pump1;" + str(""))
+                self.pump.toggle(self.pump_keys[PUMP1_IX])
+
+            elif c == 'toggle_pump2':
+                logging.info(";" + str(time.time()) + ";[reward];toggling_pump2;" + str(""))
+                self.pump.toggle(self.pump_keys[PUMP2_IX])
+
+            elif c == 'toggle_pump3':
+                logging.info(";" + str(time.time()) + ";[reward];toggling_pump3;" + str(""))
+                self.pump.toggle('3')
+
+            elif c == 'toggle_pump4':
+                logging.info(";" + str(time.time()) + ";[reward];toggling_pump4;" + str(""))
+                self.pump.toggle('4')
+
             elif c == 'toggle_sound1':
                 self.box.sound1.toggle()
                 ic(self.box.sound1.value)
@@ -170,13 +186,42 @@ class FlushPresenter(Presenter):
         self.task.presenter_commands.append('toggle_LED')
         logging.info(";" + str(time.time()) + ";[action];toggle_LED;")
 
+    def K_1_down_callback(self) -> None:
+        logging.info(";" + str(time.time()) + ";[reward];key_pressed_toggle_pump1;")
+        self.task.presenter_commands.append('toggle_pump1')
+
+    def K_2_down_callback(self) -> None:
+        logging.info(";" + str(time.time()) + ";[reward];key_pressed_toggle_pump2;")
+        self.task.presenter_commands.append('toggle_pump2')
+
+    def K_3_down_callback(self) -> None:
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_toggle_pump3;")
+        self.task.presenter_commands.append('toggle_pump3')
+
+    def K_4_down_callback(self) -> None:
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_toggle_pump4;")
+        self.task.presenter_commands.append('toggle_pump4')
+
+    def K_1_up_callback(self) -> None:
+        pass
+
+    def K_2_up_callback(self) -> None:
+        pass
+
+    def K_3_up_callback(self) -> None:
+        pass
+
+    def K_4_up_callback(self) -> None:
+        pass
+
     def end_ITI(self):
         self.ITI_active = False
         self.LEDs_on()
 
     def print_controls(self) -> None:
         print("[***] KEYBOARD CONTROLS [***]")
-        print("1, 3: left/right nosepoke entry + toggle pump open/closed")
+        # print("1, 3: left/right nosepoke entry + toggle pump open/closed")
+        print("1, 2, 3, 4: toggle pump 1/2/3/4 open or closed")
         print("q, w, e, r: pump 1/2/3/4 reward delivery")
         print("t: vacuum activation")
         print("l: toggle LED")

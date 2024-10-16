@@ -312,6 +312,9 @@ class Presenter(ABC):
         logging.info(";" + str(time.time()) + ";[action];key_pressed_right_entry();")
         self.right_entry()
 
+    def K_4_down_callback(self) -> None:
+        pass
+
     def K_1_up_callback(self) -> None:
         logging.info(";" + str(time.time()) + ";[action];key_released_left_entry();")
         self.left_exit()
@@ -323,6 +326,9 @@ class Presenter(ABC):
     def K_3_up_callback(self) -> None:
         logging.info(";" + str(time.time()) + ";[action];key_released_right_entry();")
         self.right_exit()
+
+    def K_4_up_callback(self) -> None:
+        pass
 
     def K_q_callback(self) -> None:
         # print("Q down: syringe pump 1 moves")
@@ -348,6 +354,11 @@ class Presenter(ABC):
         # print("T down: vacuum on")
         logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum;")
         self.pump.reward("key_vacuum", 1)
+
+    def K_y_callback(self) -> None:
+        # print("T down: vacuum on")
+        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_air_puff;")
+        self.pump.reward("key_air_puff", 1)
 
     def K_a_callback(self) -> None:
         # toggle automated training rewards
@@ -401,6 +412,8 @@ class Presenter(ABC):
                         self.K_2_down_callback()
                     elif event.key == pygame.K_3:
                         self.K_3_down_callback()
+                    elif event.key == pygame.K_4:
+                        self.K_4_down_callback()
 
                     # interactive training functions
                     elif event.key == pygame.K_q:
@@ -413,6 +426,8 @@ class Presenter(ABC):
                         self.K_r_callback()
                     elif event.key == pygame.K_t:
                         self.K_t_callback()
+                    elif event.key == pygame.K_y:
+                        self.K_y_callback()
                     elif event.key == pygame.K_a:
                         self.K_a_callback()
                     elif event.key == pygame.K_g:
@@ -439,6 +454,8 @@ class Presenter(ABC):
                         self.K_2_up_callback()
                     elif event.key == pygame.K_3:
                         self.K_3_up_callback()
+                    elif event.key == pygame.K_4:
+                        self.K_4_up_callback()
 
     def start_session(self) -> None:
         ic("TODO: start video")
