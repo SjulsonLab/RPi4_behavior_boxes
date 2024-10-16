@@ -279,6 +279,9 @@ class BehavBox(Box):
     def video_stop(self):
         pass
 
+    def transfer_files_to_external_storage(self):
+        pass
+
 
 class Pump(PumpBase):
     def __init__(self, session_info):

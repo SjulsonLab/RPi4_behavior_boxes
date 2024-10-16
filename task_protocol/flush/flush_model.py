@@ -65,19 +65,19 @@ class FlushModel(Model):
             self.lick_side_buffer *= 0
             return
 
-        if event == 'right_entry':
-            # self.activate_ITI()
-            self.toggle_right_water()
-
-        elif event == 'left_entry':
-            # self.activate_ITI()
-            self.toggle_left_water()
-
-    def toggle_left_water(self) -> None:
-        self.presenter_commands.append('toggle_left_water')
-
-    def toggle_right_water(self) -> None:
-        self.presenter_commands.append('toggle_right_water')
+    #     if event == 'right_entry':
+    #         # self.activate_ITI()
+    #         self.toggle_right_water()
+    #
+    #     elif event == 'left_entry':
+    #         # self.activate_ITI()
+    #         self.toggle_left_water()
+    #
+    # def toggle_left_water(self) -> None:
+    #     self.presenter_commands.append('toggle_left_water')
+    #
+    # def toggle_right_water(self) -> None:
+    #     self.presenter_commands.append('toggle_right_water')
 
     def start_task(self):
         # self.presenter_commands.append('turn_LED_on')

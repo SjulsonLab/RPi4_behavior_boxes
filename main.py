@@ -21,6 +21,8 @@ import logging
 import logging.config
 from pathlib import Path
 from session_info import make_session_info
+from subprocess import check_output
+import re
 
 
 sys.path.insert(0, './essential')  # essential holds behavbox and equipment classes
@@ -32,7 +34,7 @@ sys.path.insert(0, '.')
 #     from IPython import get_ipython
 #     ipython = get_ipython()
 #     ipython.magic("pdb on")
-#     ipython.magic("xmode Verbose")
+#     ipython.magic("xmode Vezrbose")
 
 
 # all modules above this line will have logging disabled
@@ -107,22 +109,33 @@ def main():
         session_info['time'] = timestr
         session_info['datetime'] = session_info['date'] + '_' + session_info['time']
         if session_info['debug']:
-            session_info['basename'] = ''
-            session_info['dir_name'] = "./outputs/"
+            session_info['session_name'] = ''  # previously this was 'basename'
+            session_info['output_dir'] = "./outputs/"
         else:
-            session_info['basename'] = session_info['mouse_name'] + '_' + session_info['datetime']
-            session_info['dir_name'] = session_info['basedir'] + '/' + session_info['basename']
+            session_info['session_name'] = session_info['mouse_name'] + '_' + session_info['datetime']
+            session_info['output_dir'] = session_info['buffer_dir'] + '/' + session_info['session_name']
+            session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
+            session_info['flipper_filename'] = session_info['external_storage'] + '/' + session_info['session_name'] + '_flipper_output'
 
-        # make data directory and initialize logfile
-        if not os.path.exists(session_info['dir_name']):
-            os.makedirs(session_info['dir_name'])
+        if not os.path.exists(session_info['output_dir']):
+            os.makedirs(session_info['output_dir'])
+
+        # check for presence of external hd
+        storage = check_output('lsblk')
+        if re.search(r'sda', storage.decode('utf-8')):
+            print('[***] External storage found [***]')
+        else:
+            raise RuntimeError('External storage not found')
+
+        if not os.path.exists(session_info['external_storage_dir']):
+            os.makedirs(session_info['external_storage_dir'])
 
         if session_info['debug']:
             session_info['file_basename'] = 'test_debug'
         else:
-            session_info['file_basename'] = session_info['dir_name'] + '/' + session_info['basename']
+            session_info['file_basename'] = session_info['output_dir'] + '/' + session_info['session_name']
 
-        log_path = Path(session_info['dir_name']) / (session_info['file_basename'] + '.log')
+        log_path = Path(session_info['output_dir']) / (session_info['file_basename'] + '.log')
         # if not debugging, stop if log path exists
         if session_info['debug']:
             pass
@@ -130,11 +143,10 @@ def main():
             print(Fore.RED + Style.BRIGHT + 'ERROR: Log file already exists! Exiting now' + Style.RESET_ALL)
             quit()
 
-        session_info_path = Path(session_info['dir_name']) / (session_info['file_basename'] + '_session_info.pkl')
-        mat_path = Path(session_info['dir_name']) / (session_info['file_basename'] + '_session_info.mat')
+        session_info_path = Path(session_info['output_dir']) / (session_info['file_basename'] + '_session_info.pkl')
+        mat_path = Path(session_info['output_dir']) / (session_info['file_basename'] + '_session_info.mat')
         session_info['log_path'] = str(log_path)
 
-        logger = logging.getLogger(__name__)
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
@@ -150,8 +162,8 @@ def main():
         while not options_correct:
             options_correct = confirm_options(session_info)
 
-        gui = GUI(session_info=session_info)
         box = behavbox.BehavBox(session_info=session_info)
+        gui = GUI(session_info=session_info)
         pump = behavbox.Pump(session_info=session_info)
 
         ### allow different tasks to be loaded ###
@@ -183,6 +195,7 @@ def main():
             Presenter = flush_presenter.FlushPresenter
             # name = 'flush'
         elif task_type == 'test_video':
+            raise RuntimeError('[***] Specified task not implemented!! [***]')
             pass
             # from task_protocol.test_video import test_video_model, test_video_presenter
             # task = test_video_model.TestVideoModel(session_info=session_info)
@@ -197,17 +210,18 @@ def main():
                               session_info=session_info)
         box.set_callbacks(presenter=presenter)
 
-        # start session
+        # save session info in buffer
         scipy.io.savemat(mat_path, session_info)
         with open(session_info_path, 'wb') as f:
             pickle.dump(session_info, f)
 
-        presenter.start_session()
+        # save session info in external storage
+        scipy.io.savemat(session_info['external_storage_dir'] + "/" + session_info['session_name'] + '_session_info.mat',
+                         {'session_info': session_info})
+        with open(session_info['external_storage_dir'] + "/" + session_info['session_name'] + '_session_info.pkl', "wb") as f:
+            pickle.dump(session_info, f)
 
-        # time.sleep(5)
-        # loop over trials
-        # Set a timer
-        # t_minute = int(input("Enter the time in minutes: "))
+        presenter.start_session()
         t_minute = set_session_time()
         t_end = time.time() + 60 * t_minute
 
