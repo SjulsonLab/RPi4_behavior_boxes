@@ -96,6 +96,14 @@ class FlushPresenter(Presenter):
                 logging.info(";" + str(time.time()) + ";[reward];toggling_pump4;" + str(""))
                 self.pump.toggle('4')
 
+            elif c == 'toggle_pump5':
+                logging.info(";" + str(time.time()) + ";[reward];toggling_pump5;" + str(""))
+                self.pump.toggle('air_puff')
+
+            elif c == 'toggle_pump6':
+                logging.info(";" + str(time.time()) + ";[reward];toggling_pump6;" + str(""))
+                self.pump.toggle('vacuum')
+
             elif c == 'toggle_sound1':
                 self.box.sound1.toggle()
                 ic(self.box.sound1.value)
@@ -202,6 +210,14 @@ class FlushPresenter(Presenter):
     def K_4_down_callback(self) -> None:
         logging.info(";" + str(time.time()) + ";[action];key_pressed_toggle_pump4;")
         self.task.presenter_commands.append('toggle_pump4')
+
+    def K_5_down_callback(self) -> None:
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_toggle_pump5;")
+        self.task.presenter_commands.append('toggle_pump5')
+
+    def K_6_down_callback(self) -> None:
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_toggle_pump6;")
+        self.task.presenter_commands.append('toggle_pump6')
 
     def K_1_up_callback(self) -> None:
         pass
