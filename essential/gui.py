@@ -32,8 +32,8 @@ class PygameGUI(GUI):
     def __init__(self, session_info: dict):
 
         self.figure_window = LivePlot(RIGHT_IX, LEFT_IX)
-        self.fig_name = session_info['basedir'] + "/" + session_info['basename'] + "/" + \
-                        session_info['basename'] + "_choice_plot" + '.png'
+        self.fig_name = session_info['buffer_dir'] + "/" + session_info['session_name'] + "/" + \
+                        session_info['session_name'] + "_choice_plot" + '.png'
 
         ###############################################################################################
         # pygame window setup and keystroke handler

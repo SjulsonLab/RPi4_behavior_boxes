@@ -60,8 +60,7 @@ def make_session_info() -> Dict[str, Any]:
 
     # Parameters - file saving
     session_info['file_basename']               = None
-    # session_info['basedir']					  	= '/home/pi/buffer'
-    session_info['buffer_dir']					  	= '/home/pi/buffer'
+    session_info['buffer_dir']					  	= '/home/pi/buffer'  # previously 'basedir'
     session_info['external_storage']            = '/mnt/sda'  # /mnt/sda
     session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
 
