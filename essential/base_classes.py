@@ -315,6 +315,12 @@ class Presenter(ABC):
     def K_4_down_callback(self) -> None:
         pass
 
+    def K_5_down_callback(self) -> None:
+        pass
+
+    def K_6_down_callback(self) -> None:
+        pass
+
     def K_1_up_callback(self) -> None:
         logging.info(";" + str(time.time()) + ";[action];key_released_left_entry();")
         self.left_exit()
@@ -328,6 +334,12 @@ class Presenter(ABC):
         self.right_exit()
 
     def K_4_up_callback(self) -> None:
+        pass
+
+    def K_5_up_callback(self) -> None:
+        pass
+
+    def K_6_up_callback(self) -> None:
         pass
 
     def K_q_callback(self) -> None:
@@ -414,6 +426,10 @@ class Presenter(ABC):
                         self.K_3_down_callback()
                     elif event.key == pygame.K_4:
                         self.K_4_down_callback()
+                    elif event.key == pygame.K_5:
+                        self.K_5_down_callback()
+                    elif event.key == pygame.K_6:
+                        self.K_6_down_callback()
 
                     # interactive training functions
                     elif event.key == pygame.K_q:
@@ -456,6 +472,10 @@ class Presenter(ABC):
                         self.K_3_up_callback()
                     elif event.key == pygame.K_4:
                         self.K_4_up_callback()
+                    elif event.key == pygame.K_5:
+                        self.K_5_up_callback()
+                    elif event.key == pygame.K_6:
+                        self.K_6_up_callback()
 
     def start_session(self) -> None:
         ic("TODO: start video")
