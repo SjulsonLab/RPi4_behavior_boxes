@@ -81,11 +81,12 @@ class FlushPresenter(Presenter):
 
             if c == 'toggle_pump1':
                 logging.info(";" + str(time.time()) + ";[reward];toggling_pump1;" + str(""))
-                self.pump.toggle(self.pump_keys[PUMP1_IX])
+                # self.pump.toggle(self.pump_keys[PUMP1_IX])
+                self.pump.toggle('1')
 
             elif c == 'toggle_pump2':
                 logging.info(";" + str(time.time()) + ";[reward];toggling_pump2;" + str(""))
-                self.pump.toggle(self.pump_keys[PUMP2_IX])
+                self.pump.toggle('2')
 
             elif c == 'toggle_pump3':
                 logging.info(";" + str(time.time()) + ";[reward];toggling_pump3;" + str(""))
