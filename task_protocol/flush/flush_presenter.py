@@ -228,9 +228,6 @@ class FlushPresenter(Presenter):
     def K_3_up_callback(self) -> None:
         pass
 
-    def K_4_up_callback(self) -> None:
-        pass
-
     def end_ITI(self):
         self.ITI_active = False
         self.LEDs_on()

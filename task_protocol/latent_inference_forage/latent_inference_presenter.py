@@ -15,10 +15,6 @@ from essential.base_classes import Presenter, Model, GUI, Box, PumpBase
 # SEED = 0
 # random.seed(SEED)
 
-PUMP1_IX = 0
-PUMP2_IX = 1
-trial_choice_map = {'right': 0, 'left': 1}
-
 
 class LatentInferencePresenter(Presenter):
 
@@ -40,11 +36,11 @@ class LatentInferencePresenter(Presenter):
         Currently set to give rewards probabilistically (same reward sizes, unequal reward probabilities)
         """
         if self.task.state == 'right_patch':
-            correct_pump = PUMP1_IX
-            incorrect_pump = PUMP2_IX
+            correct_pump = self.session_info['pump1_ix']
+            incorrect_pump = self.session_info['pump2_ix']
         elif self.task.state == 'left_patch':
-            correct_pump = PUMP2_IX
-            incorrect_pump = PUMP1_IX
+            correct_pump = self.session_info['pump2_ix']
+            incorrect_pump = self.session_info['pump1_ix']
         else:
             correct_pump = None
             incorrect_pump = None
@@ -62,8 +58,8 @@ class LatentInferencePresenter(Presenter):
         Controls switch between left and right patches as before, but only reward the right spout.
         """
         if self.task.state in ['right_patch', 'left_patch']:
-            correct_pump = PUMP1_IX
-            incorrect_pump = PUMP2_IX
+            correct_pump = self.session_info['pump1_ix']
+            incorrect_pump = self.session_info['pump2_ix']
             time_since_start = self.task.run_event_loop(control=True)  # determine choice, trigger ITI
         else:
             correct_pump = None

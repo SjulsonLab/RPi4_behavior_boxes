@@ -114,6 +114,7 @@ class BehavBox(Box):
         """
         self.sound1 = LED(23)  # branch new_lick modification
         self.sound2 = LED(24)  # branch new_lick modification
+        self.sound3 = self.DIO5  # alias to the same port as DIO5 for readability
 
         ###############################################################################################
         # flipper strobe signal (previously called camera strobe signal)
