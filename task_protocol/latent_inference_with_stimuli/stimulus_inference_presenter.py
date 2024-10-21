@@ -46,10 +46,30 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
 
         self.stimulus_C_on()
 
+    def play_soundA(self):
+        if self.session_info['ephys_rig']:
+            self.box.sound3.blink(on_time=.1, off_time=0.1)
+        else:
+            self.box.sound1.blink(on_time=.1, off_time=0.1)
+
+    def play_soundB(self):
+        if self.session_info['ephys_rig']:
+            if self.session_info['num_sounds'] == 2:
+                self.box.sound1.blink(on_time=.2, off_time=0.1)
+            else:
+                self.box.sound3.blink(on_time=.2, off_time=0.1)
+
+        else:
+            if self.session_info['num_sounds'] == 2:
+                self.box.sound3.blink(on_time=.2, off_time=0.1)
+            else:
+                self.box.sound1.blink(on_time=.2, off_time=0.1)
+
     def stimulus_A_on(self) -> None:
         grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
         sound_on_time = 0.1
-        self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread))
+        # self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread))
+        self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, self.play_soundA, self.stimulus_B_thread))
         # logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_on;")
         self.current_stimulus = 'A'
         self.stimulus_A_thread.start()
@@ -57,14 +77,15 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
     def stimulus_B_on(self) -> None:
         grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
         sound_on_time = 0.2
-        self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread))
+        # self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread))
+        self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, self.play_soundB, self.stimulus_A_thread))
         # logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_on;")
         self.current_stimulus = 'B'
         self.stimulus_B_thread.start()
 
     def stimulus_C_on(self) -> None:
         logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_C_on;")
-        self.box.sound1.off()
+        self.sounds_off()
         self.box.sound2.on()
         # self.box.sound2.off()
         # self.box.sound1.on()
@@ -77,7 +98,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         if self.stimulus_B_thread is not None:
             self.stimulus_B_thread.join()
 
-    def stimulus_loop(self, grating_name: str, sound_on_time: float, prev_stim_thread: Thread) -> None:
+    def stimulus_loop(self, grating_name: str, sound_fn: Callable, prev_stim_thread: Thread) -> None:
         if prev_stim_thread is not None and prev_stim_thread.is_alive():
             self.gratings_on = False
             prev_stim_thread.join()
@@ -93,14 +114,15 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
 
             # for some reason the wires are physically reversed
             self.box.sound2.off()
-            self.box.sound1.blink(sound_on_time, 0.1)
+            sound_fn()
+            # self.box.sound1.blink(on_time=sound_on_time, off_time=0.1)
 
             # use this if the wires are not reversed
             # self.box.sound1.off()
             # self.box.sound2.blink(sound_on_time, 0.1)
 
-            time.sleep(self.session_info['grating_duration'])
             # self.sounds_off()
+            time.sleep(self.session_info['grating_duration'])
             if self.task.state == 'dark_period':
                 self.stimuli_off()
                 break
@@ -121,6 +143,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
     def sounds_off(self) -> None:
         self.box.sound1.off()
         self.box.sound2.off()
+        self.box.sound3.off()
 
     def stimuli_reset(self) -> None:
         self.sounds_off()

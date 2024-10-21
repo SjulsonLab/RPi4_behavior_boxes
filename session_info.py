@@ -43,8 +43,12 @@ def make_session_info() -> Dict[str, Any]:
     session_info['max_correct_trials_in_block'] = 30
 
     # Reward pump parameters
-    session_info["reward_pump1"] = '2'  # for ephys rig,
-    session_info['reward_pump2'] = '1'
+    if session_info['ephys_rig']:
+        session_info["reward_pump1"] = '2'
+        session_info['reward_pump2'] = '3'
+    else:
+        session_info["reward_pump1"] = '2'  # for ephys rig, use pumps 2 (left) and 3 (right)
+        session_info['reward_pump2'] = '1'
 
     session_info['pump1_ix'] = 0
     session_info['pump2_ix'] = 1
@@ -86,6 +90,7 @@ def make_session_info() -> Dict[str, Any]:
         session_info['inter_grating_interval'] = 2
         session_info['stimulus_duration'] = 10
         session_info['p_stimulus'] = 0
+        session_info['num_sounds'] = 1
 
     session_info['treadmill_setup']             = {}
     session_info['treadmill']                   = True
@@ -147,6 +152,7 @@ def sanity_checks(session_info: dict) -> dict:
             "Intertrial interval too short for visual stimuli"
         assert session_info['grating_duration'] + session_info['inter_grating_interval'] < np.amin(session_info['dark_period_times']), \
             "Intertrial interval too short for dark period"
+        assert session_info['num_sounds'] in [1, 2], "Invalid number of sounds"
 
     return session_info
 
