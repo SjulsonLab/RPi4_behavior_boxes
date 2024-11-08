@@ -222,25 +222,9 @@ class BehavBox(Box):
                     + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
             )
 
-            # start the flipper before the recording starts
-            try:
-                self.flipper.flip()
-            except Exception as error_message:
-                print("flipper can't run\n")
-                print(str(error_message))
-
-            # Treadmill initiation
-            if self.treadmill is not False:
-                try:
-                    self.treadmill.start()
-                except Exception as error_message:
-                    print("treadmill can't run\n")
-                    print(str(error_message))
-
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             os.system(tempstr)
-
             print(Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
 
         except Exception as e:
@@ -251,22 +235,37 @@ class BehavBox(Box):
             # Run the stop_video script in the box video
             os.system(
                 "ssh pi@" + self.IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
-            time.sleep(2)
-            # now stop the flipper after the video stopped recording
-            try:  # try to stop the flipper
-                self.flipper.close()
-            except:
-                pass
-
-            time.sleep(2)
-            if self.treadmill is not False:
-                try:  # try to stop recording the treadmill
-                    self.treadmill.close()
-                except:
-                    pass
 
         except Exception as e:
             print(e)
+
+    def treadmill_start(self):
+        if self.treadmill:
+            try:
+                self.treadmill.start()
+            except Exception as error_message:
+                print("treadmill can't run\n")
+                print(str(error_message))
+
+    def treadmill_stop(self):
+        if self.treadmill:
+            try:  # try to stop recording the treadmill
+                self.treadmill.close()
+            except:
+                pass
+
+    def flipper_start(self):
+        try:
+            self.flipper.flip()
+        except Exception as error_message:
+            print("flipper can't run\n")
+            print(str(error_message))
+
+    def flipper_stop(self):
+        try:  # try to stop the flipper
+            self.flipper.close()
+        except:
+            pass
 
     def transfer_files_to_external_storage(self):
         print("saving session_info")

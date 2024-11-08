@@ -93,7 +93,7 @@ def make_session_info() -> Dict[str, Any]:
         session_info['num_sounds'] = 1
 
     session_info['treadmill_setup']             = {}
-    session_info['treadmill']                   = True
+    session_info['treadmill']                   = False
 
     if session_info['treadmill']:
         session_info['treadmill_setup']['distance_initiation'] = 10  # cm
