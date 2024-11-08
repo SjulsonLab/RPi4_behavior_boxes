@@ -63,7 +63,7 @@ def make_session_info() -> Dict[str, Any]:
     # session_info['flush_duration'] = 2
 
     # Parameters - file saving
-    session_info['file_basename']               = None
+    session_info['file_basename']               = ''
     session_info['buffer_dir']					  	= '/home/pi/buffer'  # previously 'basedir'
     session_info['external_storage']            = '/mnt/sda'  # /mnt/sda
     session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
@@ -99,7 +99,7 @@ def make_session_info() -> Dict[str, Any]:
         session_info['treadmill_setup']['distance_initiation'] = 10  # cm
         session_info['treadmill_setup']['distance_cue'] = 25  # cm
     else:
-        session_info['treadmill_setup'] = None
+        session_info['treadmill_setup'] = ''
 
     session_info['air_duration'] = 0
     session_info["vacuum_duration"] = 1
