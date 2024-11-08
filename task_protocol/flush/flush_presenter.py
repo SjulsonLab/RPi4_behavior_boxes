@@ -243,4 +243,3 @@ class FlushPresenter(Presenter):
         print("d, f: toggle sound 1 (beep) / 2 (white noise)")
         print("b, v: horizontal/vertical gratings on")
 
-

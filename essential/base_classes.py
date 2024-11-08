@@ -13,6 +13,8 @@ import pygame
 import threading
 from multiprocessing import Process, Queue
 from threading import Thread
+import os
+from colorama import Fore, Style
 
 
 class PumpBase(ABC):
@@ -85,6 +87,22 @@ class Box(ABC):
     @abstractmethod
     def video_stop(self):
         ...
+
+    @abstractmethod
+    def treadmill_start(self):
+        ...
+
+    @abstractmethod
+    def treadmill_stop(self):
+        ...
+
+    @abstractmethod
+    def flipper_start(self):
+        ...
+
+    @abstractmethod
+    def flipper_stop(self):
+        pass
 
     @abstractmethod
     def transfer_files_to_external_storage(self):
@@ -478,15 +496,23 @@ class Presenter(ABC):
                         self.K_6_up_callback()
 
     def start_session(self) -> None:
-        ic("TODO: start video")
-        self.box.video_start()
+        self.box.treadmill_start()
+        self.box.flipper_start()
+        if not self.session_info['ephys_rig']:
+            self.box.video_start()
 
     def end_session(self) -> None:
-        ic("TODO: stop video")
-        self.box.video_stop()
+        if not self.session_info['ephys_rig']:
+            self.box.video_stop()
+            time.sleep(2)
+
+        self.box.treadmill_stop()
+        time.sleep(2)
+
+        self.box.flipper_stop()
         self.box.transfer_files_to_external_storage()
-        if self.gui:
-            self.update_plot(save_fig=True)
+        # if self.gui:
+        #     self.update_plot(save_fig=True)
 
     def update_plot(self, save_fig=False, n_plot=20) -> None:
         if self.task.trial_choice_list:
