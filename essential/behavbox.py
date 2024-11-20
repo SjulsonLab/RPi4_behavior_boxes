@@ -62,7 +62,8 @@ class BehavBox(Box):
         # IP_address_video_list[-3] = "2"
         IP_address_video_list[-1] = "2"
         self.IP_address_video = "".join(IP_address_video_list)
-        ic(self.IP_address_video)
+        if not self.session_info['ephys_rig']:
+            ic(self.IP_address_video)
 
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
