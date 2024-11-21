@@ -90,9 +90,8 @@ class BehavBox(Box):
         self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
         self.IR_rx2 = Button(6, None, True)
         self.IR_rx3 = Button(12, None, True)
-        self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
-        self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
-
+        self.IR_rx4 = Button(13, None, True)  # optional, reserved for future use
+        self.IR_rx5 = Button(16, None, True)  # optional, reserved for future use
 
         ###############################################################################################
         # close circuit detection - for ground pin circuit lick detection
@@ -277,7 +276,7 @@ class BehavBox(Box):
         n_fails = 0
         while True:
             shell_output = subprocess.run(['sh', './transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
-                            self.session_info['external_storage_dir']])
+                                           self.session_info['external_storage_dir'], not self.session_info['ephys_rig']])
 
             if shell_output.returncode == 0:
                 print("rsync finished!")
