@@ -290,26 +290,6 @@ class BehavBox(Box):
                     print("rsync failed, retrying in 2 seconds")
                 time.sleep(2)
 
-        # # Move the video + log from the box_video SD card to the box_behavior external hard drive
-        # print("Moving video files from " + self.hostname + "video to " + self.hostname + ":")
-        # os.system(
-        #     "rsync -av --progress --remove-source-files pi@{}:{}/ {}".format(self.IP_address_video,
-        #                                                                      self.session_info['output_dir'],
-        #                                                                      self.session_info['external_storage_dir'])
-        # )
-        #
-        # os.system(
-        #     "rsync -av --progress --remove-source-files pi@{}:~/video/*.log {}".format(self.IP_address_video,
-        #                                                                                self.session_info['external_storage_dir'])
-        # )
-        #
-        # os.system(
-        #     "rsync -arvz --progress --remove-source-files {}/ {}".format(self.session_info['output_dir'],
-        #                                                                  self.session_info['external_storage_dir'])
-        # )
-        # print("rsync finished!")
-
-
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the
 # LED will be if BoxLED.on() is called. This is better than the original PWMLED class.

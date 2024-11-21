@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 
 from icecream import ic
 import time
@@ -30,6 +30,7 @@ class FlushPresenter(Presenter):
         self.gratings_on = False
         self.stimulus_A_thread = None
         self.stimulus_B_thread = None
+        self.current_stimulus = None
 
     def run(self) -> None:
         self.task.run_event_loop()
@@ -112,6 +113,10 @@ class FlushPresenter(Presenter):
                 self.box.sound2.toggle()
                 ic(self.box.sound2.value)
 
+            elif c == 'toggle_sound3':
+                self.box.sound3.toggle()
+                ic(self.box.sound3.value)
+
             elif c == 'toggle_LED':
                 self.box.cueLED1.toggle()
                 self.box.cueLED2.toggle()
@@ -135,21 +140,70 @@ class FlushPresenter(Presenter):
 
         self.task.presenter_commands.clear()
 
+    def play_soundA(self):
+        if self.session_info['ephys_rig']:
+            self.box.sound3.blink(on_time=.1, off_time=0.1)
+        else:
+            self.box.sound1.blink(on_time=.1, off_time=0.1)
+
+    def play_soundB(self):
+        if self.session_info['ephys_rig']:
+            if self.session_info['num_sounds'] == 2:
+                self.box.sound1.blink(on_time=.2, off_time=0.1)
+            else:
+                self.box.sound3.blink(on_time=.2, off_time=0.1)
+
+        else:
+            if self.session_info['num_sounds'] == 2:
+                self.box.sound3.blink(on_time=.2, off_time=0.1)
+            else:
+                self.box.sound1.blink(on_time=.2, off_time=0.1)
+
+    # def stimulus_A_on(self, play_sound=True) -> None:
+    #     grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
+    #     sound_on_time = 0.1
+    #     self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread, play_sound))
+    #     logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_on;")
+    #     self.stimulus_A_thread.start()
+
     def stimulus_A_on(self, play_sound=True) -> None:
         grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
-        sound_on_time = 0.1
-        self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread, play_sound))
-        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_on;")
+        self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, self.play_soundA, self.stimulus_B_thread, play_sound))
+        self.current_stimulus = 'A'
         self.stimulus_A_thread.start()
+
+    # def stimulus_B_on(self, play_sound=True) -> None:
+    #     grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
+    #     sound_on_time = 0.2
+    #     self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread, play_sound))
+    #     logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_on;")
+    #     self.stimulus_B_thread.start()
 
     def stimulus_B_on(self, play_sound=True) -> None:
         grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
-        sound_on_time = 0.2
-        self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread, play_sound))
-        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_on;")
+        self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, self.play_soundB, self.stimulus_A_thread, play_sound))
+        self.current_stimulus = 'B'
         self.stimulus_B_thread.start()
 
-    def stimulus_loop(self, grating_name: str, sound_on_time: float, prev_stim_thread: Thread, play_sound=True) -> None:
+    # def stimulus_loop(self, grating_name: str, sound_on_time: float, prev_stim_thread: Thread, play_sound=True) -> None:
+    #     if prev_stim_thread is not None:
+    #         self.gratings_on = False
+    #         prev_stim_thread.join()
+    #
+    #     self.gratings_on = True
+    #     self.box.visualstim.show_grating(grating_name)
+    #     if play_sound:
+    #         self.box.sound2.off()
+    #         self.box.sound1.blink(sound_on_time, 0.1)
+    #         # self.box.sound1.off()
+    #         # self.box.sound2.blink(sound_on_time, 0.1)
+    #
+    #     time.sleep(self.session_info['grating_duration'])
+    #     self.sounds_off()
+    #     # self.stimulus_C_on()
+    #     self.gratings_on = False
+
+    def stimulus_loop(self, grating_name: str, sound_fn: Callable, prev_stim_thread: Thread, play_sound=True) -> None:
         if prev_stim_thread is not None:
             self.gratings_on = False
             prev_stim_thread.join()
@@ -157,10 +211,8 @@ class FlushPresenter(Presenter):
         self.gratings_on = True
         self.box.visualstim.show_grating(grating_name)
         if play_sound:
-            self.box.sound2.off()
-            self.box.sound1.blink(sound_on_time, 0.1)
-            # self.box.sound1.off()
-            # self.box.sound2.blink(sound_on_time, 0.1)
+            self.sounds_off()
+            sound_fn()
 
         time.sleep(self.session_info['grating_duration'])
         self.sounds_off()
@@ -182,6 +234,10 @@ class FlushPresenter(Presenter):
     def K_f_callback(self) -> None:
         self.task.presenter_commands.append('toggle_sound2')
         logging.info(";" + str(time.time()) + ";[action];user_triggered_sound2_on;" + str(""))
+
+    def K_s_callback(self) -> None:
+        self.task.presenter_commands.append('toggle_sound3')
+        logging.info(";" + str(time.time()) + ";[action];user_triggered_sound3_on;" + str(""))
 
     def K_b_callback(self) -> None:
         self.task.presenter_commands.append('turn_horizontal_grating_on')
