@@ -399,6 +399,9 @@ class Presenter(ABC):
         self.task.give_training_reward = True
         logging.info(";" + str(time.time()) + ";[action];set_give_reward_true;")
 
+    def K_s_callback(self) -> None:
+        pass
+
     def K_l_callback(self) -> None:
         pass
 
@@ -480,6 +483,8 @@ class Presenter(ABC):
                         self.K_d_callback()
                     elif event.key == pygame.K_f:
                         self.K_f_callback()
+                    elif event.key == pygame.K_s:
+                        self.K_s_callback()
 
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_1:
