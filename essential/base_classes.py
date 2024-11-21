@@ -496,7 +496,8 @@ class Presenter(ABC):
                         self.K_6_up_callback()
 
     def start_session(self) -> None:
-        self.box.treadmill_start()
+        if self.session_info['treadmill']:
+            self.box.treadmill_start()
         self.box.flipper_start()
         if not self.session_info['ephys_rig']:
             self.box.video_start()
@@ -506,8 +507,9 @@ class Presenter(ABC):
             self.box.video_stop()
             time.sleep(2)
 
-        self.box.treadmill_stop()
-        time.sleep(2)
+        if self.session_info['treadmill']:
+            self.box.treadmill_stop()
+            time.sleep(2)
 
         self.box.flipper_stop()
         self.box.transfer_files_to_external_storage()

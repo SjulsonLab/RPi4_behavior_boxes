@@ -62,7 +62,8 @@ class BehavBox(Box):
         # IP_address_video_list[-3] = "2"
         IP_address_video_list[-1] = "2"
         self.IP_address_video = "".join(IP_address_video_list)
-        ic(self.IP_address_video)
+        if not self.session_info['ephys_rig']:
+            ic(self.IP_address_video)
 
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
@@ -89,9 +90,8 @@ class BehavBox(Box):
         self.IR_rx1 = Button(5, None, True)  # None, True inverts the signal so poke=True, no-poke=False
         self.IR_rx2 = Button(6, None, True)
         self.IR_rx3 = Button(12, None, True)
-        self.IR_rx4 = Button(13, None, True)  # (optional, reserved for future use
-        self.IR_rx5 = Button(16, None, True)  # (optional, reserved for future use
-
+        self.IR_rx4 = Button(13, None, True)  # optional, reserved for future use
+        self.IR_rx5 = Button(16, None, True)  # optional, reserved for future use
 
         ###############################################################################################
         # close circuit detection - for ground pin circuit lick detection
@@ -276,7 +276,7 @@ class BehavBox(Box):
         n_fails = 0
         while True:
             shell_output = subprocess.run(['sh', './transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
-                            self.session_info['external_storage_dir']])
+                                           self.session_info['external_storage_dir'], not self.session_info['ephys_rig']])
 
             if shell_output.returncode == 0:
                 print("rsync finished!")
@@ -289,26 +289,6 @@ class BehavBox(Box):
                 else:
                     print("rsync failed, retrying in 2 seconds")
                 time.sleep(2)
-
-        # # Move the video + log from the box_video SD card to the box_behavior external hard drive
-        # print("Moving video files from " + self.hostname + "video to " + self.hostname + ":")
-        # os.system(
-        #     "rsync -av --progress --remove-source-files pi@{}:{}/ {}".format(self.IP_address_video,
-        #                                                                      self.session_info['output_dir'],
-        #                                                                      self.session_info['external_storage_dir'])
-        # )
-        #
-        # os.system(
-        #     "rsync -av --progress --remove-source-files pi@{}:~/video/*.log {}".format(self.IP_address_video,
-        #                                                                                self.session_info['external_storage_dir'])
-        # )
-        #
-        # os.system(
-        #     "rsync -arvz --progress --remove-source-files {}/ {}".format(self.session_info['output_dir'],
-        #                                                                  self.session_info['external_storage_dir'])
-        # )
-        # print("rsync finished!")
-
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the

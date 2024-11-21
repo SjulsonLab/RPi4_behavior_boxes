@@ -43,11 +43,13 @@ def make_session_info() -> Dict[str, Any]:
     session_info['max_correct_trials_in_block'] = 30
 
     # Reward pump parameters
+    # for behavior rig, use pumps 2 (left) and 1 (right)
+    # for ephys rig, use pumps 2 (left) and 3 (right)
     if session_info['ephys_rig']:
         session_info["reward_pump1"] = '2'
         session_info['reward_pump2'] = '3'
     else:
-        session_info["reward_pump1"] = '2'  # for ephys rig, use pumps 2 (left) and 3 (right)
+        session_info["reward_pump1"] = '2'
         session_info['reward_pump2'] = '1'
 
     session_info['pump1_ix'] = 0

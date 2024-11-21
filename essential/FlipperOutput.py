@@ -54,7 +54,7 @@ class FlipperOutput(DigitalOutputDevice):
         self._flip_thread = None
 
     def _flip_device(self, time_min, time_max, n):
-        while self._running == True:
+        while self._running:
             on_time = round(random.uniform(time_min, time_max), 3)
             off_time = round(random.uniform(time_min, time_max), 3)
 
@@ -75,6 +75,6 @@ class FlipperOutput(DigitalOutputDevice):
     def flipper_flush(self):
         print("Flushing: " + self._flipper_file)
         with io.open(self._flipper_file, 'w') as f:
-            f.write('pin_tate, time.time()\n')
+            f.write('pin_state, time.time()\n')
             for entry in self._flipper_timestamp:
                 f.write('%f,%f\n' % entry)
