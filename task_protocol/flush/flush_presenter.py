@@ -49,19 +49,19 @@ class FlushPresenter(Presenter):
         self.LED_is_on = False
         ic("LEDs off")
     
-    def sound1_on(self):
-        self.box.sound2.off()
-        self.box.sound1.on()
-        self.sound1_is_on = True
-        self.sound2_is_on = False
-        ic("sound 1 on")
+    # def sound1_on(self):
+    #     self.box.sound2.off()
+    #     self.box.sound1.on()
+    #     self.sound1_is_on = True
+    #     self.sound2_is_on = False
+    #     ic("sound 1 on")
 
-    def sound2_on(self):
-        self.box.sound1.off()
-        self.box.sound2.on()
-        self.sound1_is_on = False
-        self.sound2_is_on = True
-        ic("sound 2 on")
+    # def sound2_on(self):
+    #     self.box.sound1.off()
+    #     self.box.sound2.on()
+    #     self.sound1_is_on = False
+    #     self.sound2_is_on = True
+    #     ic("sound 2 on")
 
     def sounds_off(self) -> None:
         self.box.sound1.off()
@@ -204,11 +204,14 @@ class FlushPresenter(Presenter):
     #     self.gratings_on = False
 
     def stimulus_loop(self, grating_name: str, sound_fn: Callable, prev_stim_thread: Thread, play_sound=True) -> None:
-        if prev_stim_thread is not None:
+        if prev_stim_thread is not None and prev_stim_thread.is_alive():
             self.gratings_on = False
             prev_stim_thread.join()
+            logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_{}_off;".format(self.previous_stimulus))
 
+        t_start = time.perf_counter()
         self.gratings_on = True
+        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_{}_on;".format(self.current_stimulus))
         self.box.visualstim.show_grating(grating_name)
         if play_sound:
             self.sounds_off()
@@ -216,7 +219,6 @@ class FlushPresenter(Presenter):
 
         time.sleep(self.session_info['grating_duration'])
         self.sounds_off()
-        # self.stimulus_C_on()
         self.gratings_on = False
 
     def K_z_callback(self) -> None:
