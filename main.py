@@ -10,6 +10,7 @@ name: main.py
 """
 
 from icecream import ic
+import traceback
 from datetime import datetime
 import os
 import scipy.io, pickle
@@ -248,8 +249,9 @@ def main():
                 ic('Calling end_session()')
                 presenter.end_session()
                 ic('Call to end_session() was successful')
-            except:
+            except Exception as ex:
                 ic('could not call end_session()')
+                traceback.print_exc()
         else:
             pass
 

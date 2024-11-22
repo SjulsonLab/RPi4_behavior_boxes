@@ -72,7 +72,8 @@ class BehavBox(Box):
         self.cueLED1 = BoxLED(22, frequency=200)
         self.cueLED2 = BoxLED(18, frequency=200)
         self.cueLED3 = BoxLED(17, frequency=200)
-        self.cueLED4 = BoxLED(14, frequency=200)
+        # self.cueLED4 = BoxLED(14, frequency=200)
+        self.cueLED4 = LED(14)
 
         ###############################################################################################
         # digital I/O's - used for cue LED
@@ -114,7 +115,7 @@ class BehavBox(Box):
         """
         self.sound1 = LED(23)  # branch new_lick modification
         self.sound2 = LED(24)  # branch new_lick modification
-        self.sound3 = self.DIO5  # alias to the same port as DIO5 for readability
+        self.sound3 = self.cueLED4  # alias to the same port as DIO5 for readability
 
         ###############################################################################################
         # flipper strobe signal (previously called camera strobe signal)
