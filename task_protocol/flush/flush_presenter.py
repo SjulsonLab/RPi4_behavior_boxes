@@ -27,6 +27,7 @@ class FlushPresenter(Presenter):
         self.LED_is_on = False
         self.sound1_is_on = False
         self.sound2_is_on = False
+        self.sound3_is_on = False
         self.gratings_on = False
         self.stimulus_A_thread = None
         self.stimulus_B_thread = None
@@ -66,8 +67,10 @@ class FlushPresenter(Presenter):
     def sounds_off(self) -> None:
         self.box.sound1.off()
         self.box.sound2.off()
+        self.box.sound3.off()
         self.sound1_is_on = False
         self.sound2_is_on = False
+        self.sound3_is_on = False
         ic("sounds off")
 
     def perform_task_commands(self) -> None:
