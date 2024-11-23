@@ -47,12 +47,16 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.stimulus_C_on()
 
     def play_soundA(self):
+        # for some reason sound1 (white noise) is physically connected to DIO2, and sound2 (tone) is connected to DIO1
+        # that means you need to control sounds 1 and 3 for stimuli A and B - change this if the physical setup changes
         if self.session_info['ephys_rig']:
             self.box.sound3.blink(on_time=.1, off_time=0.1)
         else:
             self.box.sound1.blink(on_time=.1, off_time=0.1)
 
     def play_soundB(self):
+        # for some reason sound1 (white noise) is physically connected to DIO2, and sound2 (tone) is connected to DIO1
+        # that means you need to control sounds 1 and 3 for stimuli A and B - change this if the physical setup changes
         if self.session_info['ephys_rig']:
             if self.session_info['num_sounds'] == 2:
                 self.box.sound1.blink(on_time=.2, off_time=0.1)
@@ -111,17 +115,9 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         while (self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration'] and
                self.task.state != 'dark_period'):
             self.box.visualstim.show_grating(grating_name)
-
-            # for some reason the wires are physically reversed
-            self.box.sound2.off()
+            self.sounds_off()
             sound_fn()
-            # self.box.sound1.blink(on_time=sound_on_time, off_time=0.1)
 
-            # use this if the wires are not reversed
-            # self.box.sound1.off()
-            # self.box.sound2.blink(sound_on_time, 0.1)
-
-            # self.sounds_off()
             time.sleep(self.session_info['grating_duration'])
             if self.task.state == 'dark_period':
                 self.stimuli_off()
