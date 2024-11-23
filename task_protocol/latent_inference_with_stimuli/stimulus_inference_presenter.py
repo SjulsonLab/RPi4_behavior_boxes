@@ -50,8 +50,12 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         # for some reason sound1 (white noise) is physically connected to DIO2, and sound2 (tone) is connected to DIO1
         # that means you need to control sounds 1 and 3 for stimuli A and B - change this if the physical setup changes
         if self.session_info['ephys_rig']:
+            self.box.sound1.off()
+            self.box.sound2.off()
             self.box.sound3.blink(on_time=.1, off_time=0.1)
         else:
+            self.box.sound1.off()
+            self.box.sound3.off()
             self.box.sound1.blink(on_time=.1, off_time=0.1)
 
     def play_soundB(self):
@@ -59,14 +63,22 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         # that means you need to control sounds 1 and 3 for stimuli A and B - change this if the physical setup changes
         if self.session_info['ephys_rig']:
             if self.session_info['num_sounds'] == 2:
+                self.box.sound2.off()
+                self.box.sound3.off()
                 self.box.sound1.blink(on_time=.2, off_time=0.1)
             else:
+                self.box.sound1.off()
+                self.box.sound2.off()
                 self.box.sound3.blink(on_time=.2, off_time=0.1)
 
         else:
             if self.session_info['num_sounds'] == 2:
+                self.box.sound1.off()
+                self.box.sound2.off()
                 self.box.sound3.blink(on_time=.2, off_time=0.1)
             else:
+                self.box.sound2.off()
+                self.box.sound3.off()
                 self.box.sound1.blink(on_time=.2, off_time=0.1)
 
     def stimulus_A_on(self) -> None:
@@ -89,7 +101,8 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
 
     def stimulus_C_on(self) -> None:
         logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_C_on;")
-        self.sounds_off()
+        self.box.sound1.off()
+        self.box.sound3.off()
         self.box.sound2.on()
         # self.box.sound2.off()
         # self.box.sound1.on()
@@ -115,7 +128,6 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         while (self.gratings_on and time.perf_counter() - t_start < self.session_info['stimulus_duration'] and
                self.task.state != 'dark_period'):
             self.box.visualstim.show_grating(grating_name)
-            self.sounds_off()
             sound_fn()
 
             time.sleep(self.session_info['grating_duration'])

@@ -121,23 +121,29 @@ class FlushPresenter(Presenter):
         self.task.presenter_commands.clear()
 
     def play_soundA(self):
+        # for some reason sound1 (white noise) is physically connected to DIO2, and sound2 (tone) is connected to DIO1
+        # that means you need to control sounds 1 and 3 for stimuli A and B - change this if the physical setup changes
         if self.session_info['ephys_rig']:
+            self.box.sound1.off()
+            self.box.sound2.off()
             self.box.sound3.blink(on_time=.1, off_time=0.1)
         else:
+            self.box.sound1.off()
+            self.box.sound3.off()
             self.box.sound1.blink(on_time=.1, off_time=0.1)
 
     def play_soundB(self):
+        # for some reason sound1 (white noise) is physically connected to DIO2, and sound2 (tone) is connected to DIO1
+        # that means you need to control sounds 1 and 3 for stimuli A and B - change this if the physical setup changes
         if self.session_info['ephys_rig']:
             if self.session_info['num_sounds'] == 2:
+                self.box.sound2.off()
+                self.box.sound3.off()
                 self.box.sound1.blink(on_time=.2, off_time=0.1)
             else:
+                self.box.sound1.off()
+                self.box.sound2.off()
                 self.box.sound3.blink(on_time=.2, off_time=0.1)
-
-        else:
-            if self.session_info['num_sounds'] == 2:
-                self.box.sound3.blink(on_time=.2, off_time=0.1)
-            else:
-                self.box.sound1.blink(on_time=.2, off_time=0.1)
 
     def stimulus_A_on(self, play_sound=True) -> None:
         grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
@@ -162,7 +168,6 @@ class FlushPresenter(Presenter):
         logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_{}_on;".format(self.current_stimulus))
         self.box.visualstim.show_grating(grating_name)
         if play_sound:
-            self.sounds_off()
             sound_fn()
 
         time.sleep(self.session_info['grating_duration'])
