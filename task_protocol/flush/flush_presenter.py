@@ -24,10 +24,6 @@ class FlushPresenter(Presenter):
         self.reward_size = 20
         self.interact_list = []
 
-        self.LED_is_on = False
-        self.sound1_is_on = False
-        self.sound2_is_on = False
-        self.sound3_is_on = False
         self.gratings_on = False
         self.stimulus_A_thread = None
         self.stimulus_B_thread = None
@@ -41,36 +37,17 @@ class FlushPresenter(Presenter):
     def LEDs_on(self):
         self.box.cueLED1.on()
         self.box.cueLED2.on()
-        self.LED_is_on = True
         ic("LEDs on")
 
     def LEDs_off(self):
         self.box.cueLED1.off()
         self.box.cueLED2.off()
-        self.LED_is_on = False
         ic("LEDs off")
-    
-    # def sound1_on(self):
-    #     self.box.sound2.off()
-    #     self.box.sound1.on()
-    #     self.sound1_is_on = True
-    #     self.sound2_is_on = False
-    #     ic("sound 1 on")
-
-    # def sound2_on(self):
-    #     self.box.sound1.off()
-    #     self.box.sound2.on()
-    #     self.sound1_is_on = False
-    #     self.sound2_is_on = True
-    #     ic("sound 2 on")
 
     def sounds_off(self) -> None:
         self.box.sound1.off()
         self.box.sound2.off()
         self.box.sound3.off()
-        self.sound1_is_on = False
-        self.sound2_is_on = False
-        self.sound3_is_on = False
         ic("sounds off")
 
     def perform_task_commands(self) -> None:
@@ -162,49 +139,17 @@ class FlushPresenter(Presenter):
             else:
                 self.box.sound1.blink(on_time=.2, off_time=0.1)
 
-    # def stimulus_A_on(self, play_sound=True) -> None:
-    #     grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
-    #     sound_on_time = 0.1
-    #     self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread, play_sound))
-    #     logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_on;")
-    #     self.stimulus_A_thread.start()
-
     def stimulus_A_on(self, play_sound=True) -> None:
         grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
         self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, self.play_soundA, self.stimulus_B_thread, play_sound))
         self.current_stimulus = 'A'
         self.stimulus_A_thread.start()
 
-    # def stimulus_B_on(self, play_sound=True) -> None:
-    #     grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
-    #     sound_on_time = 0.2
-    #     self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread, play_sound))
-    #     logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_on;")
-    #     self.stimulus_B_thread.start()
-
     def stimulus_B_on(self, play_sound=True) -> None:
         grating_name = 'horizontal_grating_{}s.dat'.format(self.session_info['grating_duration'])
         self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, self.play_soundB, self.stimulus_A_thread, play_sound))
         self.current_stimulus = 'B'
         self.stimulus_B_thread.start()
-
-    # def stimulus_loop(self, grating_name: str, sound_on_time: float, prev_stim_thread: Thread, play_sound=True) -> None:
-    #     if prev_stim_thread is not None:
-    #         self.gratings_on = False
-    #         prev_stim_thread.join()
-    #
-    #     self.gratings_on = True
-    #     self.box.visualstim.show_grating(grating_name)
-    #     if play_sound:
-    #         self.box.sound2.off()
-    #         self.box.sound1.blink(sound_on_time, 0.1)
-    #         # self.box.sound1.off()
-    #         # self.box.sound2.blink(sound_on_time, 0.1)
-    #
-    #     time.sleep(self.session_info['grating_duration'])
-    #     self.sounds_off()
-    #     # self.stimulus_C_on()
-    #     self.gratings_on = False
 
     def stimulus_loop(self, grating_name: str, sound_fn: Callable, prev_stim_thread: Thread, play_sound=True) -> None:
         if prev_stim_thread is not None and prev_stim_thread.is_alive():
