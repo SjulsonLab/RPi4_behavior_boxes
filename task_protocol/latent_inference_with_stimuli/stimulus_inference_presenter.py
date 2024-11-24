@@ -54,7 +54,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
             self.box.sound2.off()
             self.box.sound3.blink(on_time=.1, off_time=0.1)
         else:
-            self.box.sound1.off()
+            self.box.sound2.off()
             self.box.sound3.off()
             self.box.sound1.blink(on_time=.1, off_time=0.1)
 
