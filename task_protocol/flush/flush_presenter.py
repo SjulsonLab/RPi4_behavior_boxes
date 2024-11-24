@@ -165,6 +165,7 @@ class FlushPresenter(Presenter):
 
         t_start = time.perf_counter()
         self.gratings_on = True
+        self.previous_stimulus = self.current_stimulus
         logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_{}_on;".format(self.current_stimulus))
         self.box.visualstim.show_grating(grating_name)
         if play_sound:
