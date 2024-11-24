@@ -171,7 +171,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
     def stimulus_process_done(self) -> None:
         self.box.visualstim.gratings_on = False
 
-    def match_command(self, command: str, correct_pump: int, incorrect_pump: int) -> None:
+    def match_command(self, command: str, correct_pump: str, incorrect_pump: str) -> None:
         ic('received command:', command)
         if command == 'turn_LED_on':
             self.box.cueLED1.on()
@@ -220,16 +220,15 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         elif command == 'give_training_reward':
             reward_size = self.reward_size_large
             logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
-            self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
+            self.deliver_reward(pump_key=correct_pump, reward_size=reward_size)
 
         elif command == 'give_correct_reward':
             reward_size = self.reward_size_large
-            self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
+            self.deliver_reward(pump_key=correct_pump, reward_size=reward_size)
 
         elif command == 'give_incorrect_reward':
             reward_size = self.reward_size_small
-            self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
-            self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
+            self.deliver_reward(pump_key=incorrect_pump, reward_size=reward_size)
 
         elif command == 'set_dark_period_stimuli':
             self.dark_period_thread = Thread(target=self.set_dark_period_stimuli)
@@ -257,7 +256,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         # print('current state: {}; rewards earned in block: {}'.format(self.task.state,
         #                                                               self.task.rewards_earned_in_block))
 
-    def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:
+    def perform_task_commands(self, correct_pump: str, incorrect_pump: str) -> None:
         for i in range(len(self.task.presenter_commands)):
             c = self.task.presenter_commands.pop(0)
             self.match_command(c, correct_pump, incorrect_pump)
