@@ -24,7 +24,6 @@ class LatentInferencePresenter(Presenter):
         self.box = box
         self.pump = pump
         self.session_info = session_info
-        self.pump_keys = (session_info["reward_pump1"], session_info['reward_pump2'])
         self.reward_size_large = session_info['reward_size_large']
         self.reward_size_small = session_info['reward_size_small']
         self.keypress_training_reward = False
@@ -36,11 +35,11 @@ class LatentInferencePresenter(Presenter):
         Currently set to give rewards probabilistically (same reward sizes, unequal reward probabilities)
         """
         if self.task.state == 'right_patch':
-            correct_pump = self.session_info['pump1_ix']
-            incorrect_pump = self.session_info['pump2_ix']
+            correct_pump = self.session_info['right_reward_pump']
+            incorrect_pump = self.session_info['left_reward_pump']
         elif self.task.state == 'left_patch':
-            correct_pump = self.session_info['pump2_ix']
-            incorrect_pump = self.session_info['pump1_ix']
+            correct_pump = self.session_info['left_reward_pump']
+            incorrect_pump = self.session_info['right_reward_pump']
         else:
             correct_pump = None
             incorrect_pump = None
@@ -58,8 +57,11 @@ class LatentInferencePresenter(Presenter):
         Controls switch between left and right patches as before, but only reward the right spout.
         """
         if self.task.state in ['right_patch', 'left_patch']:
-            correct_pump = self.session_info['pump1_ix']
-            incorrect_pump = self.session_info['pump2_ix']
+            # correct_pump = self.session_info['pump1_ix']
+            # incorrect_pump = self.session_info['pump2_ix']
+
+            correct_pump = self.session_info['right_reward_pump']
+            incorrect_pump = self.session_info['left_reward_pump']
             time_since_start = self.task.run_event_loop(control=True)  # determine choice, trigger ITI
         else:
             correct_pump = None
@@ -69,7 +71,7 @@ class LatentInferencePresenter(Presenter):
         self.update_plot()
         self.check_keyboard()
 
-    def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:
+    def perform_task_commands(self, correct_pump: str, incorrect_pump: str) -> None:
         # give reward if
         # 1. training reward/human reward (give reward, regardless of action)
         # 2. correct choice and meets correct reward probability
@@ -88,7 +90,8 @@ class LatentInferencePresenter(Presenter):
             elif c == 'give_training_reward':
                 reward_size = self.reward_size_large
                 logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
-                self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
+                # self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
+                self.deliver_reward(pump_key=correct_pump, reward_size=reward_size)
 
             elif c == 'give_correct_reward':
                 reward_size = self.reward_size_large
@@ -100,7 +103,8 @@ class LatentInferencePresenter(Presenter):
                 #     reward_size = 0
                 #     self.task.trial_reward_given.append(False)
 
-                self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
+                # self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
+                self.deliver_reward(pump_key=correct_pump, reward_size=reward_size)
 
             elif c == 'give_incorrect_reward':
                 reward_size = self.reward_size_small
@@ -111,7 +115,8 @@ class LatentInferencePresenter(Presenter):
                 #     reward_size = 0
                 #     self.task.trial_reward_given.append(False)
 
-                self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
+                # self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
+                self.deliver_reward(pump_key=incorrect_pump, reward_size=reward_size)
 
             else:
                 pass

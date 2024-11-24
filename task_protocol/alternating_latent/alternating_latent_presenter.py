@@ -49,8 +49,6 @@ class AlternatingLatentPresenter(Presenter):
             correct_pump = None
             incorrect_pump = None
 
-        # if self.task.state in ['right_patch', 'left_patch', 'A', 'B', 'C1', 'C2']:
-        #     self.task.run_event_loop()  # determine choice, trigger ITI
         if self.task.state == 'standby' or self.task.ITI_active:
             self.task.lick_side_buffer *= 0
             self.task.event_list.clear()

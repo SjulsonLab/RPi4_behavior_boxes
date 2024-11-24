@@ -128,7 +128,7 @@ class FlushPresenter(Presenter):
             self.box.sound2.off()
             self.box.sound3.blink(on_time=.1, off_time=0.1)
         else:
-            self.box.sound1.off()
+            self.box.sound2.off()
             self.box.sound3.off()
             self.box.sound1.blink(on_time=.1, off_time=0.1)
 
@@ -251,6 +251,9 @@ class FlushPresenter(Presenter):
         print("t: vacuum activation")
         print("l: toggle LED")
         print("z, x: stimulus A / B on")
-        print("d, f: toggle sound 1 (beep) / 2 (white noise)")
+        if self.session_info['ephys_rig']:
+            print("s, d, f: toggle sound 3 (beep), 1 (low tone) / 2 (white noise)")
+        else:
+            print("s, d, f: toggle sound 3 (low tone), 1 (beep) / 2 (white noise)")
         print("b, v: horizontal/vertical gratings on")
 
