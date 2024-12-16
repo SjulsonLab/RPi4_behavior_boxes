@@ -277,7 +277,7 @@ class BehavBox(Box):
         n_fails = 0
         while True:
             shell_output = subprocess.run(['sh', './transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
-                                           self.session_info['external_storage_dir'], not self.session_info['ephys_rig']])
+                                           self.session_info['external_storage_dir'], str(not self.session_info['ephys_rig']) ])
 
             if shell_output.returncode == 0:
                 print("rsync finished!")
