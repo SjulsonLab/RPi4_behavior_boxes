@@ -8,11 +8,10 @@ import random
 class FlipperOutput(DigitalOutputDevice):
     def __init__(self, session_info, pin=None):
         super(FlipperOutput, self).__init__(pin=pin)
-        self.session_info = session_info
         self._flip_thread = None
         self._running = False
         self._stop_flag = Event()
-        self._flipper_filename = self.session_info['flipper_filename'] + '.csv'
+        self._flipper_filename = session_info['flipper_filename'] + '.csv'
         self._flipper_timestamp = []
 
     def flip(self, time_min=0.5, time_max=2, n=None, background=True):
@@ -74,10 +73,10 @@ class FlipperOutput(DigitalOutputDevice):
                 break
 
     def flipper_flush(self):
-        print("Flushing: " + self._flipper_file)
+        print("Flushing: " + self._flipper_filename)
         with io.open(self._flipper_filename, 'w') as f:
             f.write('pin_state, time.time()\n')
             for entry in self._flipper_timestamp:
                 f.write('%f,%f\n' % entry)
 
-        print("Flushed flipper timestamps to " + self._flipper_file)
+        print("Flushed flipper timestamps to " + self._flipper_filename)
