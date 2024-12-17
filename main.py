@@ -79,6 +79,12 @@ def set_session_time():
     return time
 
 
+def close_logs():
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+        handler.close()
+
+
 def main():
     try:
         # load in session_info file, check that dates are correct, put in automatic
@@ -121,7 +127,8 @@ def main():
             session_info['session_name'] = session_info['mouse_name'] + '_' + session_info['datetime']
             session_info['output_dir'] = session_info['buffer_dir'] + '/' + session_info['session_name']
             session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
-            session_info['flipper_filename'] = session_info['external_storage'] + '/' + session_info['session_name'] + '_flipper_output'
+            session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
+            # session_info['flipper_filename'] = session_info['external_storage_dir'] + '/' + session_info['session_name'] + '_flipper_output'
             ic('Output directory: ' + session_info['output_dir'])
             ic('flipper filename: ' + session_info['flipper_filename'])
             ic('External storage directory: ' + session_info['external_storage_dir'])
@@ -156,6 +163,20 @@ def main():
         if not os.path.exists(session_info['external_storage_dir']):
             os.makedirs(session_info['external_storage_dir'])
 
+        # set up logging
+        # logger = logging.getLogger(__name__)
+        # stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        # stdout_handler.setLevel(logging.INFO)
+        # file_handler = logging.FileHandler(log_path)
+        # file_handler.setLevel(logging.INFO)
+        #
+        # format = logging.Formatter(fmt="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
+        #                            datefmt='%H:%M:%S')
+        # stdout_handler.setFormatter(format)
+        # file_handler.setFormatter(format)
+        # logger.addHandler(stdout_handler)
+        # logger.addHandler(file_handler)
+
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
@@ -169,6 +190,7 @@ def main():
         box = behavbox.BehavBox(session_info=session_info)
         gui = GUI(session_info=session_info)
         pump = behavbox.Pump(session_info=session_info)
+
 
         ### allow different tasks to be loaded ###
         task_type = session_info['task_config']
@@ -246,6 +268,7 @@ def main():
 
     # graceful exit
     except (KeyboardInterrupt, SystemExit):
+        close_logs()
         print(Fore.RED + Style.BRIGHT + 'Exiting now...' + Style.RESET_ALL)
         if 'presenter' in locals():
             try:
@@ -267,6 +290,7 @@ def main():
 
     # exit because of error
     except RuntimeError as ex:
+        close_logs()
         print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
         print(ex)
         # save dicts to disk
