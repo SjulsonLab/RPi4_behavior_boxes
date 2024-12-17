@@ -268,6 +268,9 @@ class BehavBox(Box):
     cueLED2 = LED()
     sound1 = LED()
     sound2 = LED()
+    sound3 = LED()
+
+    IP_address_video = "123"
 
     def __init__(self, session_info):
         self.session_info = session_info
@@ -311,8 +314,8 @@ class BehavBox(Box):
         n_fails = 0
         while True:
             shell_output = subprocess.run(
-                ['sh', './transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
-                 self.session_info['external_storage_dir'], str(not self.session_info['ephys_rig'])])
+                ['sh', 'transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
+                 self.session_info['external_storage_dir'], 'False'])
 
             if shell_output.returncode == 0:
                 print("rsync finished!")
