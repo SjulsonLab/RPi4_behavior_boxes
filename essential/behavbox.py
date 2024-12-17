@@ -284,12 +284,26 @@ class BehavBox(Box):
 
         n_fails = 0
         while True:
-            shell_output = subprocess.run(['sh', './transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
-                                           self.session_info['external_storage_dir'], str(not self.session_info['ephys_rig']) ])
+            # shell_output = subprocess.run(['sh', './transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
+            #                                self.session_info['external_storage_dir'], str(not self.session_info['ephys_rig']) ])
+            #
+            # if shell_output.returncode == 0:
+            #     print("rsync finished!")
+            #     break
+            # else:
+            #     n_fails += 1
+            #     if n_fails >= 5:
+            #         print("rsync failed 5 times, giving up")
+            #         break
+            #     else:
+            #         print("rsync failed, retrying in 2 seconds")
+            #     time.sleep(2)
 
-            if shell_output.returncode == 0:
+            # alternately, use subprocess.run
+            rsync_command = ['rsync', '-avrz', '--progress', '--remove-source-files', self.session_info['output_dir'], self.session_info['external_storage_dir']]
+            result = subprocess.run(rsync_command, shell=True, capture_output=True)
+            if result.returncode == 0:
                 print("rsync finished!")
-                break
             else:
                 n_fails += 1
                 if n_fails >= 5:
