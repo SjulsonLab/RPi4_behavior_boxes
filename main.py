@@ -298,7 +298,6 @@ def main():
         with open(session_info_path, 'wb') as f:
             pickle.dump(session_info, f)
 
-
         presenter.end_session()
         box.transfer_files_to_external_storage()
         pygame.quit()
