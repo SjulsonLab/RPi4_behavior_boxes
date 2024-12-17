@@ -258,6 +258,7 @@ class BehavBox(Box):
     def flipper_start(self):
         try:
             self.flipper.flip()
+            print("flipper started")
         except Exception as error_message:
             print("flipper can't run\n")
             print(str(error_message))
