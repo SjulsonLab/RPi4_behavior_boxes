@@ -265,8 +265,9 @@ class BehavBox(Box):
     def flipper_stop(self):
         try:  # try to stop the flipper
             self.flipper.close()
-        except:
-            pass
+        except Exception as error_message:
+            ic('Failed to stop flipper!')
+            print(error_message)
 
     def transfer_files_to_external_storage(self):
         print("saving session_info")

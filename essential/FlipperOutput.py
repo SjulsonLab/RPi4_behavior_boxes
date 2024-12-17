@@ -42,8 +42,9 @@ class FlipperOutput(DigitalOutputDevice):
             self.off()
             self.flipper_flush()
             # super().close()
-        except:
-            pass
+        except Exception as e:
+            print("Failed to close the flipper thread!")
+            print(e)
 
     def _stop_flip(self):
         print("Entered _stop_flip")
