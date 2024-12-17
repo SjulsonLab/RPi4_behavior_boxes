@@ -503,6 +503,7 @@ class Presenter(ABC):
     def start_session(self) -> None:
         if self.session_info['treadmill']:
             self.box.treadmill_start()
+
         self.box.flipper_start()
         if not self.session_info['ephys_rig']:
             self.box.video_start()
