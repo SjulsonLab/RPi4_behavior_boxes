@@ -109,6 +109,13 @@ def main():
         else:
             from essential import behavbox
 
+            # check for presence of external hd
+            storage = check_output('lsblk')
+            if re.search(r'sda', storage.decode('utf-8')):
+                print('[***] External storage found [***]')
+            else:
+                raise RuntimeError('External storage not found')
+
         # query user to confirm current options
         options_correct = False
         while not options_correct:
@@ -123,7 +130,10 @@ def main():
         session_info['datetime'] = session_info['date'] + '_' + session_info['time']
         if session_info['debug']:
             session_info['session_name'] = ''  # previously this was 'basename'
-            session_info['output_dir'] = "./outputs/"
+            session_info['output_dir'] = "./outputs/buffer"
+            session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
+            session_info['external_storage'] = "./outputs/external"
+            session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
         else:
             session_info['session_name'] = session_info['mouse_name'] + '_' + session_info['datetime']
             session_info['output_dir'] = session_info['buffer_dir'] + '/' + session_info['session_name']
@@ -133,13 +143,6 @@ def main():
             ic(session_info['output_dir'])
             ic(session_info['flipper_filename'])
             ic(session_info['external_storage_dir'])
-
-        # check for presence of external hd
-        storage = check_output('lsblk')
-        if re.search(r'sda', storage.decode('utf-8')):
-            print('[***] External storage found [***]')
-        else:
-            raise RuntimeError('External storage not found')
 
         if session_info['debug']:
             session_info['file_basename'] = 'test_debug'

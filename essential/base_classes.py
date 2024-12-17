@@ -116,7 +116,7 @@ class TimedStateMachine(Machine):
 
 
 class Model(ABC):
-    automate_training_rewards: bool
+    automate_training_rewards: bool = False
     give_training_reward: bool
     state: str
 
