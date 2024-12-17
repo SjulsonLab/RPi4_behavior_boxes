@@ -26,7 +26,7 @@ class FlipperOutput(DigitalOutputDevice):
         self._flip_thread = Thread(
             target=self._flip_device, args=(time_min, time_max, n)
         )
-        self._flip_thread.stopping = Event()
+        self._flip_thread.stop_flag = Event()
         self._flip_thread.start()
         if not background:
             self._flip_thread.join()
@@ -34,14 +34,12 @@ class FlipperOutput(DigitalOutputDevice):
 
     def close(self):
         try:
-            self._flip_thread.stopping.set()
-            print("Attempts to close the flipper thread!")
-            self._flip_thread.join(5)
-            self._flip_thread = None
+            print("Attempting to close the flipper thread!")
             self._stop_flip()
             self.off()
             self.flipper_flush()
             # super().close()
+
         except Exception as e:
             print("Failed to close the flipper thread!")
             print(e)
@@ -49,10 +47,13 @@ class FlipperOutput(DigitalOutputDevice):
     def _stop_flip(self):
         print("Entered _stop_flip")
         self._running = False
-        # if getattr(self, '_flip_thread', None):
-        #     # print("enter _flip_thread.stop()")
-        #     self._flip_thread.stop()
-        self._flip_thread = None
+        self._flip_thread.stop_flag.set()
+        self._flip_thread.join(5)  # shouldn't have to wait more than 5 seconds
+        if self._flip_thread.is_alive():
+            raise Exception("Flipper thread not closed")
+        else:
+            print("Flipper thread closed!")
+            self._flip_thread = None
 
     def _flip_device(self, time_min, time_max, n):
         while self._running:
@@ -63,14 +64,14 @@ class FlipperOutput(DigitalOutputDevice):
             pin_state = self.is_active
             timestamp = (pin_state, time.time())
             self._flipper_timestamp.append(timestamp)
-            if self._flip_thread.stopping.wait(on_time):
+            if self._flip_thread.stop_flag.wait(on_time):
                 break
 
             self._write(False)
             pin_state = self.is_active
             timestamp = (pin_state, time.time())
             self._flipper_timestamp.append(timestamp)
-            if self._flip_thread.stopping.wait(off_time):
+            if self._flip_thread.stop_flag.wait(off_time):
                 break
 
     def flipper_flush(self):
@@ -79,3 +80,5 @@ class FlipperOutput(DigitalOutputDevice):
             f.write('pin_state, time.time()\n')
             for entry in self._flipper_timestamp:
                 f.write('%f,%f\n' % entry)
+
+        print("Flushed flipper timestamps to " + self._flipper_file)
