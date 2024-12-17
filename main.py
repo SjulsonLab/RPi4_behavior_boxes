@@ -130,9 +130,9 @@ def main():
             session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
             session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
             # session_info['flipper_filename'] = session_info['external_storage_dir'] + '/' + session_info['session_name'] + '_flipper_output'
-            ic('Output directory: ' + session_info['output_dir'])
-            ic('flipper filename: ' + session_info['flipper_filename'])
-            ic('External storage directory: ' + session_info['external_storage_dir'])
+            ic(session_info['output_dir'])
+            ic(session_info['flipper_filename'])
+            ic(session_info['external_storage_dir'])
 
         # check for presence of external hd
         storage = check_output('lsblk')
@@ -192,7 +192,6 @@ def main():
         gui = GUI(session_info=session_info)
         pump = behavbox.Pump(session_info=session_info)
 
-
         ### allow different tasks to be loaded ###
         task_type = session_info['task_config']
         if task_type == 'alternating_latent':
@@ -221,12 +220,6 @@ def main():
             task = flush_model.FlushModel(session_info=session_info)
             Presenter = flush_presenter.FlushPresenter
             # name = 'flush'
-        elif task_type == 'test_video':
-            raise RuntimeError('[***] Specified task not implemented!! [***]')
-            pass
-            # from task_protocol.test_video import test_video_model, test_video_presenter
-            # task = test_video_model.TestVideoModel(session_info=session_info)
-            # Presenter = test_video_presenter.TestVideoPresenter
         else:
             raise RuntimeError('[***] Specified task not recognized!! [***]')
 
@@ -243,10 +236,10 @@ def main():
             pickle.dump(session_info, f)
 
         # save session info in external storage
-        scipy.io.savemat(session_info['external_storage_dir'] + "/" + session_info['session_name'] + '_session_info.mat',
-                         {'session_info': session_info})
-        with open(session_info['external_storage_dir'] + "/" + session_info['session_name'] + '_session_info.pkl', "wb") as f:
-            pickle.dump(session_info, f)
+        # scipy.io.savemat(session_info['external_storage_dir'] + "/" + session_info['session_name'] + '_session_info.mat',
+        #                  {'session_info': session_info})
+        # with open(session_info['external_storage_dir'] + "/" + session_info['session_name'] + '_session_info.pkl', "wb") as f:
+        #     pickle.dump(session_info, f)
 
         presenter.start_session()
         t_minute = set_session_time()
@@ -263,14 +256,14 @@ def main():
                     presenter.run()
             else:
                 run = False
-                print("Times up, finishing up")
+                print("Time's up, finishing up")
 
         raise SystemExit
 
     # graceful exit
     except (KeyboardInterrupt, SystemExit):
-        close_logs()
         print(Fore.RED + Style.BRIGHT + 'Exiting now...' + Style.RESET_ALL)
+        close_logs()
         if 'presenter' in locals():
             try:
                 ic('Calling end_session()')
@@ -292,15 +285,16 @@ def main():
 
     # exit because of error
     except RuntimeError as ex:
-        close_logs()
         print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
         print(ex)
 
         ic('Saving files to disk')
+        close_logs()
         # scipy.io.savemat(mat_path, {'session_info': session_info})
         scipy.io.savemat(mat_path, session_info)
         with open(session_info_path, 'wb') as f:
             pickle.dump(session_info, f)
+
 
         presenter.end_session()
         box.transfer_files_to_external_storage()
@@ -309,4 +303,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

@@ -271,16 +271,16 @@ class BehavBox(Box):
             print(error_message)
 
     def transfer_files_to_external_storage(self):
-        print("saving session_info")
-        scipy.io.savemat(self.session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.mat', {'session_info': self.session_info})
 
-        if os.path.exists(self.session_info['output_dir']) and os.path.exists(self.session_info['external_storage_dir']) and os.path.exists(self.session_info['log_path']):
-            pass
-        else:
-            FileNotFoundError("output_dir or external_storage_dir or log_path does not exist")
+        ic(os.path.exists(self.session_info['output_dir']))
+        ic(os.path.exists(self.session_info['external_storage_dir']))
+        ic(os.path.exists(self.session_info['log_path']))
 
-        with open(self.session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.pkl', "wb") as f:
-            pickle.dump(self.session_info, f)
+        # scipy.io.savemat(self.session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.mat',
+        #     {'session_info': self.session_info})
+        # with open(self.session_info['external_storage_dir'] + "/" + self.session_info[
+        #     'session_name'] + '_session_info.pkl', "wb") as f:
+        #     pickle.dump(self.session_info, f)
 
         n_fails = 0
         while True:
@@ -292,7 +292,7 @@ class BehavBox(Box):
                 break
             else:
                 n_fails += 1
-                if n_fails > 5:
+                if n_fails >= 5:
                     print("rsync failed 5 times, giving up")
                     break
                 else:
