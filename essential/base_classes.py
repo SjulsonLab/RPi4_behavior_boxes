@@ -517,7 +517,6 @@ class Presenter(ABC):
             time.sleep(2)
 
         self.box.flipper_stop()
-        self.box.transfer_files_to_external_storage()
         # if self.gui:
         #     self.update_plot(save_fig=True)
 

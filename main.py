@@ -83,6 +83,7 @@ def close_logs():
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
         handler.close()
+    ic('All logs closed!')
 
 
 def main():
@@ -281,11 +282,12 @@ def main():
         else:
             pass
 
-        # save dicts to disk
         ic('Saving files to disk')
         scipy.io.savemat(mat_path, session_info)
         with open(session_info_path, 'wb') as f:
             pickle.dump(session_info, f)
+
+        box.transfer_files_to_external_storage()
         pygame.quit()
 
     # exit because of error
@@ -293,12 +295,16 @@ def main():
         close_logs()
         print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
         print(ex)
-        # save dicts to disk
+
+        ic('Saving files to disk')
         # scipy.io.savemat(mat_path, {'session_info': session_info})
         scipy.io.savemat(mat_path, session_info)
         with open(session_info_path, 'wb') as f:
             pickle.dump(session_info, f)
+
         presenter.end_session()
+        box.transfer_files_to_external_storage()
+        pygame.quit()
 
 
 if __name__ == '__main__':
