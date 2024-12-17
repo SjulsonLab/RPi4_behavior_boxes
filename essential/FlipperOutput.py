@@ -30,7 +30,6 @@ class FlipperOutput(DigitalOutputDevice):
         try:
             print("Attempting to close the flipper thread!")
             self._stop_flip()
-            self.off()
             self.flipper_flush()
             # super().close()
 
@@ -58,14 +57,18 @@ class FlipperOutput(DigitalOutputDevice):
             on_time = round(random.uniform(time_min, time_max), 3)
             off_time = round(random.uniform(time_min, time_max), 3)
 
-            self._write(True)
+            # self._write(True)
+            self.on()
             pin_state = self.is_active
             timestamp = (pin_state, time.time())
             self._flipper_timestamp.append(timestamp)
             if self._stop_flag.wait(on_time):
+                # self._write(False)
+                self.off()
                 break
 
-            self._write(False)
+            # self._write(False)
+            self.off()
             pin_state = self.is_active
             timestamp = (pin_state, time.time())
             self._flipper_timestamp.append(timestamp)
@@ -73,7 +76,6 @@ class FlipperOutput(DigitalOutputDevice):
                 break
 
     def flipper_flush(self):
-        print("Flushing: " + self._flipper_filename)
         with io.open(self._flipper_filename, 'w') as f:
             f.write('pin_state, time.time()\n')
             for entry in self._flipper_timestamp:
