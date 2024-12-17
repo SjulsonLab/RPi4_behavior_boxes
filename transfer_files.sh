@@ -10,4 +10,5 @@ else
 fi
 
 echo "Transferring buffer files"
+echo "rsync -arvz --progress --remove-source-files $2/ $3/"
 rsync -arvz --progress --remove-source-files "$2/ $3/"
