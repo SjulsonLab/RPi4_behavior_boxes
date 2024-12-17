@@ -271,6 +271,12 @@ class BehavBox(Box):
     def transfer_files_to_external_storage(self):
         print("saving session_info")
         scipy.io.savemat(self.session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.mat', {'session_info': self.session_info})
+
+        if os.path.exists(self.session_info['output_dir']) and os.path.exists(self.session_info['external_storage_dir']) and os.path.exists(self.session_info['log_path']):
+            pass
+        else:
+            FileNotFoundError("output_dir or external_storage_dir or log_path does not exist")
+
         with open(self.session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.pkl', "wb") as f:
             pickle.dump(self.session_info, f)
 
