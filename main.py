@@ -117,9 +117,9 @@ def main():
             session_info['output_dir'] = session_info['buffer_dir'] + '/' + session_info['session_name']
             session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
             session_info['flipper_filename'] = session_info['external_storage'] + '/' + session_info['session_name'] + '_flipper_output'
-
-        if not os.path.exists(session_info['output_dir']):
-            os.makedirs(session_info['output_dir'])
+            ic('Output directory: ' + session_info['output_dir'])
+            ic('flipper filename: ' + session_info['flipper_filename'])
+            ic('External storage directory: ' + session_info['external_storage_dir'])
 
         # check for presence of external hd
         storage = check_output('lsblk')
@@ -127,9 +127,6 @@ def main():
             print('[***] External storage found [***]')
         else:
             raise RuntimeError('External storage not found')
-
-        if not os.path.exists(session_info['external_storage_dir']):
-            os.makedirs(session_info['external_storage_dir'])
 
         if session_info['debug']:
             session_info['file_basename'] = 'test_debug'
@@ -162,6 +159,12 @@ def main():
         options_correct = False
         while not options_correct:
             options_correct = confirm_options(session_info)
+
+        if not os.path.exists(session_info['output_dir']):
+            os.makedirs(session_info['output_dir'])
+
+        if not os.path.exists(session_info['external_storage_dir']):
+            os.makedirs(session_info['external_storage_dir'])
 
         box = behavbox.BehavBox(session_info=session_info)
         gui = GUI(session_info=session_info)
