@@ -290,15 +290,15 @@ class BehavBox(Box):
                                            self.session_info['external_storage'], str(not self.session_info['ephys_rig'])],
                                           check=True)
             ic(shell_output.stdout)
+            ic(shell_output.stderr)
+            ic(os.environ)
+            ic(shell_output.returncode)
 
             if shell_output.returncode == 0:
                 print("rsync finished!")
                 break
             else:
                 n_fails += 1
-                ic(shell_output.stderr)
-                ic(os.environ)
-
                 if n_fails >= 5:
                     print("rsync failed 5 times, giving up")
                     break
