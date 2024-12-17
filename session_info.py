@@ -16,12 +16,12 @@ def make_session_info() -> Dict[str, Any]:
     # Information for this session (the user should edit this each session)
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test-mouse'
-    session_info['debug']                     	= False
+    session_info['debug']                     	= True
     session_info['ephys_rig']                 	= False
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
-    session_info['task_config']				    = 'latent_inference_with_stimuli'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
+    session_info['task_config']				    = 'flush'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
     session_info['control']                     = False
 
     # behavior parameters - ideally set these to a default for each session type, which is adjustable

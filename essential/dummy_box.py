@@ -7,6 +7,8 @@ from threading import Timer, Thread
 from icecream import ic
 from multiprocessing import Process, Queue
 from threading import Thread
+import os
+import subprocess
 
 
 class LED:
@@ -268,6 +270,7 @@ class BehavBox(Box):
     sound2 = LED()
 
     def __init__(self, session_info):
+        self.session_info = session_info
         self.visualstim = VisualStim(session_info)
 
     def set_callbacks(self, presenter):
@@ -279,8 +282,49 @@ class BehavBox(Box):
     def video_stop(self):
         pass
 
+    def treadmill_start(self):
+        ic('treadmill_start called')
+
+    def treadmill_stop(self):
+        ic('treadmill_stop called')
+
+    def flipper_start(self):
+        ic('flipper_start called')
+
+    def flipper_stop(self):
+        ic('flipper_stop called')
+
     def transfer_files_to_external_storage(self):
-        pass
+
+        ic(os.path.exists(self.session_info['output_dir']))
+        ic(os.path.exists(self.session_info['external_storage_dir']))
+        ic(os.path.exists(self.session_info['log_path']))
+        ic(os.listdir(self.session_info['output_dir']))
+        ic(os.listdir(self.session_info['external_storage_dir']))
+
+        # scipy.io.savemat(self.session_info['external_storage_dir'] + "/" + self.session_info['session_name'] + '_session_info.mat',
+        #     {'session_info': self.session_info})
+        # with open(self.session_info['external_storage_dir'] + "/" + self.session_info[
+        #     'session_name'] + '_session_info.pkl', "wb") as f:
+        #     pickle.dump(self.session_info, f)
+
+        n_fails = 0
+        while True:
+            shell_output = subprocess.run(
+                ['sh', './transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
+                 self.session_info['external_storage_dir'], str(not self.session_info['ephys_rig'])])
+
+            if shell_output.returncode == 0:
+                print("rsync finished!")
+                break
+            else:
+                n_fails += 1
+                if n_fails >= 5:
+                    print("rsync failed 5 times, giving up")
+                    break
+                else:
+                    print("rsync failed, retrying in 2 seconds")
+                time.sleep(2)
 
 
 class Pump(PumpBase):
