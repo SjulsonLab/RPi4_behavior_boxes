@@ -102,6 +102,11 @@ def main():
         else:
             from essential import behavbox
 
+        # query user to confirm current options
+        options_correct = False
+        while not options_correct:
+            options_correct = confirm_options(session_info)
+
         # if (session_info['mouse_name'] == 'test_mouse' or session_info['weight'] == 0) and not debug_task:
         #     print(Fore.RED + Style.BRIGHT + 'ERROR: Mouse info not set! Exiting now' + Style.RESET_ALL)
         #     quit()
@@ -145,6 +150,12 @@ def main():
         mat_path = Path(session_info['output_dir']) / (session_info['file_basename'] + '_session_info.mat')
         session_info['log_path'] = str(log_path)
 
+        if not os.path.exists(session_info['output_dir']):
+            os.makedirs(session_info['output_dir'])
+
+        if not os.path.exists(session_info['external_storage_dir']):
+            os.makedirs(session_info['external_storage_dir'])
+
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s.%(msecs)03d,[%(levelname)s],%(message)s",
@@ -154,17 +165,6 @@ def main():
                 logging.StreamHandler()  # sends copy of log output to screen
             ]
         )
-
-        # query user to confirm current options
-        options_correct = False
-        while not options_correct:
-            options_correct = confirm_options(session_info)
-
-        if not os.path.exists(session_info['output_dir']):
-            os.makedirs(session_info['output_dir'])
-
-        if not os.path.exists(session_info['external_storage_dir']):
-            os.makedirs(session_info['external_storage_dir'])
 
         box = behavbox.BehavBox(session_info=session_info)
         gui = GUI(session_info=session_info)
