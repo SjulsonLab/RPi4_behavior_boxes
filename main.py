@@ -93,16 +93,6 @@ def main():
 
         datestr = datetime.now().strftime("%Y-%m-%d")
         timestr = datetime.now().strftime('%H%M%S')
-        # full_module_name = 'session_info_' + datestr
-        full_module_name = 'session_info'
-
-        # want to edit this bit for debugging
-        session_info_path = './'
-        sys.path.insert(0, session_info_path)
-        # tempmod = importlib.import_module(full_module_name)
-        # session_info = tempmod.session_info
-        # mouse_info = tempmod.mouse_info
-
         session_info = make_session_info()
         if session_info['debug']:
             from essential import dummy_box as behavbox
@@ -140,9 +130,7 @@ def main():
             session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
             session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
             # session_info['flipper_filename'] = session_info['external_storage_dir'] + '/' + session_info['session_name'] + '_flipper_output'
-            ic(session_info['output_dir'])
-            ic(session_info['flipper_filename'])
-            ic(session_info['external_storage_dir'])
+
 
         if session_info['debug']:
             session_info['file_basename'] = 'test_debug'
@@ -238,12 +226,6 @@ def main():
         with open(session_info_path, 'wb') as f:
             pickle.dump(session_info, f)
 
-        # save session info in external storage
-        # scipy.io.savemat(session_info['external_storage_dir'] + "/" + session_info['session_name'] + '_session_info.mat',
-        #                  {'session_info': session_info})
-        # with open(session_info['external_storage_dir'] + "/" + session_info['session_name'] + '_session_info.pkl', "wb") as f:
-        #     pickle.dump(session_info, f)
-
         presenter.start_session()
         t_minute = set_session_time()
         t_end = time.time() + 60 * t_minute
@@ -278,11 +260,6 @@ def main():
         else:
             pass
 
-        ic('Saving files to disk')
-        scipy.io.savemat(mat_path, session_info)
-        with open(session_info_path, 'wb') as f:
-            pickle.dump(session_info, f)
-
         box.transfer_files_to_external_storage()
         pygame.quit()
 
@@ -291,13 +268,7 @@ def main():
         print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
         print(ex)
 
-        ic('Saving files to disk')
         close_logs()
-        # scipy.io.savemat(mat_path, {'session_info': session_info})
-        scipy.io.savemat(mat_path, session_info)
-        with open(session_info_path, 'wb') as f:
-            pickle.dump(session_info, f)
-
         presenter.end_session()
         box.transfer_files_to_external_storage()
         pygame.quit()

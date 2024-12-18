@@ -28,10 +28,13 @@ class FlipperOutput(DigitalOutputDevice):
 
     def close(self):
         try:
-            print("Attempting to close the flipper thread!")
-            self._stop_flip()
-            self.flipper_flush()
-            # super().close()
+            if self._flip_thread is not None:
+                print("Attempting to close the flipper thread!")
+                self._stop_flip()
+                self.flipper_flush()
+                # super().close()
+            else:
+                print("No flipper thread to close")
 
         except Exception as e:
             print("Failed to close the flipper thread!")
