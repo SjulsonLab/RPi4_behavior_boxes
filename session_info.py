@@ -18,6 +18,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['mouse_name']                 	= 'test-mouse'
     session_info['debug']                     	= False
     session_info['ephys_rig']                 	= False
+    session_info['lick_input_setting']          = 'capacitance'  # ['capacitance', 'current']
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
@@ -143,6 +144,7 @@ def session_defaults(session_info: dict) -> dict:
 
 def sanity_checks(session_info: dict) -> dict:
     assert session_info['task_config'] in ['alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'], "Invalid task config, check your spelling!!"
+    assert session_info['lick_input_setting'] in ['capacitance', 'current'], "Invalid lick input setting"
 
     if session_info['visual_stimulus']:
         assert session_info['vis_gratings'], "No visual stimuli specified"
