@@ -20,7 +20,7 @@ class FlushPresenter(Presenter):
         self.box = box
         self.pump = pump
         self.session_info = session_info
-        self.pump_keys = (session_info["reward_pump1"], session_info['reward_pump2'])
+        # self.pump_keys = (session_info["reward_pump1"], session_info['reward_pump2'])
         self.reward_size = 20
         self.interact_list = []
 
@@ -54,15 +54,14 @@ class FlushPresenter(Presenter):
         for c in self.task.presenter_commands:
             if c == 'toggle_right_water':
                 logging.info(";" + str(time.time()) + ";[reward];toggling_right_water;" + str(""))
-                self.pump.toggle(self.pump_keys[PUMP1_IX])
+                self.pump.toggle(self.session_info['right_reward_pump'])
 
             elif c == 'toggle_left_water':
                 logging.info(";" + str(time.time()) + ";[reward];toggling_left_water;" + str(""))
-                self.pump.toggle(self.pump_keys[PUMP2_IX])
+                self.pump.toggle(self.session_info['left_reward_pump'])
 
             if c == 'toggle_pump1':
                 logging.info(";" + str(time.time()) + ";[reward];toggling_pump1;" + str(""))
-                # self.pump.toggle(self.pump_keys[PUMP1_IX])
                 self.pump.toggle('1')
 
             elif c == 'toggle_pump2':
