@@ -1,15 +1,12 @@
-# python3: behavbox.py
 """
 author: tian qiu
 date: 2022-05-15
 name: behavbox.py
 goal: base framework for running wide range of behavioral task
-description:
-    an updated test version for online behavior performance visualization
+description: a Raspberry Pi framework for online behavior performance visualization
 """
 
-# contains the behavior box class, which includes pin numbers and whether DIO pins are
-# configured as input or output
+# Contains the behavior box class, which includes pin numbers and whether DIO pins are configured as input or output
 
 from gpiozero import PWMLED, LED, Button
 import os, sys
@@ -23,8 +20,10 @@ from icecream import ic
 import logging
 from colorama import Fore, Style
 
+import essential
 from essential.visualstim import VisualStim
 from essential.visual_stimuli.visualstim_concurrent import VisualStimMultiprocess
+from essential.video_acquisition import start_preview, start_acquisition
 
 # sys.path.insert(0, '.')  # essential (this folder) holds behavbox and equipment classes
 
@@ -199,37 +198,62 @@ class BehavBox(Box):
     # methods to start and stop video
     ###############################################################################################
     def video_start(self):
-        # print(Fore.RED + '\nTEST - RED' + Style.RESET_ALL)
-        print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
-        try:
-            os.system("ssh pi@" + self.IP_address_video + " pkill python")
+        if self.session_info['ephys_rig']:
+            try:
+                print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)
+                print(Fore.RED + "\nCRTL + C to quit previewing and start recording" + Style.RESET_ALL)
+                start_preview.main()
 
-            # Preview check
-            print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)
-            print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
-            os.system("ssh pi@" + self.IP_address_video + " '/home/pi/RPi4_behavior_boxes/start_preview.py'")
+                # start recording
+                print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
+                shell_output = subprocess.run(
+                    ['sh', './start_acquisition.sh', self.session_info['video_dir'], self.session_info['file_basename']])
 
-            # Kill any python process before start recording
-            print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
-            os.system("ssh pi@" + self.IP_address_video + " pkill python")
-            time.sleep(2)
+                if shell_output.returncode == 0:
+                    print("Recording started!")
+                else:
+                    print("Recording failed to start!")
+                    print(shell_output.stderr)
+                    raise RuntimeError("Recording failed to start!")
 
-            # Prepare the path for recording
-            os.system("ssh pi@" + self.IP_address_video + " mkdir " + self.session_info['output_dir'])
-            os.system("ssh pi@" + self.IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
-            tempstr = (
-                    "ssh pi@" + self.IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
-                    + self.session_info['file_basename']
-                    + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
-            )
+                print(Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! "
+                                                "Cancel the session if it's not!" + Style.RESET_ALL)
 
-            # start recording
-            print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
-            os.system(tempstr)
-            print(Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
+            except Exception as error_message:
+                print("ephys rig can't run camera\n")
+                print(str(error_message))
 
-        except Exception as e:
-            print(e)
+        else:
+            print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
+            try:
+                os.system("ssh pi@" + self.IP_address_video + " pkill python")
+
+                # Preview check
+                print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)
+                print(Fore.RED + "\nCRTL + C to quit previewing and start recording" + Style.RESET_ALL)
+                os.system("ssh pi@" + self.IP_address_video + " '/home/pi/RPi4_behavior_boxes/start_preview.py'")
+
+                # Kill any python process before start recording
+                print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
+                os.system("ssh pi@" + self.IP_address_video + " pkill python")
+                time.sleep(2)
+
+                # Prepare the path for recording
+                os.system("ssh pi@" + self.IP_address_video + " mkdir " + self.session_info['output_dir'])
+                os.system("ssh pi@" + self.IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
+                tempstr = (
+                        "ssh pi@" + self.IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
+                        + self.session_info['file_basename']
+                        + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
+                )
+
+                # start recording
+                print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
+                os.system(tempstr)
+                print(Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
+
+            except Exception as e:
+                print(e)
 
     def video_stop(self):
         try:
@@ -271,7 +295,6 @@ class BehavBox(Box):
             print(error_message)
 
     def transfer_files_to_external_storage(self):
-
         ic(os.path.exists(self.session_info['output_dir']))
         ic(os.path.exists(self.session_info['external_storage_dir']))
         ic(os.path.exists(self.session_info['log_path']))

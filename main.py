@@ -137,6 +137,7 @@ def main():
         else:
             session_info['session_name'] = session_info['mouse_name'] + '_' + session_info['datetime']
             session_info['output_dir'] = session_info['buffer_dir'] + '/' + session_info['session_name']
+            session_info['video_dir'] = session_info['output_dir'] + '/video'
             session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
             session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
             # session_info['flipper_filename'] = session_info['external_storage_dir'] + '/' + session_info['session_name'] + '_flipper_output'

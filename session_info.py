@@ -72,10 +72,13 @@ def make_session_info() -> Dict[str, Any]:
     # session_info['flush_duration'] = 2
 
     # Parameters - file saving
-    session_info['file_basename']               = ''
-    session_info['buffer_dir']					  	= '/home/pi/buffer'  # previously 'basedir'
+    session_info['session_name']                = ''
+    session_info['buffer_dir']					= '/home/pi/buffer'  # previously 'basedir'
+    session_info['output_dir']                  = session_info['buffer_dir'] + '/' + session_info['session_name']
+    session_info['video_dir']                   = session_info['output_dir'] + '/videos'
     session_info['external_storage']            = '/mnt/sda'  # /mnt/sda
     session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
+    session_info['file_basename']               = session_info['output_dir'] + '/' + session_info['session_name']
 
     # Parameters - box and rig
     session_info['box_name']             		= socket.gethostname()
