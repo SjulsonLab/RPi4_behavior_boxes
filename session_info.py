@@ -16,8 +16,9 @@ def make_session_info() -> Dict[str, Any]:
     # Information for this session (the user should edit this each session)
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test-mouse'
-    session_info['debug']                     	= True
-    session_info['ephys_rig']                 	= False
+    session_info['debug']                     	= False
+    session_info['ephys_rig']                 	= True
+    session_info['lick_input_setting']          = 'capacitance'  # ['capacitance', 'current']
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
@@ -43,19 +44,10 @@ def make_session_info() -> Dict[str, Any]:
     session_info['max_correct_trials_in_block'] = 30
 
     # Reward pump parameters
-    # pump1 is the right pump, pump2 is the left pump
-    # for behavior rig, use pumps 2 (left) and 1 (right)
-    # for ephys rig, use pumps 2 (left) and 3 (right)
     if session_info['ephys_rig']:
-        session_info["reward_pump1"] = '2'
-        session_info['reward_pump2'] = '3'
-
-        session_info["right_reward_pump"] = '2'
-        session_info['left_reward_pump'] = '3'
+        session_info["right_reward_pump"] = '3'
+        session_info['left_reward_pump'] = '2'
     else:
-        session_info["reward_pump1"] = '2'
-        session_info['reward_pump2'] = '1'
-
         session_info["right_reward_pump"] = '2'
         session_info['left_reward_pump'] = '1'
 
@@ -155,6 +147,7 @@ def session_defaults(session_info: dict) -> dict:
 
 def sanity_checks(session_info: dict) -> dict:
     assert session_info['task_config'] in ['alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'], "Invalid task config, check your spelling!!"
+    assert session_info['lick_input_setting'] in ['capacitance', 'current'], "Invalid lick input setting"
 
     if session_info['visual_stimulus']:
         assert session_info['vis_gratings'], "No visual stimuli specified"
