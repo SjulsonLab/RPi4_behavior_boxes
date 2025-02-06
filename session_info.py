@@ -17,7 +17,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test-mouse'
     session_info['debug']                     	= False
-    session_info['ephys_rig']                 	= False
+    session_info['ephys_rig']                 	= True
     session_info['lick_input_setting']          = 'capacitance'  # ['capacitance', 'current']
 
     session_info['weight']                	    = 0  # in grams
@@ -64,10 +64,13 @@ def make_session_info() -> Dict[str, Any]:
     # session_info['flush_duration'] = 2
 
     # Parameters - file saving
-    session_info['file_basename']               = ''
-    session_info['buffer_dir']					  	= '/home/pi/buffer'  # previously 'basedir'
+    session_info['session_name']                = ''
+    session_info['buffer_dir']					= '/home/pi/buffer'  # previously 'basedir'
+    session_info['output_dir']                  = session_info['buffer_dir'] + '/' + session_info['session_name']
+    session_info['video_dir']                   = session_info['output_dir'] + '/videos'
     session_info['external_storage']            = '/mnt/sda'  # /mnt/sda
     session_info['flipper_filename']            = '/home/pi/buffer/flipper_timestamp'
+    session_info['file_basename']               = session_info['output_dir'] + '/' + session_info['session_name']
 
     # Parameters - box and rig
     session_info['box_name']             		= socket.gethostname()

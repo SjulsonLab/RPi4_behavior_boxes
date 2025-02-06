@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-#import the necessary modules
 from gpiozero import Button
 import io
 import time
@@ -133,8 +132,6 @@ class TimestampOutput(object):
             except RuntimeError:
                 worked = False
         print("Flipper detection OFF")
-
-
 
     def write(self, buf):
         if self.camera.frame.complete and self.camera.frame.timestamp is not None:
