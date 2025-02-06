@@ -23,7 +23,6 @@ def main():
     camera.annotate_text_size = 60
 
     camera.start_preview()
-
     signal.signal(signal.SIGINT, signal_handler)
     signal.pause()
 
