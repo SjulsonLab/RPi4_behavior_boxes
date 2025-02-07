@@ -48,7 +48,7 @@ SATURATION = 30
 AWB_MODE = 'off'
 AWB_GAINS = 1.4
 
-#Flipper TTL Pulse BounceTme in milliseconds
+#Flipper TTL Pulse BounceTime in milliseconds
 BOUNCETIME=100
 camId = str(0)
 
@@ -215,6 +215,7 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
         print('Closing Output File')
         print(e)
         sys.exit(0)
+
     finally:
         camera.stop_recording()
         camera.stop_preview()
