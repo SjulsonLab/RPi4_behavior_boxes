@@ -191,7 +191,7 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
     GPIO.add_event_callback(pin_flipper, output.flipper_timestamps_write)
     try:
         camera.start_preview()
-        # Construct an instance of our custom output splitter with a filename  and a connected socket
+        # Construct an instance of our custom output splitter with a filename and a connected socket
         print('Starting Recording')
         camera.start_recording(output, format='h264')
         print('Started Recording')
