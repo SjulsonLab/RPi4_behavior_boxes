@@ -59,12 +59,14 @@ class BehavBox(Box):
         self.IP_address = IP_address.split(' ')[0]  # if there is an ethernet and wifi connection, this will take the
         # first IP assuming that one is the ethernet connection. Make sure you confirm this is the case!!!
         self.hostname = socket.gethostname()
-        IP_address_video_list = list(self.IP_address)
-        # IP_address_video_list[-3] = "2"
-        IP_address_video_list[-1] = "2"
-        self.IP_address_video = "".join(IP_address_video_list)
-        if not self.session_info['ephys_rig']:
-            ic(self.IP_address_video)
+        if self.session_info['ephys_rig']:
+            self.IP_address_video = "10.49.98.88"  # hard-coded address for the ephys rig video pi
+        else:
+            IP_address_video_list = list(self.IP_address)
+            # IP_address_video_list[-3] = "2"
+            IP_address_video_list[-1] = "2"
+            self.IP_address_video = "".join(IP_address_video_list)
+        ic(self.IP_address_video)
 
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
