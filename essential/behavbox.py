@@ -25,7 +25,6 @@ from colorama import Fore, Style
 
 from essential.visualstim import VisualStim
 from essential.visual_stimuli.visualstim_concurrent import VisualStimMultiprocess
-from essential.video_acquisition import start_preview
 
 # sys.path.insert(0, '.')  # essential (this folder) holds behavbox and equipment classes
 
