@@ -190,7 +190,7 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
             camera.wait_recording(0.005)
             try:
                 frame = output._timestamps[-1][0]
-            except IndexError:
+            except IndexError:  # if no frames are available yet
                 frame = None
             if frame is not None:
                 if frame > last_frame:
