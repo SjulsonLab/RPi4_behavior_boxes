@@ -10,11 +10,12 @@ if [ "$4" = "True" ]; then
     exit 1
   fi
 
-  rsync -av --progress --remove-source-files "pi@$1:~/video/*.log" "$3"
-  if [ $? -ne 0 ]; then
-    echo "Error: Failed to sync log files" >&2
-    exit 1
-  fi
+## if you are saving the log files and videos in the same directory, skip this step ##
+#  rsync -av --progress --remove-source-files "pi@$1:~/video/*.log" "$3"
+#  if [ $? -ne 0 ]; then
+#    echo "Error: Failed to sync log files" >&2
+#    exit 1
+#  fi
 
 else
   echo ""

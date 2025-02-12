@@ -26,7 +26,7 @@ def signal_handler(signum, frame):
 signal.signal(signal.SIGINT, signal_handler)
 base_path = sys.argv[1]
 
-#set high thread priority
+# set high thread priority - may require sudo access
 try:
     os.nice(-20)
 except:
@@ -46,7 +46,7 @@ AWB_MODE = 'off'
 AWB_GAINS = 1.4
 
 #Flipper TTL Pulse BounceTme in milliseconds
-BOUNCETIME=10
+BOUNCETIME = 10
 camId = str(0)
 
 #video, timestamps and ttl file name
@@ -130,11 +130,11 @@ class TimestampOutput(object):
                         self.camera.clockRealTime
                         ))
             else:
-                    self._timestamps.append((
-                        self.camera.frame.timestamp,
-                        self.camera.dateTime,
-                        self.camera.clockRealTime
-                        ))
+                self._timestamps.append((
+                    self.camera.frame.timestamp,
+                    self.camera.dateTime,
+                    self.camera.clockRealTime
+                    ))
         return self._video.write(buf)
 
     def flush(self):
@@ -177,7 +177,9 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
     GPIO.add_event_callback(pin_flipper, output.flipper_timestamps_write)
     try:
         camera.start_preview()
-        # Construct an instance of our custom output splitter with a filename  and a connected socket
+        time.sleep(1)
+
+        # Construct an instance of our custom output splitter with a filename and a connected socket
         print('Starting Recording')
         camera.start_recording(output, format='h264')
         print('Started Recording')
@@ -201,6 +203,7 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
         print('Closing Output File')
         print(e)
         sys.exit(0)
+
     finally:
         camera.stop_recording()
         camera.stop_preview()
