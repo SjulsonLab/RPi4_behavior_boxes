@@ -46,7 +46,7 @@ AWB_MODE = 'off'
 AWB_GAINS = 1.4
 
 #Flipper TTL Pulse BounceTme in milliseconds
-BOUNCETIME = 10
+BOUNCETIME = 100
 camId = str(0)
 
 #video, timestamps and ttl file name
@@ -188,8 +188,11 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
         last_frame = 0
         while True:
             camera.wait_recording(0.005)
-            frame = output._timestamps[-1][0]
-            if frame != None:
+            try:
+                frame = output._timestamps[-1][0]
+            except IndexError:
+                frame = None
+            if frame is not None:
                 if frame > last_frame:
                     # a new frame was detected and the time stamp is not NONE
                     camera.annotate_text = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
