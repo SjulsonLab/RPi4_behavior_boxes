@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-#!/usr/bin/env -S ipython3 -i
-
 """
 author: Matthew Chin
 date: 2023-11-10
@@ -231,6 +229,10 @@ def main():
         presenter.start_session()
         t_minute = set_session_time()
         t_end = time.time() + 60 * t_minute
+
+        task.presenter_commands.clear()
+        box.visualstim.empty_presenter_queue()
+        box.visualstim.empty_stimulus_queue()
 
         run = True
         presenter.print_controls()

@@ -163,11 +163,3 @@ class VisualStimMultiprocess(VisualStim):
         self.gratings_on = False
         self.empty_stimulus_queue()
 
-    def empty_stimulus_queue(self) -> List[str]:
-        commands = []
-        while True:
-            try:
-                commands.append(self.stimulus_commands.get(block=False))
-            except queue.Empty:
-                break
-        return commands

@@ -14,9 +14,11 @@ import os
 from collections import OrderedDict
 from icecream import ic
 from multiprocessing import Process, Queue
+import queue
 import sys
 sys.path.append('/home/pi/RPi4_behavior_boxes')
 from essential.base_classes import VisualStimBase
+from typing import List, Tuple
 
 
 class VisualStim(VisualStimBase):
@@ -28,6 +30,7 @@ class VisualStim(VisualStimBase):
         self.load_session_gratings()
         self.active_process = None
         self.presenter_commands = Queue()
+        self.stimulus_commands = Queue()
         logging.info(";" + str(time.time()) + ";[initialization];screen_opened;")
 
     def display_default_greyscale(self):
