@@ -15,6 +15,7 @@ from multiprocessing import Process, Queue
 from threading import Thread
 import os
 from colorama import Fore, Style
+import queue
 
 
 
@@ -72,6 +73,24 @@ class VisualStimBase(ABC):
         if self.active_process is not None:
             self.active_process.join()
         self.gratings_on = False
+
+    def empty_stimulus_queue(self):
+        commands = []
+        while True:
+            try:
+                commands.append(self.stimulus_commands.get(block=False))
+            except queue.Empty:
+                break
+        return commands
+
+    def empty_presenter_queue(self):
+        commands = []
+        while True:
+            try:
+                commands.append(self.presenter_commands.get(block=False))
+            except queue.Empty:
+                break
+        return commands
 
 
 class Box(ABC):

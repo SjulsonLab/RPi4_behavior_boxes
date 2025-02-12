@@ -89,21 +89,3 @@ class VisualStim(VisualStimBase):
 
     def loop_grating(self, grating_name: str, duration: float):
         pass
-
-    def empty_stimulus_queue(self) -> List[str]:
-        commands = []
-        while True:
-            try:
-                commands.append(self.stimulus_commands.get(block=False))
-            except queue.Empty:
-                break
-        return commands
-
-    def empty_presenter_queue(self) -> List[str]:
-        commands = []
-        while True:
-            try:
-                commands.append(self.presenter_commands.get(block=False))
-            except queue.Empty:
-                break
-        return commands

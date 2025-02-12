@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-#!/usr/bin/env -S ipython3 -i
-
 """
 author: Matthew Chin
 date: 2023-11-10
