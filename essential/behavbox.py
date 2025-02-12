@@ -219,31 +219,13 @@ class BehavBox(Box):
             os.system("ssh pi@" + self.IP_address_video + " pkill python")
             time.sleep(2)
 
-            # Prepare the path for recording
-            # os.system("ssh pi@" + self.IP_address_video + " mkdir " + self.session_info['output_dir'])
-            # os.system("ssh pi@" + self.IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
-            # tempstr = (
-            #         "ssh pi@" + self.IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
-            #         + self.session_info['file_basename']
-            #         + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
-            # )
-
-            # tempstr = "ssh pi@{} /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.sh {} {}".format(
-            #     self.IP_address_video, self.session_info['output_dir'], self.session_info['file_basename'])
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
-            # shell_output = subprocess.run(
-            #     ['sh', "pi@{}".format(self.IP_address_video),
-            #      '/home/pi/RPi4_behavior_boxes/essential/video_acquisition/start_acquisition.sh', self.IP_address_video,
-            #      self.session_info['output_dir'], self.session_info['file_basename']])
             shell_output = subprocess.run(
                 ['ssh', 'pi@{}'.format(self.IP_address_video),
                  '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.sh',
                  self.session_info['output_dir'], self.session_info['file_basename']])
 
-            # os.system(
-            #     "ssh pi@" + self.IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.sh")
-            # os.system(tempstr)
             if shell_output.returncode == 0:
                 print("Recording started!")
             else:
