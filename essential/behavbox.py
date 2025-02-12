@@ -238,7 +238,7 @@ class BehavBox(Box):
             #      self.session_info['output_dir'], self.session_info['file_basename']])
             shell_output = subprocess.run(
                 ['ssh', 'pi@{}'.format(self.IP_address_video),
-                 '/home/pi/RPi4_behavior_boxes/essential/video_acquisition/start_acquisition.sh',
+                 '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.sh',
                  self.session_info['output_dir'], self.session_info['file_basename']])
 
             # os.system(
