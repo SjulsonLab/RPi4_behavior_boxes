@@ -232,6 +232,10 @@ def main():
         t_minute = set_session_time()
         t_end = time.time() + 60 * t_minute
 
+        task.presenter_commands.clear()
+        box.visualstim.empty_presenter_queue()
+        box.visualstim.empty_stimulus_queue()
+
         run = True
         presenter.print_controls()
         task.start_task()
