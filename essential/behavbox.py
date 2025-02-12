@@ -228,11 +228,18 @@ class BehavBox(Box):
             #         + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
             # )
 
+            # tempstr = "ssh pi@{} /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.sh {} {}".format(
+            #     self.IP_address_video, self.session_info['output_dir'], self.session_info['file_basename'])
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
+            # shell_output = subprocess.run(
+            #     ['sh', "pi@{}".format(self.IP_address_video),
+            #      '/home/pi/RPi4_behavior_boxes/essential/video_acquisition/start_acquisition.sh', self.IP_address_video,
+            #      self.session_info['output_dir'], self.session_info['file_basename']])
             shell_output = subprocess.run(
-                ['sh', './video_acquisition/start_acquisition.sh', self.IP_address_video,
-                 self.session_info['output_dir'], self.session_info['file_basename']])
+                ['sh', '/home/pi/RPi4_behavior_boxes/essential/video_acquisition/start_acquisition.sh',
+                 self.IP_address_video, self.session_info['output_dir'], self.session_info['file_basename']])
+
             # os.system(
             #     "ssh pi@" + self.IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.sh")
             # os.system(tempstr)

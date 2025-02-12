@@ -13,3 +13,5 @@ date >> "$2/videolog.log"
 
 echo "Starting video acquisition"
 nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "$3" >> "$2/videolog.log" 2>&1 &
+
+exit 0
