@@ -19,7 +19,7 @@ if [ "$4" = true ]; then
 
 else
   echo ""
-  echo "No Raspberry Pi video to save"
+  echo "Skipping Raspberry Pi video transfer"
 fi
 
 echo "Transferring buffer files"
