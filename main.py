@@ -231,9 +231,10 @@ def main():
         t_end = time.time() + 60 * t_minute
 
         task.presenter_commands.clear()
-        box.visualstim.empty_presenter_queue()
-        box.visualstim.empty_stimulus_queue()
         box.presenter_commands.clear()
+        if session_info['visual_stimulus']:
+            box.visualstim.empty_presenter_queue()
+            box.visualstim.empty_stimulus_queue()
 
         run = True
         presenter.print_controls()
