@@ -233,6 +233,7 @@ def main():
         task.presenter_commands.clear()
         box.visualstim.empty_presenter_queue()
         box.visualstim.empty_stimulus_queue()
+        box.presenter_commands.clear()
 
         run = True
         presenter.print_controls()

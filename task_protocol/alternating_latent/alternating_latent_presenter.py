@@ -28,7 +28,7 @@ class AlternatingLatentPresenter(Presenter):
         self.box = box
         self.pump = pump
         self.session_info = session_info
-        self.pump_keys = (session_info["reward_pump1"], session_info['reward_pump2'])
+        # self.pump_keys = (session_info["reward_pump1"], session_info['reward_pump2'])
         self.reward_size_large = session_info['reward_size_large']
         self.reward_size_small = session_info['reward_size_small']
 
@@ -39,15 +39,26 @@ class AlternatingLatentPresenter(Presenter):
         """
         Process one event, checking GUI and events as needed.
         """
-        if self.task.state in ['A', 'C1', 'right_patch']:
-            correct_pump = PUMP1_IX
-            incorrect_pump = PUMP2_IX
-        elif self.task.state in ['B', 'C2', 'left_patch']:
-            correct_pump = PUMP2_IX
-            incorrect_pump = PUMP1_IX
+        # if self.task.state in ['A', 'C1', 'right_patch']:
+        #     correct_pump = PUMP1_IX
+        #     incorrect_pump = PUMP2_IX
+        # elif self.task.state in ['B', 'C2', 'left_patch']:
+        #     correct_pump = PUMP2_IX
+        #     incorrect_pump = PUMP1_IX
+        # else:
+        #     correct_pump = None
+        #     incorrect_pump = None
+
+        if self.task.state == 'right_patch':
+            correct_pump = self.session_info['right_reward_pump']
+            incorrect_pump = self.session_info['left_reward_pump']
+        elif self.task.state == 'left_patch':
+            correct_pump = self.session_info['left_reward_pump']
+            incorrect_pump = self.session_info['right_reward_pump']
         else:
             correct_pump = None
             incorrect_pump = None
+            # raise RuntimeError('state not recognized')
 
         if self.task.state == 'standby' or self.task.ITI_active:
             self.task.lick_side_buffer *= 0
