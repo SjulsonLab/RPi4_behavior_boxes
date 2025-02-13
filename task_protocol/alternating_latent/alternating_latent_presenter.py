@@ -22,13 +22,11 @@ trial_choice_map = {'right': 0, 'left': 1}
 class AlternatingLatentPresenter(Presenter):
 
     def __init__(self, model: Model, box: Box, pump: PumpBase, gui: GUI, session_info: dict):
-
         self.task: Model = model
         self.gui: GUI = gui
         self.box = box
         self.pump = pump
         self.session_info = session_info
-        # self.pump_keys = (session_info["reward_pump1"], session_info['reward_pump2'])
         self.reward_size_large = session_info['reward_size_large']
         self.reward_size_small = session_info['reward_size_small']
 
@@ -36,19 +34,6 @@ class AlternatingLatentPresenter(Presenter):
         # self.automatic_training_rewards = False
 
     def run(self) -> None:
-        """
-        Process one event, checking GUI and events as needed.
-        """
-        # if self.task.state in ['A', 'C1', 'right_patch']:
-        #     correct_pump = PUMP1_IX
-        #     incorrect_pump = PUMP2_IX
-        # elif self.task.state in ['B', 'C2', 'left_patch']:
-        #     correct_pump = PUMP2_IX
-        #     incorrect_pump = PUMP1_IX
-        # else:
-        #     correct_pump = None
-        #     incorrect_pump = None
-
         if self.task.state == 'right_patch':
             correct_pump = self.session_info['right_reward_pump']
             incorrect_pump = self.session_info['left_reward_pump']
@@ -73,7 +58,7 @@ class AlternatingLatentPresenter(Presenter):
         if self.task.rewards_earned_in_block >= self.task.rewards_available_in_block:
             self.task.sample_next_block()
 
-    def perform_task_commands(self, correct_pump: int, incorrect_pump: int) -> None:
+    def perform_task_commands(self, correct_pump: str, incorrect_pump: str) -> None:
         # give reward if
         # 1. training reward/human reward (give reward, regardless of action)
         # 2. correct choice and meets correct reward probability
@@ -86,7 +71,7 @@ class AlternatingLatentPresenter(Presenter):
                 # self.task.rewards_earned_in_block += 1  # trying this out - not incrementing collected rewards if they are given by experimenter
                 self.task.trial_reward_given.append(True)
                 logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
-                self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
+                self.deliver_reward(pump_key=correct_pump, reward_size=reward_size)
 
             elif c == 'give_correct_reward':
                 reward_size = self.reward_size_large
@@ -104,7 +89,7 @@ class AlternatingLatentPresenter(Presenter):
 
                 print('current state: {}; rewards earned in block: {}'.format(self.task.state,
                                                                               self.task.rewards_earned_in_block))
-                self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
+                self.deliver_reward(pump_key=correct_pump, reward_size=reward_size)
 
             elif c == 'give_incorrect_reward':
                 self.task.trial_reward_given.append(False)
@@ -121,6 +106,6 @@ class AlternatingLatentPresenter(Presenter):
 
                 print('current state: {}; rewards earned in block: {}'.format(self.task.state,
                                                                               self.task.rewards_earned_in_block))
-                self.deliver_reward(pump_key=self.pump_keys[incorrect_pump], reward_size=reward_size)
+                self.deliver_reward(pump_key=incorrect_pump, reward_size=reward_size)
 
         self.task.presenter_commands.clear()
