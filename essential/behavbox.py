@@ -280,8 +280,8 @@ class BehavBox(Box):
             # shell_output = subprocess.run(['sh', './transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
             #                                self.session_info['external_storage_dir'], str(not self.session_info['ephys_rig'])])
             shell_output = subprocess.run(
-                ['sh', './transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
-                 self.session_info['external_storage_dir'], True])
+                ['sh', '/home/pi/RPi4_behavior_boxes/transfer_files.sh', self.session_info['output_dir'],
+                 self.session_info['external_storage_dir'], self.IP_address_video])
             if shell_output.returncode == 0:
                 print("rsync finished!")
                 break
