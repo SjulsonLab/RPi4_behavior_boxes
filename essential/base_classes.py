@@ -94,8 +94,8 @@ class VisualStimBase(ABC):
 
 class Box(ABC):
 
-    visualstim: VisualStimBase
-    presenter_commands: List[str]
+    visualstim: VisualStimBase = None
+    presenter_commands: List[str] = []
     # sound1: LED
     # sound2: LED
 
