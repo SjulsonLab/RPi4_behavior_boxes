@@ -18,7 +18,6 @@ from colorama import Fore, Style
 import queue
 
 
-
 class PumpBase(ABC):
 
     @abstractmethod

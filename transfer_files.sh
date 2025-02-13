@@ -18,7 +18,7 @@ if [ "$#" -eq 3 ]; then
   fi
 
 ## if you are saving the log files and videos in the same directory, skip this step ##
-#  rsync -av --progress --remove-source-files "pi@$1:~/video/*.log" "$3"
+#  rsync -av --progress --remove-source-files "pi@$3:~/video/*.log" "$2"
 #  if [ $? -ne 0 ]; then
 #    echo "Error: Failed to sync log files" >&2
 #    exit 1
