@@ -30,8 +30,8 @@ else
 fi
 
 echo "Transferring buffer files"
-echo "rsync -arvz --progress --remove-source-files $1 $2"
-rsync -arvz --progress --remove-source-files "$1" "$2"
+echo "rsync -arvz --progress --remove-source-files $1/ $2"
+rsync -arvz --progress --remove-source-files "$1/" "$2"
 if [ $? -ne 0 ]; then
   echo "Error: Failed to sync buffer files" >&2
   exit 1
