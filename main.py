@@ -266,9 +266,6 @@ def main():
         else:
             pass
 
-        box.transfer_files_to_external_storage()
-        pygame.quit()
-
     # exit because of error
     except RuntimeError as ex:
         print(Fore.RED + Style.BRIGHT + 'ERROR: Exiting now' + Style.RESET_ALL)
@@ -276,6 +273,11 @@ def main():
 
         close_logs()
         presenter.end_session()
+
+    finally:
+        box.video_stop()  # double check that video is stopped
+        time.sleep(2)
+
         box.transfer_files_to_external_storage()
         pygame.quit()
 
