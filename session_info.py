@@ -125,8 +125,8 @@ def make_session_info() -> Dict[str, Any]:
         session_info["calibration_coefficient"]['3'] = session_info['default_calibration_coefficient']
         session_info["calibration_coefficient"]['4'] = session_info['default_calibration_coefficient']
 
-    session_info = sanity_checks(session_info)
     session_info = session_defaults(session_info)
+    session_info = sanity_checks(session_info)
     return session_info
 
 
