@@ -169,9 +169,11 @@ class FlushPresenter(Presenter):
         self.box.visualstim.show_grating(grating_name)
         if play_sound:
             sound_fn()
+        self.box.cueLED3.on()  # DAQ signal that sound/visuals are on
 
         time.sleep(self.session_info['grating_duration'])
         self.sounds_off()
+        self.box.cueLED3.off()  # DAQ signal that sound/visuals are off
         self.gratings_on = False
 
     def K_z_callback(self) -> None:

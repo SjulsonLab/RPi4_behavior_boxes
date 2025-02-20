@@ -360,24 +360,28 @@ class Pump(PumpBase):
             duration = round((self.coefficient_p1[0] * (reward_size / 1000) + self.coefficient_p1[1]),
                              5)  # linear function
             self.pump1.blink(duration, 0.1, 1)
+            self.send_pump_signal()
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward(reward_coeff: " + str(self.coefficient_p1) +
                          ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
         elif which_pump in ["2", "key_2"]:
             duration = round((self.coefficient_p2[0] * (reward_size / 1000) + self.coefficient_p2[1]),
                              5)  # linear function
             self.pump2.blink(duration, 0.1, 1)
+            self.send_pump_signal()
             logging.info(";" + str(time.time()) + ";[reward];pump2_reward(reward_coeff: " + str(self.coefficient_p2) +
                          ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
         elif which_pump in ["3", "key_3"]:
             duration = round((self.coefficient_p3[0] * (reward_size / 1000) + self.coefficient_p3[1]),
                              5)  # linear function
             self.pump3.blink(duration, 0.1, 1)
+            self.send_pump_signal()
             logging.info(";" + str(time.time()) + ";[reward];pump3_reward(reward_coeff: " + str(self.coefficient_p3) +
                          ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
         elif which_pump in ["4", "key_4"]:
             duration = round((self.coefficient_p4[0] * (reward_size / 1000) + self.coefficient_p4[1]),
                              5)  # linear function
             self.pump4.blink(duration, 0.1, 1)
+            self.send_pump_signal()
             # self.reward_list.append(("pump4_reward", reward_size))
             logging.info(";" + str(time.time()) + ";[reward];pump4_reward(reward_coeff: " + str(self.coefficient_p4) +
                          ", reward_amount: " + str(reward_size) + ", duration: " + str(duration) + ");")
