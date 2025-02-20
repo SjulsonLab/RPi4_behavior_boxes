@@ -105,7 +105,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.box.sound3.off()
         self.box.sound2.on()
 
-        self.box.cueLED3.off()  # DAQ signal that sound is off
+        self.box.cueLED3.off()  # DAQ signal that stimulus is off
         # self.box.sound2.off()
         # self.box.sound1.on()
         self.box.visualstim.display_default_greyscale()
