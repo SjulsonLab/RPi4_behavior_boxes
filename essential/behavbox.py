@@ -22,8 +22,6 @@ from icecream import ic
 
 import logging
 from colorama import Fore, Style
-
-from essential.visualstim import VisualStim
 from essential.visual_stimuli.visualstim_concurrent import VisualStimMultiprocess
 
 # sys.path.insert(0, '.')  # essential (this folder) holds behavbox and equipment classes
@@ -82,9 +80,9 @@ class BehavBox(Box):
         # cue for animals
         # DIO 1 and 2 are reserved for the audio board
         ###############################################################################################
-        # self.DIO3 = LED(9)  # reserved for vacuum function
+        self.DIO3 = LED(9)
         self.DIO4 = LED(10)
-        self.DIO5 = LED(11)
+        # self.DIO5 = LED(11)
         # there is a DIO6, but that is the same pin as the camera strobe
 
         ###############################################################################################
@@ -316,6 +314,7 @@ class Pump(PumpBase):
         self.pump4 = LED(7)
         self.pump_air = LED(8)
         self.pump_vacuum = LED(25)
+        self.pump_signal = LED(11)  # DIO5
 
         # this needs to move to the controller, if it's used at all
         self.reward_list = []  # a list of tuple (pump_x, reward_amount) with information of reward history for data
@@ -328,19 +327,26 @@ class Pump(PumpBase):
         self.duration_air = session_info['air_duration']
         self.duration_vac = session_info["vacuum_duration"]
 
+    def send_pump_signal(self):
+        self.pump_signal.blink(on_time=.05, off_time=0.1, n=1)
+
     def blink(self, pump_key: str, on_time: float):
         """Blink a pump-port once for testing purposes."""
         if pump_key in ["1", "key_1"]:
             self.pump1.blink(on_time=on_time, off_time=0.1, n=1)
+            self.send_pump_signal()
             logging.info(";" + str(time.time()) + ";[reward];pump1_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["2", "key_2"]:
             self.pump2.blink(on_time=on_time, off_time=0.1, n=1)
+            self.send_pump_signal()
             logging.info(";" + str(time.time()) + ";[reward];pump2_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["3", "key_3"]:
             self.pump3.blink(on_time=on_time, off_time=0.1, n=1)
+            self.send_pump_signal()
             logging.info(";" + str(time.time()) + ";[reward];pump3_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["4", "key_4"]:
             self.pump4.blink(on_time=on_time, off_time=0.1, n=1)
+            self.send_pump_signal()
             logging.info(";" + str(time.time()) + ";[reward];pump4_blink, duration: " + str(on_time) + ";")
         elif pump_key in ["air_puff", "key_air_puff"]:
             self.pump_air.blink(on_time, 0.1, 1)
