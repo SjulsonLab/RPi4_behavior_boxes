@@ -104,6 +104,8 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.box.sound1.off()
         self.box.sound3.off()
         self.box.sound2.on()
+
+        self.box.cueLED3.off()  # DAQ signal that sound is off
         # self.box.sound2.off()
         # self.box.sound1.on()
         self.box.visualstim.display_default_greyscale()
@@ -129,6 +131,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
                self.task.state != 'dark_period'):
             self.box.visualstim.show_grating(grating_name)
             sound_fn()
+            self.box.cueLED3.on()  # DAQ signal that sound/visuals are on
 
             time.sleep(self.session_info['grating_duration'])
             if self.task.state == 'dark_period':
@@ -163,6 +166,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
     def stimuli_off(self) -> None:
         self.box.cueLED1.off()
         self.box.cueLED2.off()
+        self.box.cueLED3.off()  # DAQ signal that sound/visuals are off
         self.sounds_off()
         # self.join_stimulus_threads()
         self.box.visualstim.display_dark_greyscale()
