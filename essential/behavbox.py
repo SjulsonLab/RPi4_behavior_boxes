@@ -82,7 +82,7 @@ class BehavBox(Box):
         ###############################################################################################
         self.DIO3 = LED(9)
         self.DIO4 = LED(10)
-        self.DIO5 = LED(11)
+        # self.DIO5 = LED(11)
         # there is a DIO6, but that is the same pin as the camera strobe
 
         ###############################################################################################
@@ -307,14 +307,14 @@ class BoxLED(PWMLED):
 ###############################################################################################
 class Pump(PumpBase):
 
-    def __init__(self, session_info: Dict[str, Any], pump_signal: LED):
+    def __init__(self, session_info: Dict[str, Any]):
         self.pump1 = LED(19)
         self.pump2 = LED(20)
         self.pump3 = LED(21)
         self.pump4 = LED(7)
         self.pump_air = LED(8)
         self.pump_vacuum = LED(25)
-        self.pump_signal = pump_signal
+        self.pump_signal = LED(11)  # DIO5
 
         # this needs to move to the controller, if it's used at all
         self.reward_list = []  # a list of tuple (pump_x, reward_amount) with information of reward history for data
