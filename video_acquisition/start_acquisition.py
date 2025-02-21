@@ -113,18 +113,11 @@ class TimestampOutput(object):
         self._flipper_timestamps = []
 
     def append_timestamps(self):
-        # self._timestamps.append((
-        #     self.camera.frame.timestamp,
-        #     self.camera.dateTime,
-        #     self.camera.clockRealTime,
-        #     ))
         self._timestamps.append((
             self.camera.frame.timestamp,
-            self.camera.dateTime,
-            self.camera.clockRealTime,
-            time.time(),
-            time.clock_gettime(time.CLOCK_REALTIME)
-        ))
+            self.camera.dateTime,  # time.time(),
+            self.camera.clockRealTime,  # time.clock_gettime(time.CLOCK_REALTIME)
+            ))
 
     def flipper_timestamps_write(self, pin_flipper):
         input_state = GPIO.input(pin_flipper)
