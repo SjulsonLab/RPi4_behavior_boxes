@@ -80,7 +80,7 @@ class BehavBox(Box):
         # cue for animals
         # DIO 1 and 2 are reserved for the audio board
         ###############################################################################################
-        self.DIO3 = LED(9)
+        # self.DIO3 = LED(9)  # On board, LED9 is DIO4 port
         self.DIO4 = LED(10)
         # self.DIO5 = LED(11)
         # there is a DIO6, but that is the same pin as the camera strobe
@@ -314,7 +314,8 @@ class Pump(PumpBase):
         self.pump4 = LED(7)
         self.pump_air = LED(8)
         self.pump_vacuum = LED(25)
-        self.pump_signal = LED(11)  # DIO5
+        # self.pump_signal = LED(11)  # DIO5
+        # self.DIO3 = LED(9)
 
         # this needs to move to the controller, if it's used at all
         self.reward_list = []  # a list of tuple (pump_x, reward_amount) with information of reward history for data
@@ -328,7 +329,8 @@ class Pump(PumpBase):
         self.duration_vac = session_info["vacuum_duration"]
 
     def send_pump_signal(self):
-        self.pump_signal.blink(on_time=.1, off_time=0.1, n=1)
+        pass
+        # self.pump_signal.blink(on_time=.1, off_time=0.1, n=1)
 
     def blink(self, pump_key: str, on_time: float):
         """Blink a pump-port once for testing purposes."""
