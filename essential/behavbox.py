@@ -328,7 +328,7 @@ class Pump(PumpBase):
         self.duration_vac = session_info["vacuum_duration"]
 
     def send_pump_signal(self):
-        self.pump_signal.blink(on_time=.05, off_time=0.1, n=1)
+        self.pump_signal.blink(on_time=.1, off_time=0.1, n=1)
 
     def blink(self, pump_key: str, on_time: float):
         """Blink a pump-port once for testing purposes."""
@@ -418,3 +418,7 @@ class Pump(PumpBase):
             self.pump_vacuum.toggle()
             logging.info(";" + str(time.time()) + ";[reward];pump_vacuum_toggle;")
             ic(self.pump_vacuum.value)
+        elif pump_key in ["signal", "key_signal"]:
+            self.pump_signal.toggle()
+            logging.info(";" + str(time.time()) + ";[reward];pump_signal_toggle;")
+            ic(self.pump_signal.value)
