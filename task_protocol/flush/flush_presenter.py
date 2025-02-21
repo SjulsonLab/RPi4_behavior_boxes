@@ -84,6 +84,10 @@ class FlushPresenter(Presenter):
                 logging.info(";" + str(time.time()) + ";[reward];toggling_pump6;" + str(""))
                 self.pump.toggle('vacuum')
 
+            elif c == 'toggle_pump_signal':
+                logging.info(";" + str(time.time()) + ";[reward];toggling_pump_signal;" + str(""))
+                self.pump.toggle('signal')
+
             elif c == 'toggle_sound1':
                 self.box.sound1.toggle()
                 ic(self.box.sound1.value)
@@ -232,14 +236,9 @@ class FlushPresenter(Presenter):
         logging.info(";" + str(time.time()) + ";[action];key_pressed_toggle_pump6;")
         self.task.presenter_commands.append('toggle_pump6')
 
-    def K_1_up_callback(self) -> None:
-        pass
-
-    def K_2_up_callback(self) -> None:
-        pass
-
-    def K_3_up_callback(self) -> None:
-        pass
+    def K_7_down_callback(self) -> None:
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_toggle_pump_signal;")
+        self.task.presenter_commands.append('toggle_pump_signal')
 
     def end_ITI(self):
         self.ITI_active = False
@@ -258,4 +257,3 @@ class FlushPresenter(Presenter):
         else:
             print("s, d, f: toggle sound 3 (low tone), 1 (beep) / 2 (white noise)")
         print("b, v: horizontal/vertical gratings on")
-

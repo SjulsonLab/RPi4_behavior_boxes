@@ -358,6 +358,9 @@ class Presenter(ABC):
     def K_6_down_callback(self) -> None:
         pass
 
+    def K_7_down_callback(self) -> None:
+        pass
+
     def K_1_up_callback(self) -> None:
         logging.info(";" + str(time.time()) + ";[action];key_released_left_entry();")
         self.left_exit()
@@ -377,6 +380,9 @@ class Presenter(ABC):
         pass
 
     def K_6_up_callback(self) -> None:
+        pass
+
+    def K_7_up_callback(self) -> None:
         pass
 
     def K_q_callback(self) -> None:
@@ -470,6 +476,8 @@ class Presenter(ABC):
                         self.K_5_down_callback()
                     elif event.key == pygame.K_6:
                         self.K_6_down_callback()
+                    elif event.key == pygame.K_7:
+                        self.K_7_down_callback()
 
                     # interactive training functions
                     elif event.key == pygame.K_q:
@@ -518,6 +526,8 @@ class Presenter(ABC):
                         self.K_5_up_callback()
                     elif event.key == pygame.K_6:
                         self.K_6_up_callback()
+                    elif event.key == pygame.K_7:
+                        self.K_7_up_callback()
 
     def start_session(self) -> None:
         if self.session_info['treadmill']:
