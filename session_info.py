@@ -18,7 +18,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['mouse_name']                 	= 'test-mouse'
     session_info['debug']                     	= False
     session_info['ephys_rig']                 	= True
-    session_info['lick_input_setting']          = 'capacitance'  # ['capacitance', 'current']
+    session_info['lick_input_setting']          = 'signal_high'  # ['signal_high', 'signal_low']
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'

@@ -97,14 +97,14 @@ class BehavBox(Box):
         ###############################################################################################
         # close circuit detection - for ground pin circuit lick detection
         ###############################################################################################
-        if self.session_info["lick_input_setting"] == "capacitance":
+        if self.session_info["lick_input_setting"] == "signal_low":
             self.lick1 = Button(pin=26, pull_up=None, active_state=False)
             self.lick2 = Button(pin=27, pull_up=None, active_state=False)
             self.lick3 = Button(pin=15, pull_up=None, active_state=False)
-        elif self.session_info["lick_input_setting"] == "current":
-            self.lick1 = Button(26, None, True)
-            self.lick2 = Button(27, None, True)
-            self.lick3 = Button(15, None, True)
+        elif self.session_info["lick_input_setting"] == "signal_high":
+            self.lick1 = Button(26, pull_up=None, active_state=True)
+            self.lick2 = Button(27, pull_up=None, active_state=True)
+            self.lick3 = Button(15, pull_up=None, active_state=True)
         #self.reserved_rx1 = Button(13, None, True)  # for mitch
         #self.reserved_rx2 = Button(16, None, True)  # for mitch
 
