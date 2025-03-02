@@ -189,6 +189,7 @@ class Model(ABC):
         self.error_count += 1
 
     def log_training_reward(self, choice_ix: int, event_time: float) -> None:
+        logging.info(";" + str(time.time()) + ";[reward];giving_reward_{};reward_{}".format(self.state, True))
         self.trial_choice_list.append(choice_ix)
         self.trial_choice_times.append(event_time)
         self.trial_correct_list.append(False)
