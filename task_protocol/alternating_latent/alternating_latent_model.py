@@ -231,10 +231,13 @@ class AlternatingLatentModel(Model):
                 or self.give_training_reward:
             self.activate_ITI()
             self.presenter_commands.append('give_training_reward')
+            # self.log_training_reward(None, time_since_start)
             if self.state == 'right_patch':
                 choice_ix = RIGHT_IX
+                self.log_training_reward(RIGHT_IX, time_since_start)
             elif self.state == 'left_patch':
                 choice_ix = LEFT_IX
+                self.log_training_reward(LEFT_IX, time_since_start)
             else:
                 raise RuntimeError('state not recognized')
             self.log_training_reward(choice_ix, time_since_start)
