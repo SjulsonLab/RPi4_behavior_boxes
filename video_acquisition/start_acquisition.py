@@ -113,18 +113,11 @@ class TimestampOutput(object):
         self._flipper_timestamps = []
 
     def append_timestamps(self):
-        # self._timestamps.append((
-        #     self.camera.frame.timestamp,
-        #     self.camera.dateTime,
-        #     self.camera.clockRealTime,
-        #     ))
         self._timestamps.append((
             self.camera.frame.timestamp,
-            self.camera.dateTime,
-            self.camera.clockRealTime,
-            time.time(),
-            time.clock_gettime(time.CLOCK_REALTIME)
-        ))
+            self.camera.dateTime,  # time.time(),
+            self.camera.clockRealTime,  # time.clock_gettime(time.CLOCK_REALTIME)
+            ))
 
     def flipper_timestamps_write(self, pin_flipper):
         input_state = GPIO.input(pin_flipper)
@@ -145,11 +138,9 @@ class TimestampOutput(object):
 
     def flush(self):
         with io.open(self._timestampFile, 'w') as f:
-            # f.write('GPU Times, time.time(), clock_realtime\n')
-            f.write('GPU Times, camera_dateTime, camera_realtime, time.time(), clock_realtime\n')
+            f.write('GPU Times, time.time(), clock_realtime\n')
             for entry in self._timestamps:
-                # f.write('%d,%f,%f\n' % entry)
-                f.write('%d,%f,%f,%f,%f\n' % entry)
+                f.write('%d,%f,%f\n' % entry)
         with io.open(self._flipper_file, 'w') as f:
             f.write('Input State, Timestamp\n')
             for entry in self._flipper_timestamps:

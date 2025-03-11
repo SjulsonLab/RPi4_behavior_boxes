@@ -70,7 +70,6 @@ class AlternatingLatentPresenter(Presenter):
                 reward_size = self.reward_size_large
                 # self.task.rewards_earned_in_block += 1  # trying this out - not incrementing collected rewards if they are given by experimenter
                 self.task.trial_reward_given.append(True)
-                logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
                 self.deliver_reward(pump_key=correct_pump, reward_size=reward_size)
 
             elif c == 'give_correct_reward':

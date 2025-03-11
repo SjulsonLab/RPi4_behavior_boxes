@@ -18,7 +18,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['mouse_name']                 	= 'test-mouse'
     session_info['debug']                     	= False
     session_info['ephys_rig']                 	= True
-    session_info['lick_input_setting']          = 'capacitance'  # ['capacitance', 'current']
+    session_info['lick_input_setting']          = 'signal_high'  # ['signal_high', 'signal_low']
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
@@ -34,14 +34,18 @@ def make_session_info() -> Dict[str, Any]:
     session_info["lick_threshold"]              = 2  # number of consecutive licks to one side to indicate a choice
     session_info['intertrial_interval']         = 4  # in seconds
     session_info['quiet_ITI']                   = False
+    session_info['biased_side']                 = None  # 'left', 'right', None
+
 
     # Parameters for latent inference tasks
     session_info['correct_reward_probability'] = .9
     session_info['incorrect_reward_probability'] = 0
-    session_info['switch_probability'] = .1
+    session_info['switch_probability'] = .2
+    session_info['biased_switch_probability'] = .5
+    session_info['default_switch_probability'] = .2
     session_info['epoch_length'] = 120
     session_info['dark_period_times'] = [10]
-    session_info['max_correct_trials_in_block'] = 30
+    session_info['max_correct_trials_in_block'] = 2 / session_info['switch_probability']  # either use double the expected trials per block or hardcode 30
 
     # Reward pump parameters
     if session_info['ephys_rig']:
@@ -93,7 +97,7 @@ def make_session_info() -> Dict[str, Any]:
         session_info['grating_duration'] = 1
         session_info['inter_grating_interval'] = 2
         session_info['stimulus_duration'] = 10
-        session_info['p_stimulus'] = 0
+        session_info['p_stimulus'] = 0.5
         session_info['num_sounds'] = 1
 
     session_info['treadmill_setup']             = {}

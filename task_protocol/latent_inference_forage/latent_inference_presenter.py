@@ -89,7 +89,6 @@ class LatentInferencePresenter(Presenter):
 
             elif c == 'give_training_reward':
                 reward_size = self.reward_size_large
-                logging.info(";" + str(time.time()) + ";[reward];giving_reward;" + str(""))
                 # self.deliver_reward(pump_key=self.pump_keys[correct_pump], reward_size=reward_size)
                 self.deliver_reward(pump_key=correct_pump, reward_size=reward_size)
 
