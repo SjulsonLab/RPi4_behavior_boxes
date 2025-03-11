@@ -208,8 +208,20 @@ class LatentInferenceModel(Model):  # subclass from base task
                 # self.rewards_earned_in_block >= self.max_consecutive_correct_trials):
             self.rewards_earned_in_block = 0
             if self.state == 'right_patch':
+                if self.session_info['biased_side'] == 'right':
+                    self.session_info['switch_probability'] = self.session_info['biased_switch_probability']
+                elif self.session_info['biased_side'] == 'left':
+                    self.session_info['switch_probability'] = self.session_info['default_switch_probability']
+                else:  # biased_side is None
+                    pass
                 self.switch_to_left_patch()
             elif self.state == 'left_patch':
+                if self.session_info['biased_side'] == 'left':
+                    self.session_info['switch_probability'] = self.session_info['biased_switch_probability']
+                elif self.session_info['biased_side'] == 'right':
+                    self.session_info['switch_probability'] = self.session_info['default_switch_probability']
+                else:  # biased_side is None
+                    pass
                 self.switch_to_right_patch()
             else:
                 pass
