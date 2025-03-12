@@ -17,7 +17,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test-mouse'
     session_info['debug']                     	= False
-    session_info['ephys_rig']                 	= True
+    session_info['ephys_rig']                 	= False
     session_info['lick_input_setting']          = 'signal_high'  # ['signal_high', 'signal_low']
 
     session_info['weight']                	    = 0  # in grams
@@ -34,7 +34,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info["lick_threshold"]              = 2  # number of consecutive licks to one side to indicate a choice
     session_info['intertrial_interval']         = 4  # in seconds
     session_info['quiet_ITI']                   = False
-    session_info['biased_side']                 = None  # 'left', 'right', None
+    session_info['biased_side']                 = 'none'  # 'left', 'right', 'none' - must use 'none' instead of None, NoneType is not a string
 
 
     # Parameters for latent inference tasks
@@ -152,6 +152,7 @@ def session_defaults(session_info: dict) -> dict:
 def sanity_checks(session_info: dict) -> dict:
     assert session_info['task_config'] in ['alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'], "Invalid task config, check your spelling!!"
     assert session_info['lick_input_setting'] in ['signal_high', 'signal_low'], "Invalid lick input setting"
+    assert session_info['biased_side'] in ['left', 'right', 'none'], "Invalid biased side"
 
     if session_info['visual_stimulus']:
         assert session_info['vis_gratings'], "No visual stimuli specified"

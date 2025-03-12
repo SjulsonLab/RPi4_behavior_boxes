@@ -206,6 +206,7 @@ class BehavBox(Box):
     def video_start(self):
         try:
             os.system("ssh pi@" + self.IP_address_video + " pkill python")
+            # time.sleep(1)
 
             # Preview check
             print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)

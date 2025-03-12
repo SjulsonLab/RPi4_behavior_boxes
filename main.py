@@ -190,12 +190,6 @@ def main():
             task = alternating_latent_model.AlternatingLatentModel(session_info=session_info)
             Presenter = alternating_latent_presenter.AlternatingLatentPresenter
             # name = 'alternating_latent_task'
-        elif task_type == 'A_B_task':
-            pass
-        elif task_type == 'C1_C2_task':
-            pass
-        elif task_type == 'A_B_C1_C2_task':
-            pass
         elif task_type == 'latent_inference':
             from task_protocol.latent_inference_forage import latent_inference_model, latent_inference_presenter
             task = latent_inference_model.LatentInferenceModel(session_info=session_info)
