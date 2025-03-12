@@ -52,7 +52,7 @@ camId = str(0)
 #video, timestamps and ttl file name
 VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".h264"
 TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
-FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
+FLIPPER_FILE_NAME = base_path + "_cam" + camId + "_flipper_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
 
 #set raspberry pi board layout to BCM
 GPIO.setmode(GPIO.BCM)
