@@ -47,39 +47,35 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.stimulus_C_on()
 
     def play_soundA(self):
-        # for some reason sound1 (white noise) is physically connected to DIO2, and sound2 (tone) is connected to DIO1
-        # that means you need to control sounds 1 and 3 for stimuli A and B - change this if the physical setup changes
         if self.session_info['ephys_rig']:
             self.box.sound1.off()
             self.box.sound2.off()
             self.box.sound3.blink(on_time=.1, off_time=0.1)
         else:
+            self.box.sound1.blink(on_time=.1, off_time=0.1)
             self.box.sound2.off()
             self.box.sound3.off()
-            self.box.sound1.blink(on_time=.1, off_time=0.1)
 
     def play_soundB(self):
-        # for some reason sound1 (white noise) is physically connected to DIO2, and sound2 (tone) is connected to DIO1
-        # that means you need to control sounds 1 and 3 for stimuli A and B - change this if the physical setup changes
-        if self.session_info['ephys_rig']:
-            if self.session_info['num_sounds'] == 2:
-                self.box.sound2.off()
-                self.box.sound3.off()
-                self.box.sound1.blink(on_time=.2, off_time=0.1)
-            else:
+        if self.session_info['num_sounds'] == 1:
+            if self.session_info['ephys_rig']:
                 self.box.sound1.off()
                 self.box.sound2.off()
                 self.box.sound3.blink(on_time=.2, off_time=0.1)
+            else:
+                self.box.sound1.blink(on_time=.2, off_time=0.1)
+                self.box.sound2.off()
+                self.box.sound3.off()
 
-        else:
-            if self.session_info['num_sounds'] == 2:
+        elif self.session_info['num_sounds'] == 2:
+            if self.session_info['ephys_rig']:
+                self.box.sound1.blink(on_time=.2, off_time=0.1)
+                self.box.sound2.off()
+                self.box.sound3.off()
+            else:
                 self.box.sound1.off()
                 self.box.sound2.off()
                 self.box.sound3.blink(on_time=.2, off_time=0.1)
-            else:
-                self.box.sound2.off()
-                self.box.sound3.off()
-                self.box.sound1.blink(on_time=.2, off_time=0.1)
 
     def stimulus_A_on(self) -> None:
         grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
