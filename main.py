@@ -23,7 +23,6 @@ from session_info import make_session_info
 from subprocess import check_output
 import re
 
-
 sys.path.insert(0, './essential')  # essential holds behavbox and equipment classes
 sys.path.insert(0, '.')
 

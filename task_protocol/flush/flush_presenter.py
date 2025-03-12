@@ -131,22 +131,21 @@ class FlushPresenter(Presenter):
             self.box.sound2.off()
             self.box.sound3.blink(on_time=.1, off_time=0.1)
         else:
+            self.box.sound1.blink(on_time=.1, off_time=0.1)
             self.box.sound2.off()
             self.box.sound3.off()
-            self.box.sound1.blink(on_time=.1, off_time=0.1)
 
     def play_soundB(self):
-        # for some reason sound1 (white noise) is physically connected to DIO2, and sound2 (tone) is connected to DIO1
-        # that means you need to control sounds 1 and 3 for stimuli A and B - change this if the physical setup changes
+        # sound2 is white noise, sound1 is hi tone on behavior rigs, sound3 is lo tone on behavior rigs
+        # on ephys rigs, sound1 is lo tone, sound3 is hi tone
         if self.session_info['ephys_rig']:
-            if self.session_info['num_sounds'] == 2:
-                self.box.sound2.off()
-                self.box.sound3.off()
-                self.box.sound1.blink(on_time=.2, off_time=0.1)
-            else:
-                self.box.sound1.off()
-                self.box.sound2.off()
-                self.box.sound3.blink(on_time=.2, off_time=0.1)
+            self.box.sound1.off()
+            self.box.sound2.off()
+            self.box.sound3.blink(on_time=.2, off_time=0.1)
+        else:
+            self.box.sound1.blink(on_time=.2, off_time=0.1)
+            self.box.sound2.off()
+            self.box.sound3.off()
 
     def stimulus_A_on(self, play_sound=True) -> None:
         grating_name = 'vertical_grating_{}s.dat'.format(self.session_info['grating_duration'])
