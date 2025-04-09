@@ -1,7 +1,9 @@
 import RPi.GPIO as GPIO
 import time
+from datetime import datetime
 import threading
 import concurrent.futures
+
 
 # Set up GPIO mode
 GPIO.setmode(GPIO.BCM)
@@ -13,6 +15,7 @@ previous_state = GPIO.input(pin_flipper)
 
 
 class FlipperInput:
+
     def __init__(self, pin_number):
         self.pin_number = pin_number
         self.flip_state = GPIO.input(pin_number)
@@ -64,6 +67,7 @@ class FlipperInput:
     def flipper_callback(self):
         self._flipper_timestamps.append((self.flip_state, time.time()))
         print(self.flip_state, time.time())
+        print("UTC: {}".format(datetime.now()))
         # print(str(self._flipper_timestamps))
 
     def start_flipper_thread(self):
@@ -95,13 +99,12 @@ try:
         # do pseudo work
         time.sleep(1/60)  # 60 FPS
 
-        if time.perf_counter() - tstart >= 1:
-            print("Flipper timestamps: {}".format(flipper.get_flipper_timestamps()))
+        # if time.perf_counter() - tstart >= 1:
+            # print("Flipper timestamps: {}".format(flipper.get_flipper_timestamps()))
             # Wait for 20 milliseconds before checking again
-            time.sleep(0.02)
+            # time.sleep(0.02)
 
 except KeyboardInterrupt:
     # Clean up GPIO settings before exiting
     flipper.close_threads()
     GPIO.cleanup()
-

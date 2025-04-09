@@ -64,7 +64,7 @@ pin_flipper = 4
 GPIO.setup(pin_flipper, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
 #add event detection (both falling edge and rising edge) script to GPIO pin
-GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
+# GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
 
 #video output thread to save video file
 class VideoOutput(Thread):
@@ -105,6 +105,7 @@ class VideoOutput(Thread):
 
 #timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class TimestampOutput(object):
+
     def __init__(self, camera, video_filename, timestamp_filename, flipper_filename):
         self.camera = camera
         self._video = VideoOutput(video_filename)
@@ -198,6 +199,15 @@ class TimestampOutput(object):
             self.event_thread.join()
             self.event_thread = None
 
+    def start_flipper_thread(self):
+        if self.flip_thread is None:
+            self.flip_thread = Thread(target=self.GPIO_loop)
+            self.event_thread = Thread(target=self.event_loop)
+            self.event_thread.start()
+            self.flip_thread.start()
+        else:
+            print("Flipper thread already running")
+
 
 with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
     camera.brightness = BRIGHTNESS
@@ -221,8 +231,8 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
     camera.exposure_mode = 'off'
 
     output = TimestampOutput(camera, VIDEO_FILE_NAME, TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
-
-    GPIO.add_event_callback(pin_flipper, output.flipper_timestamps_write)
+    output.start_flipper_thread()
+    # GPIO.add_event_callback(pin_flipper, output.flipper_timestamps_write)
     try:
         camera.start_preview()
         time.sleep(1)
@@ -247,6 +257,7 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
                     last_frame = frame
 
     except Exception as e:
+        output.close_threads()
         camera.stop_recording()
         camera.stop_preview()
         print('Recording Stopped')
@@ -256,6 +267,7 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
         sys.exit(0)
 
     finally:
+        output.close_threads()
         camera.stop_recording()
         camera.stop_preview()
         print('Recording Stopped')
