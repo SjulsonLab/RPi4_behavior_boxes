@@ -102,6 +102,7 @@ class VideoOutput(Thread):
     def name(self):
         return self._output.name
 
+
 #timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class TimestampOutput(object):
     def __init__(self, camera, video_filename, timestamp_filename, flipper_filename):
@@ -111,6 +112,12 @@ class TimestampOutput(object):
         self._flipper_file = flipper_filename
         self._timestamps = []
         self._flipper_timestamps = []
+
+        self.flip_state = GPIO.input(pin_flipper)
+        self.flip_thread = None
+        self.event_thread = None
+        self.state_change = Event()
+        self._stop_flag = False
 
     def append_timestamps(self):
         self._timestamps.append((
@@ -149,8 +156,50 @@ class TimestampOutput(object):
     def close(self):
         self._video.close()
 
-with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
+    def GPIO_loop(self, bouncetime=100):
+        while True:
+            cur_state = GPIO.input(pin_flipper)
+            if cur_state != self.flip_state:
+                self.flip_state = cur_state
+                self.state_change.set()
+                time.sleep(bouncetime / 1000)  # Convert milliseconds to seconds
+            else:
+                self.state_change.clear()
+                time.sleep(.001)
 
+            if self._stop_flag:
+                print("Stopping GPIO loop")
+                break
+
+    def flipper_callback(self, pin_flipper):
+        input_state = GPIO.input(pin_flipper)
+        self._flipper_timestamps.append((input_state, time.time()))
+        #print(input_state, time.time())
+
+    def event_loop(self):
+        while True:
+            if self.state_change.is_set():
+                self.flipper_callback()
+                self.state_change.clear()
+            else:
+                time.sleep(0.001)
+
+            if self._stop_flag:
+                print("Stopping event loop")
+                break
+
+    def close_threads(self):
+        print("Closing threads")
+        self._stop_flag = True
+        if self.flip_thread is not None:
+            self.flip_thread.join()
+            self.flip_thread = None
+        if self.event_thread is not None:
+            self.event_thread.join()
+            self.event_thread = None
+
+
+with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
     camera.brightness = BRIGHTNESS
     camera.contrast = CONTRAST
     camera.sharpness = SHARPNESS
