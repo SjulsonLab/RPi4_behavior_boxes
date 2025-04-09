@@ -126,20 +126,23 @@ class TimestampOutput(object):
                 if self.camera.frame.timestamp != self._timestamps[-1][0]: # Ignore the 0 interval consecutive timestamp
                     self._timestamps.append((
                         self.camera.frame.timestamp,
-                        time.time(),
-                        time.clock_gettime(time.CLOCK_REALTIME)
+                        # time.time(),
+                        time.clock_gettime(time.CLOCK_REALTIME),
+                        dt.datetime.now(dt.timezone.utc).isoformat(timespec='microseconds')
                         ))
             else:
                 self._timestamps.append((
                     self.camera.frame.timestamp,
-                    time.time(),
-                    time.clock_gettime(time.CLOCK_REALTIME)
+                    # time.time(),
+                    time.clock_gettime(time.CLOCK_REALTIME),
+                    dt.datetime.now(dt.timezone.utc).isoformat(timespec='microseconds')
                     ))
         return self._video.write(buf)
 
     def flush(self):
         with io.open(self._timestampFile, 'w') as f:
-            f.write('GPU Times, time.time(), clock_realtime\n')
+            # f.write('GPU Times, time.time(), clock_realtime\n')
+            f.write('GPU Times, clock_realtime, UTC Time\n')
             for entry in self._timestamps:
                 f.write('%d,%f,%f\n' % entry)
         with io.open(self._flipper_file, 'w') as f:
