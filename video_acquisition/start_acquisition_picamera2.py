@@ -5,7 +5,8 @@ from gpiozero import Button
 import io
 import time
 import datetime as dt
-from picamera import PiCamera
+from picamera2 import Picamera2, Preview
+from picamera2.encoders import H264Encoder, Quality
 from threading import Thread, Event
 from queue import Queue, Empty
 import sys
@@ -194,67 +195,79 @@ class TimestampOutput(object):
         else:
             print("Flipper thread already running")
 
-with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
+camera = Picamera2()
+camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 
-    camera.brightness = BRIGHTNESS
-    camera.contrast = CONTRAST
-    camera.sharpness = SHARPNESS
-    camera.video_stabilization = VIDEO_STABILIZATION
-    camera.hflip = False
-    camera.vflip = False
+mode = camera.sensor_modes[1]
+camera.video_configuration.sensor.output_size = mode['size']
+camera.video_configuration.sensor.bit_depth = mode['bit_depth']
+camera.video_configuration.size = (640, 480) # defaults
+# camera.video_configuration.size = (1600, 1280)
+camera.video_configuration.align()
+camera.video_configuration.controls.FrameRate = 30.0
+camera.configure("video")
+print("Camera configuration aligned to {}".format(camera.video_configuration.size))
 
-    #warm-up time to camera to set its initial settings
-    time.sleep(2)
 
-    camera.exposure_mode = EXPOSURE_MODE
-    camera.awb_mode = AWB_MODE
-    camera.awb_gains = AWB_GAINS
+camera.brightness = BRIGHTNESS
+camera.contrast = CONTRAST
+camera.sharpness = SHARPNESS
+camera.video_stabilization = VIDEO_STABILIZATION
+camera.hflip = False
+camera.vflip = False
 
-    #time to let camera change parameters according to exposure and AWB
-    time.sleep(2)
+#warm-up time to camera to set its initial settings
+time.sleep(2)
 
-    #switch off the exposure since the camera has been set now
-    camera.exposure_mode = 'off'
+camera.exposure_mode = EXPOSURE_MODE
+camera.awb_mode = AWB_MODE
+camera.awb_gains = AWB_GAINS
 
-    output = TimestampOutput(camera, VIDEO_FILE_NAME, TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
-    output.start_flipper_thread()
-    try:
-        camera.start_preview()
-        time.sleep(1)
+#time to let camera change parameters according to exposure and AWB
+time.sleep(2)
 
-        # Construct an instance of our custom output splitter with a filename and a connected socket
-        print('Starting Recording')
-        camera.start_recording(output, format='h264')
-        print('Started Recording')
-        camera.annotate_text_size = 10
+#switch off the exposure since the camera has been set now
+camera.exposure_mode = 'off'
 
-        last_frame = 0
-        while True:
-            camera.wait_recording(0.005)
-            try:
-                frame = output._timestamps[-1][0]
-            except IndexError:  # if no frames are available yet
-                frame = None
-            if frame is not None:
-                if frame > last_frame:
-                    # a new frame was detected and the time stamp is not NONE
-                    camera.annotate_text = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
-                    last_frame = frame
+output = TimestampOutput(camera, VIDEO_FILE_NAME, TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
+output.start_flipper_thread()
+try:
+    camera.start_preview()
+    time.sleep(1)
 
-    except Exception as e:
-        camera.stop_recording()
-        camera.stop_preview()
-        print('Recording Stopped')
-        output.close()
-        print('Closing Output File')
-        print(e)
+    # Construct an instance of our custom output splitter with a filename and a connected socket
+    print('Starting Recording')
+    camera.start_recording(output, format='h264')
+    print('Started Recording')
+    camera.annotate_text_size = 10
 
-    finally:
-        camera.stop_recording()
-        camera.stop_preview()
-        print('Recording Stopped')
-        output.close()
-        print('Closing Output File')
-        print(e)
-        GPIO.cleanup()
-        sys.exit(0)
+    last_frame = 0
+    while True:
+        camera.wait_recording(0.005)
+        try:
+            frame = output._timestamps[-1][0]
+        except IndexError:  # if no frames are available yet
+            frame = None
+        if frame is not None:
+            if frame > last_frame:
+                # a new frame was detected and the time stamp is not NONE
+                camera.annotate_text = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
+                last_frame = frame
+
+except Exception as e:
+    camera.stop_recording()
+    camera.stop_preview()
+    print('Recording Stopped')
+    output.close()
+    print('Closing Output File')
+    print(e)
+
+finally:
+    camera.stop_recording()
+    camera.stop_preview()
+    print('Recording Stopped')
+    output.close()
+    print('Closing Output File')
+    print(e)
+    GPIO.cleanup()
+    sys.exit(0)
