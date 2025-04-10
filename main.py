@@ -44,7 +44,7 @@ logging.config.dictConfig({
 
 # import your task class here
 sys.path.insert(0,'./task_protocol')
-from essential.gui import PygameGUI as GUI
+from essential.gui import PygameGUI
 
 
 def confirm_options(session_info: dict) -> bool:
@@ -178,8 +178,10 @@ def main():
             ]
         )
 
-        box = behavbox.BehavBox(session_info=session_info)
-        gui = GUI(session_info=session_info)
+        box = behavbox.BehavBox(session_info=session_info)  # gets this far then quits
+        gui = PygameGUI(session_info=session_info)
+        # gui = GUI(session_info=session_info)
+
         pump = behavbox.Pump(session_info=session_info)
 
         ### allow different tasks to be loaded ###
@@ -268,11 +270,18 @@ def main():
         presenter.end_session()
 
     finally:
-        box.video_stop()  # double check that video is stopped
-        time.sleep(2)
+        if session_info['debug'] is False:
+            box.video_stop()
+            if session_info['visual_stimulus']:
+                box.visualstim.myscreen.close()
+            time.sleep(2)
 
-        box.transfer_files_to_external_storage()
+            box.transfer_files_to_external_storage()
+
+        pygame.display.quit()
         pygame.quit()
+        print("Exiting now...")
+        sys.exit()
 
 
 if __name__ == '__main__':

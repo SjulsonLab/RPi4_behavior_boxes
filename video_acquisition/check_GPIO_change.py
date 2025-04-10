@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
+import datetime as dt
 import threading
-import concurrent.futures
 
 # Set up GPIO mode
 GPIO.setmode(GPIO.BCM)
@@ -13,6 +13,7 @@ previous_state = GPIO.input(pin_flipper)
 
 
 class FlipperInput:
+
     def __init__(self, pin_number):
         self.pin_number = pin_number
         self.flip_state = GPIO.input(pin_number)
@@ -22,7 +23,6 @@ class FlipperInput:
         self.event_thread = None
         self._stop_flag = False
         self.state_change = threading.Event()
-        # GPIO.add_event_detect(pin_number, GPIO.BOTH, bouncetime=100)
 
     def get_flipper_timestamps(self):
         return self._flipper_timestamps
@@ -40,10 +40,13 @@ class FlipperInput:
                     print("GPIO pin is LOW")
                 self.flip_state = cur_state
                 self.state_change.set()
+                # alt - no extra threads
+                # self.flipper_callback()
+
                 time.sleep(bouncetime / 1000)  # Convert milliseconds to seconds
             else:
                 self.state_change.clear()
-                time.sleep(.001)  # Sleep for a short time to avoid busy waiting
+                time.sleep(.001)
 
             if self._stop_flag:
                 print("Stopping GPIO loop")
@@ -62,9 +65,9 @@ class FlipperInput:
                 break
 
     def flipper_callback(self):
-        self._flipper_timestamps.append((self.flip_state, time.time()))
-        print(self.flip_state, time.time())
-        # print(str(self._flipper_timestamps))
+        self._flipper_timestamps.append((self.flip_state, time.time(), dt.datetime.now(dt.timezone.utc).time()))
+        print("Flip state: {}; Timestamp: {}; UTC: {}".format(self._flipper_timestamps[-1][0], self._flipper_timestamps[-1][1],
+                                                              self._flipper_timestamps[-1][2]))
 
     def start_flipper_thread(self):
         if self.flip_thread is None:
@@ -92,16 +95,9 @@ try:
     flipper.start_flipper_thread()
     tstart = time.perf_counter()
     while True:
-        # do pseudo work
-        time.sleep(1/60)  # 60 FPS
-
-        if time.perf_counter() - tstart >= 1:
-            print("Flipper timestamps: {}".format(flipper.get_flipper_timestamps()))
-            # Wait for 20 milliseconds before checking again
-            time.sleep(0.02)
+        time.sleep(1/60)  # pretend 60 FPS
 
 except KeyboardInterrupt:
     # Clean up GPIO settings before exiting
     flipper.close_threads()
     GPIO.cleanup()
-

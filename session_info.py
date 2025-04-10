@@ -153,7 +153,6 @@ def sanity_checks(session_info: dict) -> dict:
     assert session_info['task_config'] in ['alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'], "Invalid task config, check your spelling!!"
     assert session_info['lick_input_setting'] in ['signal_high', 'signal_low'], "Invalid lick input setting"
     assert session_info['biased_side'] in ['left', 'right', 'none'], "Invalid biased side"
-    assert session_info['num_sounds'] in [1, 2], "Invalid number of sounds"
 
     if session_info['visual_stimulus']:
         assert session_info['vis_gratings'], "No visual stimuli specified"

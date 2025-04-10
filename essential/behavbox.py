@@ -200,9 +200,6 @@ class BehavBox(Box):
         self.lick2.when_released = presenter.right_exit
         self.lick3.when_released = presenter.center_exit
 
-    ###############################################################################################
-    # methods to start and stop video
-    ###############################################################################################
     def video_start(self):
         try:
             os.system("ssh pi@" + self.IP_address_video + " pkill python")
