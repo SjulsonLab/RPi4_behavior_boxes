@@ -63,9 +63,6 @@ pin_flipper = 4
 #set the pin as input pin
 GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-#add event detection (both falling edge and rising edge) script to GPIO pin
-# GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
-
 #video output thread to save video file
 class VideoOutput(Thread):
     def __init__(self, filename):
@@ -118,12 +115,6 @@ class TimestampOutput(object):
         self.state_change = Event()
         self._stop_flag = False
 
-    def flipper_timestamps_write(self, pin_flipper):
-        input_state = GPIO.input(pin_flipper)
-        GPIO.remove_event_detect(pin_flipper)
-        self._flipper_timestamps.append((input_state, time.time()))
-        GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
-
     def write(self, buf):
         if self.camera.frame.complete and self.camera.frame.timestamp is not None:
             if len(self._timestamps) > 0:
@@ -154,7 +145,7 @@ class TimestampOutput(object):
     def close(self):
         self._video.close()
 
-    def GPIO_loop(self, bouncetime=100):
+    def GPIO_loop(self, bouncetime=BOUNCETIME):
         while True:
             cur_state = GPIO.input(pin_flipper)
             if cur_state != self.flip_state:
@@ -169,10 +160,8 @@ class TimestampOutput(object):
                 print("Stopping GPIO loop")
                 break
 
-    def flipper_callback(self, pin_flipper):
-        input_state = GPIO.input(pin_flipper)
-        self._flipper_timestamps.append((input_state, time.time()))
-        # print(input_state, time.time())
+    def flipper_callback(self):
+        self._flipper_timestamps.append((self.flip_state, time.time()))
 
     def event_loop(self):
         while True:
@@ -228,8 +217,7 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
     camera.exposure_mode = 'off'
 
     output = TimestampOutput(camera, VIDEO_FILE_NAME, TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
-
-    # GPIO.add_event_callback(pin_flipper, output.flipper_timestamps_write)
+    output.start_flipper_thread()
     try:
         camera.start_preview()
         time.sleep(1)
@@ -260,7 +248,6 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
         output.close()
         print('Closing Output File')
         print(e)
-        sys.exit(0)
 
     finally:
         camera.stop_recording()
