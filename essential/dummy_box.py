@@ -72,6 +72,7 @@ class VisualStim(VisualStimBase):
         self.stimulus_commands = Queue()
         self.t_start = time.perf_counter()
         self.active_process = None
+        self.myscreen = None
 
     def stimulus_A_on(self) -> None:
         if self.active_process is not None and self.active_process.is_alive():

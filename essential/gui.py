@@ -1,3 +1,5 @@
+import sys
+
 import pygame
 import pygame.display
 from colorama import Fore, Style
@@ -6,10 +8,6 @@ import matplotlib
 matplotlib.use('module://pygame_matplotlib.backend_pygame')
 import matplotlib.pyplot as plt
 from essential.base_classes import GUI, PerformanceFigure
-
-
-RIGHT_IX = 0
-LEFT_IX = 1
 
 
 class LivePlot(PerformanceFigure):
@@ -30,8 +28,7 @@ class LivePlot(PerformanceFigure):
 class PygameGUI(GUI):
 
     def __init__(self, session_info: dict):
-
-        self.figure_window = LivePlot(RIGHT_IX, LEFT_IX)
+        self.figure_window = LivePlot(session_info['right_ix'], session_info['left_ix'])
         self.fig_name = session_info['buffer_dir'] + "/" + session_info['session_name'] + "/" + \
                         session_info['session_name'] + "_choice_plot" + '.png'
 
@@ -40,10 +37,10 @@ class PygameGUI(GUI):
         ###############################################################################################
         try:
             pygame.init()
+
             self.main_display = pygame.display.set_mode((800, 600))
             pygame.display.set_caption(session_info["box_name"])
             self.check_plot(self.figure_window.figure)
-
             print(
                 "\nKeystroke handler initiated. In order for keystrokes to register, the pygame window"
             )
@@ -61,6 +58,8 @@ class PygameGUI(GUI):
         except Exception as error_message:
             print("pygame issue\n")
             print(str(error_message))
+            pygame.display.quit()
+            pygame.quit()
 
     ###############################################################################################
     # check for data visualization - uses pygame window to show behavior progress
