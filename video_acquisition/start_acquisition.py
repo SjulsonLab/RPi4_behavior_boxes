@@ -172,9 +172,8 @@ class TimestampOutput(object):
                 print("Stopping GPIO loop")
                 break
 
-    def flipper_callback(self, pin_flipper):
-        input_state = GPIO.input(pin_flipper)
-        self._flipper_timestamps.append((input_state, time.time()))
+    def flipper_callback(self):
+        self._flipper_timestamps.append((self.flip_state, time.time()))
         #print(input_state, time.time())
 
     def event_loop(self):
