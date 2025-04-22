@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-#import the necessary modules
-from gpiozero import Button
 import io
 import time
 import datetime as dt
@@ -11,11 +9,10 @@ from picamera2.outputs import FileOutput
 import cv2
 from libcamera import controls
 from threading import Thread, Event
-from queue import Queue, Empty
 import sys
-import RPi.GPIO as GPIO
 import os
 import signal
+from pathlib import Path
 
 # this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
@@ -28,7 +25,7 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-base_path = sys.argv[1]
+base_folder = sys.argv[1]
 
 # set high thread priority - may require sudo access
 try:
@@ -52,9 +49,11 @@ BOUNCETIME = 100
 camId = str(0)
 
 #video, timestamps and ttl file name
-VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".h264"
-TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
-FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
+video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+
+VIDEO_FILE_NAME = Path(base_folder) / "cam" + camId + "_output_" + video_dt + ".h264"
+TIMESTAMP_FILE_NAME = Path(base_folder) / "cam" + camId + "_timestamp_" + video_dt + ".csv"
+FLIPPER_FILE_NAME = Path(base_folder) / "cam" + camId + "_flipper_" + video_dt + ".csv"
 
 #timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class SimFlipplerOutput(object):
@@ -119,7 +118,6 @@ class SimFlipplerOutput(object):
             self.flip_thread.join()
             self.flip_thread = None
             self.flush_flipper()
-
         if self.event_thread is not None:
             self.event_thread.join()
             self.event_thread = None
@@ -140,7 +138,6 @@ mode = camera.sensor_modes[1]
 camera.video_configuration.sensor.output_size = mode['size']
 camera.video_configuration.sensor.bit_depth = mode['bit_depth']
 camera.video_configuration.size = (640, 480) # defaults
-# camera.video_configuration.controls.FrameDurationLimits = (33333.33, 33333.33)
 # camera.video_configuration.size = (1600, 1280)
 camera.video_configuration.align()
 
@@ -155,7 +152,6 @@ camera.set_controls({
     "Saturation": SATURATION,
     "AeExposureMode": controls.AeExposureModeEnum.Normal, # try Normal and Long
     "AwbEnable": False,
-
 })
 camera.configure("video")
 print("Camera configuration aligned to {}".format(camera.video_configuration.size))
