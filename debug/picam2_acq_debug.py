@@ -14,8 +14,6 @@ import os
 import signal
 from pathlib import Path
 
-from video_acquisition.start_acquisition import TIMESTAMP_FILE_NAME
-
 
 # this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
@@ -54,9 +52,9 @@ camId = str(0)
 #video, timestamps and ttl file name
 video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
-VIDEO_FILE_NAME = Path(base_folder) / "cam{}_output_{}.h264".format(camId, video_dt)
-TIMESTAMP_FILE_NAME = Path(base_folder) / "cam{}_timestamp_{}.csv".format(camId, video_dt)
-FLIPPER_FILE_NAME = Path(base_folder) / "cam{}_flipper_{}.csv".format(camId, video_dt)
+VIDEO_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_output_{}.h264".format(camId, video_dt)).resolve())
+TIMESTAMP_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_timestamp_{}.csv".format(camId, video_dt)).resolve())
+FLIPPER_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_flipper_{}.csv".format(camId, video_dt)).resolve())
 
 #timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class SimFlipplerOutput(object):
@@ -133,6 +131,7 @@ class SimFlipplerOutput(object):
             self.flip_thread.start()
         else:
             print("Flipper thread already running")
+
 
 camera = Picamera2()
 camera.video_configuration.controls.FrameRate = 30.0
