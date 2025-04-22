@@ -150,14 +150,14 @@ class TimestampOutput(object):
             for entry in self._timestamps:
                 f.write('%d,%f,%f\n' % entry)
         with io.open(self._flipper_file, 'w') as f:
-            f.write('Input State, Timestamp\n')
+            f.write('Input State, Timestamp, UTC Time\n')
             for entry in self._flipper_timestamps:
-                f.write('%f,%f\n' % entry)
+                f.write('%f,%f,%f\n' % entry)
 
     def close(self):
         self._video.close()
 
-    def GPIO_loop(self, bouncetime=100):
+    def GPIO_loop(self, bouncetime=BOUNCETIME):
         while True:
             cur_state = GPIO.input(pin_flipper)
             if cur_state != self.flip_state:
@@ -172,10 +172,10 @@ class TimestampOutput(object):
                 print("Stopping GPIO loop")
                 break
 
-    def flipper_callback(self, pin_flipper):
-        input_state = GPIO.input(pin_flipper)
-        self._flipper_timestamps.append((input_state, time.time()))
-        #print(input_state, time.time())
+    def flipper_callback(self):
+        self._flipper_timestamps.append((self.flip_state,
+                                         time.time(),
+                                         dt.datetime.now(dt.timezone.utc).time()))
 
     def event_loop(self):
         while True:
@@ -242,7 +242,6 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
         camera.start_recording(output, format='h264')
         print('Started Recording')
         camera.annotate_text_size = 10
-
         last_frame = 0
         while True:
             camera.wait_recording(0.005)
@@ -264,7 +263,7 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
         output.close()
         print('Closing Output File')
         print(e)
-        sys.exit(0)
+        # sys.exit(0)
 
     finally:
         output.close_threads()

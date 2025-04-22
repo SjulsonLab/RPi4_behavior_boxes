@@ -5,7 +5,11 @@ from gpiozero import Button
 import io
 import time
 import datetime as dt
-from picamera import PiCamera
+from picamera2 import Picamera2, Preview, MappedArray
+from picamera2.encoders import H264Encoder, Quality
+from picamara2.outputs import FileOutput
+import cv2
+from libcamera import controls
 from threading import Thread, Event
 from queue import Queue, Empty
 import sys
@@ -36,14 +40,12 @@ except:
 WIDTH  = 640
 HEIGHT = 480
 FRAMERATE = 30
-VIDEO_STABILIZATION = True
-EXPOSURE_MODE = 'night'
-BRIGHTNESS = 55
-CONTRAST = 50
+BRIGHTNESS = .1  # 0:100 in Picam1, -1:1 in Picam2
+CONTRAST = 50 / 100
 SHARPNESS = 50
 SATURATION = 30
-AWB_MODE = 'off'
-AWB_GAINS = 1.4
+# AWB_MODE = 'off'
+# AWB_GAINS = 1.4
 
 #Flipper TTL Pulse BounceTme in milliseconds
 BOUNCETIME = 100
@@ -62,9 +64,6 @@ pin_flipper = 4
 
 #set the pin as input pin
 GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-#add event detection (both falling edge and rising edge) script to GPIO pin
-# GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
 
 #video output thread to save video file
 class VideoOutput(Thread):
@@ -104,6 +103,7 @@ class VideoOutput(Thread):
 
 #timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class TimestampOutput(object):
+
     def __init__(self, camera, video_filename, timestamp_filename, flipper_filename):
         self.camera = camera
         self._video = VideoOutput(video_filename)
@@ -118,27 +118,20 @@ class TimestampOutput(object):
         self.state_change = Event()
         self._stop_flag = False
 
-    def flipper_timestamps_write(self, pin_flipper):
-        input_state = GPIO.input(pin_flipper)
-        GPIO.remove_event_detect(pin_flipper)
-        self._flipper_timestamps.append((input_state, time.time()))
-        GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
+    def append_timestamps(self):
+        self._timestamps.append((
+            self.camera.frame.timestamp,
+            time.clock_gettime(time.CLOCK_REALTIME),
+            dt.datetime.now(dt.timezone.utc).time()
+            ))
 
     def write(self, buf):
         if self.camera.frame.complete and self.camera.frame.timestamp is not None:
             if len(self._timestamps) > 0:
                 if self.camera.frame.timestamp != self._timestamps[-1][0]: # Ignore the 0 interval consecutive timestamp
-                    self._timestamps.append((
-                        self.camera.frame.timestamp,
-                        time.clock_gettime(time.CLOCK_REALTIME),
-                        dt.datetime.now(dt.timezone.utc).time()
-                        ))
+                    self.append_timestamps()
             else:
-                self._timestamps.append((
-                    self.camera.frame.timestamp,
-                    time.clock_gettime(time.CLOCK_REALTIME),
-                    dt.datetime.now(dt.timezone.utc).time()
-                    ))
+                self.append_timestamps()
         return self._video.write(buf)
 
     def flush(self):
@@ -147,14 +140,14 @@ class TimestampOutput(object):
             for entry in self._timestamps:
                 f.write('%d,%f,%f\n' % entry)
         with io.open(self._flipper_file, 'w') as f:
-            f.write('Input State, Timestamp\n')
+            f.write('Input State, time.time(), UTC Time\n')
             for entry in self._flipper_timestamps:
-                f.write('%f,%f\n' % entry)
+                f.write('%f,%f,%f\n' % entry)
 
     def close(self):
         self._video.close()
 
-    def GPIO_loop(self, bouncetime=100):
+    def GPIO_loop(self, bouncetime=BOUNCETIME):
         while True:
             cur_state = GPIO.input(pin_flipper)
             if cur_state != self.flip_state:
@@ -169,10 +162,10 @@ class TimestampOutput(object):
                 print("Stopping GPIO loop")
                 break
 
-    def flipper_callback(self, pin_flipper):
-        input_state = GPIO.input(pin_flipper)
-        self._flipper_timestamps.append((input_state, time.time()))
-        # print(input_state, time.time())
+    def flipper_callback(self):
+        self._flipper_timestamps.append((self.flip_state,
+                                         time.time(),
+                                         dt.datetime.now(dt.timezone.utc).time()))
 
     def event_loop(self):
         while True:
@@ -205,69 +198,92 @@ class TimestampOutput(object):
         else:
             print("Flipper thread already running")
 
-with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
+camera = Picamera2()
 
-    camera.brightness = BRIGHTNESS
-    camera.contrast = CONTRAST
-    camera.sharpness = SHARPNESS
-    camera.video_stabilization = VIDEO_STABILIZATION
-    camera.hflip = False
-    camera.vflip = False
+mode = camera.sensor_modes[1]
+camera.video_configuration.sensor.output_size = mode['size']
+camera.video_configuration.sensor.bit_depth = mode['bit_depth']
+camera.video_configuration.size = (640, 480) # defaults
+# camera.video_configuration.size = (1600, 1280)
+camera.video_configuration.align()
+camera.video_configuration.controls.FrameRate = 30.0
 
-    #warm-up time to camera to set its initial settings
-    time.sleep(2)
+# Picam2 has brightness, contrast, sharpness, saturation, exposure modes, awb_mode
+# Picam2 does not have an image stabilization option
+# hflip and vflip are Transforms now, both default to False
 
-    camera.exposure_mode = EXPOSURE_MODE
-    camera.awb_mode = AWB_MODE
-    camera.awb_gains = AWB_GAINS
+camera.set_controls({
+    "Brightness": BRIGHTNESS,
+    "Contrast": CONTRAST,
+    "Sharpness": SHARPNESS,
+    "Saturation": SATURATION,
+    "AeExposureMode": controls.AeExposureModeEnum.Normal, # try Normal and Long
+    "AwbEnable": False,
+})
+camera.configure("video")
+print("Camera configuration aligned to {}".format(camera.video_configuration.size))
 
-    #time to let camera change parameters according to exposure and AWB
-    time.sleep(2)
+# warm-up time to camera to set its initial settings
+time.sleep(2)
+# switch off auto exposure adjustments since the camera has been set now
+camera.set_controls({'AeEnable': False})
 
-    #switch off the exposure since the camera has been set now
-    camera.exposure_mode = 'off'
+# overlay text for preview window timestamps
+# colour = (0, 255, 0)
+colour = (255, 255, 255)  # white
+origin = (0, 30)
+font = cv2.FONT_HERSHEY_SIMPLEX
+scale = 1
+thickness = 2
 
-    output = TimestampOutput(camera, VIDEO_FILE_NAME, TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
+def apply_timestamp(request):
+    timestamp = dt.datetime.now().strftime("%H:%M:%S.%f")
+    # timestamp = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
+    with MappedArray(request, "main") as m:
+        cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
 
-    # GPIO.add_event_callback(pin_flipper, output.flipper_timestamps_write)
-    try:
-        camera.start_preview()
-        time.sleep(1)
+camera.pre_callback = apply_timestamp
+camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 
-        # Construct an instance of our custom output splitter with a filename and a connected socket
-        print('Starting Recording')
-        camera.start_recording(output, format='h264')
-        print('Started Recording')
-        camera.annotate_text_size = 10
+buffer = io.open(VIDEO_FILE_NAME, 'wb', buffering=0)
+output = FileOutput(file=buffer, pts=TIMESTAMP_FILE_NAME)
 
-        last_frame = 0
-        while True:
-            camera.wait_recording(0.005)
-            try:
-                frame = output._timestamps[-1][0]
-            except IndexError:  # if no frames are available yet
-                frame = None
-            if frame is not None:
-                if frame > last_frame:
-                    # a new frame was detected and the time stamp is not NONE
-                    camera.annotate_text = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
-                    last_frame = frame
 
-    except Exception as e:
-        camera.stop_recording()
-        camera.stop_preview()
-        print('Recording Stopped')
-        output.close()
-        print('Closing Output File')
-        print(e)
-        sys.exit(0)
+output = TimestampOutput(camera, VIDEO_FILE_NAME, TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
+output.start_flipper_thread()
+try:
+    time.sleep(1)
+    print('Starting Recording')
+    encoder = H264Encoder()
+    camera.start_recording(encoder, output)
+    print('Started Recording')
+    # camera.annotate_text_size = 10
 
-    finally:
-        camera.stop_recording()
-        camera.stop_preview()
-        print('Recording Stopped')
-        output.close()
-        print('Closing Output File')
-        print(e)
-        GPIO.cleanup()
-        sys.exit(0)
+    last_frame = 0
+    while True:
+        camera.wait_recording(0.005)
+        try:
+            frame = output._timestamps[-1][0]
+        except IndexError:  # if no frames are available yet
+            frame = None
+        if frame is not None and frame > last_frame:
+            camera.annotate_text = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
+            last_frame = frame
+
+except Exception as e:
+    camera.stop_recording()
+    camera.stop_preview()
+    print('Recording Stopped')
+    output.close()
+    print('Closing Output File')
+    print(e)
+
+finally:
+    camera.stop_recording()
+    camera.stop_preview()
+    print('Recording Stopped')
+    output.close()
+    print('Closing Output File')
+    print(e)
+    GPIO.cleanup()
+    sys.exit(0)
