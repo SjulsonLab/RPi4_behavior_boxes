@@ -14,6 +14,9 @@ import os
 import signal
 from pathlib import Path
 
+from video_acquisition.start_acquisition import TIMESTAMP_FILE_NAME
+
+
 # this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
     print("SIGINT detected")
@@ -51,9 +54,9 @@ camId = str(0)
 #video, timestamps and ttl file name
 video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
-VIDEO_FILE_NAME = Path(base_folder) / "cam" + camId + "_output_" + video_dt + ".h264"
-TIMESTAMP_FILE_NAME = Path(base_folder) / "cam" + camId + "_timestamp_" + video_dt + ".csv"
-FLIPPER_FILE_NAME = Path(base_folder) / "cam" + camId + "_flipper_" + video_dt + ".csv"
+VIDEO_FILE_NAME = Path(base_folder) / "cam{}_output_{}.h264".format(camId, video_dt)
+TIMESTAMP_FILE_NAME = Path(base_folder) / "cam{}_timestamp_{}.csv".format(camId, video_dt)
+FLIPPER_FILE_NAME = Path(base_folder) / "cam{}_flipper_{}.csv".format(camId, video_dt)
 
 #timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class SimFlipplerOutput(object):
