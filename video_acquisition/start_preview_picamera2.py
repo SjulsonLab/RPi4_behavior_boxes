@@ -3,9 +3,10 @@
 import signal
 import numpy as np
 import sys
-from picamera2 import Picamera2, Preview
+from picamera2 import Picamera2, Preview, MappedArray
 import cv2
 import time
+import datetime as dt
 
 def signal_handler(signum, frame):
     print("SIGINT detected")
@@ -31,11 +32,19 @@ camera.configure("preview")
 print("Camera configuration aligned to {}".format(camera.preview_configuration.size))
 time.sleep(2)  # let the camera warm up/autofocus
 
-# colour = (0, 255, 0, 255)
-# origin = (0, 30)
-# font = cv2.FONT_HERSHEY_SIMPLEX
-# scale = 1
-# thickness = 2
+colour = (255, 255, 255)  # white
+origin = (0, 30)
+font = cv2.FONT_HERSHEY_SIMPLEX
+scale = 1
+thickness = 2
+
+def apply_timestamp(request):
+    timestamp = dt.datetime.now().strftime("%H:%M:%S.%f")
+    with MappedArray(request, "main") as m:
+        cv2.putText(m.array, 'PREVIEW ONLY; {}'.format(timestamp), origin, font, scale, colour, thickness)
+
+camera.pre_callback = apply_timestamp
+
 # overlay = np.zeros((640, 480, 4), dtype=np.uint8)
 # cv2.putText(overlay, "PREVIEW ONLY", origin, font, scale, colour, thickness)
 # camera.set_overlay(overlay)

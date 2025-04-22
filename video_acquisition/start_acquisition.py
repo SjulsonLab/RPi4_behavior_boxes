@@ -150,9 +150,9 @@ class TimestampOutput(object):
             for entry in self._timestamps:
                 f.write('%d,%f,%f\n' % entry)
         with io.open(self._flipper_file, 'w') as f:
-            f.write('Input State, Timestamp\n')
+            f.write('Input State, Timestamp, UTC Time\n')
             for entry in self._flipper_timestamps:
-                f.write('%f,%f\n' % entry)
+                f.write('%f,%f,%f\n' % entry)
 
     def close(self):
         self._video.close()
@@ -173,8 +173,9 @@ class TimestampOutput(object):
                 break
 
     def flipper_callback(self):
-        self._flipper_timestamps.append((self.flip_state, time.time()))
-        #print(input_state, time.time())
+        self._flipper_timestamps.append((self.flip_state,
+                                         time.time(),
+                                         dt.datetime.now(dt.timezone.utc).time()))
 
     def event_loop(self):
         while True:

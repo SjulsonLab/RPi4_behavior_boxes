@@ -56,100 +56,33 @@ VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output_" + str(dt.datetime.now(
 TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
 FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".csv"
 
-#set raspberry pi board layout to BCM
-GPIO.setmode(GPIO.BCM)
-
-#pin number to receive TTL input
-pin_flipper = 4
-
-#set the pin as input pin
-GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-#video output thread to save video file
-class VideoOutput(Thread):
-    def __init__(self, filename):
-        super(VideoOutput, self).__init__()
-        self._output = io.open(filename, 'wb', buffering=0)
-        self._event = Event()
-        self._queue = Queue()
-        self.start()
-
-    def write(self, buf):
-        self._queue.put(buf)
-        return len(buf)
-
-    def run(self):
-        while not self._event.wait(0):
-            try:
-                buf = self._queue.get(timeout=0.1)
-            except Empty:
-                pass
-            else:
-                self._output.write(buf)
-                self._queue.task_done()
-
-    def flush(self):
-        self._queue.join()
-        self._output.flush()
-
-    def close(self):
-        self._event.set()
-        self.join()
-        self._output.close()
-
-    @property
-    def name(self):
-        return self._output.name
-
 #timestamp output object to save timestamps according to pi and TTL inputs received and write to file
-class TimestampOutput(object):
+class SimFlipplerOutput(object):
 
-    def __init__(self, camera, video_filename, timestamp_filename, flipper_filename):
-        self.camera = camera
-        self._video = VideoOutput(video_filename)
-        self._timestampFile = timestamp_filename
+    def __init__(self, flipper_filename):
         self._flipper_file = flipper_filename
-        self._timestamps = []
         self._flipper_timestamps = []
 
-        self.flip_state = GPIO.input(pin_flipper)
+        self.flip_state = False
         self.flip_thread = None
         self.event_thread = None
         self.state_change = Event()
         self._stop_flag = False
 
-    def append_timestamps(self):
-        self._timestamps.append((
-            self.camera.frame.timestamp,
-            time.clock_gettime(time.CLOCK_REALTIME),
-            dt.datetime.now(dt.timezone.utc).time()
-            ))
-
-    def write(self, buf):
-        if self.camera.frame.complete and self.camera.frame.timestamp is not None:
-            if len(self._timestamps) > 0:
-                if self.camera.frame.timestamp != self._timestamps[-1][0]: # Ignore the 0 interval consecutive timestamp
-                    self.append_timestamps()
-            else:
-                self.append_timestamps()
-        return self._video.write(buf)
-
-    def flush(self):
-        with io.open(self._timestampFile, 'w') as f:
-            f.write('GPU Times, clock_realtime, UTC Time\n')
-            for entry in self._timestamps:
-                f.write('%d,%f,%f\n' % entry)
+    def flush_flipper(self):
         with io.open(self._flipper_file, 'w') as f:
             f.write('Input State, time.time(), UTC Time\n')
             for entry in self._flipper_timestamps:
                 f.write('%f,%f,%f\n' % entry)
 
-    def close(self):
-        self._video.close()
-
-    def GPIO_loop(self, bouncetime=BOUNCETIME):
+    def flip_loop(self, bouncetime=BOUNCETIME):
+        cur_state = self.flip_state
+        tstart = time.time()
         while True:
-            cur_state = GPIO.input(pin_flipper)
+            if time.time() - tstart > 1:
+                cur_state = not self.flip_state
+                tstart = time.time()
+
             if cur_state != self.flip_state:
                 self.flip_state = cur_state
                 self.state_change.set()
@@ -179,19 +112,21 @@ class TimestampOutput(object):
                 print("Stopping event loop")
                 break
 
-    def close_threads(self):
+    def close(self):
         print("Closing threads")
         self._stop_flag = True
         if self.flip_thread is not None:
             self.flip_thread.join()
             self.flip_thread = None
+            self.flush_flipper()
+
         if self.event_thread is not None:
             self.event_thread.join()
             self.event_thread = None
 
     def start_flipper_thread(self):
         if self.flip_thread is None:
-            self.flip_thread = Thread(target=self.GPIO_loop)
+            self.flip_thread = Thread(target=self.flip_loop)
             self.event_thread = Thread(target=self.event_loop)
             self.event_thread.start()
             self.flip_thread.start()
@@ -245,45 +180,35 @@ def apply_timestamp(request):
 camera.pre_callback = apply_timestamp
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 
-buffer = io.open(VIDEO_FILE_NAME, 'wb', buffering=0)
-output = FileOutput(file=buffer, pts=TIMESTAMP_FILE_NAME)
-
-
-output = TimestampOutput(camera, VIDEO_FILE_NAME, TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
-output.start_flipper_thread()
-try:
-    time.sleep(1)
+with io.open(VIDEO_FILE_NAME, 'wb', buffering=0) as buffer:
+    # Construct an instance of our custom output splitter with a filename and a connected socket
     print('Starting Recording')
     encoder = H264Encoder()
-    camera.start_recording(encoder, output)
+    camera.start_recording(encoder, buffer, format='h264')
     print('Started Recording')
-    # camera.annotate_text_size = 10
+    output = FileOutput(file=buffer, pts=TIMESTAMP_FILE_NAME)
 
-    last_frame = 0
-    while True:
-        camera.wait_recording(0.005)
-        try:
-            frame = output._timestamps[-1][0]
-        except IndexError:  # if no frames are available yet
-            frame = None
-        if frame is not None and frame > last_frame:
-            camera.annotate_text = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
-            last_frame = frame
+    flipper = SimFlipplerOutput(FLIPPER_FILE_NAME)
+    flipper.start_flipper_thread()
+    try:
+        time.sleep(1)
+        print('Starting Recording')
+        encoder = H264Encoder()
+        camera.start_recording(encoder, output)
+        print('Started Recording')
 
-except Exception as e:
-    camera.stop_recording()
-    camera.stop_preview()
-    print('Recording Stopped')
-    output.close()
-    print('Closing Output File')
-    print(e)
+    except Exception as e:
+        camera.stop_recording()
+        camera.stop_preview()
+        flipper.close()
+        print('Recording Stopped')
+        print(e)
 
-finally:
-    camera.stop_recording()
-    camera.stop_preview()
-    print('Recording Stopped')
-    output.close()
-    print('Closing Output File')
-    print(e)
-    GPIO.cleanup()
-    sys.exit(0)
+    finally:
+        camera.stop_recording()
+        camera.stop_preview()
+        flipper.close()
+        print('Recording Stopped')
+        print(e)
+        GPIO.cleanup()
+        sys.exit(0)
