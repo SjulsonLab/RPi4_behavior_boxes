@@ -175,7 +175,7 @@ class TimestampOutput(object):
     def flipper_callback(self):
         self._flipper_timestamps.append((self.flip_state,
                                          time.time(),
-                                         dt.datetime.now(dt.timezone.utc).time()))
+                                         dt.datetime.now(dt.timezone.utc).timestamp()))
 
     def event_loop(self):
         while True:
