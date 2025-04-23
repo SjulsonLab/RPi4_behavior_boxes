@@ -26,7 +26,6 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-base_folder = sys.argv[1]
 
 # set high thread priority - may require sudo access
 try:
@@ -134,27 +133,42 @@ class SimFlipplerOutput(object):
 
 
 camera = Picamera2()
-camera.video_configuration.controls.FrameRate = 30.0
-
 mode = camera.sensor_modes[1]
-camera.video_configuration.sensor.output_size = mode['size']
-camera.video_configuration.sensor.bit_depth = mode['bit_depth']
-camera.video_configuration.size = (640, 480) # defaults
+config = camera.create_video_configuration(
+    sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']},
+    main={"size": (640, 480)},
+    controls={'FrameDurationLimits': (33333, 33333),
+              'ExposureTime': 33333,
+              'AnalogueGain': 1.0,
+              'AwbEnable': False,
+              # 'AwbMode': controls.AwbModeEnum.Off,
+              'AeExposureMode': controls.AeExposureModeEnum.Normal,
+              "Brightness": BRIGHTNESS,
+              "Contrast": CONTRAST,
+              "Sharpness": SHARPNESS,
+              "Saturation": SATURATION}
+)
+camera.align_configuration(config)
+
+# camera.video_configuration.controls.FrameRate = 30.0
+# camera.video_configuration.sensor.output_size = mode['size']
+# camera.video_configuration.sensor.bit_depth = mode['bit_depth']
+# camera.video_configuration.size = (640, 480) # defaults
 # camera.video_configuration.size = (1600, 1280)
-camera.video_configuration.align()
+# camera.video_configuration.align()
 
 # Picam2 has brightness, contrast, sharpness, saturation, exposure modes, awb_mode
 # Picam2 does not have an image stabilization option
 # hflip and vflip are Transforms now, both default to False
 
-camera.set_controls({
-    "Brightness": BRIGHTNESS,
-    "Contrast": CONTRAST,
-    "Sharpness": SHARPNESS,
-    "Saturation": SATURATION,
-    "AeExposureMode": controls.AeExposureModeEnum.Normal, # try Normal and Long
-    "AwbEnable": False,
-})
+# camera.set_controls({
+#     "Brightness": BRIGHTNESS,
+#     "Contrast": CONTRAST,
+#     "Sharpness": SHARPNESS,
+#     "Saturation": SATURATION,
+#     "AeExposureMode": controls.AeExposureModeEnum.Normal, # try Normal and Long
+#     "AwbEnable": False
+# })
 camera.configure("video")
 print("Camera configuration aligned to {}".format(camera.video_configuration.size))
 
