@@ -71,9 +71,9 @@ class SimFlipplerOutput(object):
         self.state_change = Event()
         self._stop_flag = False
 
-    def flush_flipper(self):
+    def flush(self):
         with io.open(self._timestampFile, 'w') as f:
-            f.write('time.time(), clock_realtime\n')
+            f.write('Sensor Timestamp (ms), time.time()\n')
             for entry in self._timestamps:
                 f.write('%f,%f\n' % entry)
 
@@ -125,7 +125,8 @@ class SimFlipplerOutput(object):
         if self.flip_thread is not None:
             self.flip_thread.join()
             self.flip_thread = None
-            self.flush_flipper()
+            self.flush()
+
         if self.event_thread is not None:
             self.event_thread.join()
             self.event_thread = None
@@ -146,16 +147,13 @@ config = camera.create_video_configuration(
     sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']},
     main={"size": (640, 480)},
     controls={'FrameDurationLimits': (33333, 33333),
-              'ExposureTime': 33333,
-              'AnalogueGain': 1.0,
-              'AwbEnable': False,
-              'AeExposureMode': controls.AeExposureModeEnum.Normal,}
-              # 'AwbMode': controls.AwbModeEnum.Off,
+              #'AwbEnable': False,
+              #'AeExposureMode': controls.AeExposureModeEnum.Normal,
               # "Brightness": BRIGHTNESS,
               # "Contrast": CONTRAST,
               # "Sharpness": SHARPNESS,
               # "Saturation": SATURATION}
-)
+})
 camera.align_configuration(config)
 
 # camera.video_configuration.controls.FrameRate = 30.0
@@ -177,14 +175,17 @@ camera.align_configuration(config)
 #     "AeExposureMode": controls.AeExposureModeEnum.Normal, # try Normal and Long
 #     "AwbEnable": False
 # })
+
 camera.configure("video")
 print("Camera configuration aligned to {}".format(camera.video_configuration.size))
-print("Current framerate: {}".format(camera.video_configuration.controls.FrameRate))
+# print("Current framerate: {}".format(camera.video_configuration.controls.FrameRate))
 
 # warm-up time to camera to set its initial settings
 time.sleep(2)
 # switch off auto exposure adjustments since the camera has been set now
-camera.set_controls({'AeEnable': False})
+camera.set_controls({'AeEnable': False,
+                    # 'FrameDurationLimits': (33333, 33333)
+                     })
 
 # overlay text for preview window timestamps
 # colour = (0, 255, 0)
@@ -194,20 +195,21 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 scale = 1
 thickness = 2
 
-flipper = SimFlipplerOutput(FLIPPER_FILE_NAME)
+flipper = SimFlipplerOutput(FLIPPER_FILE_NAME, TIMESTAMP_FILE_NAME)
 def apply_timestamp(request):
     meta = request.get_metadata()
     flipper._timestamps.append((
-        meta['SensorTimestamp'] / 1e3,  # convert ns to us
-        time.time(),
-        dt.datetime.now(dt.timezone.utc).timestamp()
+        meta['SensorTimestamp'] / 1e3,
+        time.time()
     ))
 
     timestamp = dt.datetime.now().strftime("%H:%M:%S.%f")
+    framerate = 1e6 / meta['FrameDuration']
+    txt = '{}; {} fps'.format(timestamp, framerate)
     # timestamp = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
     with MappedArray(request, "main") as m:
-        cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
-
+        # cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
+        cv2.putText(m.array, txt, origin, font, scale, colour, thickness)
 
 camera.pre_callback = apply_timestamp
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
