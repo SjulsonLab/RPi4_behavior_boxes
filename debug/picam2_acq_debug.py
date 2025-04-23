@@ -58,9 +58,12 @@ FLIPPER_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_flipper_{}.csv".format(
 #timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class SimFlipplerOutput(object):
 
-    def __init__(self, flipper_filename):
+    def __init__(self, flipper_filename, timestamp_filename):
         self._flipper_file = flipper_filename
         self._flipper_timestamps = []
+
+        self._timestampFile = timestamp_filename
+        self._timestamps = []
 
         self.flip_state = False
         self.flip_thread = None
@@ -69,6 +72,11 @@ class SimFlipplerOutput(object):
         self._stop_flag = False
 
     def flush_flipper(self):
+        with io.open(self._timestampFile, 'w') as f:
+            f.write('time.time(), clock_realtime\n')
+            for entry in self._timestamps:
+                f.write('%f,%f\n' % entry)
+
         with io.open(self._flipper_file, 'w') as f:
             f.write('Input State, time.time(), UTC Time\n')
             for entry in self._flipper_timestamps:
@@ -141,12 +149,12 @@ config = camera.create_video_configuration(
               'ExposureTime': 33333,
               'AnalogueGain': 1.0,
               'AwbEnable': False,
+              'AeExposureMode': controls.AeExposureModeEnum.Normal,}
               # 'AwbMode': controls.AwbModeEnum.Off,
-              'AeExposureMode': controls.AeExposureModeEnum.Normal,
-              "Brightness": BRIGHTNESS,
-              "Contrast": CONTRAST,
-              "Sharpness": SHARPNESS,
-              "Saturation": SATURATION}
+              # "Brightness": BRIGHTNESS,
+              # "Contrast": CONTRAST,
+              # "Sharpness": SHARPNESS,
+              # "Saturation": SATURATION}
 )
 camera.align_configuration(config)
 
@@ -171,6 +179,7 @@ camera.align_configuration(config)
 # })
 camera.configure("video")
 print("Camera configuration aligned to {}".format(camera.video_configuration.size))
+print("Current framerate: {}".format(camera.video_configuration.controls.FrameRate))
 
 # warm-up time to camera to set its initial settings
 time.sleep(2)
@@ -185,23 +194,29 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 scale = 1
 thickness = 2
 
+flipper = SimFlipplerOutput(FLIPPER_FILE_NAME)
 def apply_timestamp(request):
+    meta = request.get_metadata()
+    flipper._timestamps.append((
+        meta['SensorTimestamp'] / 1e3,  # convert ns to us
+        time.time(),
+        dt.datetime.now(dt.timezone.utc).timestamp()
+    ))
+
     timestamp = dt.datetime.now().strftime("%H:%M:%S.%f")
     # timestamp = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
     with MappedArray(request, "main") as m:
         cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
 
+
 camera.pre_callback = apply_timestamp
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
-flipper = SimFlipplerOutput(FLIPPER_FILE_NAME)
+
 flipper.start_flipper_thread()
 
 with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
-    # Construct an instance of our custom output splitter with a filename and a connected socket
-    print('Starting Recording')
     encoder = H264Encoder()
-    output = FileOutput(file=buffer, pts=TIMESTAMP_FILE_NAME)
-    print('Started Recording')
+    output = FileOutput(file=buffer)#, pts=TIMESTAMP_FILE_NAME)
 
 # encoder = H264Encoder()
 # output = FileOutput(file=VIDEO_FILE_NAME, pts=TIMESTAMP_FILE_NAME)
