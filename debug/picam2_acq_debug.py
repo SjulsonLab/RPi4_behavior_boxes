@@ -37,10 +37,10 @@ except:
 WIDTH  = 640
 HEIGHT = 480
 FRAMERATE = 30
-BRIGHTNESS = .1  # 0:100 in Picam1, -1:1 in Picam2
-CONTRAST = 50 / 100
-SHARPNESS = 50
-SATURATION = 30
+BRIGHTNESS = 0  # 0:100 in Picam1, -1:1 in Picam2
+CONTRAST = 1  # 50 / 100
+SHARPNESS = 1  # 50
+SATURATION = 1  # 30
 # AWB_MODE = 'off'
 # AWB_GAINS = 1.4
 
@@ -73,12 +73,12 @@ class SimFlipplerOutput(object):
 
     def flush(self):
         with io.open(self._timestampFile, 'w') as f:
-            f.write('Sensor Timestamp (ms), time.time()\n')
+            f.write('Sensor Timestamp (ns), time.time(), time.perf_counter_ns()\n')
             for entry in self._timestamps:
-                f.write('%f,%f\n' % entry)
+                f.write('%f,%f,%f\n' % entry)
 
         with io.open(self._flipper_file, 'w') as f:
-            f.write('Input State, time.time(), UTC Time\n')
+            f.write('Input State, time.time(), time.perf_counter_ns()\n')
             for entry in self._flipper_timestamps:
                 f.write('%f,%f,%f\n' % entry)
 
@@ -105,7 +105,7 @@ class SimFlipplerOutput(object):
     def flipper_callback(self):
         self._flipper_timestamps.append((self.flip_state,
                                          time.time(),
-                                         dt.datetime.now(dt.timezone.utc).timestamp()))
+                                         time.perf_counter_ns()))
 
     def event_loop(self):
         while True:
@@ -140,6 +140,21 @@ class SimFlipplerOutput(object):
         else:
             print("Flipper thread already running")
 
+    def apply_timestamp(self, request):
+        meta = request.get_metadata()
+        self._timestamps.append((
+            meta['SensorTimestamp'],
+            time.time(),
+            time.perf_counter_ns()
+        ))
+
+        # framerate = 1e6 / meta['FrameDuration']
+        # txt = '{:.3f}; {:.2f} fps'.format(meta['SensorTimestamp'] / 1e9, framerate)
+        timestamp = dt.datetime.now().strftime("%H:%M:%S.%f")
+        txt = '{:.3f}; {} fps'.format(meta['SensorTimestamp'] / 1e9, timestamp)
+        with MappedArray(request, "main") as m:
+            cv2.putText(m.array, txt, origin, font, scale, colour, thickness)
+
 
 camera = Picamera2()
 mode = camera.sensor_modes[1]
@@ -147,48 +162,17 @@ config = camera.create_video_configuration(
     sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']},
     main={"size": (640, 480)},
     controls={'FrameDurationLimits': (33333, 33333),
-              #'AwbEnable': False,
-              #'AeExposureMode': controls.AeExposureModeEnum.Normal,
-              # "Brightness": BRIGHTNESS,
-              # "Contrast": CONTRAST,
-              # "Sharpness": SHARPNESS,
-              # "Saturation": SATURATION}
+              'AeExposureMode': controls.AeExposureModeEnum.Normal,
+              "Brightness": BRIGHTNESS,
+              "Contrast": CONTRAST,
+              "Sharpness": SHARPNESS,
+              "Saturation": SATURATION
 })
 camera.align_configuration(config)
-
-# camera.video_configuration.controls.FrameRate = 30.0
-# camera.video_configuration.sensor.output_size = mode['size']
-# camera.video_configuration.sensor.bit_depth = mode['bit_depth']
-# camera.video_configuration.size = (640, 480) # defaults
-# camera.video_configuration.size = (1600, 1280)
-# camera.video_configuration.align()
-
-# Picam2 has brightness, contrast, sharpness, saturation, exposure modes, awb_mode
-# Picam2 does not have an image stabilization option
-# hflip and vflip are Transforms now, both default to False
-
-# camera.set_controls({
-#     "Brightness": BRIGHTNESS,
-#     "Contrast": CONTRAST,
-#     "Sharpness": SHARPNESS,
-#     "Saturation": SATURATION,
-#     "AeExposureMode": controls.AeExposureModeEnum.Normal, # try Normal and Long
-#     "AwbEnable": False
-# })
-
-camera.configure("video")
+camera.configure(config)
 print("Camera configuration aligned to {}".format(camera.video_configuration.size))
-# print("Current framerate: {}".format(camera.video_configuration.controls.FrameRate))
-
-# warm-up time to camera to set its initial settings
-time.sleep(2)
-# switch off auto exposure adjustments since the camera has been set now
-camera.set_controls({'AeEnable': False,
-                    # 'FrameDurationLimits': (33333, 33333)
-                     })
 
 # overlay text for preview window timestamps
-# colour = (0, 255, 0)
 colour = (255, 255, 255)  # white
 origin = (0, 30)
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -196,37 +180,22 @@ scale = 1
 thickness = 2
 
 flipper = SimFlipplerOutput(FLIPPER_FILE_NAME, TIMESTAMP_FILE_NAME)
-def apply_timestamp(request):
-    meta = request.get_metadata()
-    flipper._timestamps.append((
-        meta['SensorTimestamp'] / 1e3,
-        time.time()
-    ))
-
-    timestamp = dt.datetime.now().strftime("%H:%M:%S.%f")
-    framerate = 1e6 / meta['FrameDuration']
-    txt = '{}; {} fps'.format(timestamp, framerate)
-    # timestamp = str(frame) + "; " + dt.datetime.now().strftime("%H:%M:%S.%f")
-    with MappedArray(request, "main") as m:
-        # cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
-        cv2.putText(m.array, txt, origin, font, scale, colour, thickness)
-
-camera.pre_callback = apply_timestamp
+camera.pre_callback = flipper.apply_timestamp
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 
 flipper.start_flipper_thread()
-
 with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     encoder = H264Encoder()
     output = FileOutput(file=buffer)#, pts=TIMESTAMP_FILE_NAME)
-
-# encoder = H264Encoder()
-# output = FileOutput(file=VIDEO_FILE_NAME, pts=TIMESTAMP_FILE_NAME)
-
-    print('Starting Recording')
     try:
-        time.sleep(1)
+        print('Starting Recording')
         camera.start_recording(encoder, output)
+        time.sleep(2)
+        camera.set_controls({
+            'AeEnable': False,
+            'AwbEnable': False,
+        })
+        time.sleep(2)
         print('Started Recording')
         while True:
             time.sleep(.001)
