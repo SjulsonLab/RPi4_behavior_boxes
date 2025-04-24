@@ -22,6 +22,7 @@ camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 mode = camera.sensor_modes[1]
 # config = camera.create_preview_configuration(sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']})
 # camera.configure(config)
+
 camera.preview_configuration.sensor.output_size = mode['size']
 camera.preview_configuration.sensor.bit_depth = mode['bit_depth']
 camera.preview_configuration.size = (640, 480) # defaults
@@ -40,8 +41,11 @@ thickness = 2
 
 def apply_timestamp(request):
     timestamp = dt.datetime.now().strftime("%H:%M:%S.%f")
+    meta = request.get_metadata()
+    framerate = 1e6 / meta['FrameDuration']
+    txt = 'PREVIEW ONLY; {}; {} fps'.format(timestamp, framerate)
     with MappedArray(request, "main") as m:
-        cv2.putText(m.array, 'PREVIEW ONLY; {}'.format(timestamp), origin, font, scale, colour, thickness)
+        cv2.putText(m.array, txt, origin, font, scale, colour, thickness)
 
 camera.pre_callback = apply_timestamp
 
