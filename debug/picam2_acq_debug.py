@@ -57,7 +57,6 @@ thickness = 2
 
 # video, timestamps and ttl file name
 video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-
 VIDEO_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_output_{}.h264".format(camId, video_dt)).resolve())
 TIMESTAMP_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_timestamp_{}.csv".format(camId, video_dt)).resolve())
 FLIPPER_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_flipper_{}.csv".format(camId, video_dt)).resolve())
@@ -68,7 +67,6 @@ class SimFlipplerOutput(object):
     def __init__(self, flipper_filename, timestamp_filename):
         self._flipper_file = flipper_filename
         self._flipper_timestamps = []
-
         self._timestampFile = timestamp_filename
         self._timestamps = []
 
