@@ -147,16 +147,23 @@ class SimFlipplerOutput(object):
 
     def apply_timestamp(self, request):
         meta = request.get_metadata()
+        cur_time = time.time()
+        # cur_time = dt.datetime.now(dt.timezone.utc)  # alternately use datetime module, which is a tad slower
         self._timestamps.append((
             meta['SensorTimestamp'],
-            time.time(),
+            cur_time,
+            # cur_time.timestamp(),  # for datetime module
             time.perf_counter_ns()
         ))
 
+        # if using time module for speed, strftime doesn't include milliseconds for some reason
         framerate = 1e6 / meta['FrameDuration']
-        timestamp = dt.datetime.now().strftime("%H:%M:%S.%f")
+        millisec = str(cur_time).split('.')[1]
+        sec = time.strftime("%H:%M:%S", time.gmtime(cur_time))
+        strftime = '.'.join((sec, millisec))
+        # strftime = cur_time.strftime("%H:%M:%S.%f")  # for datetime module
         txt = '{:.3f}; {}; {:.2f} fps'.format((meta['SensorTimestamp'] - self._timestamps[0][0]) / 1e9,
-                                          timestamp, framerate)
+                                              strftime, framerate)
         with MappedArray(request, "main") as m:
             cv2.putText(m.array, txt, origin, font, scale, colour, thickness)
 
