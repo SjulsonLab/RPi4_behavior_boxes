@@ -33,7 +33,7 @@ try:
 except:
     print("set nice level failed. \nsudo nano /etc/security/limits.conf \npi	-       nice    -20")
 
-#camera parameter setting
+# camera parameter setting
 WIDTH  = 640
 HEIGHT = 480
 FRAMERATE = 30
@@ -44,13 +44,19 @@ SATURATION = 1  # 30
 # AWB_MODE = 'off'
 # AWB_GAINS = 1.4
 
-#Flipper TTL Pulse BounceTme in milliseconds
+# Flipper TTL Pulse BounceTme in milliseconds
 BOUNCETIME = 100
 camId = str(0)
 
-#video, timestamps and ttl file name
-video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+# overlay text for preview window timestamps
+colour = (255, 255, 255)  # white
+origin = (0, 30)
+font = cv2.FONT_HERSHEY_SIMPLEX
+scale = 1
+thickness = 2
 
+# video, timestamps and ttl file name
+video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 VIDEO_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_output_{}.h264".format(camId, video_dt)).resolve())
 TIMESTAMP_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_timestamp_{}.csv".format(camId, video_dt)).resolve())
 FLIPPER_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_flipper_{}.csv".format(camId, video_dt)).resolve())
@@ -61,7 +67,6 @@ class SimFlipplerOutput(object):
     def __init__(self, flipper_filename, timestamp_filename):
         self._flipper_file = flipper_filename
         self._flipper_timestamps = []
-
         self._timestampFile = timestamp_filename
         self._timestamps = []
 
@@ -142,16 +147,23 @@ class SimFlipplerOutput(object):
 
     def apply_timestamp(self, request):
         meta = request.get_metadata()
+        cur_time = time.time()
+        # cur_time = dt.datetime.now(dt.timezone.utc)  # alternately use datetime module, which is a tad slower
         self._timestamps.append((
             meta['SensorTimestamp'],
-            time.time(),
+            cur_time,
+            # cur_time.timestamp(),  # for datetime module
             time.perf_counter_ns()
         ))
 
-        # framerate = 1e6 / meta['FrameDuration']
-        # txt = '{:.3f}; {:.2f} fps'.format(meta['SensorTimestamp'] / 1e9, framerate)
-        timestamp = dt.datetime.now().strftime("%H:%M:%S.%f")
-        txt = '{:.3f}; {} fps'.format(meta['SensorTimestamp'] / 1e9, timestamp)
+        # if using time module for speed, strftime doesn't include milliseconds for some reason
+        framerate = 1e6 / meta['FrameDuration']
+        millisec = str(cur_time).split('.')[1]
+        sec = time.strftime("%H:%M:%S", time.gmtime(cur_time))
+        strftime = '.'.join((sec, millisec))
+        # strftime = cur_time.strftime("%H:%M:%S.%f")  # for datetime module
+        txt = '{:.3f}; {}; {:.2f} fps'.format((meta['SensorTimestamp'] - self._timestamps[0][0]) / 1e9,
+                                              strftime, framerate)
         with MappedArray(request, "main") as m:
             cv2.putText(m.array, txt, origin, font, scale, colour, thickness)
 
@@ -171,13 +183,6 @@ config = camera.create_video_configuration(
 camera.align_configuration(config)
 camera.configure(config)
 print("Camera configuration aligned to {}".format(camera.video_configuration.size))
-
-# overlay text for preview window timestamps
-colour = (255, 255, 255)  # white
-origin = (0, 30)
-font = cv2.FONT_HERSHEY_SIMPLEX
-scale = 1
-thickness = 2
 
 flipper = SimFlipplerOutput(FLIPPER_FILE_NAME, TIMESTAMP_FILE_NAME)
 camera.pre_callback = flipper.apply_timestamp
