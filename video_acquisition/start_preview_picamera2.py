@@ -4,6 +4,7 @@ import signal
 import numpy as np
 import sys
 from picamera2 import Picamera2, Preview, MappedArray
+from libcamera import controls
 import cv2
 import time
 import datetime as dt
@@ -54,6 +55,7 @@ camera.pre_callback = apply_timestamp
 # camera.set_overlay(overlay)
 # camera.annotate_text_size = 60
 camera.start()
+camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 0.0})
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.pause()
