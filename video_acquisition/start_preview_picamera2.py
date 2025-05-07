@@ -55,7 +55,7 @@ camera.pre_callback = apply_timestamp
 # camera.set_overlay(overlay)
 # camera.annotate_text_size = 60
 camera.start()
-camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 0.0})
+camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # default is 1, max focal range is zero, min focal range is 32. Using 10 is fine
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.pause()
