@@ -208,8 +208,13 @@ class BehavBox(Box):
             # Preview check
             print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)
             print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
+            if self.session_info['ephys_rig']:
+                preview_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview_picamera2.py'
+            else:
+                preview_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview.py'
+            os.system("ssh pi@{} {}".format(self.IP_address_video, preview_script))
             # os.system("ssh pi@" + self.IP_address_video + " '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview.py'")
-            os.system("ssh pi@" + self.IP_address_video + " '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview_picamera2.py'")
+            # os.system("ssh pi@" + self.IP_address_video + " '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview_picamera2.py'")
 
             # Kill any python process before start recording
             print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
@@ -218,10 +223,13 @@ class BehavBox(Box):
 
             # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
+            if self.session_info['ephys_rig']:
+                recording_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition_picamera2.sh'
+            else:
+                recording_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.sh'
             shell_output = subprocess.run(
                 ['ssh', 'pi@{}'.format(self.IP_address_video),
-                 # '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.sh',
-                 '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition_picamera2.sh',
+                 recording_script,
                  self.session_info['output_dir'], self.session_info['file_basename']])
 
             if shell_output.returncode == 0:
