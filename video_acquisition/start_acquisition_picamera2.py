@@ -6,7 +6,7 @@ import time
 import datetime as dt
 from picamera2 import Picamera2, Preview, MappedArray
 from picamera2.encoders import H264Encoder, Quality
-from picamara2.outputs import FileOutput
+from picamera2.outputs import FileOutput
 import cv2
 from libcamera import controls
 from threading import Thread, Event
@@ -39,10 +39,10 @@ except:
 WIDTH  = 640
 HEIGHT = 480
 FRAMERATE = 30
-BRIGHTNESS = .1  # 0:100 in Picam1, -1:1 in Picam2
-CONTRAST = 50 / 100
-SHARPNESS = 50
-SATURATION = 30
+BRIGHTNESS = 0  # 0:100 in Picam1, -1:1 in Picam2
+CONTRAST = 1  # 50 / 100
+SHARPNESS = 1  # 50
+SATURATION = 1  # 30
 # AWB_MODE = 'off'
 # AWB_GAINS = 1.4
 
