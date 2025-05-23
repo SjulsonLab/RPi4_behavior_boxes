@@ -100,7 +100,7 @@ class TimestampOutput(object):
 
         # if using time module for speed, strftime doesn't include milliseconds for some reason
         framerate = 1e6 / meta['FrameDuration']
-        millisec = str(cur_time).split('.')[1]
+        millisec = str(round(cur_time, ndigits=6)).split('.')[1]
         sec = time.strftime("%H:%M:%S", time.gmtime(cur_time))
         strftime = '.'.join((sec, millisec))
         # strftime = cur_time.strftime("%H:%M:%S.%f")  # for datetime module
