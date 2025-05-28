@@ -1,12 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-# python3: latent_inference_forage_task_three_states.py
-"""
-author: Mitch Farrell; edited Matthew Chin
-last updated: 2024-01-24
-name: latent_inference_forage_task_three_states.py
-"""
 from transitions import State, Machine
 from essential.base_classes import TimedStateMachine, Model
 # from task_protocol.base_classes import TimedStateMachine, Model
@@ -37,15 +30,15 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.session_info = session_info
 
         # TASK + BEHAVIOR STATUS
-        self.trial_number = 0  # I don't think stopping at max trials is implemented - do that
-        self.rewards_earned_in_block = 0
-        self.correct_trials_in_block = 0
+        # self.trial_number = 0  # I don't think stopping at max trials is implemented - do that
+        # self.rewards_earned_in_block = 0  # implemented in base class
+        # self.correct_trials_in_block = 0
+
+        # Lick detection
+        # self.lick_side_buffer = np.zeros(2)
 
         self.last_choice_time = -np.inf
         self.rewards_available_in_block = random.randint(1, 4)
-
-        # Lick detection
-        self.lick_side_buffer = np.zeros(2)
 
         ### TRAINING REWARDS PARAMETERS ###
         self.automate_training_rewards = False  # keep here, use in controller
@@ -53,6 +46,7 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.error_count = 0
         self.errors_to_reward = 5
         self.max_correct_trials_in_block = session_info['max_correct_trials_in_block']
+
 
         # These can't be refactored, session parameters needed for behavbox
         # maybe move them into a parameters class
@@ -62,24 +56,22 @@ class LatentInferenceModel(Model):  # subclass from base task
         # self.last_state_fxn = self.switch_to_standby
         self.block_type_counter = np.zeros(2)
 
-        self.trial_choice_list: list = []
-        self.trial_correct_list: list = []
-        self.trial_choice_times: list = []
-        self.trial_reward_given: list = []
-        self.event_list = deque()
+        # self.trial_choice_list: list = []
+        # self.trial_correct_list: list = []
+        # self.trial_choice_times: list = []
+        # self.trial_reward_given: list = []
+        # self.event_list = deque()
         self.t_session_start = time.time()
 
-        self.presenter_commands = []
-        self.ITI_active = False
-        self.ITI_thread = None
+        # self.presenter_commands = []
+        # self.ITI_active = False
+        # self.ITI_thread = None
+        # self.t_ITI_start = 0
 
         self.end_dark_time = 0
         self.next_dark_time = 0
         self.dark_period_thread = None
         self.dark_period_length = 0
-
-        # debugging
-        self.t_ITI_start = 0
 
     def make_state_machine(self):
         states = [
@@ -215,6 +207,7 @@ class LatentInferenceModel(Model):  # subclass from base task
                 else:  # biased_side is None
                     pass
                 self.switch_to_left_patch()
+
             elif self.state == 'left_patch':
                 if self.session_info['biased_side'] == 'left':
                     self.session_info['switch_probability'] = self.session_info['biased_switch_probability']
@@ -223,6 +216,7 @@ class LatentInferenceModel(Model):  # subclass from base task
                 else:  # biased_side is 'none'
                     pass
                 self.switch_to_right_patch()
+
             else:
                 pass
                 # raise RuntimeError('state not recognized')

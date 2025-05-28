@@ -1,12 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# python3: lick_task_left_and_right_alternate.py
-"""
-author: Mitch Farrell; edited Matthew Chin
-last updated: 2023-06-30
-name: lick_task_left_and_right_alternate.py
-"""
 from transitions import State, Machine
 from transitions.extensions.states import Timeout
 from essential.base_classes import TimedStateMachine, Model
@@ -46,7 +40,7 @@ class AlternatingLatentModel(Model):
         self.rewards_available_in_block = random.randint(1, 4)
 
         # Lick detection
-        self.lick_side_buffer = np.zeros(2)
+        # self.lick_side_buffer = np.zeros(2)
 
         ### TRAINING REWARDS PARAMETERS ###
         self.automate_training_rewards = False  # keep here, use in controller
@@ -62,18 +56,12 @@ class AlternatingLatentModel(Model):
         self.machine = self.make_state_machine(session_info['intertrial_interval'])
         self.block_type_counter = np.zeros(2)
 
-        # revise these later to make sure you need them
-        self.trial_choice_list: list = []
-        self.trial_correct_list: list = []
-        self.trial_choice_times: list = []
-        self.trial_reward_given: list = []
-        self.event_list = deque()
-        self.t_session = time.time()
+        self.t_session_start = time.time()
 
-        self.presenter_commands = []
-        self.ITI_active = False
-        self.ITI_thread = None
-        self.t_ITI_start = 0
+        # self.presenter_commands = []
+        # self.ITI_active = False
+        # self.ITI_thread = None
+        # self.t_ITI_start = 0
 
     def make_state_machine(self, timeout_time: float):
         # reward_available is not used - it would allow licking either side but this task does not use that
@@ -185,7 +173,7 @@ class AlternatingLatentModel(Model):
 
     def run_event_loop(self) -> None:
         cur_time = time.time()
-        time_since_start = cur_time - self.t_session
+        time_since_start = cur_time - self.t_session_start
 
         if self.event_list:
             event = self.event_list.popleft()
@@ -203,13 +191,24 @@ class AlternatingLatentModel(Model):
             return
 
         choice_side = self.determine_choice()
-        # if no choice made, don't mark anything but maybe give reward
-        if choice_side == 'right':
+        if (self.error_count >= self.errors_to_reward and self.automate_training_rewards)\
+                or self.give_training_reward:
+            self.activate_ITI()
+            self.presenter_commands.append('give_training_reward')
+            self.trial_reward_given.append(True)
+            if self.state == 'right_patch':
+                self.log_training_reward(RIGHT_IX, time_since_start)
+            elif self.state == 'left_patch':
+                self.log_training_reward(LEFT_IX, time_since_start)
+            else:
+                raise RuntimeError('state not recognized')
+
+        elif choice_side == 'right':
             self.activate_ITI()
             if self.state == 'right_patch':
                 reward_given = self.give_correct_reward()
                 self.log_correct_choice(RIGHT_IX, time_since_start, reward_given)
-            else:
+            elif self.state == 'left_patch':
                 reward_given = self.give_incorrect_reward()
                 self.log_incorrect_choice(RIGHT_IX, time_since_start, reward_given)
                 # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str())
@@ -226,21 +225,6 @@ class AlternatingLatentModel(Model):
 
         elif choice_side == 'switch':
             self.activate_ITI()
-
-        elif (self.error_count >= self.errors_to_reward and self.automate_training_rewards)\
-                or self.give_training_reward:
-            self.activate_ITI()
-            self.presenter_commands.append('give_training_reward')
-            # self.log_training_reward(None, time_since_start)
-            if self.state == 'right_patch':
-                choice_ix = RIGHT_IX
-                self.log_training_reward(RIGHT_IX, time_since_start)
-            elif self.state == 'left_patch':
-                choice_ix = LEFT_IX
-                self.log_training_reward(LEFT_IX, time_since_start)
-            else:
-                raise RuntimeError('state not recognized')
-            self.log_training_reward(choice_ix, time_since_start)
 
         else:
             pass

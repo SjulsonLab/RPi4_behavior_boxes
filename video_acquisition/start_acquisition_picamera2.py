@@ -217,7 +217,8 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         time.sleep(2)
         print('Started Recording')
         while True:
-            time.sleep(.001)
+            # time.sleep(.001)
+            continue
 
     except Exception as e:
         camera.stop_recording()
