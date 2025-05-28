@@ -13,7 +13,6 @@ from essential.base_classes import Presenter, Model, GUI, Box, PumpBase
 # SEED = 0
 # random.seed(SEED)
 
-
 PUMP1_IX = 0
 PUMP2_IX = 1
 trial_choice_map = {'right': 0, 'left': 1}
@@ -29,7 +28,6 @@ class AlternatingLatentPresenter(Presenter):
         self.session_info = session_info
         self.reward_size_large = session_info['reward_size_large']
         self.reward_size_small = session_info['reward_size_small']
-
         # self.keypress_training_reward = False
         # self.automatic_training_rewards = False
 
@@ -53,23 +51,16 @@ class AlternatingLatentPresenter(Presenter):
 
         self.perform_task_commands(correct_pump, incorrect_pump)
         self.update_plot()
-
         self.check_keyboard()
         if self.task.rewards_earned_in_block >= self.task.rewards_available_in_block:
             self.task.sample_next_block()
 
     def perform_task_commands(self, correct_pump: str, incorrect_pump: str) -> None:
-        # give reward if
-        # 1. training reward/human reward (give reward, regardless of action)
-        # 2. correct choice and meets correct reward probability
-        # 3. incorrect but REAL choice (i.e. not a switch) and meets incorrect reward probability
-        # state changes if choice is correct and switch probability is met
-
         for c in self.task.presenter_commands:
             if c == 'give_training_reward':
                 reward_size = self.reward_size_large
                 # self.task.rewards_earned_in_block += 1  # trying this out - not incrementing collected rewards if they are given by experimenter
-                self.task.trial_reward_given.append(True)
+                # self.task.trial_reward_given.append(True)
                 self.deliver_reward(pump_key=correct_pump, reward_size=reward_size)
 
             elif c == 'give_correct_reward':

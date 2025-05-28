@@ -149,12 +149,17 @@ class Model(ABC):
     lick_threshold: int = 2
     lick_side_buffer: np.ndarray = np.zeros(2)
     error_count: int = 0
+    trial_number: int = 0
+    last_choice_time: float = -np.inf
+
     rewards_earned_in_block: int = 0
     rewards_available_in_block: int = 0
+    correct_trials_in_block: int = 0
+
     ITI: float
-    ITI_active: bool
-    ITI_thread: threading.Timer
-    t_ITI_start: float
+    ITI_active: bool = False
+    ITI_thread: threading.Timer = None
+    t_ITI_start: float = 0
 
     presenter_commands: List[str] = []
 

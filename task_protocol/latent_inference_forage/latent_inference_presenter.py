@@ -72,12 +72,6 @@ class LatentInferencePresenter(Presenter):
         self.check_keyboard()
 
     def perform_task_commands(self, correct_pump: str, incorrect_pump: str) -> None:
-        # give reward if
-        # 1. training reward/human reward (give reward, regardless of action)
-        # 2. correct choice and meets correct reward probability
-        # 3. incorrect but REAL choice (i.e. not a switch) and meets incorrect reward probability
-        # state changes if choice is correct and switch probability is met
-
         for c in self.task.presenter_commands:
             if c == 'turn_LED_on':
                 self.box.cueLED1.on()
