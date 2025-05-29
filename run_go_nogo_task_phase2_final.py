@@ -266,7 +266,7 @@ if __name__ == "__main__":
             # phase 0 is the first day of training (after habituation)
             while training_phase == "allgo":
                 task.bait_phase2()
-                if task.deliver_reward == "":  # start phase2 of training
+                if task.deliver_reward == "y":  # start phase2 of training
 
                     for w in range(session_info['number_of_trials']):
                         trial_ident = "go_trial"
