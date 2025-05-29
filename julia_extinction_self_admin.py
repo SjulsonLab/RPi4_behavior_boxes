@@ -7,6 +7,8 @@ date: 2024-10-01
 name: julia_extinction_self_admin.py (adapted from julia_DCL_self_admin.py)
 """
 
+print('hello world')
+
 import importlib
 from transitions import Machine, State
 import logging
