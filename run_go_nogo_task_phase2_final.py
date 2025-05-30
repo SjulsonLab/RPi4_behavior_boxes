@@ -264,8 +264,12 @@ if __name__ == "__main__":
 
         if training_phase == "allgo":
             # phase 0 is the first day of training (after habituation)
+            count_time = 1
             while training_phase == "allgo":
                 task.bait_phase2()
+                count_time = count_time + 1
+                logging.info(str(time.time()) + ", reward count " + str(count_time))
+                
                 if task.deliver_reward == "y":  # start phase2 of training
 
                     for w in range(session_info['number_of_trials']):
