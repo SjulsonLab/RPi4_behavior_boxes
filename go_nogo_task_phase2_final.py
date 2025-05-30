@@ -386,11 +386,8 @@ class go_nogo_phase2(object):
         # This is used to bait the animal to lick initially
         # If y, deliver reward, if hit enter, start random reward phase
         self.deliver_reward = input("Deliver reward, else start allgo? (hit enter OR hit y then enter): \n")
-        count_time = 1
         if self.deliver_reward == "":
             self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
-            logging.info(str(time.time()) + ", reward count " + str(count_time))
-            count_time = count_time + 1
 
     ########################################################################
     # countdown methods to run when vstim starts to play, used as timers since vstim starts
