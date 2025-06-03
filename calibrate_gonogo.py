@@ -61,8 +61,8 @@ def calibration_flush(calibration_filename, calibration_log):
 
 while True:
     pump_number = str(input("Pump Number: "))  # user inputs the pump number they intend to calibrate at the moment
-    on_duration = float(input("on_time: "))
-    off_duration = float(input("off_time: "))
+    on_time = float(input("on_time: "))
+    off_time = float(input("off_time: "))
     pulse_time = float(input("iteration: "))
     weight_tube = float(input("weight_tube: "))
     # deliver the water using the pump object
@@ -79,7 +79,7 @@ while True:
     elif pump_number == "4":
         LED(7).blink(on_time, off_time, iteration)
         print("pump4, " + str(on_time) + str(off_time) + str(iteration))
-    time.sleep((on_duration+off_duration)*pulse_time + 0.1)
+    time.sleep((on_time+off_time)*pulse_time + 0.1)
     print("Please go weight the container with the liquid!\n")
     weight_total = float(input("weight_total: "))
     weight_fluid = weight_total - weight_tube
