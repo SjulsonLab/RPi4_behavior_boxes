@@ -27,7 +27,7 @@ calibration_log = []  # initiate calibration list for appending
 def calibration_flush(calibration_filename, calibration_log):
     print("Flushing: " + calibration_filename)
     with io.open(calibration_filename, 'w') as f:
-        f.write('pump_number, on_time, off_time, iteration, weight_tube, weight_total, weight_fluid\n')
+        f.write('pump_number, on_time, off_time, pulse_time, weight_tube, weight_total, weight_fluid\n')
         for entry in calibration_log:
             f.write('%f, %f, %f, %f, %f, %f, %f\n' % entry)
 
