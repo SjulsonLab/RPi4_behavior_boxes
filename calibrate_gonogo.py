@@ -83,15 +83,9 @@ while True:
     print("Please go weight the container with the liquid!\n")
     weight_total = float(input("weight_total: "))
     weight_fluid = weight_total - weight_tube
-    calibration_log.append(
-        (pump_number, on_time, off_time,
-         pulse_time, weight_tube, weight_total, weight_fluid)
-    )
+    print("Fluid weight = " + str(weight_fluid))
     abort_or_not = str(input("Abort the program?(Y/N) \n")).upper()
     if abort_or_not == 'Y':
         break
-
-print("Flushing the calibration data ...\n")
-calibration_flush(calibration_filename, calibration_log)
 
 print("DONE")
