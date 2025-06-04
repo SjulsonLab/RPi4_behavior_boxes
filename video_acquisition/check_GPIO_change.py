@@ -104,7 +104,7 @@ flipper = FlipperInput(pin_flipper)
 GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=flipper.flipper_callback, bouncetime=100)
 try:
     # Start the GPIO loop in a separate thread
-    flipper.start_flipper_thread()
+    # flipper.start_flipper_thread()
     tstart = time.perf_counter()
     while True:
         time.sleep(1/60)  # pretend 60 FPS

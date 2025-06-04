@@ -8,12 +8,25 @@ from libcamera import controls
 import cv2
 import time
 import datetime as dt
+import RPi.GPIO as GPIO
 
 def signal_handler(signum, frame):
     print("SIGINT detected")
     camera.stop_preview()
     camera.close()
     sys.exit(0)
+
+
+def flipper_callback_GPIO(pin):
+    flip_state = GPIO.input(pin)
+    print("Flip state: {}; Timestamp: {}; UTC: {}".format(flip_state, time.time(), dt.datetime.now(dt.timezone.utc).time()))
+
+
+pin_flipper = 4
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=flipper_callback_GPIO, bouncetime=100)
+signal.signal(signal.SIGINT, signal_handler)
 
 camera = Picamera2()
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
@@ -53,11 +66,11 @@ def apply_timestamp(request):
     with MappedArray(request, "main") as m:
         cv2.putText(m.array, txt, origin, font, scale, colour, thickness)
 
+
 camera.pre_callback = apply_timestamp
 camera.start()
 
 # comment this out for the HQ camera, which has no autofocus/uses manual focus
 #camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # default is 1, max focal range is zero, min focal range is 32. Using 10 is fine
 
-signal.signal(signal.SIGINT, signal_handler)
 signal.pause()
