@@ -2,22 +2,27 @@ import RPi.GPIO as GPIO
 import time
 import datetime as dt
 import threading
+import sys
+import signal
 
 # Set up GPIO mode
 GPIO.setmode(GPIO.BCM)
 
 # Set up the GPIO pin as an input
 pin_flipper = 4
-GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 previous_state = GPIO.input(pin_flipper)
 
+def signal_handler(sig, frame):
+    GPIO.cleanup()
+    sys.exit(0)
 
 class FlipperInput:
 
     def __init__(self, pin_number):
         self.pin_number = pin_number
         self.flip_state = GPIO.input(pin_number)
-        print("Start state is {}".format(previous_state))
+        print("Start state is {}".format(self.flip_state))
         self._flipper_timestamps = []
         self.flip_thread = None
         self.event_thread = None
@@ -69,6 +74,12 @@ class FlipperInput:
         print("Flip state: {}; Timestamp: {}; UTC: {}".format(self._flipper_timestamps[-1][0], self._flipper_timestamps[-1][1],
                                                               self._flipper_timestamps[-1][2]))
 
+    def flipper_callback_GPIO(self, pin):
+        self.flip_state = GPIO.input(pin)
+        self._flipper_timestamps.append((self.flip_state, time.time(), dt.datetime.now(dt.timezone.utc).time()))
+        print("Flip state: {}; Timestamp: {}; UTC: {}".format(self._flipper_timestamps[-1][0], self._flipper_timestamps[-1][1],
+                                                              self._flipper_timestamps[-1][2]))
+
     def start_flipper_thread(self):
         if self.flip_thread is None:
             self.flip_thread = threading.Thread(target=self.GPIO_loop)
@@ -90,6 +101,7 @@ class FlipperInput:
 
 
 flipper = FlipperInput(pin_flipper)
+GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=flipper.flipper_callback, bouncetime=100)
 try:
     # Start the GPIO loop in a separate thread
     flipper.start_flipper_thread()
