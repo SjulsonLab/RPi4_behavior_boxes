@@ -369,8 +369,7 @@ class Pump(PumpBase):
 
     def reward(self, which_pump: str, reward_size: float) -> None:
         if which_pump in ["1", "key_1"]:
-            duration = round((self.coefficient_p1[0] * (reward_size / 1000) + self.coefficient_p1[1]),
-                             5)  # linear function
+            duration = round((self.coefficient_p1[0] * (reward_size / 1000) + self.coefficient_p1[1]), 5)  # linear function
             self.pump1.blink(duration, 0.1, 1)
             self.send_pump_signal()
             logging.info(";" + str(time.time()) + ";[reward];pump1_reward(reward_coeff: " + str(self.coefficient_p1) +

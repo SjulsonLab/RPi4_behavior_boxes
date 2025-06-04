@@ -61,7 +61,7 @@ VIDEO_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_output_{}.h264".format(ca
 TIMESTAMP_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_timestamp_{}.csv".format(camId, video_dt)).resolve())
 FLIPPER_FILE_NAME = str((Path.home() / 'buffer' / "cam{}_flipper_{}.csv".format(camId, video_dt)).resolve())
 
-#timestamp output object to save timestamps according to pi and TTL inputs received and write to file
+# timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class SimFlipplerOutput(object):
 
     def __init__(self, flipper_filename, timestamp_filename):
@@ -172,7 +172,8 @@ camera = Picamera2()
 mode = camera.sensor_modes[1]
 config = camera.create_video_configuration(
     sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']},
-    main={"size": (640, 480)},
+    # main={"size": (640, 480)},  # for V3 camera
+    main={"size": (1600, 1200)},  # for HQ camera
     controls={'FrameDurationLimits': (33333, 33333),
               'AeExposureMode': controls.AeExposureModeEnum.Normal,
               "Brightness": BRIGHTNESS,
@@ -195,8 +196,7 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     try:
         print('Starting Recording')
         camera.start_recording(encoder, output)
-        camera.set_controls({"AfMode": controls.AfModeEnum.Manual,
-                             "LensPosition": 10.0})
+        # camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # comment this out for HQ camera, which uses manual focus
         time.sleep(2)
         camera.set_controls({
             'AeEnable': False,
