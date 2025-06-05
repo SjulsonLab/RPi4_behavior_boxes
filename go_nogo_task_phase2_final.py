@@ -534,7 +534,7 @@ class go_nogo_phase2(object):
                 self.return_to_standby()
 
     def calibrate(self):
-        for iteration in range(100)
+        for iteration in range(100):
             self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
             time.sleep(0.5)
         
