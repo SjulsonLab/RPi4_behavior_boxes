@@ -389,7 +389,7 @@ class go_nogo_phase2(object):
         if self.deliver_reward == "":
             self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
 
-    def calibrate_phase2(self)
+    def calibrate_phase2(self):
         self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
             
     ########################################################################
