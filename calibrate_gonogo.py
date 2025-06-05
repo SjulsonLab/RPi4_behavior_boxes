@@ -13,16 +13,14 @@ import time
 
 datestr = str(datetime.now().strftime("%Y-%m-%d"))
 timestr = str(datetime.now().strftime('%H%M%S'))
-pump_number = str(input("Pump Number: "))  # user inputs the pump number they intend to calibrate at the moment
 on_time = float(input("on_time: "))
 iteration = int(input("iteration: "))
 weight_tube = float(input("weight_tube: "))
 
-for i in range(iteration):
-    print("reward delivery " + str(i))
-    if pump_number == "1":
-        LED(19).blink(on_time, 0.1, 1)
-        LED(19).close()
+led1 = LED(19)
+
+led1.blink(on_time,0.1,iteration)
+led1.close()
 
 print("DONE!")
 print("Please go weight the container with the liquid!\n")
