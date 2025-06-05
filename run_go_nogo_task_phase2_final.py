@@ -262,7 +262,10 @@ if __name__ == "__main__":
         go_nums = 0
         nogo_nums = 0
 
-        if training_phase == "allgo":
+        if training_phase == "calibrate"
+            while training_phase == "calibrate"
+
+        elif training_phase == "allgo":
             # phase 0 is the first day of training (after habituation)
             count_time = 1
             while training_phase == "allgo":
