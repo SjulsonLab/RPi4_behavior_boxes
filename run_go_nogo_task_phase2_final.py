@@ -263,9 +263,7 @@ if __name__ == "__main__":
         nogo_nums = 0
 
         if training_phase == "calibrate":
-            for iteration in range(100):
-                logging.info(str(time.time()) + ", reward delivery # " + str(iteration))
-                task.calibrate_phase2()
+            task.calibrate_phase2()
         
         elif training_phase == "allgo":
             # phase 0 is the first day of training (after habituation)
