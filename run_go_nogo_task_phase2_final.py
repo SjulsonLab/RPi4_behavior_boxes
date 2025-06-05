@@ -263,7 +263,10 @@ if __name__ == "__main__":
         nogo_nums = 0
 
         if training_phase == "calibrate":
+            weight_tube = float(input("weight_tube: "))
             task.calibrate()
+            weight_total = float(input("weight_total: "))
+            print("Fluid weight = " + str(weight_total-weight_tube))
             raise SystemExit
         
         elif training_phase == "allgo":
