@@ -214,7 +214,7 @@ if __name__ == "__main__":
         session_info['mouse_name'] = animal_ID
         animal_weight = input("Enter animal weight (ex 19.5):\n")
         session_info['weight'] = animal_weight
-        training_phase = input("Enter training_phase (allgo or phase2):\n")
+        training_phase = input("Enter training_phase (calibrate or allgo or phase2):\n")
         session_info['training_phase'] = training_phase
 
         session_info['date'] = datestr
@@ -264,6 +264,7 @@ if __name__ == "__main__":
 
         if training_phase == "calibrate":
             weight_tube = float(input("weight_tube: "))
+            print("Delivering reward 100 times")
             task.calibrate()
             weight_total = float(input("weight_total: "))
             print("Fluid weight = " + str(weight_total-weight_tube))
