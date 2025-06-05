@@ -209,8 +209,7 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     try:
         print('Starting Recording')
         camera.start_recording(encoder, output)
-        camera.set_controls({"AfMode": controls.AfModeEnum.Manual,
-                             "LensPosition": 10.0})
+        # camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # for V3 camera; comment this out for HQ camera, which uses manual focus
         time.sleep(2)
         camera.set_controls({
             'AeEnable': False,
