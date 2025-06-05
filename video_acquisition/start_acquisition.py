@@ -12,6 +12,7 @@ import sys
 import RPi.GPIO as GPIO
 import os
 import signal
+from typing import List
 
 # this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
@@ -61,7 +62,7 @@ GPIO.setmode(GPIO.BCM)
 pin_flipper = 4
 
 #set the pin as input pin
-GPIO.setup(pin_flipper, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 #add event detection (both falling edge and rising edge) script to GPIO pin
 # GPIO.add_event_detect(pin_flipper, GPIO.BOTH, bouncetime=BOUNCETIME)
@@ -111,8 +112,8 @@ class TimestampOutput(object):
         self._video = VideoOutput(video_filename)
         self._timestampFile = timestamp_filename
         self._flipper_file = flipper_filename
-        self._timestamps = []
-        self._flipper_timestamps = []
+        self._timestamps: List[float, float, float] = []
+        self._flipper_timestamps: List[float, float] = []
 
         self.flip_state = GPIO.input(pin_flipper)
         self.flip_thread = None
@@ -121,6 +122,7 @@ class TimestampOutput(object):
         self._stop_flag = False
 
     def append_timestamps(self):
+        # only the frame timestamp and time.time() are really needed
         self._timestamps.append((
             self.camera.frame.timestamp,
             self.camera.dateTime,  # time.time(),

@@ -12,7 +12,7 @@ def make_session_info() -> Dict[str, Any]:
     # Information for this session (the user should edit this each session)
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test-mouse'
-    session_info['debug']                     	= True
+    session_info['debug']                     	= False
     session_info['ephys_rig']                 	= False
     session_info['lick_input_setting']          = 'signal_high'  # ['signal_high', 'signal_low']
 
@@ -32,7 +32,6 @@ def make_session_info() -> Dict[str, Any]:
     session_info['quiet_ITI']                   = False
     session_info['biased_side']                 = 'none'  # 'left', 'right', 'none' - must use 'none' instead of None, NoneType is not a string
 
-
     # Parameters for latent inference tasks
     session_info['correct_reward_probability'] = .9
     session_info['incorrect_reward_probability'] = 0
@@ -45,10 +44,10 @@ def make_session_info() -> Dict[str, Any]:
 
     # Reward pump parameters
     if session_info['ephys_rig']:
-        session_info["right_reward_pump"] = '3'
+        session_info['right_reward_pump'] = '3'
         session_info['left_reward_pump'] = '2'
     else:
-        session_info["right_reward_pump"] = '2'
+        session_info['right_reward_pump'] = '2'
         session_info['left_reward_pump'] = '1'
 
     session_info['pump1_ix'] = 0

@@ -64,13 +64,9 @@ TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp_" + video_dt + ".
 FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + video_dt + ".csv"
 
 # set raspberry pi board layout to BCM
-GPIO.setmode(GPIO.BCM)
-
-# pin number to receive TTL input
 pin_flipper = 4
-
-#set the pin as input pin
-GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 #timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class TimestampOutput(object):
@@ -135,6 +131,12 @@ class TimestampOutput(object):
                 print("Stopping GPIO loop")
                 break
 
+    def flipper_callback_GPIO(self, pin):
+        self.flip_state = GPIO.input(pin)
+        self._flipper_timestamps.append((self.flip_state,
+                                         time.time(),
+                                         time.perf_counter_ns()))
+
     def flipper_callback(self):
         self._flipper_timestamps.append((self.flip_state,
                                          time.time(),
@@ -158,7 +160,6 @@ class TimestampOutput(object):
         if self.flip_thread is not None:
             self.flip_thread.join()
             self.flip_thread = None
-
         if self.event_thread is not None:
             self.event_thread.join()
             self.event_thread = None
@@ -199,7 +200,8 @@ print("Camera configuration aligned to {}".format(camera.video_configuration.siz
 timestamps = TimestampOutput(TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
 camera.pre_callback = timestamps.append_timestamps
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
-timestamps.start_flipper_thread()
+# timestamps.start_flipper_thread()
+GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=timestamps.flipper_callback_GPIO, bouncetime=100)
 
 with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     encoder = H264Encoder()
