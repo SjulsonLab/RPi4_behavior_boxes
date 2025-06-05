@@ -19,8 +19,7 @@ weight_tube = float(input("weight_tube: "))
 
 led1 = LED(19)
 
-led1.blink(on_time,0.1,iteration)
-led1.close()
+led1.blink(on_time,1,iteration)
 
 print("DONE!")
 print("Please go weight the container with the liquid!\n")
