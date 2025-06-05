@@ -84,14 +84,13 @@ class TimestampOutput(object):
         self._stop_flag = False
 
     def append_timestamps(self, request):
-        meta = request.get_metadata()
         cur_time = time.time()
+        meta = request.get_metadata()
         # cur_time = dt.datetime.now(dt.timezone.utc)  # alternately use datetime module, which is a tad slower
         self._timestamps.append((
             meta['SensorTimestamp'],
-            cur_time,
-            # cur_time.timestamp(),  # for datetime module
-            time.perf_counter_ns()
+            meta['FrameDuration'],
+            cur_time
         ))
 
         # if using time module for speed, strftime doesn't include milliseconds for some reason
@@ -107,7 +106,7 @@ class TimestampOutput(object):
 
     def flush(self):
         with io.open(self._timestampFile, 'w') as f:
-            f.write('Sensor Timestamp (ns), time.time(), time.perf_counter_ns()\n')
+            f.write('Sensor Timestamp (ns), Frame Duration (ms), time.time()\n')
             for entry in self._timestamps:
                 f.write('%f,%f,%f\n' % entry)
 
