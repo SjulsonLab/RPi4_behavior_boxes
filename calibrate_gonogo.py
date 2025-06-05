@@ -9,7 +9,7 @@ description:
 """
 from datetime import datetime
 from gpiozero import LED
-import time
+from time import sleep
 
 datestr = str(datetime.now().strftime("%Y-%m-%d"))
 timestr = str(datetime.now().strftime('%H%M%S'))
@@ -19,7 +19,10 @@ weight_tube = float(input("weight_tube: "))
 
 led1 = LED(19)
 
-led1.blink(on_time,1,iteration)
+while True:
+  led1.blink(on_time,0.1,iteration)
+  sleep(1)
+  break
 
 print("DONE!")
 print("Please go weight the container with the liquid!\n")
