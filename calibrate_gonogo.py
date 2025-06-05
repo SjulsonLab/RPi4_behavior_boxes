@@ -22,7 +22,7 @@ for i in range(iteration):
     print("reward delivery " + str(i))
     if pump_number == "1":
         LED(19).blink(on_time, 0.1, 1)
-        LED(19).off()
+        LED(19).close()
 
 print("DONE!")
 print("Please go weight the container with the liquid!\n")
