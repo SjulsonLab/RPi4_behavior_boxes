@@ -262,9 +262,9 @@ if __name__ == "__main__":
         go_nums = 0
         nogo_nums = 0
 
-        if training_phase == "calibrate"
-            while training_phase == "calibrate"
-                for iteration in range(100)
+        if training_phase == "calibrate":
+            while training_phase == "calibrate":
+                for iteration in range(100):
                     logging.info(str(time.time()) + ", reward delivery # " + str(iteration))
                     task.calibrate_phase2()
         
