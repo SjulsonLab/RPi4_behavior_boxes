@@ -263,7 +263,8 @@ if __name__ == "__main__":
         nogo_nums = 0
 
         if training_phase == "calibrate":
-            task.calibrate_phase2()
+            task.calibrate()
+            raise SystemExit
         
         elif training_phase == "allgo":
             # phase 0 is the first day of training (after habituation)
