@@ -388,9 +388,6 @@ class go_nogo_phase2(object):
         self.deliver_reward = input("Deliver reward, else start allgo? (hit enter OR hit y then enter): \n")
         if self.deliver_reward == "":
             self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
-
-    def calibrate_phase2(self):
-        self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 600)
             
     ########################################################################
     # countdown methods to run when vstim starts to play, used as timers since vstim starts
@@ -536,6 +533,11 @@ class go_nogo_phase2(object):
             if event_name == "extra_iti countdown ends":
                 self.return_to_standby()
 
+    def calibrate(self):
+        for iteration in range(100)
+            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
+            time.sleep(0.5)
+        
     ########################################################################
     # methods to start and end the behavioral session
     ########################################################################
