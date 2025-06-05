@@ -389,6 +389,10 @@ class go_nogo_phase2(object):
         if self.deliver_reward == "":
             self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
 
+    def calibrate_phase2(self)
+        for iteration in range(100)
+            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.5, 1)
+            
     ########################################################################
     # countdown methods to run when vstim starts to play, used as timers since vstim starts
     # t is the length of countdown (in seconds)
