@@ -460,9 +460,8 @@ if __name__ == "__main__":
                                                                          lick_times, vstimON_time, plot_dprime,
                                                                          dprimebinp,))
                 plot_process.start()  # no join because we do not want to wait until the plotting is finished
-                logging.info(str(time.time()) + ", Amount water received " + str(hit_count(i) * session_info['calibrated_drop'])
                 
-            #raise SystemExit
+            raise SystemExit
 
     # graceful exit
     except (KeyboardInterrupt, SystemExit):
