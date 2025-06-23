@@ -404,7 +404,7 @@ if __name__ == "__main__":
                 lick_times = task.lick_times
                 reward_time = task.time_at_reward
                 vstimON_time = task.time_at_vstim_ON
-                logging.info(str(time.time()) + ", amount water received " + str(hit_count[i] * session_info["calibrated_drop"])
+                logging.info(str(time.time()) + ", amount water received " + str(hit_count[i] * session_info["calibrated_drop"]))
 
                 # Calculate dprime
                 binsize = 30
