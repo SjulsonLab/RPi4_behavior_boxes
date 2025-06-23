@@ -37,7 +37,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import the go_nogo_task task class here
-from go_nogo_task_phase2_final import go_nogo_phase2
+from go_nogo_firstrule import go_nogo_firstrule
 
 # define the plotting function here
 def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_count, miss_count,
@@ -242,7 +242,7 @@ if __name__ == "__main__":
         )
 
         # initiate task object
-        task = go_nogo_phase2(name="go_nogo_task_phase2_final", session_info=session_info)
+        task = go_nogo_firstrule(name="go_nogo_firstrule", session_info=session_info)
         trial_list = list(range(0, session_info["number_of_trials"]))
         combine_trial_outcome = ["" for o in range(session_info["number_of_trials"])]
         hit_count = [0 for o in range(session_info["number_of_trials"])]
@@ -273,9 +273,9 @@ if __name__ == "__main__":
         elif training_phase == "allgo":
             # phase 0 is the first day of training (after habituation)
             while training_phase == "allgo":
-                task.bait_phase2()
+                task.bait_firstrule()
                 
-                if task.deliver_reward == "y":  # start phase2 of training
+                if task.deliver_reward == "y":  # start allgo of training
 
                     for w in range(session_info['number_of_trials']):
                         trial_ident = "go_trial"
