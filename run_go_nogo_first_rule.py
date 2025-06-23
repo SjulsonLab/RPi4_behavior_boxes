@@ -453,15 +453,15 @@ if __name__ == "__main__":
                     # get the inverse of the standard normal cumulative distribution function (cdf)
                     dprimebinp[i] = norm.ppf(dhit) - norm.ppf(dfa)
 
-                # Starting a new process for plotting
-                plot_dprime = True
-                plot_process = Process(target=plot_trial_progress, args=(i, trial_list, combine_trial_outcome,
+                    # Starting a new process for plotting
+                    plot_dprime = True
+                    plot_process = Process(target=plot_trial_progress, args=(i, trial_list, combine_trial_outcome,
                                                                          hit_count, miss_count, cr_count, fa_count,
                                                                          lick_times, vstimON_time, plot_dprime,
                                                                          dprimebinp,))
-                plot_process.start()  # no join because we do not want to wait until the plotting is finished
+                    plot_process.start()  # no join because we do not want to wait until the plotting is finished
                 
-                logging.info(str(time.time()) + ", Amount water received " + str(hit_count * session_info['calibrated_drop'])
+                    logging.info(str(time.time()) + ", Amount water received " + str(hit_count * session_info['calibrated_drop'])
                 
             raise SystemExit
 
