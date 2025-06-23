@@ -340,7 +340,7 @@ class go_nogo_firstrule(object):
 
     def enter_reward_lockout(self):
         logging.info(str(time.time()) + ", entering reward_lockout")
-        self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1)
+        self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1, background=True)
         logging.info(str(time.time()) + ", vacuum initiated!")
 
     def exit_reward_lockout(self):
