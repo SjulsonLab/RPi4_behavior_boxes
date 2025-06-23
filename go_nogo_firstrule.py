@@ -41,7 +41,7 @@ class TimedStateMachine(Machine):
     pass
 
 #################################################################################
-################################### Phase 2 #####################################
+################################### First Rule #####################################
 #################################################################################
 class go_nogo_firstrule(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
@@ -340,7 +340,7 @@ class go_nogo_firstrule(object):
 
     def enter_reward_lockout(self):
         logging.info(str(time.time()) + ", entering reward_lockout")
-        self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1, background=True)
+        self.pump.reward("vacuum", self.session_info["vacuum_duration"], 0.1, 1)
         logging.info(str(time.time()) + ", vacuum initiated!")
 
     def exit_reward_lockout(self):
@@ -386,7 +386,7 @@ class go_nogo_firstrule(object):
         # If y, deliver reward, if hit enter, start random reward phase
         self.deliver_reward = input("Hit enter to deliver reward, or hit y then enter to start allgo: \n")
         if self.deliver_reward == "":
-            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 1, background=True)
+            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 1)
             
     ########################################################################
     # countdown methods to run when vstim starts to play, used as timers since vstim starts
@@ -447,7 +447,7 @@ class go_nogo_firstrule(object):
             # otherwise transition to vacuum after 1s
             if event_name == "left_entry":
                 self.trial_outcome = 1  # Hit!
-                self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 1, background=True)
+                self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 1)
                 logging.info(str(time.time()) + ", reward delivered!")
                 self.time_at_reward = time.time() - self.trial_start_time
                 self.start_temp1()  # trigger state transition to temp1
@@ -534,7 +534,7 @@ class go_nogo_firstrule(object):
 
     def calibrate(self):
         for iteration in range(100):
-            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 1, background=True)
+            self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 1)
             time.sleep(0.5)
         
     ########################################################################
