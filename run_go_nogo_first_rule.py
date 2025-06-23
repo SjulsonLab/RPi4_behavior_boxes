@@ -267,7 +267,7 @@ if __name__ == "__main__":
             print("Delivering reward 100 times")
             task.calibrate()
             weight_total = float(input("weight_total: "))
-            print("Fluid weight = " + str(weight_total-weight_tube))
+            print("Fluid volume per drop = " + str((weight_total-weight_tube)/100) + " ml")
             raise SystemExit
         
         elif training_phase == "allgo":
