@@ -303,7 +303,8 @@ if __name__ == "__main__":
                         lick_times = task.lick_times
                         reward_time = task.time_at_reward
                         vstimON_time = task.time_at_vstim_ON
-
+                        logging.info(str(time.time()) + ", amount water received " + str(hit_count[w] * session_info["calibrated_drop"]))
+                        
                         # Starting a new process for plotting
                         plot_dprime = False
                         plot_process = Process(target=plot_trial_progress,
