@@ -201,15 +201,19 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
         ax4_x_values = np.linspace(0, current_trial, num=current_trial + 1)
         ax4_y_values = dprimebinp[0:current_trial+1]
         ax4.plot(ax4_x_values, ax4_y_values, 'r-')
-        ax4.set_title('D-prime', fontsize=11)
+        ax4.plot([0, current_trial],[2.5, 2.5], 'k--')
+        # ax4.set_title('D-prime', fontsize=11)
         ax4.set_xlim([0, current_trial + 1])
         ax4.set_xlabel('Current trial', fontsize=9)
         
         found, indices = check_consecutive_dprime(dprimebinp)
         if found:
-            print(f"Found {indices[1] - indices[0] + 1} consecutive trials with d' > 2.5")
-            print(f"Starting at index {indices[0]}, ending at index {indices[1]}")
+            ax4.set_title('CRITERION REACHED!!!', fontsize=13)
+            ax4.scatter(indices, dprimebinp[indices], marker='o', color='orange')
+            # print(f"Found {indices[1] - indices[0] + 1} consecutive trials with d' > 2.5")
+            # print(f"Starting at index {indices[0]}, ending at index {indices[1]}")
         else:
+            ax4.set_title('D-prime', fontsize=11)
             print("No sequence of 30+ consecutive trials with d' > 2.5 found")
 
     ########################################################################
