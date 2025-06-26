@@ -204,6 +204,13 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
         ax4.set_title('D-prime', fontsize=11)
         ax4.set_xlim([0, current_trial + 1])
         ax4.set_xlabel('Current trial', fontsize=9)
+        
+        found, indices = check_consecutive_dprime(dprimebinp)
+        if found:
+            print(f"Found {indices[1] - indices[0] + 1} consecutive trials with d' > 2.5")
+            print(f"Starting at index {indices[0]}, ending at index {indices[1]}")
+        else:
+            print("No sequence of 30+ consecutive trials with d' > 2.5 found")
 
     ########################################################################
     # draw on canvas to display via pygame
