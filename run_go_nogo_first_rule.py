@@ -39,6 +39,37 @@ if debug_enable:
 # import the go_nogo_task task class here
 from go_nogo_firstrule import go_nogo_firstrule
 
+# define dprime processing function for criterion
+# default is dprime>2.5 for at least 30 consecutive trials
+def check_consecutive_dprime(dprime_values, threshold=2.5, min_consecutive=30):
+    """
+    Check if there are at least min_consecutive trials with d' > threshold.
+    
+    Parameters:
+    - dprime_values: List or array of d' values
+    - threshold: Threshold value for d' (default 2.5)
+    - min_consecutive: Minimum number of consecutive trials required (default 30)
+    
+    Returns:
+    - True if condition is met, False otherwise
+    - Also returns the indices where this occurs (if found)
+    """
+    consecutive_count = 0
+    start_index = -1
+    
+    for i, value in enumerate(dprime_values):
+        if value > threshold:
+            consecutive_count += 1
+            if consecutive_count == 1:  # First in potential sequence
+                start_index = i
+            if consecutive_count >= min_consecutive:
+                return True, (start_index, i)
+        else:
+            consecutive_count = 0
+            start_index = -1
+    
+    return False, None
+
 # define the plotting function here
 def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_count, miss_count,
                         cr_count, fa_count, lick_times, vstimON_time, plot_dprime, dprimebinp):
