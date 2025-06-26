@@ -1,14 +1,8 @@
 ##########################################################################################################
-################################### GO/NO-GO TASK FIRST RULE ################################################
+################################### GO/NO-GO TASK REVERSAL ################################################
 # Edited 6/22/2025
 # Duy Tran
-# This task include go and no-go trials but with features below:
-# Long ITI as punishment time for getting FA!
-# Variable ITIs
-# Lick-evoked reward delivery
-# 200ms at the end of the trial as reward lockout period, meaning no reward will be delivered regardless of licking
-# This reward lockout period is to make sure no reward is delivered at the very end of the trial
-# Use closed-loop circuit lick detection system
+# This is the same structure as the go_nogo_firstrule.py code but the stimulus identities are switched!
 ##########################################################################################################
 
 # import packages for the task
@@ -41,9 +35,9 @@ class TimedStateMachine(Machine):
     pass
 
 #################################################################################
-################################### First Rule #####################################
+################################### Reversal #####################################
 #################################################################################
-class go_nogo_firstrule(object):
+class go_nogo_reversal(object):
     def __init__(self, **kwargs):  # name and session_info should be provided as kwargs
 
         # if no name or session, make fake ones (for testing purposes)
@@ -283,10 +277,10 @@ class go_nogo_firstrule(object):
         self.trial_running = True
         self.trial_type = "go"
         logging.info(str(time.time()) + ", initializing vstim_go")
-        self.box.visualstim_go.show_grating(list(self.box.visualstim_go.gratings)[0])
+        self.box.visualstim_go.show_grating(list(self.box.visualstim_nogo.gratings)[0])
         logging.info(str(time.time()) + ", vstim_go ON!")
         self.time_at_vstim_ON = time.time() - self.trial_start_time
-        self.box.sound1.on()
+        self.box.sound2.on()
         logging.info(str(time.time()) + ", sound_go ON!")
 
     def exit_vstim_go(self):
@@ -296,10 +290,10 @@ class go_nogo_firstrule(object):
         self.trial_running = True
         self.trial_type = "no_go"
         logging.info(str(time.time()) + ", initializing vstim_nogo")
-        self.box.visualstim_nogo.show_grating(list(self.box.visualstim_nogo.gratings)[0])
+        self.box.visualstim_nogo.show_grating(list(self.box.visualstim_go.gratings)[0])
         logging.info(str(time.time()) + ", vstim_nogo ON!")
         self.time_at_vstim_ON = time.time() - self.trial_start_time
-        self.box.sound2.on()
+        self.box.sound1.on()
         logging.info(str(time.time()) + ", sound_nogo ON!")
 
     def exit_vstim_nogo(self):
@@ -380,7 +374,7 @@ class go_nogo_firstrule(object):
     def exit_extra_iti(self):
         logging.info(str(time.time()) + ", exiting extra_iti")
 
-    def bait_firstrule(self):
+    def bait_reversal(self):
         # This function asks the user to input whether they want reward delivery
         # This is used to bait the animal to lick initially
         # If y, deliver reward, if hit enter, start random reward phase
