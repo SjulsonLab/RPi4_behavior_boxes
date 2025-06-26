@@ -210,11 +210,15 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
         if found:
             ax4.set_title('CRITERION REACHED!!!', fontsize=13)
             ax4.scatter(indices, dprimebinp[indices], marker='o', color='orange')
-            # print(f"Found {indices[1] - indices[0] + 1} consecutive trials with d' > 2.5")
-            # print(f"Starting at index {indices[0]}, ending at index {indices[1]}")
+            textstr_dprime = '\n'.join((
+                f"Found {indices[1] - indices[0] + 1} consecutive trials with d' > 2.5",
+                f"Starting at index {indices[0]}, ending at index {indices[1]}"))
+            ax4.text(0.05, 0.95, textstr_dprime, fontsize=11, verticalalignment='bottom')
         else:
             ax4.set_title('D-prime', fontsize=11)
-            print("No sequence of 30+ consecutive trials with d' > 2.5 found")
+            textstr_dprime = '\n'.join((
+                f"No sequence of 30+ consecutive trials with d' > 2.5 found"))
+            ax4.text(0.05, 0.95, textstr_dprime, fontsize=11, verticalalignment='bottom')
 
     ########################################################################
     # draw on canvas to display via pygame
