@@ -41,23 +41,29 @@ from go_nogo_firstrule import go_nogo_firstrule
 
 # define dprime processing function for criterion
 # default is dprime>2.5 for at least 30 consecutive trials
-def check_consecutive_dprime(dprime_values, threshold=2.5, min_consecutive=30):
+def check_consecutive_dprime(dprime_values, threshold=2.5, min_consecutive=30, ignore_first=30):
     """
-    Check if there are at least min_consecutive trials with d' > threshold.
+    Check if there are at least min_consecutive trials with d' > threshold,
+    ignoring the first ignore_first trials.
     
     Parameters:
     - dprime_values: List or array of d' values
     - threshold: Threshold value for d' (default 2.5)
     - min_consecutive: Minimum number of consecutive trials required (default 30)
+    - ignore_first: Number of initial trials to ignore (default 40)
     
     Returns:
     - True if condition is met, False otherwise
     - Also returns the indices where this occurs (if found)
     """
+    if ignore_first >= len(dprime_values):
+        return False, None
+    
     consecutive_count = 0
     start_index = -1
     
-    for i, value in enumerate(dprime_values):
+    for i in range(ignore_first, len(dprime_values)):
+        value = dprime_values[i]
         if value > threshold:
             consecutive_count += 1
             if consecutive_count == 1:  # First in potential sequence
