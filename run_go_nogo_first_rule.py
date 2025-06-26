@@ -215,7 +215,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
         found, indices = check_consecutive_dprime(dprimebinp)
         if found:
             ax4.set_title('CRITERION REACHED!!!', fontsize=13)
-            ax4.scatter(indices, dprimebinp[indices], marker='o', color='orange')
+            ax4.scatter(np.arange(indices[0],indices[1]+1), dprimebinp[indices[0]:indices[1]+1], marker='o', color='orange')
             textstr_dprime = f"Found {indices[1] - indices[0] + 1} consecutive trials with d' > 2.5\nStarting at index {indices[0]}, ending at index {indices[1]}"
             ax4.text(0.05, 2.5, textstr_dprime, fontsize=11, verticalalignment='bottom')
         else:
