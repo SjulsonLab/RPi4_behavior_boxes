@@ -219,12 +219,12 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
             textstr_dprime = '\n'.join((
                 f"Found {indices[1] - indices[0] + 1} consecutive trials with d' > 2.5",
                 f"Starting at index {indices[0]}, ending at index {indices[1]}"))
-            ax4.text(0.05, 0.95, textstr_dprime, fontsize=11, verticalalignment='bottom')
+            ax4.text(0.05, 0.95, textstr_dprime, fontsize=11, verticalalignment='top')
         else:
             ax4.set_title('D-prime', fontsize=11)
             textstr_dprime = '\n'.join((
                 f"No sequence of 30+ consecutive trials with d' > 2.5 found"))
-            ax4.text(0.05, 0.95, textstr_dprime, fontsize=11, verticalalignment='bottom')
+            ax4.text(0.05, 0.95, textstr_dprime, fontsize=11, verticalalignment='top')
 
     ########################################################################
     # draw on canvas to display via pygame
