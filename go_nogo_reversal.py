@@ -277,11 +277,11 @@ class go_nogo_reversal(object):
         self.trial_running = True
         self.trial_type = "go"
         logging.info(str(time.time()) + ", initializing vstim_go")
-        self.box.visualstim_go.show_grating(list(self.box.visualstim_nogo.gratings)[0])
-        logging.info(str(time.time()) + ", vstim_go ON!")
+        self.box.visualstim_nogo.show_grating(list(self.box.visualstim_nogo.gratings)[0])
+        logging.info(str(time.time()) + ", vstim_nogo ON!")
         self.time_at_vstim_ON = time.time() - self.trial_start_time
         self.box.sound2.on()
-        logging.info(str(time.time()) + ", sound_go ON!")
+        logging.info(str(time.time()) + ", sound_nogo ON!")
 
     def exit_vstim_go(self):
         logging.info(str(time.time()) + ", exiting lockout period")
@@ -290,11 +290,11 @@ class go_nogo_reversal(object):
         self.trial_running = True
         self.trial_type = "no_go"
         logging.info(str(time.time()) + ", initializing vstim_nogo")
-        self.box.visualstim_nogo.show_grating(list(self.box.visualstim_go.gratings)[0])
-        logging.info(str(time.time()) + ", vstim_nogo ON!")
+        self.box.visualstim_go.show_grating(list(self.box.visualstim_go.gratings)[0])
+        logging.info(str(time.time()) + ", vstim_go ON!")
         self.time_at_vstim_ON = time.time() - self.trial_start_time
         self.box.sound1.on()
-        logging.info(str(time.time()) + ", sound_nogo ON!")
+        logging.info(str(time.time()) + ", sound_go ON!")
 
     def exit_vstim_nogo(self):
         logging.info(str(time.time()) + ", exiting lockout period")
