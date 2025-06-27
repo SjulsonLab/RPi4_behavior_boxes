@@ -37,7 +37,7 @@ if debug_enable:
     ipython.magic("xmode Verbose")
 
 # import the go_nogo_task task class here
-from go_nogo_firstrule import go_nogo_firstrule
+from go_nogo_reversal import go_nogo_reversal
 
 # define dprime processing function for criterion
 # default is dprime>2.5 for at least 30 consecutive trials
@@ -322,7 +322,7 @@ if __name__ == "__main__":
         elif training_phase == "allgo":
             # phase 0 is the first day of training (after habituation)
             while training_phase == "allgo":
-                task.bait_firstrule()
+                task.bait_reversal()
                 
                 if task.deliver_reward == "y":  # start allgo of training
 
