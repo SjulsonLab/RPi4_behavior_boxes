@@ -64,7 +64,7 @@ def check_consecutive_dprime(dprime_values, threshold=2.5, min_consecutive=30, i
     
     for i in range(ignore_first, len(dprime_values)):
         value = dprime_values[i]
-        if value > threshold:
+        if value >= threshold:
             consecutive_count += 1
             if consecutive_count == 1:  # First in potential sequence
                 start_index = i
