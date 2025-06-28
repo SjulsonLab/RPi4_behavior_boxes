@@ -458,7 +458,7 @@ class go_nogo_reversal(object):
             pass
 
         elif self.state == "vacuum":
-            self.box.sound1.off()
+            self.box.sound2.off()
             logging.info(str(time.time()) + ", sound_go OFF!")
             self.start_assessment()
 
@@ -503,7 +503,7 @@ class go_nogo_reversal(object):
                 self.start_vacuum_temp2()
 
         elif self.state == "vacuum":
-            self.box.sound2.off()
+            self.box.sound1.off()
             logging.info(str(time.time()) + ", sound_nogo OFF!")
             logging.info(str(time.time()) + ", no vacuum!")
             self.start_assessment()
