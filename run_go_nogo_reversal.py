@@ -373,7 +373,7 @@ if __name__ == "__main__":
                         #     print("Hit criterion is achieved!!!")
                         #     raise SystemExit
 
-        elif training_phase == "firstrule":
+        elif training_phase == "reversal":
             for i in range(session_info['number_of_trials']):
                 ident_random = (round(random.uniform(0, 1) * 100)) % 2
 
