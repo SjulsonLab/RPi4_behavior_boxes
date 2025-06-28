@@ -263,7 +263,7 @@ if __name__ == "__main__":
         session_info['mouse_name'] = animal_ID
         animal_weight = input("Enter animal weight (ex 19.5):\n")
         session_info['weight'] = animal_weight
-        training_phase = input("Enter training_phase (calibrate or allgo or firstrule):\n")
+        training_phase = input("Enter training_phase (calibrate or allgo or reversal):\n")
         session_info['training_phase'] = training_phase
 
         session_info['date'] = datestr
@@ -291,7 +291,7 @@ if __name__ == "__main__":
         )
 
         # initiate task object
-        task = go_nogo_firstrule(name="go_nogo_firstrule", session_info=session_info)
+        task = go_nogo_reversal(name="go_nogo_reversal", session_info=session_info)
         trial_list = list(range(0, session_info["number_of_trials"]))
         combine_trial_outcome = ["" for o in range(session_info["number_of_trials"])]
         hit_count = [0 for o in range(session_info["number_of_trials"])]
