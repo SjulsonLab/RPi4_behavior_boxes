@@ -7,6 +7,7 @@ import datetime as dt
 from picamera2 import Picamera2, Preview, MappedArray
 from picamera2.encoders import H264Encoder, Quality
 from picamera2.outputs import FileOutput
+import irig_h_gpio as irig
 import cv2
 from libcamera import controls
 from threading import Thread, Event
@@ -15,6 +16,9 @@ import RPi.GPIO as GPIO
 import os
 import signal
 from pathlib import Path
+
+from debug.direct_acquisition_picamera2 import base_path
+
 
 # this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
@@ -27,7 +31,13 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-base_path = sys.argv[1]
+output_path = Path('~/buffer/irig_output')
+
+datestr = dt.now().strftime("%Y-%m-%d")
+timestr = dt.now().strftime('%H%M%S')
+datetime = datestr + '_' + timestr
+session_name = 'irig_' + datetime
+base_path = str((output_path / session_name).resolve())
 
 # set high thread priority - may require sudo access
 try:
@@ -84,13 +94,14 @@ class TimestampOutput(object):
         self._stop_flag = False
 
     def append_timestamps(self, request):
-        cur_time = time.time()
         meta = request.get_metadata()
+        cur_time = time.time()
         # cur_time = dt.datetime.now(dt.timezone.utc)  # alternately use datetime module, which is a tad slower
         self._timestamps.append((
             meta['SensorTimestamp'],
-            meta['FrameDuration'],
-            cur_time
+            cur_time,
+            # cur_time.timestamp(),  # for datetime module
+            time.perf_counter_ns()
         ))
 
         # if using time module for speed, strftime doesn't include milliseconds for some reason
@@ -106,7 +117,7 @@ class TimestampOutput(object):
 
     def flush(self):
         with io.open(self._timestampFile, 'w') as f:
-            f.write('Sensor Timestamp (ns), Frame Duration (ms), time.time()\n')
+            f.write('Sensor Timestamp (ns), time.time(), time.perf_counter_ns()\n')
             for entry in self._timestamps:
                 f.write('%f,%f,%f\n' % entry)
 
@@ -208,7 +219,8 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     try:
         print('Starting Recording')
         camera.start_recording(encoder, output)
-        # camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # for V3 camera; comment this out for HQ camera, which uses manual focus
+#        camera.set_controls({"AfMode": controls.AfModeEnum.Manual,
+#                             "LensPosition": 10.0})
         time.sleep(2)
         camera.set_controls({
             'AeEnable': False,
@@ -217,6 +229,7 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         time.sleep(2)
         print('Started Recording')
         while True:
+            irig.generate_and_send_irig_h() # might bring up issues later without multithreading
             # time.sleep(.001)
             continue
 
@@ -228,5 +241,7 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         print(e)
 
     finally:
+        irig.finish()
         timestamps.close()
         sys.exit(0)
+        

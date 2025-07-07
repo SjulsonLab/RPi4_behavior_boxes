@@ -101,6 +101,9 @@ class BehavBox(Box):
             self.lick1 = Button(pin=26, pull_up=None, active_state=False)
             self.lick2 = Button(pin=27, pull_up=None, active_state=False)
             self.lick3 = Button(pin=15, pull_up=None, active_state=False)
+            # self.lick1 = Button(pin=26, pull_up=True)
+            # self.lick2 = Button(pin=27, pull_up=True)
+            # self.lick3 = Button(pin=15, pull_up=True)
         elif self.session_info["lick_input_setting"] == "signal_high":
             self.lick1 = Button(26, pull_up=None, active_state=True)
             self.lick2 = Button(27, pull_up=None, active_state=True)
@@ -144,8 +147,10 @@ class BehavBox(Box):
             except Exception as error_message:
                 print("visualstim issue - module not loaded \n")
                 print(str(error_message))
+                
         else:
             pass
+
         ###############################################################################################
         # ADC(Adafruit_ADS1x15) setup
         ###############################################################################################
@@ -156,7 +161,7 @@ class BehavBox(Box):
             print(str(error_message))
 
         # ###############################################################################################
-        # # treadmill setup
+        # treadmill setup
         # ###############################################################################################
         if self.session_info['treadmill']:
             try:

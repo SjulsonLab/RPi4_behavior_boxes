@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""
+This script is used to start a video recording with the Raspberry Pi HQ camera.
+It is meant to run independently of behavior code, outputting its own strobe/flipper signal and timestamps.
+"""
+
+
 from gpiozero import Button
 import io
 import time
@@ -12,9 +18,11 @@ from libcamera import controls
 from threading import Thread, Event
 import sys
 import RPi.GPIO as GPIO
+from gpiozero import LED, Button
 import os
 import signal
 from pathlib import Path
+import random
 
 # this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
@@ -66,28 +74,54 @@ FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + video_dt + ".csv"
 # set raspberry pi board layout to BCM
 pin_flipper = 4
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-#timestamp output object to save timestamps according to pi and TTL inputs received and write to file
+# Class to hold flipper and camera timestamps
 class TimestampOutput(object):
 
     def __init__(self, timestamp_filename, flipper_filename):
         self._timestampFile = timestamp_filename
         self._flipper_file = flipper_filename
-        self._timestamps = []
+        self._camera_timestamps = []
         self._flipper_timestamps = []
 
-        self.flip_state = GPIO.input(pin_flipper)
-        self.flip_thread = None
-        self.event_thread = None
-        self.state_change = Event()
-        self._stop_flag = False
+        self._flipper = LED(pin_flipper)
+        self._flip_thread = None
+        self._stop_flag = Event()
+        self._running = False
 
-    def append_timestamps(self, request):
+    def flip(self, time_min=0.5, time_max=2, n=None):
+        self._stop_flip()
+        self._flipper.off()
+        self._running = True
+        self._stop_flag.clear()
+        self._flip_thread = Thread(target=self._flip_device, args=(time_min, time_max, n))
+        self._flip_thread.start()
+
+    def _flip_device(self, time_min, time_max, n):
+        while self._running:
+            on_time = round(random.uniform(time_min, time_max), 3)
+            off_time = round(random.uniform(time_min, time_max), 3)
+
+            self._flipper.on()  # change this to your GPIO on method
+            pin_state = self._flipper.value  # change this to your GPIO state check method
+            timestamp = (pin_state, time.time())
+            self._flipper_timestamps.append(timestamp)
+            if self._stop_flag.wait(on_time):
+                self._flipper.off()
+                break
+
+            self._flipper.off()
+            pin_state = self._flipper.value
+            timestamp = (pin_state, time.time())
+            self._flipper_timestamps.append(timestamp)
+            if self._stop_flag.wait(off_time):
+                break
+
+    def append_camera_timestamps(self, request):
         cur_time = time.time()
         meta = request.get_metadata()
         # cur_time = dt.datetime.now(dt.timezone.utc)  # alternately use datetime module, which is a tad slower
-        self._timestamps.append((
+        self._camera_timestamps.append((
             meta['SensorTimestamp'],
             meta['FrameDuration'],
             cur_time
@@ -99,7 +133,7 @@ class TimestampOutput(object):
         sec = time.strftime("%H:%M:%S", time.gmtime(cur_time))
         strftime = '.'.join((sec, millisec))
         # strftime = cur_time.strftime("%H:%M:%S.%f")  # for datetime module
-        txt = '{:.3f}; {}; {:.2f} fps'.format((meta['SensorTimestamp'] - self._timestamps[0][0]) / 1e9,
+        txt = '{:.3f}; {}; {:.2f} fps'.format((meta['SensorTimestamp'] - self._camera_timestamps[0][0]) / 1e9,
                                               strftime, framerate)
         with MappedArray(request, "main") as m:
             cv2.putText(m.array, txt, origin, font, scale, colour, thickness)
@@ -107,74 +141,32 @@ class TimestampOutput(object):
     def flush(self):
         with io.open(self._timestampFile, 'w') as f:
             f.write('Sensor Timestamp (ns), Frame Duration (ms), time.time()\n')
-            for entry in self._timestamps:
+            for entry in self._camera_timestamps:
                 f.write('%f,%f,%f\n' % entry)
 
         with io.open(self._flipper_file, 'w') as f:
-            f.write('Input State, time.time(), time.perf_counter_ns()\n')
+            f.write('pin_state, time.time()\n')
             for entry in self._flipper_timestamps:
-                f.write('%f,%f,%f\n' % entry)
+                f.write('%f,%f\n' % entry)
 
-    def GPIO_loop(self, bouncetime=BOUNCETIME):
-        while True:
-            cur_state = GPIO.input(pin_flipper)
-            if cur_state != self.flip_state:
-                self.flip_state = cur_state
-                self.state_change.set()
-                time.sleep(bouncetime / 1000)  # Convert milliseconds to seconds
-            else:
-                self.state_change.clear()
-                time.sleep(.001)
-
-            if self._stop_flag:
-                print("Stopping GPIO loop")
-                break
-
-    def flipper_callback_GPIO(self, pin):
-        self.flip_state = GPIO.input(pin)
-        self._flipper_timestamps.append((self.flip_state,
-                                         time.time(),
-                                         time.perf_counter_ns()))
-
-    def flipper_callback(self):
-        self._flipper_timestamps.append((self.flip_state,
-                                         time.time(),
-                                         time.perf_counter_ns()))
-
-    def event_loop(self):
-        while True:
-            if self.state_change.is_set():
-                self.flipper_callback()
-                self.state_change.clear()
-            else:
-                time.sleep(0.001)
-
-            if self._stop_flag:
-                print("Stopping event loop")
-                break
-
-    def close_threads(self):
+    def _stop_flip(self):
         print("Closing threads")
-        self._stop_flag = True
-        if self.flip_thread is not None:
-            self.flip_thread.join()
-            self.flip_thread = None
-        if self.event_thread is not None:
-            self.event_thread.join()
-            self.event_thread = None
+        if self._flip_thread is None:
+            print("No flipper thread to stop")
+            return
+        else:
+            self._running = False
+            self._stop_flag.set()
+            self._flip_thread.join(5)
+            if self._flip_thread.is_alive():
+                raise Exception("Flipper thread not closed")
+            else:
+                self._flip_thread = None
+                print("Flipper thread is closed!")
 
     def close(self):
-        self.close_threads()
+        self._stop_flip()
         self.flush()
-
-    def start_flipper_thread(self):
-        if self.flip_thread is None:
-            self.flip_thread = Thread(target=self.GPIO_loop)
-            self.event_thread = Thread(target=self.event_loop)
-            self.event_thread.start()
-            self.flip_thread.start()
-        else:
-            print("Flipper thread already running")
 
 
 # Picam2 has brightness, contrast, sharpness, saturation, exposure modes, awb_mode
@@ -197,10 +189,8 @@ camera.configure(config)
 print("Camera configuration aligned to {}".format(camera.video_configuration.size))
 
 timestamps = TimestampOutput(TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
-camera.pre_callback = timestamps.append_timestamps
+camera.pre_callback = timestamps.append_camera_timestamps
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
-# timestamps.start_flipper_thread()
-GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=timestamps.flipper_callback_GPIO, bouncetime=100)
 
 with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     encoder = H264Encoder()
@@ -223,7 +213,6 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     except Exception as e:
         camera.stop_recording()
         camera.stop_preview()
-        timestamps.close_threads()
         print('Recording Stopped')
         print(e)
 

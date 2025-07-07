@@ -27,7 +27,7 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-base_path = sys.argv[1]
+base_path = 'TBD'
 
 # set high thread priority - may require sudo access
 try:
