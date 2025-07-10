@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-from gpiozero import Button
 import io
 import time
 import datetime as dt
 from picamera2 import Picamera2, Preview, MappedArray
-from picamera2.encoders import H264Encoder, Quality
+from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
-import irig_h_gpio as irig
+from video_acquisition import irig_h_gpio as irig
 import cv2
 from libcamera import controls
 from threading import Thread, Event
@@ -16,8 +15,6 @@ import RPi.GPIO as GPIO
 import os
 import signal
 from pathlib import Path
-
-from debug.direct_acquisition_picamera2 import base_path
 
 
 # this function is called when the program receives a SIGINT
