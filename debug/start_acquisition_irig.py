@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+from gpiozero import Button
 import io
 import time
 import datetime as dt
 from picamera2 import Picamera2, Preview, MappedArray
-from picamera2.encoders import H264Encoder
+from picamera2.encoders import H264Encoder, Quality
 from picamera2.outputs import FileOutput
-from video_acquisition import irig_h_gpio as irig
+import irig_h_gpio as irig
 import cv2
 from libcamera import controls
 from threading import Thread, Event
@@ -15,7 +16,6 @@ import RPi.GPIO as GPIO
 import os
 import signal
 from pathlib import Path
-
 
 # this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
@@ -224,9 +224,17 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
             'AwbEnable': False,
         })
         time.sleep(2)
+
         print('Started Recording')
+
+        # Start irig sending background thread
+        irig_sender_thread = Thread(target=irig.start_irig_sending, daemon=True)
+        irig_sender_thread.start()
+
+        # UNCOMMENT THIS AND COMMENT THE OTHER CODE TO REMOVE MULTITHREADING
+        # irig.start_irig_sending()
+
         while True:
-            irig.generate_and_send_irig_h() # might bring up issues later without multithreading
             # time.sleep(.001)
             continue
 
