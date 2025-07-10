@@ -17,8 +17,6 @@ import os
 import signal
 from pathlib import Path
 
-from video_acquisition.start_acquisition_picamera2 import IRIG_FILE_NAME
-
 
 # this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
@@ -31,10 +29,10 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-output_path = Path('~/buffer/irig_output')
+output_path = Path('/home/pi/buffer/irig_output')
 
-datestr = dt.now().strftime("%Y-%m-%d")
-timestr = dt.now().strftime('%H%M%S')
+datestr = dt.datetime.now().strftime("%Y-%m-%d")
+timestr = dt.datetime.now().strftime('%H%M%S')
 datetime = datestr + '_' + timestr
 session_name = 'irig_' + datetime
 base_path = str((output_path / session_name).resolve())
@@ -91,6 +89,7 @@ class TimestampOutput(object):
         self.flip_state = GPIO.input(pin_flipper)
         self.flip_thread = None
         self.event_thread = None
+        self.irig_thread = None
         self.state_change = Event()
         self._stop_flag = False
 
@@ -153,6 +152,16 @@ class TimestampOutput(object):
                                          time.time(),
                                          time.perf_counter_ns()))
 
+    def start_irig_sending(self):
+        """
+        Continuously sends irig timecodes in an unending while loop.
+        """
+        while True:
+            irig.generate_and_send_irig_h()
+            if self._stop_flag:
+                print("Stopping IRIG sending")
+                break
+
     def event_loop(self):
         while True:
             if self.state_change.is_set():
@@ -174,10 +183,14 @@ class TimestampOutput(object):
         if self.event_thread is not None:
             self.event_thread.join()
             self.event_thread = None
+        if self.irig_thread is not None:
+            self.irig_thread.join()
+            self.irig_thread = None
 
     def close(self):
         self.close_threads()
         self.flush()
+        irig.finish(IRIG_FILE_NAME)
 
     def start_flipper_thread(self):
         if self.flip_thread is None:
@@ -232,8 +245,10 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         print('Started Recording')
 
         # Start irig sending background thread
-        irig_sender_thread = Thread(target=irig.start_irig_sending, daemon=True)
-        irig_sender_thread.start()
+        # irig_sender_thread = Thread(target=irig.start_irig_sending, daemon=True)
+        # irig_sender_thread.start()
+        timestamps.irig_thread = Thread(target=irig.start_irig_sending, daemon=True)
+        timestamps.irig_thread.start()
 
         # UNCOMMENT THIS AND COMMENT THE OTHER CODE TO REMOVE MULTITHREADING
         # irig.start_irig_sending()
@@ -250,7 +265,7 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         print(e)
 
     finally:
-        irig.finish(IRIG_FILE_NAME)
+        # irig.finish(IRIG_FILE_NAME)
         timestamps.close()
         sys.exit(0)
         
