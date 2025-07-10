@@ -17,6 +17,9 @@ import os
 import signal
 from pathlib import Path
 
+from video_acquisition.start_acquisition_picamera2 import IRIG_FILE_NAME
+
+
 # this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
     print("SIGINT detected")
@@ -69,6 +72,7 @@ video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output_" + video_dt + ".h264"
 TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp_" + video_dt + ".csv"
 FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + video_dt + ".csv"
+IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig_" + video_dt + ".csv"
 
 # set raspberry pi board layout to BCM
 pin_flipper = 4
@@ -246,7 +250,7 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         print(e)
 
     finally:
-        irig.finish()
+        irig.finish(IRIG_FILE_NAME)
         timestamps.close()
         sys.exit(0)
         

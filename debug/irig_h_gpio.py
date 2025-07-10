@@ -3,7 +3,8 @@ import pigpio
 import time
 from datetime import datetime as dt
 import datetime
-import pandas as pd
+# import pandas as pd
+import io
 
 # Constants for timecode sending
 SENDING_GPIO_PIN = 6 
@@ -341,15 +342,20 @@ def start_irig_sending():
     while True:
         generate_and_send_irig_h()
 
-def write_timestamps_to_file():
+def write_timestamps_to_file(filename: str):
     data = zip(encoded_times, sending_starts)
-    df = pd.DataFrame(data, columns=['Encoded times','Sending starts'])
-    df.to_csv(TIMESTAMP_FILE_NAME, index=False)
+    # df = pd.DataFrame(data, columns=['Encoded times','Sending starts'])
+    # df.to_csv(TIMESTAMP_FILE_NAME, index=False)
 
-def finish():
+    with io.open(filename, 'w') as f:
+        f.write('Encoded times, Sending starts\n')
+        for entry in data:
+            f.write('%f,%f\n' % entry)
+
+def finish(filename: str):
     """
     Something to run when timecode sending is finished; resets the sending GPIO pin and stops pigpio.
     """
-    write_timestamps_to_file()
+    write_timestamps_to_file(filename)
     pi.write(SENDING_GPIO_PIN, 0)
     pi.stop()
