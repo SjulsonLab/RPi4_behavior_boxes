@@ -1,5 +1,5 @@
 from typing import List
-# import pigpio
+import pigpio
 import time
 from datetime import datetime as dt
 import datetime
@@ -13,7 +13,7 @@ DECODE_BIT_PERIOD = 1 / 25_000 # for now frame rate is 25 kHz
 # pulse length thresholds (in seconds)
 P_THRESHOLD = 0.75 * SENDING_BIT_LENGTH # for pulse length of 0.8b
 ONE_THRESHOLD = 0.45 * SENDING_BIT_LENGTH # for pulse length of 0.5b
-ZERO_THRESHOLD = 0.05 * SENDING_BIT_LENGTH # for pulse length of 0.2b. This is to make sure error isnt recorded
+ZERO_THRESHOLD = 0.05 * SENDING_BIT_LENGTH # for pulse length of 0.2b. This is to make sure error isn't recorded
 
 # Weights for the encoding values in an IRIG timecode
 SECONDS_WEIGHTS = [1, 2, 4, 8, 10, 20, 40]
