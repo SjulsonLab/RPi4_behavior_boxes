@@ -188,6 +188,7 @@ class IrigHSender():
         self.sending_starts = []
 
         self.sender_thread = Thread(target=self.continuous_irig_sending, daemon=True)
+        self.stop_flag = False
 
     # ------------------------- IRIG GENERATION ------------------------- #
     
@@ -348,8 +349,12 @@ class IrigHSender():
         """
         while True:
             self.generate_and_send_irig_h()
+            if self.stop_flag:
+                print("Stopping IRIG sending")
+                break
 
     def start(self):
+        self.stop_flag = False
         self.sender_thread.start()
 
     def write_timestamps_to_file(self):
@@ -363,6 +368,7 @@ class IrigHSender():
                 f.write('%f,%f\n' % entry)
 
     def close_thread(self):
+        self.stop_flag = True
         self.sender_thread.join()
         self.sender_thread = None
 
@@ -370,7 +376,7 @@ class IrigHSender():
         """
         Something to run when timecode sending is finished; resets the sending GPIO pin and stops pigpio.
         """
-        self.close_thread()
         self.write_timestamps_to_file()
         self.pi.write(self.sending_gpio_pin, 0)
         self.pi.stop()
+        self.close_thread()
