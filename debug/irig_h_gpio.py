@@ -310,6 +310,10 @@ class IrigHSender():
                 self.pi.write(self.sending_gpio_pin, 0)
                 time.sleep(SENDING_BIT_LENGTH * 0.8)
 
+            if self.stop_flag:
+                print("Stopping IRIG sending")
+                break
+
     def send_irig_h_frame2(self, frame: List[IRIG_BIT]):
         """
         Sends a full IRIG-H timecode through the GPIO pin using a while loop that checks the current time and sends the correct bit at the correct time.
@@ -332,9 +336,14 @@ class IrigHSender():
             else:
                 self.pi.write(self.sending_gpio_pin, 1 if bit_time_seconds < 0.2 * SENDING_BIT_LENGTH else 0)
         
+            if self.stop_flag:
+                print("Stopping IRIG sending")
+                break
+
             time.sleep(self.sending_loop_period)
 
-    def generate_and_send_irig_h(self): 
+
+    def generate_and_send_irig_h(self):
         """
         Generates a full IRIG-H frame for when this is called, then sends it over the course of a frame interval.
         """
@@ -373,10 +382,7 @@ class IrigHSender():
         self.sender_thread = None
 
     def finish(self):
-        """
-        Something to run when timecode sending is finished; resets the sending GPIO pin and stops pigpio.
-        """
-        self.write_timestamps_to_file()
+        self.close_thread()
         self.pi.write(self.sending_gpio_pin, 0)
         self.pi.stop()
-        self.close_thread()
+        self.write_timestamps_to_file()
