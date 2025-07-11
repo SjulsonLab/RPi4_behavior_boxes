@@ -29,13 +29,19 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-output_path = Path('/home/pi/buffer/irig_output')
+buffer_dir = Path('/home/pi/buffer/')
+# output_path = Path('/home/pi/buffer/irig_output')
 
 datestr = dt.datetime.now().strftime("%Y-%m-%d")
 timestr = dt.datetime.now().strftime('%H%M%S')
 datetime = datestr + '_' + timestr
 session_name = 'irig_' + datetime
-base_path = str((output_path / session_name).resolve())
+output_dir = buffer_dir / session_name
+base_path = str((output_dir / session_name).resolve())
+
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
 
 # set high thread priority - may require sudo access
 try:
@@ -152,15 +158,15 @@ class TimestampOutput(object):
                                          time.time(),
                                          time.perf_counter_ns()))
 
-    def start_irig_sending(self):
-        """
-        Continuously sends irig timecodes in an unending while loop.
-        """
-        while True:
-            irig.generate_and_send_irig_h()
-            if self._stop_flag:
-                print("Stopping IRIG sending")
-                break
+    # def start_irig_sending(self):
+    #     """
+    #     Continuously sends irig timecodes in an unending while loop.
+    #     """
+    #     while True:
+    #         irig.generate_and_send_irig_h()
+    #         if self._stop_flag:
+    #             print("Stopping IRIG sending")
+    #             break
 
     def event_loop(self):
         while True:
@@ -183,14 +189,14 @@ class TimestampOutput(object):
         if self.event_thread is not None:
             self.event_thread.join()
             self.event_thread = None
-        if self.irig_thread is not None:
-            self.irig_thread.join()
-            self.irig_thread = None
+        # if self.irig_thread is not None:
+        #     self.irig_thread.join()
+        #     self.irig_thread = None
 
     def close(self):
         self.close_threads()
         self.flush()
-        irig.finish(IRIG_FILE_NAME)
+        # irig.finish(IRIG_FILE_NAME)
 
     def start_flipper_thread(self):
         if self.flip_thread is None:
@@ -226,6 +232,7 @@ camera.pre_callback = timestamps.append_timestamps
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 # timestamps.start_flipper_thread()
 GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=timestamps.flipper_callback_GPIO, bouncetime=100)
+irig_sender = irig.IrigHSender(sending_gpio_pin=6)
 
 with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     encoder = H264Encoder()
@@ -235,6 +242,8 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         camera.start_recording(encoder, output)
 #        camera.set_controls({"AfMode": controls.AfModeEnum.Manual,
 #                             "LensPosition": 10.0})
+        irig_sender.start()
+
         time.sleep(2)
         camera.set_controls({
             'AeEnable': False,
@@ -247,8 +256,8 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         # Start irig sending background thread
         # irig_sender_thread = Thread(target=irig.start_irig_sending, daemon=True)
         # irig_sender_thread.start()
-        timestamps.irig_thread = Thread(target=irig.start_irig_sending, daemon=True)
-        timestamps.irig_thread.start()
+        # timestamps.irig_thread = Thread(target=irig.start_irig_sending, daemon=True)
+        # timestamps.irig_thread.start()
 
         # UNCOMMENT THIS AND COMMENT THE OTHER CODE TO REMOVE MULTITHREADING
         # irig.start_irig_sending()
@@ -265,7 +274,7 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         print(e)
 
     finally:
-        # irig.finish(IRIG_FILE_NAME)
+        irig_sender.finish()
         timestamps.close()
         sys.exit(0)
         

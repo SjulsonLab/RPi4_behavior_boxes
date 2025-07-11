@@ -3,16 +3,14 @@ import pigpio
 import time
 from datetime import datetime as dt
 import datetime
-# import pandas as pd
+import pandas as pd
+from threading import Thread
 import io
-
-# Constants for timecode sending
-SENDING_GPIO_PIN = 6 
-SENDING_BIT_LENGTH = 1 # in seconds
-SENDING_LOOP_PERIOD = 1 / 5000 # 5 kHz. decrease for less CPU usage
 
 IRIG_BIT = Literal[0,1,'P'] # type for IRIG-H bits
 BINARY_BIT = Literal[0,1] # type for binary bits
+
+SENDING_BIT_LENGTH = 1 # seconds
 
 # Constants for timecode measuring
 DECODE_BIT_PERIOD = 1 / 25_000 # for now frame rate is 25 kHz
@@ -28,17 +26,6 @@ HOURS_WEIGHTS = [1, 2, 4, 8, 10, 20]
 DAY_OF_YEAR_WEIGHTS = [1, 2, 4, 8, 10, 20, 40, 80, 100, 200]
 DECISECONDS_WEIGHTS = [1, 2, 4, 8]
 YEARS_WEIGHTS = [1, 2, 4, 8, 10, 20, 40, 80]
-
-base_path = 'irig_output'
-initialization_dt = str(dt.now().strftime("%Y-%m-%d_%H-%M-%S"))
-TIMESTAMP_FILE_NAME = base_path + "_timestamps_" + initialization_dt + ".csv"
-
-# Connect to pigpio daemon
-pi = pigpio.pi()
-if not pi.connected:
-    raise RuntimeError("Could not connect to pigpio daemon. Is 'pigpiod' running?")
-
-pi.set_mode(SENDING_GPIO_PIN, pigpio.OUTPUT)
 
 # ------------------------- BCD UTILITIES ------------------------- #
 # These are used for encoding and decoding IRIG-H timecodes.
@@ -66,100 +53,6 @@ def bcd_decode(binary: List[BINARY_BIT], weights: List[int]) -> int:
     for weight, bit in zip(weights, binary):
         total += bit * weight
     return total
-
-# ------------------------- IRIG GENERATION ------------------------- #
-
-encoded_times = []
-
-def generate_irig_h_frame() -> List[IRIG_BIT]:
-    """
-    Generates a 60-bit list-represented IRIG-H timecode basd on the current hardware time.
-    Includes seconds, minutes, hours, day of year, tenths of seconds, and year.
-    'P' is used for position identifiers.
-    """
-
-    now = dt.now() # Get the current local time
-    encoded_times.append(now.timestamp())
-
-    seconds_bcd = bcd_encode(now.second, SECONDS_WEIGHTS)
-    minutes_bcd = bcd_encode(now.minute, MINUTES_WEIGHTS)
-    hours_bcd = bcd_encode(now.hour, HOURS_WEIGHTS)
-    day_of_year_bcd = bcd_encode(now.timetuple().tm_yday, DAY_OF_YEAR_WEIGHTS)
-    deciseconds_bcd = bcd_encode(now.microsecond // 100000, DECISECONDS_WEIGHTS)
-    year_bcd = bcd_encode(now.year % 100, YEARS_WEIGHTS)
-
-    irig_h_list = []
-
-    # i had to write this all manually bc chatgpt is too stupid to do it i guess
-
-    # Bit 00: Pr (Frame marker)
-    irig_h_list.append('P')
-
-    # Bits 01-04: Seconds (Units) - Weights: 1, 2, 4, 8
-    irig_h_list.extend(seconds_bcd[0:4])
-    # Bit 05: Unused (0)
-    irig_h_list.append(0)
-    # Bits 06-08: Seconds (Tens) - Weights: 10, 20, 40
-    irig_h_list.extend(seconds_bcd[4:7])
-
-    # Bit 09: P1 (Position identifier)
-    irig_h_list.append('P')
-
-    # Bits 10-13: Minutes (Units) - Weights: 1, 2, 4, 8
-    irig_h_list.extend(minutes_bcd[0:4])
-    # Bit 14: Unused (0)
-    irig_h_list.append(0)
-    # Bits 15-17: Minutes (Tens) - Weights: 10, 20, 40
-    irig_h_list.extend(minutes_bcd[4:7])
-    # Bit 18: Unused (0)
-    irig_h_list.append(0)
-
-    # Bit 19: P2 (Position identifier)
-    irig_h_list.append('P')
-
-    # Bits 20-23: Hours (Units) - Weights: 1, 2, 4, 8
-    irig_h_list.extend(hours_bcd[0:4])
-    # Bir 24: Unused (0)
-    irig_h_list.append(0)
-    # Bits 25-26: Hours (Tens) - Weights: 10, 20
-    irig_h_list.extend(hours_bcd[4:6]) # Only 2 bits for tens (10, 20)
-    # Bit 27-28: Unused (0)
-    irig_h_list.extend([0,0])
-
-    # Bit 29: P3 (Position identifier)
-    irig_h_list.append('P')
-
-    # Bits 30-33: Day of year (Units) - Weights: 1, 2, 4, 8
-    irig_h_list.extend(day_of_year_bcd[0:4])
-    # Bit 34: Unused (0)
-    irig_h_list.append(0)
-    # Bits 35-38: Day of year (Tens) - Weights: 10, 20, 40, 80
-    irig_h_list.extend(day_of_year_bcd[4:8])
-    # Bit 39: P4 (Position identifier)
-    irig_h_list.append('P')
-    # Bits 40-41: Day of year (Hundreds) - Weights: 100, 200
-    irig_h_list.extend(day_of_year_bcd[8:10])
-
-    # Bits 42-44: Unused (0)
-    irig_h_list.extend([0,0,0])
-
-    # Bits 45-48: Deciseconds - Weights: 1, 2, 4, 8
-    irig_h_list.extend(deciseconds_bcd[0:4])
-
-    # Bit 49: P5 (Position identifier)
-    irig_h_list.append('P')
-
-    # Bits 50-53: Years (Units) - Weights: 1, 2, 4, 8
-    irig_h_list.extend(year_bcd[0:4])
-    # Bit 54: Unused (0)
-    irig_h_list.append(0)
-    # Bit 55-58: Years (Tens) - Weights: 10, 20, 40, 80
-    irig_h_list.extend(year_bcd[4:8])
-
-    # Bit 59: P6 (Position identifier)
-    irig_h_list.append('P')
-
-    return irig_h_list
 
 # ------------------------- IRIG DECODING ------------------------- #
 
@@ -268,94 +161,222 @@ def decode_full_measurement(binary_list: List[bool]) -> List[Tuple[float, float]
     """
 
     spliced = splice_binary_list(binary_list)
-    start_time_seconds = irig_h_to_posix(decode_to_irig_h(spliced[0][0])) if spliced else 0
-    return [((irig_h_to_posix(decode_to_irig_h(spliced[i][0])) - start_time_seconds), spliced[i][1]) for i in range(len(spliced))]
+    timecode_start_seconds = irig_h_to_posix(decode_to_irig_h(spliced[0][0])) if spliced else 0
+    timestamp_start_seconds = spliced[0][1] if spliced else 0
+    return [((irig_h_to_posix(decode_to_irig_h(spliced[i][0])) - timecode_start_seconds), spliced[i][1] - timestamp_start_seconds) for i in range(len(spliced))]
     
+class IrigHSender():
 
-# ------------------------- IRIG SENDING ------------------------- #
+    # base_path = 'irig_output'
+    # initialization_dt = str(dt.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    # TIMESTAMP_FILE_NAME = base_path + "_timestamps_" + initialization_dt + ".csv"
 
-sending_starts = []
+    def __init__(self, sending_gpio_pin: int, filename: str, sending_loop_period: float=1/5000):
+        # Constants for timecode sending
+        self.sending_gpio_pin = sending_gpio_pin # (6)
+        self.sending_loop_period = sending_loop_period # default 5 kHz. decrease for less CPU usage
+        self.filename = filename # file to save the IRIG-H timecodes to
 
-def send_irig_h_frame(frame: List[IRIG_BIT]):
-    """
-    Sends a full IRIG-H timecode through the GPIO pin.
-    """
-    sending_starts.append(dt.now().timestamp())
-    for i, bit in enumerate(frame):
-        # print bit info
-        if bit == 'P':
-            print(f"Bit {i:02d}: P")
-            pi.write(SENDING_GPIO_PIN, 1)
-            time.sleep(SENDING_BIT_LENGTH * 0.8)
-            pi.write(SENDING_GPIO_PIN, 0)
-            time.sleep(SENDING_BIT_LENGTH * 0.2)
-        elif bit == 1:
-            print(f"Bit {i:02d}: 1")
-            pi.write(SENDING_GPIO_PIN, 1)
-            time.sleep(SENDING_BIT_LENGTH * 0.5)
-            pi.write(SENDING_GPIO_PIN, 0)
-            time.sleep(SENDING_BIT_LENGTH * 0.5)
-        else:
-            print(f"Bit {i:02d}: 0")
-            pi.write(SENDING_GPIO_PIN, 1)
-            time.sleep(SENDING_BIT_LENGTH * 0.2)
-            pi.write(SENDING_GPIO_PIN, 0)
-            time.sleep(SENDING_BIT_LENGTH * 0.8)
+        # Connect to pigpio daemon
+        self.pi = pigpio.pi()
+        if not self.pi.connected:
+            raise RuntimeError("Could not connect to pigpio daemon. Is 'pigpiod' running?")
 
-def send_irig_h_frame2(frame: List[IRIG_BIT]):
-    """
-    Sends a full IRIG-H timecode through the GPIO pin using a while loop that checks the current time and sends the correct bit at the correct time.
-    This method is more accurate than the first method (no time.sleep() is used), but also more CPU-intensive.
-    """
-
-    start_time = dt.now()
-    sending_starts.append(start_time.timestamp())
-
-    frame_time_length = datetime.timedelta(seconds=len(frame)*SENDING_BIT_LENGTH)
-    while dt.now() < start_time + frame_time_length:
-        delta_t_seconds = (dt.now() - start_time).total_seconds()
-        bit = frame[int(delta_t_seconds // SENDING_BIT_LENGTH)]
-        bit_time_seconds = (delta_t_seconds % SENDING_BIT_LENGTH)
-
-        if bit == 'P':
-            pi.write(SENDING_GPIO_PIN, 1 if bit_time_seconds < 0.8 * SENDING_BIT_LENGTH else 0)
-        elif bit == 1:
-            pi.write(SENDING_GPIO_PIN, 1 if bit_time_seconds < 0.5 * SENDING_BIT_LENGTH else 0)
-        else:
-            pi.write(SENDING_GPIO_PIN, 1 if bit_time_seconds < 0.2 * SENDING_BIT_LENGTH else 0)
+        self.pi.set_mode(self.sending_gpio_pin, pigpio.OUTPUT)
         
-        time.sleep(SENDING_LOOP_PERIOD)
+        self.encoded_times = []
+        self.sending_starts = []
 
-def generate_and_send_irig_h(): 
-    """
-    Generates a full IRIG-H frame for when this is called, then sends it over the course of a frame interval.
-    """
+        self.sender_thread = Thread(target=self.continuous_irig_sending, daemon=True)
+        self.stop_flag = False
 
-    frame = generate_irig_h_frame()
-    send_irig_h_frame2(frame) # using method 2
-    print(f"Frame complete; restarting next {SENDING_BIT_LENGTH * 60 * 1000} milliseconds...")
+    # ------------------------- IRIG GENERATION ------------------------- #
+    
+    def generate_irig_h_frame(self) -> List[IRIG_BIT]:
+        """
+        Generates a 60-bit list-represented IRIG-H timecode basd on the current hardware time.
+        Includes seconds, minutes, hours, day of year, tenths of seconds, and year.
+        'P' is used for position identifiers.
+        """
 
-def start_irig_sending():
-    """
-    Continuously sends irig timecodes in an unending while loop.
-    """
-    while True:
-        generate_and_send_irig_h()
+        now = dt.now() # Get the current local time
+        self.encoded_times.append(now.timestamp())
 
-def write_timestamps_to_file(filename: str):
-    data = zip(encoded_times, sending_starts)
-    # df = pd.DataFrame(data, columns=['Encoded times','Sending starts'])
-    # df.to_csv(TIMESTAMP_FILE_NAME, index=False)
+        seconds_bcd = bcd_encode(now.second, SECONDS_WEIGHTS)
+        minutes_bcd = bcd_encode(now.minute, MINUTES_WEIGHTS)
+        hours_bcd = bcd_encode(now.hour, HOURS_WEIGHTS)
+        day_of_year_bcd = bcd_encode(now.timetuple().tm_yday, DAY_OF_YEAR_WEIGHTS)
+        deciseconds_bcd = bcd_encode(now.microsecond // 100000, DECISECONDS_WEIGHTS)
+        year_bcd = bcd_encode(now.year % 100, YEARS_WEIGHTS)
 
-    with io.open(filename, 'w') as f:
-        f.write('Encoded times, Sending starts\n')
-        for entry in data:
-            f.write('%f,%f\n' % entry)
+        irig_h_list = []
 
-def finish(filename: str):
-    """
-    Something to run when timecode sending is finished; resets the sending GPIO pin and stops pigpio.
-    """
-    write_timestamps_to_file(filename)
-    pi.write(SENDING_GPIO_PIN, 0)
-    pi.stop()
+        # i had to write this all manually bc chatgpt is too stupid to do it i guess
+
+        # Bit 00: Pr (Frame marker)
+        irig_h_list.append('P')
+
+        # Bits 01-04: Seconds (Units) - Weights: 1, 2, 4, 8
+        irig_h_list.extend(seconds_bcd[0:4])
+        # Bit 05: Unused (0)
+        irig_h_list.append(0)
+        # Bits 06-08: Seconds (Tens) - Weights: 10, 20, 40
+        irig_h_list.extend(seconds_bcd[4:7])
+
+        # Bit 09: P1 (Position identifier)
+        irig_h_list.append('P')
+
+        # Bits 10-13: Minutes (Units) - Weights: 1, 2, 4, 8
+        irig_h_list.extend(minutes_bcd[0:4])
+        # Bit 14: Unused (0)
+        irig_h_list.append(0)
+        # Bits 15-17: Minutes (Tens) - Weights: 10, 20, 40
+        irig_h_list.extend(minutes_bcd[4:7])
+        # Bit 18: Unused (0)
+        irig_h_list.append(0)
+
+        # Bit 19: P2 (Position identifier)
+        irig_h_list.append('P')
+
+        # Bits 20-23: Hours (Units) - Weights: 1, 2, 4, 8
+        irig_h_list.extend(hours_bcd[0:4])
+        # Bir 24: Unused (0)
+        irig_h_list.append(0)
+        # Bits 25-26: Hours (Tens) - Weights: 10, 20
+        irig_h_list.extend(hours_bcd[4:6]) # Only 2 bits for tens (10, 20)
+        # Bit 27-28: Unused (0)
+        irig_h_list.extend([0,0])
+
+        # Bit 29: P3 (Position identifier)
+        irig_h_list.append('P')
+
+        # Bits 30-33: Day of year (Units) - Weights: 1, 2, 4, 8
+        irig_h_list.extend(day_of_year_bcd[0:4])
+        # Bit 34: Unused (0)
+        irig_h_list.append(0)
+        # Bits 35-38: Day of year (Tens) - Weights: 10, 20, 40, 80
+        irig_h_list.extend(day_of_year_bcd[4:8])
+        # Bit 39: P4 (Position identifier)
+        irig_h_list.append('P')
+        # Bits 40-41: Day of year (Hundreds) - Weights: 100, 200
+        irig_h_list.extend(day_of_year_bcd[8:10])
+
+        # Bits 42-44: Unused (0)
+        irig_h_list.extend([0,0,0])
+
+        # Bits 45-48: Deciseconds - Weights: 1, 2, 4, 8
+        irig_h_list.extend(deciseconds_bcd[0:4])
+
+        # Bit 49: P5 (Position identifier)
+        irig_h_list.append('P')
+
+        # Bits 50-53: Years (Units) - Weights: 1, 2, 4, 8
+        irig_h_list.extend(year_bcd[0:4])
+        # Bit 54: Unused (0)
+        irig_h_list.append(0)
+        # Bit 55-58: Years (Tens) - Weights: 10, 20, 40, 80
+        irig_h_list.extend(year_bcd[4:8])
+
+        # Bit 59: P6 (Position identifier)
+        irig_h_list.append('P')
+
+        return irig_h_list
+
+    # ------------------------- IRIG SENDING ------------------------- #
+
+    def send_irig_h_frame(self, frame: List[IRIG_BIT]):
+        """
+        Sends a full IRIG-H timecode through the GPIO pin.
+        """
+        self.sending_starts.append(dt.now().timestamp())
+        for i, bit in enumerate(frame):
+            # print bit info
+            if bit == 'P':
+                print(f"Bit {i:02d}: P")
+                self.pi.write(self.sending_gpio_pin, 1)
+                time.sleep(SENDING_BIT_LENGTH * 0.8)
+                self.pi.write(self.sending_gpio_pin, 0)
+                time.sleep(SENDING_BIT_LENGTH * 0.2)
+            elif bit == 1:
+                print(f"Bit {i:02d}: 1")
+                self.pi.write(self.sending_gpio_pin, 1)
+                time.sleep(SENDING_BIT_LENGTH * 0.5)
+                self.pi.write(self.sending_gpio_pin, 0)
+                time.sleep(SENDING_BIT_LENGTH * 0.5)
+            else:
+                print(f"Bit {i:02d}: 0")
+                self.pi.write(self.sending_gpio_pin, 1)
+                time.sleep(SENDING_BIT_LENGTH * 0.2)
+                self.pi.write(self.sending_gpio_pin, 0)
+                time.sleep(SENDING_BIT_LENGTH * 0.8)
+
+    def send_irig_h_frame2(self, frame: List[IRIG_BIT]):
+        """
+        Sends a full IRIG-H timecode through the GPIO pin using a while loop that checks the current time and sends the correct bit at the correct time.
+        This method is more accurate than the first method (no time.sleep() is used), but also more CPU-intensive.
+        """
+
+        start_time = dt.now()
+        self.sending_starts.append(start_time.timestamp())
+
+        frame_time_length = datetime.timedelta(seconds=len(frame) * SENDING_BIT_LENGTH)
+        while dt.now() < start_time + frame_time_length:
+            delta_t_seconds = (dt.now() - start_time).total_seconds()
+            bit = frame[int(delta_t_seconds // SENDING_BIT_LENGTH)]
+            bit_time_seconds = (delta_t_seconds % SENDING_BIT_LENGTH)
+
+            if bit == 'P':
+                self.pi.write(self.sending_gpio_pin, 1 if bit_time_seconds < 0.8 * SENDING_BIT_LENGTH else 0)
+            elif bit == 1:
+                self.pi.write(self.sending_gpio_pin, 1 if bit_time_seconds < 0.5 * SENDING_BIT_LENGTH else 0)
+            else:
+                self.pi.write(self.sending_gpio_pin, 1 if bit_time_seconds < 0.2 * SENDING_BIT_LENGTH else 0)
+        
+            time.sleep(self.sending_loop_period)
+
+    def generate_and_send_irig_h(self): 
+        """
+        Generates a full IRIG-H frame for when this is called, then sends it over the course of a frame interval.
+        """
+
+        frame = self.generate_irig_h_frame()
+        self.send_irig_h_frame2(frame) # using method 2
+        print(f"Frame complete; restarting next {SENDING_BIT_LENGTH * 60 * 1000} milliseconds...")
+
+    def continuous_irig_sending(self):
+        """
+        Continuously sends irig timecodes in an unending while loop.
+        """
+        while True:
+            self.generate_and_send_irig_h()
+            if self.stop_flag:
+                print("Stopping IRIG sending")
+                break
+
+    def start(self):
+        self.stop_flag = False
+        self.sender_thread.start()
+
+    def write_timestamps_to_file(self):
+        data = zip(self.encoded_times, self.sending_starts)
+        # df = pd.DataFrame(data, columns=['Encoded times','Sending starts'])
+        # df.to_csv(self.filename, index=False)
+
+        with io.open(self.filename, 'w') as f:
+            f.write('Encoded times, Sending starts\n')
+            for entry in data:
+                f.write('%f,%f\n' % entry)
+
+    def close_thread(self):
+        self.stop_flag = True
+        self.sender_thread.join()
+        self.sender_thread = None
+
+    def finish(self):
+        """
+        Something to run when timecode sending is finished; resets the sending GPIO pin and stops pigpio.
+        """
+        self.write_timestamps_to_file()
+        self.pi.write(self.sending_gpio_pin, 0)
+        self.pi.stop()
+        self.close_thread()
