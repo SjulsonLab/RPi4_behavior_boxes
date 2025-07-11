@@ -232,7 +232,7 @@ camera.pre_callback = timestamps.append_timestamps
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 # timestamps.start_flipper_thread()
 GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=timestamps.flipper_callback_GPIO, bouncetime=100)
-irig_sender = irig.IrigHSender(sending_gpio_pin=6)
+irig_sender = irig.IrigHSender(sending_gpio_pin=6, filename=IRIG_FILE_NAME)
 
 with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     encoder = H264Encoder()
