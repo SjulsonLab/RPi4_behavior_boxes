@@ -7,6 +7,7 @@ import datetime as dt
 from picamera2 import Picamera2, Preview, MappedArray
 from picamera2.encoders import H264Encoder, Quality
 from picamera2.outputs import FileOutput
+import irig_h_gpio as irig
 import cv2
 from libcamera import controls
 from threading import Thread, Event
@@ -14,12 +15,8 @@ import sys
 import RPi.GPIO as GPIO
 import os
 import signal
-import irig_h_gpio as irig
 from pathlib import Path
 
-"""
-TODO: output IRIG stamps with time.time() stamps, just like the flipper GPIO stamps.
-"""
 
 # this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
@@ -32,7 +29,19 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-base_path = sys.argv[1]
+buffer_dir = Path('/home/pi/buffer/')
+# output_path = Path('/home/pi/buffer/irig_output')
+
+datestr = dt.datetime.now().strftime("%Y-%m-%d")
+timestr = dt.datetime.now().strftime('%H%M%S')
+datetime = datestr + '_' + timestr
+session_name = 'irig_' + datetime
+output_dir = buffer_dir / session_name
+base_path = str((output_dir / session_name).resolve())
+
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
 
 # set high thread priority - may require sudo access
 try:
@@ -74,33 +83,31 @@ pin_flipper = 4
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-pin_irig = 6
-
 #timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class TimestampOutput(object):
 
-    def __init__(self, timestamp_filename, flipper_filename, irig_filename=None):
+    def __init__(self, timestamp_filename, flipper_filename):
         self._timestampFile = timestamp_filename
         self._flipper_file = flipper_filename
-        self._irig_file = irig_filename  # Placeholder for IRIG file if needed
         self._timestamps = []
         self._flipper_timestamps = []
-        self._irig_timestamps = []  # Placeholder for IRIG timestamps if needed
 
         self.flip_state = GPIO.input(pin_flipper)
         self.flip_thread = None
         self.event_thread = None
+        self.irig_thread = None
         self.state_change = Event()
         self._stop_flag = False
 
     def append_timestamps(self, request):
-        cur_time = time.time()
         meta = request.get_metadata()
+        cur_time = time.time()
         # cur_time = dt.datetime.now(dt.timezone.utc)  # alternately use datetime module, which is a tad slower
         self._timestamps.append((
             meta['SensorTimestamp'],
-            meta['FrameDuration'],
-            cur_time
+            cur_time,
+            # cur_time.timestamp(),  # for datetime module
+            time.perf_counter_ns()
         ))
 
         # if using time module for speed, strftime doesn't include milliseconds for some reason
@@ -116,7 +123,7 @@ class TimestampOutput(object):
 
     def flush(self):
         with io.open(self._timestampFile, 'w') as f:
-            f.write('Sensor Timestamp (ns), Frame Duration (ms), time.time()\n')
+            f.write('Sensor Timestamp (ns), time.time(), time.perf_counter_ns()\n')
             for entry in self._timestamps:
                 f.write('%f,%f,%f\n' % entry)
 
@@ -124,8 +131,6 @@ class TimestampOutput(object):
             f.write('Input State, time.time(), time.perf_counter_ns()\n')
             for entry in self._flipper_timestamps:
                 f.write('%f,%f,%f\n' % entry)
-
-        irig.finish()
 
     def GPIO_loop(self, bouncetime=BOUNCETIME):
         while True:
@@ -153,12 +158,15 @@ class TimestampOutput(object):
                                          time.time(),
                                          time.perf_counter_ns()))
 
-    # def irig_callback(self, irig_data):
-    #     self._irig_timestamps.append((
-    #         irig_data,
-    #         time.time(),
-    #         time.perf_counter_ns()
-    #     ))
+    # def start_irig_sending(self):
+    #     """
+    #     Continuously sends irig timecodes in an unending while loop.
+    #     """
+    #     while True:
+    #         irig.generate_and_send_irig_h()
+    #         if self._stop_flag:
+    #             print("Stopping IRIG sending")
+    #             break
 
     def event_loop(self):
         while True:
@@ -181,10 +189,14 @@ class TimestampOutput(object):
         if self.event_thread is not None:
             self.event_thread.join()
             self.event_thread = None
+        # if self.irig_thread is not None:
+        #     self.irig_thread.join()
+        #     self.irig_thread = None
 
     def close(self):
         self.close_threads()
         self.flush()
+        # irig.finish(IRIG_FILE_NAME)
 
     def start_flipper_thread(self):
         if self.flip_thread is None:
@@ -220,7 +232,7 @@ camera.pre_callback = timestamps.append_timestamps
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 # timestamps.start_flipper_thread()
 GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=timestamps.flipper_callback_GPIO, bouncetime=100)
-irig_sender = irig.IrigHSender(sending_gpio_pin=pin_irig, filename=IRIG_FILE_NAME)
+irig_sender = irig.IrigHSender(sending_gpio_pin=6, filename=IRIG_FILE_NAME)
 
 with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     encoder = H264Encoder()
@@ -228,15 +240,28 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     try:
         print('Starting Recording')
         camera.start_recording(encoder, output)
-        # camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # for V3 camera; comment this out for HQ camera, which uses manual focus
+#        camera.set_controls({"AfMode": controls.AfModeEnum.Manual,
+#                             "LensPosition": 10.0})
         irig_sender.start()
+
         time.sleep(2)
         camera.set_controls({
             'AeEnable': False,
             'AwbEnable': False,
         })
         time.sleep(2)
+
         print('Started Recording')
+
+        # Start irig sending background thread
+        # irig_sender_thread = Thread(target=irig.start_irig_sending, daemon=True)
+        # irig_sender_thread.start()
+        # timestamps.irig_thread = Thread(target=irig.start_irig_sending, daemon=True)
+        # timestamps.irig_thread.start()
+
+        # UNCOMMENT THIS AND COMMENT THE OTHER CODE TO REMOVE MULTITHREADING
+        # irig.start_irig_sending()
+
         while True:
             # time.sleep(.001)
             continue
@@ -252,3 +277,4 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         irig_sender.finish()
         timestamps.close()
         sys.exit(0)
+        
