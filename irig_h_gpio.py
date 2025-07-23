@@ -295,7 +295,7 @@ class IrigHSender:
              time.sleep(self.sending_loop_period)
             
 
-    def calculate_pulse_length(bit: IRIG_BIT) -> float:
+    def calculate_pulse_length(self, bit: IRIG_BIT) -> float:
             if bit == 'P':
                 return 0.8 * SENDING_BIT_LENGTH
             elif bit == 1:
