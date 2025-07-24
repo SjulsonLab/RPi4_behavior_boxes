@@ -338,18 +338,19 @@ void* continuous_irig_sending(void *arg) {
         
         time_t now = current_time.tv_sec;
         
+        
         // Calculate the start time - should be the next whole second
         double start_time = ceil((double)now + (double)current_time.tv_nsec / 1e9);
-        
-        // Wait until the start of the next second before beginning the frame
-        precise_wait_until(start_time - MEASURED_DELAY, sender->sending_loop_period);
-        
+
         // Get the time info for the frame we're about to send
         time_t frame_time = (time_t)start_time;
         struct tm *time_info = localtime(&frame_time);
         
         append_double(&sender->sending_starts, start_time);
         generate_irig_h_frame(sender, time_info, frame);
+        
+        // Wait until the start of the next second before beginning the frame
+        precise_wait_until(start_time - MEASURED_DELAY, sender->sending_loop_period);
         
         for (int i = 0; i < 60 && sender->running && running; i++) {
             double pulse_time = calculate_pulse_length(frame[i]);
