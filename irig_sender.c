@@ -225,7 +225,7 @@ void generate_irig_h_frame(irig_h_sender_t *sender, struct tm *time_info, irig_b
     int seconds_bcd[7], minutes_bcd[7], hours_bcd[6];
     int day_of_year_bcd[10], deciseconds_bcd[4], year_bcd[8];
     
-    bcd_encode(time_info->tm_sec, SECONDS_WEIGHTS, 7, seconds_bcd);
+    bcd_encode(time_info->tm_sec + 1, SECONDS_WEIGHTS, 7, seconds_bcd);
     bcd_encode(time_info->tm_min, MINUTES_WEIGHTS, 7, minutes_bcd);
     bcd_encode(time_info->tm_hour, HOURS_WEIGHTS, 6, hours_bcd);
     bcd_encode(time_info->tm_yday, DAY_OF_YEAR_WEIGHTS, 10, day_of_year_bcd);
@@ -307,6 +307,10 @@ void flip_for_time(irig_h_sender_t *sender, double pulse_time) {
     
     // Get start time
     clock_gettime(CLOCK_REALTIME, &start_time);
+    
+    // Print system time and pulse duration before setting pin HIGH
+    printf("Setting GPIO HIGH at: %ld.%09ld, pulse duration: %.3f seconds\n", 
+           start_time.tv_sec, start_time.tv_nsec, pulse_time);
     
     // Set GPIO high
     gpio_write(sender->sending_gpio_pin, 1);
@@ -437,10 +441,10 @@ int main() {
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
     
-    printf("IRIG-H Timecode Sender starting on GPIO 18...\n");
+    printf("IRIG-H Timecode Sender starting on GPIO 6...\n");
     printf("Using direct hardware register access\n");
     
-    irig_h_sender_t *sender = create_irig_h_sender(18, 1.0/5000.0);
+    irig_h_sender_t *sender = create_irig_h_sender(6, 1.0/5000.0);
     if (!sender) {
         printf("Failed to initialize IRIG-H sender\n");
         return 1;
@@ -448,7 +452,7 @@ int main() {
     
     printf("IRIG-H sender initialized successfully\n");
     start_irig_sender(sender);
-    printf("IRIG-H transmission started on GPIO 18\n");
+    printf("IRIG-H transmission started on GPIO 6\n");
     
     while (running) {
         sleep(1);
