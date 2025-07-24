@@ -338,17 +338,16 @@ void* continuous_irig_sending(void *arg) {
         
         time_t now = current_time.tv_sec;
         
-        
         // Calculate the start time - should be the next whole second
         double start_time = ceil((double)now + (double)current_time.tv_nsec / 1e9);
-
+        
         // Get the time info for the frame we're about to send
         time_t frame_time = (time_t)start_time;
         struct tm *time_info = localtime(&frame_time);
         
         append_double(&sender->sending_starts, start_time);
         generate_irig_h_frame(sender, time_info, frame);
-        
+
         // Wait until the start of the next second before beginning the frame
         precise_wait_until(start_time - MEASURED_DELAY, sender->sending_loop_period);
         
@@ -431,7 +430,8 @@ void finish_irig_sender(irig_h_sender_t *sender) {
     sender->running = false;
     pthread_join(sender->sender_thread, NULL);
     
-    write_timestamps_to_file(sender);
+    // Commented to disable file writing
+    // write_timestamps_to_file(sender);
     
     // Ensure GPIO is low
     gpio_write(sender->sending_gpio_pin, 0);
