@@ -1,3 +1,7 @@
+// Define feature test macros before any includes
+#define _POSIX_C_SOURCE 199309L
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -426,6 +430,7 @@ void finish_irig_sender(irig_h_sender_t *sender) {
     free(sender->sending_starts.data);
     free(sender);
 }
+
 
 // Main function for continuous operation
 int main() {
