@@ -346,9 +346,8 @@ void* continuous_irig_sending(void *arg) {
         
         for (int i = 0; i < 60 && sender->running && running; i++) {
             double pulse_time = calculate_pulse_length(frame[i]);
-            precise_wait_until(start_time - MEASURED_DELAY, sender->sending_loop_period);
+            precise_wait_until(start_time + (i * SENDING_BIT_LENGTH) - MEASURED_DELAY, sender->sending_loop_period);
             flip_for_time(sender, pulse_time);
-            start_time += SENDING_BIT_LENGTH;
         }
     }
     
