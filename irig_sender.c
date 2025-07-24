@@ -65,7 +65,6 @@ static const int YEARS_WEIGHTS[] = {1, 2, 4, 8, 10, 20, 40, 80};
 // IRIG-H Sender structure
 typedef struct {
     int sending_gpio_pin;
-    double sending_loop_period;
     pthread_t sender_thread;
     bool running;
     double_array_t encoded_times;
@@ -269,7 +268,7 @@ void generate_irig_h_frame(irig_h_sender_t *sender, struct tm *time_info, irig_b
     frame[pos++] = IRIG_P; // 59: P6
 }
 
-void precise_wait_until(double wake_time, double loop_period) {
+void precise_wait_until(double wake_time) {
     struct timespec ts;
     double now;
     struct timespec current_time;
@@ -349,12 +348,12 @@ void* continuous_irig_sending(void *arg) {
         generate_irig_h_frame(sender, time_info, frame);
 
         // Wait until the start of the next second before beginning the frame
-        precise_wait_until(start_time - MEASURED_DELAY, sender->sending_loop_period);
+        precise_wait_until(start_time - MEASURED_DELAY);
         
         for (int i = 0; i < 60 && sender->running && running; i++) {
             double pulse_time = calculate_pulse_length(frame[i]);
             if (i > 0) {  // First bit already waited for
-                precise_wait_until(start_time + (i * SENDING_BIT_LENGTH) - MEASURED_DELAY, sender->sending_loop_period);
+                precise_wait_until(start_time + (i * SENDING_BIT_LENGTH) - MEASURED_DELAY);
             }
             flip_for_time(sender, pulse_time);
         }
@@ -364,11 +363,10 @@ void* continuous_irig_sending(void *arg) {
     return NULL;
 }
 
-irig_h_sender_t* create_irig_h_sender(int gpio_pin, double loop_period) {
+irig_h_sender_t* create_irig_h_sender(int gpio_pin) {
     irig_h_sender_t *sender = malloc(sizeof(irig_h_sender_t));
     
     sender->sending_gpio_pin = gpio_pin;
-    sender->sending_loop_period = loop_period;
     sender->running = false;
     
     sender->encoded_times.data = malloc(sizeof(double) * 100);
@@ -453,7 +451,7 @@ int main() {
     printf("IRIG-H Timecode Sender starting on GPIO 6...\n");
     printf("Using direct hardware register access\n");
     
-    irig_h_sender_t *sender = create_irig_h_sender(6, 1.0/5000.0);
+    irig_h_sender_t *sender = create_irig_h_sender(6);
     if (!sender) {
         printf("Failed to initialize IRIG-H sender\n");
         return 1;
