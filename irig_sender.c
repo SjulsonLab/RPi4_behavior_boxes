@@ -142,35 +142,6 @@ int gpio_init() {
     return 0;
 }
 
-// Main function for continuous operation
-int main() {
-    signal(SIGTERM, signal_handler);
-    signal(SIGINT, signal_handler);
-    
-    printf("IRIG-H Timecode Sender starting on GPIO 18...\n");
-    printf("Using direct hardware register access\n");
-    
-    irig_h_sender_t *sender = create_irig_h_sender(18, 1.0/5000.0);
-    if (!sender) {
-        printf("Failed to initialize IRIG-H sender\n");
-        return 1;
-    }
-    
-    printf("IRIG-H sender initialized successfully\n");
-    start_irig_sender(sender);
-    printf("IRIG-H transmission started on GPIO 18\n");
-    
-    while (running) {
-        sleep(1);
-    }
-    
-    printf("Stopping IRIG-H sender...\n");
-    finish_irig_sender(sender);
-    printf("IRIG-H sender stopped\n");
-    
-    return 0;
-}
-
 void gpio_cleanup() {
     if (gpio_map != NULL && gpio_map != MAP_FAILED) {
         munmap((void*)gpio_map, BLOCK_SIZE);
