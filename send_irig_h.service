@@ -1,0 +1,23 @@
+[Unit]
+Description=IRIG-H Timecode Sender on GPIO 6
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/irig_sender
+Restart=always
+RestartSec=10
+User=root
+StandardOutput=journal
+StandardError=journal
+
+# Create a working directory for output files
+WorkingDirectory=/var/log/irig-sender
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# Ensure the service stops gracefully
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
