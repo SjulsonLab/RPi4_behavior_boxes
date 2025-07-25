@@ -412,7 +412,9 @@ void* continuous_irig_sending(void *arg) {
     
     printf("IRIG-H continuous transmission thread started\n");
     
-    while (sender->running && running) {            
+    while (sender->running && running) {  
+        clock_gettime(CLOCK_REALTIME, &start_time);
+        
         // Record start time (only convert to double when needed for storage)
         double start_time_double = (double)start_time.tv_sec + (double)start_time.tv_nsec * 1e-9;
         append_double(&sender->sending_starts, start_time_double);
