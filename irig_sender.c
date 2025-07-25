@@ -435,6 +435,9 @@ void* continuous_irig_sending(void *arg) {
                     clock_gettime(CLOCK_REALTIME, &current);
                 } while (timespec_to_ns(&current) < bit_start_target && running);
                 
+                // Print system time when bit is sent
+                printf("Bit %d sent at system time: %ld.%09ld\n", i, current.tv_sec, current.tv_nsec);
+                
                 // Send pulse with pre-calculated duration
                 uint64_t pulse_ns = (uint64_t)(sender->pulse_lengths[i] * NS_PER_SEC);
                 ultra_fast_pulse(sender, pulse_ns);
