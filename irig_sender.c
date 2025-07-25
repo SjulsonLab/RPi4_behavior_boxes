@@ -285,11 +285,14 @@ void generate_irig_h_frame(irig_h_sender_t *sender, struct tm *time_info, irig_b
 static int ultra_wait_next_second(struct timespec *result_time) {
     struct timespec current_time, sleep_time;
     long remaining_ns;
+    time_t target_second;
     
     if (clock_gettime(CLOCK_REALTIME, &current_time) != 0) {
         return -1;
     }
     
+    // Calculate target second (next second boundary)
+    target_second = current_time.tv_sec + 1;
     remaining_ns = NS_PER_SEC - current_time.tv_nsec;
     
     if (remaining_ns > BUSY_WAIT_THRESHOLD_NS) {
@@ -301,12 +304,23 @@ static int ultra_wait_next_second(struct timespec *result_time) {
         }
     }
     
-    // Busy wait for near second boundary (within 10ns)
+    // Robust busy wait: wait until we reach the target second AND nanoseconds are small
     do {
         if (clock_gettime(CLOCK_REALTIME, &current_time) != 0) {
             return -1;
         }
-    } while (current_time.tv_nsec > 10 && running);
+        
+        // Exit when we've reached the target second with low nanoseconds
+        if (current_time.tv_sec >= target_second && current_time.tv_nsec <= 1000000) {
+            break;
+        }
+        
+        // Safety check: if we're way past target, something went wrong
+        if (current_time.tv_sec > target_second) {
+            target_second = current_time.tv_sec;
+        }
+        
+    } while (running);
     
     // Return the exact start time
     *result_time = current_time;
