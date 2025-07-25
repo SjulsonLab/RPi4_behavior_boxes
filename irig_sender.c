@@ -404,7 +404,7 @@ void* continuous_irig_sending(void *arg) {
         long ns_into_second = current_time.tv_nsec;
         if (ns_into_second >= 800000000L && !frame_ready) {
             // Pre-calculate the frame for the NEXT second
-            time_t upcoming_second = current_time.tv_sec + 2;
+            time_t upcoming_second = current_time.tv_sec + 1;
             precalculate_next_frame(sender, upcoming_second);
             frame_ready = true;
         }
