@@ -78,6 +78,11 @@ typedef struct {
     char timestamp_filename[256];
 } irig_h_sender_t;
 
+// Function declarations
+void init_timing_constants(void);
+uint64_t timespec_to_ns(const struct timespec *ts);
+void ultra_wait_until_ns(uint64_t target_ns);
+
 // Signal handler for clean shutdown
 volatile sig_atomic_t running = 1;
 
@@ -306,6 +311,56 @@ static int ultra_wait_next_second(struct timespec *result_time) {
     // Return the exact start time
     *result_time = current_time;
     return 0;
+}
+
+// Initialize timing constants
+void init_timing_constants(void) {
+    bit_length_ns = (uint64_t)(SENDING_BIT_LENGTH * NS_PER_SEC);
+    measured_delay_ns = (uint64_t)(MEASURED_DELAY * NS_PER_SEC);
+}
+
+// Convert timespec to nanoseconds
+uint64_t timespec_to_ns(const struct timespec *ts) {
+    return (uint64_t)ts->tv_sec * NS_PER_SEC + (uint64_t)ts->tv_nsec;
+}
+
+// Ultra-precise wait until specific nanosecond timestamp
+void ultra_wait_until_ns(uint64_t target_ns) {
+    struct timespec current_time;
+    uint64_t current_ns;
+    int64_t remaining_ns;
+    struct timespec sleep_time;
+    
+    // Get current time
+    if (clock_gettime(CLOCK_REALTIME, &current_time) != 0) {
+        return; // Error getting time
+    }
+    
+    current_ns = timespec_to_ns(&current_time);
+    remaining_ns = (int64_t)(target_ns - current_ns);
+    
+    // If we're already past the target time, return immediately
+    if (remaining_ns <= 0) {
+        return;
+    }
+    
+    // If we have more than the busy wait threshold, use nanosleep first
+    if (remaining_ns > BUSY_WAIT_THRESHOLD_NS) {
+        sleep_time.tv_sec = 0;
+        sleep_time.tv_nsec = remaining_ns - BUSY_WAIT_THRESHOLD_NS;
+        
+        while (nanosleep(&sleep_time, &sleep_time) != 0) {
+            if (errno != EINTR) break;
+        }
+    }
+    
+    // Busy wait for the remaining time
+    do {
+        if (clock_gettime(CLOCK_REALTIME, &current_time) != 0) {
+            break;
+        }
+        current_ns = timespec_to_ns(&current_time);
+    } while (current_ns < target_ns && running);
 }
 
 double calculate_pulse_length(irig_bit_t bit) {
