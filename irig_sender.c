@@ -301,12 +301,12 @@ static int ultra_wait_next_second(struct timespec *result_time) {
         }
     }
     
-    // Busy wait for exact second boundary
+    // Busy wait for near second boundary (within 10ns)
     do {
         if (clock_gettime(CLOCK_REALTIME, &current_time) != 0) {
             return -1;
         }
-    } while (current_time.tv_nsec != 0 && running);
+    } while (current_time.tv_nsec > 10 && running);
     
     // Return the exact start time
     *result_time = current_time;
