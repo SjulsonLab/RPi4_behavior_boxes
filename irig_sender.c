@@ -76,6 +76,16 @@ typedef struct {
     double_array_t encoded_times;
     double_array_t sending_starts;
     char timestamp_filename[256];
+    
+    // Pre-calculated optimization data
+    irig_bit_t current_frame[60];
+    irig_bit_t next_frame[60];
+    double pulse_lengths[60];
+    uint64_t bit_start_times[60];
+    struct timespec frame_start_time;
+    volatile unsigned *gpio_set_reg;
+    volatile unsigned *gpio_clr_reg;
+    uint32_t gpio_mask;
 } irig_h_sender_t;
 
 // Function declarations
@@ -193,6 +203,16 @@ void gpio_write(int pin, int value) {
     }
 }
 
+// Initialize cached GPIO register pointers for ultra-fast access
+void init_gpio_cache(irig_h_sender_t *sender) {
+    if (gpio_map == NULL) return;
+    
+    // Cache direct register pointers
+    sender->gpio_set_reg = gpio_map + GPSET0/4;
+    sender->gpio_clr_reg = gpio_map + GPCLR0/4;
+    sender->gpio_mask = 1 << sender->sending_gpio_pin;
+}
+
 // Dynamic array functions
 double_array_t* create_double_array(size_t initial_capacity) {
     double_array_t *arr = malloc(sizeof(double_array_t));
@@ -279,53 +299,7 @@ void generate_irig_h_frame(irig_h_sender_t *sender, struct tm *time_info, irig_b
     frame[pos++] = IRIG_P; // 59: P6
 }
 
-/**
- * Ultra-optimized wait until next second boundary
- */
-static int ultra_wait_next_second(struct timespec *result_time) {
-    struct timespec current_time, sleep_time;
-    long remaining_ns;
-    time_t target_second;
-    
-    if (clock_gettime(CLOCK_REALTIME, &current_time) != 0) {
-        return -1;
-    }
-    
-    // Calculate target second (next second boundary)
-    target_second = current_time.tv_sec + 1;
-    remaining_ns = NS_PER_SEC - current_time.tv_nsec;
-    
-    if (remaining_ns > BUSY_WAIT_THRESHOLD_NS) {
-        sleep_time.tv_sec = 0;
-        sleep_time.tv_nsec = remaining_ns - BUSY_WAIT_THRESHOLD_NS;
-        
-        while (nanosleep(&sleep_time, &sleep_time) != 0) {
-            if (errno != EINTR) return -1;
-        }
-    }
-    
-    // Robust busy wait: wait until we reach the target second AND nanoseconds are small
-    do {
-        if (clock_gettime(CLOCK_REALTIME, &current_time) != 0) {
-            return -1;
-        }
-        
-        // Exit when we've reached the target second with low nanoseconds
-        if (current_time.tv_sec >= target_second && current_time.tv_nsec <= 1000000) {
-            break;
-        }
-        
-        // Safety check: if we're way past target, something went wrong
-        if (current_time.tv_sec > target_second) {
-            target_second = current_time.tv_sec;
-        }
-        
-    } while (running);
-    
-    // Return the exact start time
-    *result_time = current_time;
-    return 0;
-}
+// Eliminated - no longer needed due to pre-calculated timing
 
 // Initialize timing constants
 void init_timing_constants(void) {
@@ -338,43 +312,22 @@ uint64_t timespec_to_ns(const struct timespec *ts) {
     return (uint64_t)ts->tv_sec * NS_PER_SEC + (uint64_t)ts->tv_nsec;
 }
 
-// Ultra-precise wait until specific nanosecond timestamp
+// Ultra-precise wait until specific nanosecond timestamp - optimized for sub-100ns
 void ultra_wait_until_ns(uint64_t target_ns) {
     struct timespec current_time;
     uint64_t current_ns;
     int64_t remaining_ns;
-    struct timespec sleep_time;
     
-    // Get current time
-    if (clock_gettime(CLOCK_REALTIME, &current_time) != 0) {
-        return; // Error getting time
-    }
-    
-    current_ns = timespec_to_ns(&current_time);
-    remaining_ns = (int64_t)(target_ns - current_ns);
-    
-    // If we're already past the target time, return immediately
-    if (remaining_ns <= 0) {
-        return;
-    }
-    
-    // If we have more than the busy wait threshold, use nanosleep first
-    if (remaining_ns > BUSY_WAIT_THRESHOLD_NS) {
-        sleep_time.tv_sec = 0;
-        sleep_time.tv_nsec = remaining_ns - BUSY_WAIT_THRESHOLD_NS;
-        
-        while (nanosleep(&sleep_time, &sleep_time) != 0) {
-            if (errno != EINTR) break;
-        }
-    }
-    
-    // Busy wait for the remaining time
+    // Tight loop - no nanosleep, pure busy wait for maximum precision
     do {
-        if (clock_gettime(CLOCK_REALTIME, &current_time) != 0) {
-            break;
-        }
+        clock_gettime(CLOCK_REALTIME, &current_time);
         current_ns = timespec_to_ns(&current_time);
-    } while (current_ns < target_ns && running);
+        remaining_ns = (int64_t)(target_ns - current_ns);
+        
+        // Break immediately when target reached
+        if (remaining_ns <= 0) break;
+        
+    } while (running);
 }
 
 double calculate_pulse_length(irig_bit_t bit) {
@@ -386,36 +339,46 @@ double calculate_pulse_length(irig_bit_t bit) {
     }
 }
 
-void flip_for_time(irig_h_sender_t *sender, double pulse_time) {
-    struct timespec ts;
+// Ultra-fast GPIO pulse with pre-calculated timing
+void ultra_fast_pulse(irig_h_sender_t *sender, uint64_t pulse_duration_ns) {
     struct timespec start_time, current_time;
-    double elapsed;
+    uint64_t start_ns, target_ns;
     
-    // Get start time
+    // Single clock_gettime call at start
     clock_gettime(CLOCK_REALTIME, &start_time);
+    start_ns = timespec_to_ns(&start_time);
+    target_ns = start_ns + pulse_duration_ns;
     
-    // Print system time and pulse duration before setting pin HIGH
-    printf("Setting GPIO HIGH at: %ld.%09ld, pulse duration: %.3f seconds\n", 
-           start_time.tv_sec, start_time.tv_nsec, pulse_time);
+    // Direct register write - fastest possible
+    *(sender->gpio_set_reg) = sender->gpio_mask;
     
-    // Set GPIO high
-    gpio_write(sender->sending_gpio_pin, 1);
-    
-    // Wait for pulse duration with high precision
+    // Tight busy loop for precise timing
     do {
         clock_gettime(CLOCK_REALTIME, &current_time);
-        elapsed = (current_time.tv_sec - start_time.tv_sec) + 
-                 ((current_time.tv_nsec - start_time.tv_nsec) / 1e9);
-    } while (elapsed < pulse_time && running);
+    } while (timespec_to_ns(&current_time) < target_ns && running);
     
-    // Set GPIO low
-    gpio_write(sender->sending_gpio_pin, 0);
+    // Direct register write to clear
+    *(sender->gpio_clr_reg) = sender->gpio_mask;
+}
+
+// Pre-calculate next frame during 200ms window
+void precalculate_next_frame(irig_h_sender_t *sender, time_t target_second) {
+    struct tm *time_info = localtime(&target_second);
+    generate_irig_h_frame(sender, time_info, sender->next_frame);
+    
+    // Pre-calculate pulse lengths and timing
+    uint64_t frame_start_ns = (uint64_t)target_second * NS_PER_SEC;
+    for (int i = 0; i < 60; i++) {
+        sender->pulse_lengths[i] = calculate_pulse_length(sender->next_frame[i]);
+        sender->bit_start_times[i] = frame_start_ns + (i * NS_PER_SEC);
+    }
 }
 
 void* continuous_irig_sending(void *arg) {
     irig_h_sender_t *sender = (irig_h_sender_t*)arg;
-    irig_bit_t frame[60];
-    struct timespec start_time;
+    struct timespec current_time;
+    time_t current_second, next_second;
+    bool frame_ready = false;
     
     // Initialize timing constants once
     static int constants_initialized = 0;
@@ -426,26 +389,60 @@ void* continuous_irig_sending(void *arg) {
     
     printf("IRIG-H continuous transmission thread started\n");
     
-    while (sender->running && running) {  
-        clock_gettime(CLOCK_REALTIME, &start_time);
+    // Get initial time and prepare first frame
+    clock_gettime(CLOCK_REALTIME, &current_time);
+    current_second = current_time.tv_sec;
+    next_second = current_second + 1;
+    precalculate_next_frame(sender, next_second);
+    
+    while (sender->running && running) {
+        clock_gettime(CLOCK_REALTIME, &current_time);
         
-        // Record start time (only convert to double when needed for storage)
-        double start_time_double = (double)start_time.tv_sec + (double)start_time.tv_nsec * 1e-9;
-        append_double(&sender->sending_starts, start_time_double);
-        
-        // Generate frame for this second
-        struct tm *time_info = localtime(&start_time.tv_sec);
-        generate_irig_h_frame(sender, time_info, frame);
-                
-        // Send the 60-bit frame with pre-calculated timing
-        for (int i = 0; i < 60 && sender->running && running; i++) {
-            double pulse_time = calculate_pulse_length(frame[i]);
-
-            struct timespec next_second_time;
-            ultra_wait_next_second(&next_second_time);
-            
-            flip_for_time(sender, pulse_time);
+        // Check if we're in the 200ms calculation window (800ms - 1000ms)
+        long ns_into_second = current_time.tv_nsec;
+        if (ns_into_second >= 800000000L && !frame_ready) {
+            // Pre-calculate the frame for the NEXT second
+            time_t upcoming_second = current_time.tv_sec + 2;
+            precalculate_next_frame(sender, upcoming_second);
+            frame_ready = true;
         }
+        
+        // At second boundary, start transmission immediately
+        if (current_time.tv_sec > current_second) {
+            current_second = current_time.tv_sec;
+            
+            // Copy pre-calculated frame to current
+            memcpy(sender->current_frame, sender->next_frame, sizeof(sender->current_frame));
+            
+            // Record start time
+            double start_time_double = (double)current_second + (double)current_time.tv_nsec * 1e-9;
+            append_double(&sender->sending_starts, start_time_double);
+            
+            // Send all 60 bits with ultra-precise timing
+            for (int i = 0; i < 60 && sender->running && running; i++) {
+                // Pre-position just before bit transmission
+                uint64_t bit_start_target = sender->bit_start_times[i];
+                uint64_t preposition_target = bit_start_target - 50; // 50ns early
+                
+                // Wait until 50ns before bit start
+                ultra_wait_until_ns(preposition_target);
+                
+                // Final precise wait to exact nanosecond
+                struct timespec current;
+                do {
+                    clock_gettime(CLOCK_REALTIME, &current);
+                } while (timespec_to_ns(&current) < bit_start_target && running);
+                
+                // Send pulse with pre-calculated duration
+                uint64_t pulse_ns = (uint64_t)(sender->pulse_lengths[i] * NS_PER_SEC);
+                ultra_fast_pulse(sender, pulse_ns);
+            }
+            
+            frame_ready = false;
+        }
+        
+        // Short sleep to prevent excessive CPU usage
+        usleep(1000); // 1ms
     }
     
     printf("IRIG-H transmission thread stopping\n");
@@ -482,6 +479,9 @@ irig_h_sender_t* create_irig_h_sender(int gpio_pin) {
     
     // Set GPIO pin as output
     gpio_set_output(sender->sending_gpio_pin);
+    
+    // Initialize cached GPIO registers for ultra-fast access
+    init_gpio_cache(sender);
     
     // Ensure pin starts low
     gpio_write(sender->sending_gpio_pin, 0);
