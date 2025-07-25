@@ -402,7 +402,6 @@ void* continuous_irig_sending(void *arg) {
     irig_h_sender_t *sender = (irig_h_sender_t*)arg;
     irig_bit_t frame[60];
     struct timespec start_time;
-    uint64_t start_ns, bit_times[60];
     
     // Initialize timing constants once
     static int constants_initialized = 0;
@@ -413,16 +412,7 @@ void* continuous_irig_sending(void *arg) {
     
     printf("IRIG-H continuous transmission thread started\n");
     
-    while (sender->running && running) {
-        // Wait for next second and get exact start time in one call
-        if (ultra_wait_next_second(&start_time) != 0) {
-            printf("Error waiting for next second\n");
-            break;
-        }
-        
-        // Convert to nanoseconds once
-        start_ns = timespec_to_ns(&start_time);
-        
+    while (sender->running && running) {            
         // Record start time (only convert to double when needed for storage)
         double start_time_double = (double)start_time.tv_sec + (double)start_time.tv_nsec * 1e-9;
         append_double(&sender->sending_starts, start_time_double);
@@ -430,19 +420,14 @@ void* continuous_irig_sending(void *arg) {
         // Generate frame for this second
         struct tm *time_info = localtime(&start_time.tv_sec);
         generate_irig_h_frame(sender, time_info, frame);
-        
-        // Pre-calculate all bit timing (avoids multiplication in hot loop)
-        for (int i = 0; i < 60; i++) {
-            bit_times[i] = start_ns + (i * bit_length_ns) - measured_delay_ns;
-        }
-        
+                
         // Send the 60-bit frame with pre-calculated timing
         for (int i = 0; i < 60 && sender->running && running; i++) {
-            if (i > 0) {  // First bit starts immediately
-                ultra_wait_until_ns(bit_times[i]);
-            }
-            
             double pulse_time = calculate_pulse_length(frame[i]);
+
+            struct timespec next_second_time;
+            ultra_wait_next_second(&next_second_time);
+            
             flip_for_time(sender, pulse_time);
         }
     }
