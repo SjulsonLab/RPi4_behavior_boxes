@@ -15,6 +15,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <stdint.h>
 
 // BCM2835/BCM2711 GPIO register definitions
 #define BCM2708_PERI_BASE_RPI1  0x20000000
@@ -52,8 +53,13 @@ typedef struct {
 // Constants
 #define SENDING_BIT_LENGTH 1.0
 #define MEASURED_DELAY 0.0
-#define SENDING_HEAD_START 0.01
+// Threshold for switching from sleep to busy wait (in nanoseconds)
+#define BUSY_WAIT_THRESHOLD_NS 1000000L  // 1 millisecond
 
+// Pre-calculated constants to avoid runtime computation
+static const uint64_t NS_PER_SEC = 1000000000ULL;
+static uint64_t bit_length_ns;
+static uint64_t measured_delay_ns;
 // Weight arrays
 static const int SECONDS_WEIGHTS[] = {1, 2, 4, 8, 10, 20, 40};
 static const int MINUTES_WEIGHTS[] = {1, 2, 4, 8, 10, 20, 40};
@@ -268,26 +274,38 @@ void generate_irig_h_frame(irig_h_sender_t *sender, struct tm *time_info, irig_b
     frame[pos++] = IRIG_P; // 59: P6
 }
 
-void precise_wait_until(double wake_time) {
-    struct timespec ts;
-    double now;
-    struct timespec current_time;
+/**
+ * Ultra-optimized wait until next second boundary
+ */
+static int ultra_wait_next_second(struct timespec *result_time) {
+    struct timespec current_time, sleep_time;
+    long remaining_ns;
     
-    // Get current time with nanosecond precision
-    clock_gettime(CLOCK_REALTIME, &current_time);
-    now = current_time.tv_sec + (current_time.tv_nsec / 1e9);
-    
-    if (wake_time - now > SENDING_HEAD_START) {
-        ts.tv_sec = (time_t)(wake_time - now - SENDING_HEAD_START);
-        ts.tv_nsec = ((wake_time - now - SENDING_HEAD_START) - ts.tv_sec) * 1e9;
-        nanosleep(&ts, NULL);
+    if (clock_gettime(CLOCK_REALTIME, &current_time) != 0) {
+        return -1;
     }
     
-    // Busy wait for final precision
+    remaining_ns = NS_PER_SEC - current_time.tv_nsec;
+    
+    if (remaining_ns > BUSY_WAIT_THRESHOLD_NS) {
+        sleep_time.tv_sec = 0;
+        sleep_time.tv_nsec = remaining_ns - BUSY_WAIT_THRESHOLD_NS;
+        
+        while (nanosleep(&sleep_time, &sleep_time) != 0) {
+            if (errno != EINTR) return -1;
+        }
+    }
+    
+    // Busy wait for exact second boundary
     do {
-        clock_gettime(CLOCK_REALTIME, &current_time);
-        now = current_time.tv_sec + (current_time.tv_nsec / 1e9);
-    } while (now < wake_time && running);
+        if (clock_gettime(CLOCK_REALTIME, &current_time) != 0) {
+            return -1;
+        }
+    } while (current_time.tv_nsec != 0 && running);
+    
+    // Return the exact start time
+    *result_time = current_time;
+    return 0;
 }
 
 double calculate_pulse_length(irig_bit_t bit) {
@@ -328,33 +346,48 @@ void flip_for_time(irig_h_sender_t *sender, double pulse_time) {
 void* continuous_irig_sending(void *arg) {
     irig_h_sender_t *sender = (irig_h_sender_t*)arg;
     irig_bit_t frame[60];
+    struct timespec start_time;
+    uint64_t start_ns, bit_times[60];
+    
+    // Initialize timing constants once
+    static int constants_initialized = 0;
+    if (!constants_initialized) {
+        init_timing_constants();
+        constants_initialized = 1;
+    }
     
     printf("IRIG-H continuous transmission thread started\n");
     
     while (sender->running && running) {
-        struct timespec current_time;
-        clock_gettime(CLOCK_REALTIME, &current_time);
+        // Wait for next second and get exact start time in one call
+        if (ultra_wait_next_second(&start_time) != 0) {
+            printf("Error waiting for next second\n");
+            break;
+        }
         
-        time_t now = current_time.tv_sec;
+        // Convert to nanoseconds once
+        start_ns = timespec_to_ns(&start_time);
         
-        // Calculate the start time - should be the next whole second
-        double start_time = ceil((double)now + (double)current_time.tv_nsec / 1e9);
+        // Record start time (only convert to double when needed for storage)
+        double start_time_double = (double)start_time.tv_sec + (double)start_time.tv_nsec * 1e-9;
+        append_double(&sender->sending_starts, start_time_double);
         
-        // Get the time info for the frame we're about to send
-        time_t frame_time = (time_t)start_time;
-        struct tm *time_info = localtime(&frame_time);
-        
-        append_double(&sender->sending_starts, start_time);
+        // Generate frame for this second
+        struct tm *time_info = localtime(&start_time.tv_sec);
         generate_irig_h_frame(sender, time_info, frame);
-
-        // Wait until the start of the next second before beginning the frame
-        precise_wait_until(start_time - MEASURED_DELAY);
         
+        // Pre-calculate all bit timing (avoids multiplication in hot loop)
+        for (int i = 0; i < 60; i++) {
+            bit_times[i] = start_ns + (i * bit_length_ns) - measured_delay_ns;
+        }
+        
+        // Send the 60-bit frame with pre-calculated timing
         for (int i = 0; i < 60 && sender->running && running; i++) {
-            double pulse_time = calculate_pulse_length(frame[i]);
-            if (i > 0) {  // First bit already waited for
-                precise_wait_until(start_time + (i * SENDING_BIT_LENGTH) - MEASURED_DELAY);
+            if (i > 0) {  // First bit starts immediately
+                ultra_wait_until_ns(bit_times[i]);
             }
+            
+            double pulse_time = calculate_pulse_length(frame[i]);
             flip_for_time(sender, pulse_time);
         }
     }

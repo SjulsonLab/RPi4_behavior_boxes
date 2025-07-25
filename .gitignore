@@ -67,3 +67,5 @@ Temporary Items
 
 # Compiled IRIG-H sender
 irig_sender
+
+irig_decoding/data/
