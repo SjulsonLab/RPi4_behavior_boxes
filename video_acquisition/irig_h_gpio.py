@@ -137,7 +137,7 @@ def find_timecode_starts(binary_list: List[bool]) -> List[int]:
         return []
     
     starts = [0] if binary_list[0] else [] # list of indexes for when the timecodes start
-    flips = 1 if binary_list[0] else 0     # if its already recieving timcodes at the start, change starting behavior
+    flips = 1 if binary_list[0] else 0     # if its already receiving timecodes at the start, change starting behavior
 
     for i in range(1, len(binary_list)):
         if binary_list[i] != binary_list[i-1]:
@@ -151,7 +151,6 @@ def splice_binary_list(binary_list: List[bool]) -> List[Tuple[List[bool], float]
     Uses the timecode starts to splice the binary list into segments that can be decoded from IRIG-H.
     Returns a list of 2-tuples containing a timestamp (in seconds) of recording as well as the splice.
     """
-
     starts = find_timecode_starts(binary_list)
     return [(binary_list[starts[i]:starts[i+1]], starts[i] * DECODE_BIT_PERIOD) for i in range(len(starts) - 1)]
 
@@ -159,17 +158,12 @@ def decode_full_measurement(binary_list: List[bool]) -> List[Tuple[float, float]
     """
     Decodes the full binary measurement into a list of 2-tuples containing the time that was sent by the IRIG-H timecode as well as the time of measurement.
     """
-
     spliced = splice_binary_list(binary_list)
     timecode_start_seconds = irig_h_to_posix(decode_to_irig_h(spliced[0][0])) if spliced else 0
     timestamp_start_seconds = spliced[0][1] if spliced else 0
     return [((irig_h_to_posix(decode_to_irig_h(spliced[i][0])) - timecode_start_seconds), spliced[i][1] - timestamp_start_seconds) for i in range(len(spliced))]
     
-class IrigHSender():
-
-    # base_path = 'irig_output'
-    # initialization_dt = str(dt.now().strftime("%Y-%m-%d_%H-%M-%S"))
-    # TIMESTAMP_FILE_NAME = base_path + "_timestamps_" + initialization_dt + ".csv"
+class IrigHSender:
 
     def __init__(self, sending_gpio_pin: int, filename: str, sending_loop_period: float=1/5000):
         # Constants for timecode sending

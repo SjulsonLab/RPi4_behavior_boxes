@@ -13,6 +13,7 @@ class FlipperOutput(DigitalOutputDevice):
         self._stop_flag = Event()
         self._flipper_filename = session_info['flipper_filename'] + '.csv'
         self._flipper_timestamp = []
+        self.on()
 
     def flip(self, time_min=0.5, time_max=2, n=None, background=True):
         self._stop_flip()
@@ -61,17 +62,20 @@ class FlipperOutput(DigitalOutputDevice):
             off_time = round(random.uniform(time_min, time_max), 3)
 
             # self._write(True)
-            self.on()
+            # self.on()
+            self.off()
             pin_state = self.is_active
             timestamp = (pin_state, time.time())
             self._flipper_timestamp.append(timestamp)
             if self._stop_flag.wait(on_time):
                 # self._write(False)
-                self.off()
+                # self.off()
+                self.on()
                 break
 
             # self._write(False)
-            self.off()
+            # self.off()
+            self.on()
             pin_state = self.is_active
             timestamp = (pin_state, time.time())
             self._flipper_timestamp.append(timestamp)
