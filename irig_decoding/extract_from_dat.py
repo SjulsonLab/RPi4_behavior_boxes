@@ -16,8 +16,8 @@ input_file = 'continuous.dat'  # Change to your .dat file path
 pps_output = 'pps_binary.bin'
 irig_output = 'irig_binary.bin'
 
-# Process in chunks
-chunk_size = 1000000  # Samples per chunk
+# Process in chunks - smaller chunks for better I/O performance
+chunk_size = 250000  # Samples per chunk (reduced from 1M)
 
 print("Processing file with bit-packing and proper thresholds...")
 print(f"Input file: {input_file}")
@@ -92,18 +92,22 @@ try:
                     pps_bytes_written += pack_bits_to_file(pps_binary, pps_file)
                     irig_bytes_written += pack_bits_to_file(irig_binary, irig_file)
                     
+                    # Force buffer flush to disk every chunk
+                    pps_file.flush()
+                    irig_file.flush()
+                    
                     total_samples += samples_in_chunk
                     chunk_num += 1
                     
                     # More frequent progress updates
-                    if chunk_num % 50 == 0:
+                    if chunk_num % 20 == 0:  # Every 20 chunks instead of 50
                         print(f"Chunk {chunk_num}: {total_samples:,} samples processed")
                         print(f"  PPS HIGH: {100*pps_high_count/total_samples:.1f}%")
                         print(f"  IRIG HIGH: {100*irig_high_count/total_samples:.1f}%")
                         sys.stdout.flush()
                         
-                    # Heartbeat every 10 chunks
-                    elif chunk_num % 10 == 0:
+                    # Heartbeat every 5 chunks (more frequent due to smaller chunks)
+                    elif chunk_num % 5 == 0:
                         print(f"Chunk {chunk_num}... ", end="", flush=True)
                         
                 except Exception as e:
