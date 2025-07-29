@@ -1,34 +1,106 @@
 import numpy as np
 
-# Configuration  
+# Configuration
 total_channels = 40
-adc1_index = 32  # Digital input 1 (IRIG)
-adc2_index = 33  # Digital input 2 (PPS)
+adc1_index = 32  # IRIG
+adc2_index = 33  # PPS
+sample_rate = 30000
 
-input_file = 'continuous.dat'
+# Thresholds based on your debug output
+irig_threshold = 10000  # Adjust if needed
+pps_threshold = 10000   # Adjust if needed
 
-print("Analyzing digital input values...")
+# File paths
+input_file = 'continuous.dat'  # Change to your .dat file path
+pps_output = 'pps_binary.bin'
+irig_output = 'irig_binary.bin'
 
-# Read a chunk to see the actual values
-chunk_size = 100000
-bytes_per_sample = 2 * total_channels
-chunk_bytes = chunk_size * bytes_per_sample
+# Process in chunks
+chunk_size = 1000000  # Samples per chunk
 
-with open(input_file, 'rb') as f:
-    raw_chunk = f.read(chunk_bytes)
-    int16_data = np.frombuffer(raw_chunk, dtype=np.int16)
-    samples_in_chunk = len(int16_data) // total_channels
-    chunk_data = int16_data[:samples_in_chunk * total_channels]
-    chunk_data = chunk_data.reshape(samples_in_chunk, total_channels)
+print("Processing file with bit-packing and proper thresholds...")
+
+def pack_bits_to_file(binary_data, file_handle):
+    """Pack binary data (0s and 1s) into bits and write to file"""
+    # Pad to multiple of 8
+    padded_length = ((len(binary_data) + 7) // 8) * 8
+    if len(binary_data) % 8 != 0:
+        padding = np.zeros(padded_length - len(binary_data), dtype=np.uint8)
+        padded_data = np.concatenate([binary_data, padding])
+    else:
+        padded_data = binary_data
     
-    # Extract digital channels
-    irig_raw = chunk_data[:, adc1_index]  # Digital input 1
-    pps_raw = chunk_data[:, adc2_index]   # Digital input 2
-    
-    print(f"\nDigital Input 1 (IRIG):")
-    print(f"  Unique values: {np.unique(irig_raw)}")
-    print(f"  Value counts: {np.bincount(irig_raw[irig_raw >= 0]) if len(np.unique(irig_raw)) < 10 else 'Too many unique values'}")
-    
-    print(f"\nDigital Input 2 (PPS):")  
-    print(f"  Unique values: {np.unique(pps_raw)}")
-    print(f"  Value counts: {np.bincount(pps_raw[pps_raw >= 0]) if len(np.unique(pps_raw)) < 10 else 'Too many unique values'}")
+    # Pack 8 bits into each byte
+    packed = np.packbits(padded_data)
+    file_handle.write(packed.tobytes())
+    return len(packed)
+
+with open(pps_output, 'wb') as pps_file, open(irig_output, 'wb') as irig_file:
+    with open(input_file, 'rb') as f:
+        chunk_num = 0
+        total_samples = 0
+        pps_bytes_written = 0
+        irig_bytes_written = 0
+        pps_high_count = 0
+        irig_high_count = 0
+        
+        while True:
+            # Calculate bytes to read
+            bytes_per_sample = 2 * total_channels
+            chunk_bytes = chunk_size * bytes_per_sample
+            
+            # Read chunk
+            raw_chunk = f.read(chunk_bytes)
+            if len(raw_chunk) == 0:
+                break
+                
+            # Convert to int16 array
+            int16_data = np.frombuffer(raw_chunk, dtype=np.int16)
+            samples_in_chunk = len(int16_data) // total_channels
+            
+            if samples_in_chunk == 0:
+                break
+                
+            # Reshape and extract channels
+            int16_data = int16_data[:samples_in_chunk * total_channels]
+            chunk_data = int16_data.reshape(samples_in_chunk, total_channels)
+            
+            # Extract ADC channels
+            irig_raw = chunk_data[:, adc1_index]  # IRIG
+            pps_raw = chunk_data[:, adc2_index]   # PPS
+            
+            # Convert to binary using thresholds
+            irig_binary = (irig_raw > irig_threshold).astype(np.uint8)
+            pps_binary = (pps_raw > pps_threshold).astype(np.uint8)
+            
+            # Count high states for statistics
+            pps_high_count += np.sum(pps_binary)
+            irig_high_count += np.sum(irig_binary)
+            
+            # Pack and write to files
+            pps_bytes_written += pack_bits_to_file(pps_binary, pps_file)
+            irig_bytes_written += pack_bits_to_file(irig_binary, irig_file)
+            
+            total_samples += samples_in_chunk
+            chunk_num += 1
+            
+            if chunk_num % 100 == 0:
+                print(f"Processed chunk {chunk_num}, samples: {total_samples:,}")
+                print(f"  PPS HIGH: {100*pps_high_count/total_samples:.1f}%")
+                print(f"  IRIG HIGH: {100*irig_high_count/total_samples:.1f}%")
+
+print(f"\nProcessing complete!")
+print(f"Total samples: {total_samples:,}")
+print(f"Duration: {total_samples / sample_rate:.2f} seconds")
+print(f"PPS HIGH states: {100*pps_high_count/total_samples:.1f}%")
+print(f"IRIG HIGH states: {100*irig_high_count/total_samples:.1f}%")
+print(f"Output files (bit-packed):")
+print(f"  PPS: {pps_output} ({pps_bytes_written:,} bytes, {pps_bytes_written/1024/1024:.1f} MB)")
+print(f"  IRIG: {irig_output} ({irig_bytes_written:,} bytes, {irig_bytes_written/1024/1024:.1f} MB)")
+
+# Instructions for reading back
+print(f"\nTo read the data back:")
+print(f"pps_packed = np.fromfile('{pps_output}', dtype=np.uint8)")
+print(f"pps_data = np.unpackbits(pps_packed)[:total_samples]  # Trim padding")
+print(f"irig_packed = np.fromfile('{irig_output}', dtype=np.uint8)")
+print(f"irig_data = np.unpackbits(irig_packed)[:total_samples]  # Trim padding")
