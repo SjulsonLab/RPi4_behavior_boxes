@@ -49,6 +49,7 @@ print(f'Processing complete. Total bits: {processed_bits}, errors found: {len(er
 
 print('Error calculations done. Writing to file...')
 
+# This means, the amount of samples taken where the PPS pulse has started and the IRIG timecode has not.
 filename = 'irig_decoding/data/indexes_of_error.csv'
 
 with open(filename, 'w', newline='') as file:
