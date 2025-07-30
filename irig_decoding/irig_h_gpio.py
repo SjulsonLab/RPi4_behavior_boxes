@@ -17,7 +17,7 @@ MEASURED_DELAY = 0 # The constant delay between GPS PPS and the RPi PPS in secon
 SENDING_HEAD_START = 0.01 # seconds in advance to stop sleeping and start busy waiting
 
 # Constants for timecode measuring
-DECODE_BIT_PERIOD = 1 / 25_000 # for now frame rate is 25 kHz
+DECODE_BIT_PERIOD = 1 / 30_000 # for now frame rate is 25 kHz
 # pulse length thresholds (in seconds). 
 P_THRESHOLD = 0.75 * SENDING_BIT_LENGTH # for pulse length of 0.8b
 ONE_THRESHOLD = 0.45 * SENDING_BIT_LENGTH # for pulse length of 0.5b
@@ -129,39 +129,94 @@ def irig_h_to_posix(irig_list: List[IRIG_BIT]) -> float:
     """
     return irig_h_to_datetime(irig_list).timestamp()
 
-def find_timecode_starts(binary_list: List[bool]) -> List[int]:
+def find_timecode_starts(binary_list) -> List[int]:
     """
     Finds all the indexes in the measured list of booleans for where a timecode starts.
     Keep in mind that this assumes that there is NO noise. 
     If there is an incomplete timecode at the end, it will still return a start for that timecode.
+    Works with both lists and generators.
     """
-
-    if len(binary_list) < 2:
-        print("Inputted data set is too short.")
+    
+    binary_iter = iter(binary_list)
+    try:
+        first_bit = next(binary_iter)
+    except StopIteration:
         return []
     
-    starts = [0] if binary_list[0] else [] # list of indexes for when the timecodes start
-    flips = 1 if binary_list[0] else 0     # if its already recieving timcodes at the start, change starting behavior
-
-    for i in range(1, len(binary_list)):
-        if binary_list[i] != binary_list[i-1]:
+    starts = [0] if first_bit else [] # list of indexes for when the timecodes start
+    flips = 1 if first_bit else 0     # if its already recieving timcodes at the start, change starting behavior
+    
+    prev_bit = first_bit
+    i = 1
+    
+    for current_bit in binary_iter:
+        if current_bit != prev_bit:
             flips += 1
             if (flips - 1) % 120 == 0:
                 starts.append(i)
+        prev_bit = current_bit
+        i += 1
     return starts
 
-def splice_binary_list(binary_list: List[bool]) -> List[Tuple[List[bool], float]]:
+def splice_binary_generator(binary_list):
+    """
+    Generator that yields segments of binary data that represent complete IRIG-H frames.
+    Returns a generator of 2-tuples containing a timestamp (in seconds) and the segment as a list.
+    Memory efficient for large datasets.
+    """
+    
+    binary_iter = iter(binary_list)
+    try:
+        first_bit = next(binary_iter)
+    except StopIteration:
+        return
+    
+    # Track state for finding timecode starts
+    flips = 1 if first_bit else 0
+    prev_bit = first_bit
+    current_segment = [first_bit]
+    segment_start_index = 0
+    current_index = 1
+    
+    for current_bit in binary_iter:
+        current_segment.append(current_bit)
+        
+        if current_bit != prev_bit:
+            flips += 1
+            # Check if this marks a new timecode start (every 120 flips)
+            if (flips - 1) % 120 == 0 and len(current_segment) > 1:
+                # Yield the completed segment (excluding the current bit which starts the next segment)
+                yield (current_segment[:-1], segment_start_index * DECODE_BIT_PERIOD)
+                # Start new segment with the current bit
+                current_segment = [current_bit]
+                segment_start_index = current_index
+        
+        prev_bit = current_bit
+        current_index += 1
+    
+    # Yield any remaining segment
+    if len(current_segment) > 1:
+        yield (current_segment, segment_start_index * DECODE_BIT_PERIOD)
+
+def splice_binary_list(binary_list) -> List[Tuple[List[bool], float]]:
     """
     Uses the timecode starts to splice the binary list into segments that can be decoded from IRIG-H.
     Returns a list of 2-tuples containing a timestamp (in seconds) of recording as well as the splice.
+    Works with both lists and generators.
     """
-
+    
+    # For generators, use the memory-efficient streaming approach
+    if hasattr(binary_list, '__iter__') and not hasattr(binary_list, '__getitem__'):
+        return list(splice_binary_generator(binary_list))
+    
+    # For lists, use the original efficient slicing approach
     starts = find_timecode_starts(binary_list)
     return [(binary_list[starts[i]:starts[i+1]], starts[i] * DECODE_BIT_PERIOD) for i in range(len(starts) - 1)]
 
-def decode_full_measurement(binary_list: List[bool]) -> List[Tuple[float, float]]:
+def decode_full_measurement(binary_list) -> List[Tuple[float, float]]:
     """
     Decodes the full binary measurement into a list of 2-tuples containing the time that was sent by the IRIG-H timecode as well as the time of measurement.
+    Works with both lists and generators.
     """
 
     spliced = splice_binary_list(binary_list)
