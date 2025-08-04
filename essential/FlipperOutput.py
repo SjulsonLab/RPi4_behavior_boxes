@@ -105,7 +105,7 @@ class FlipperOutput(LED):
             with io.open(self._barcode_fname, 'w') as f:
                 f.write('Barcode: ' + str(self.barcode) + '\n')
                 f.write('Bits: ' + str(self.barcode_bits) + '\n')
-                f.write('Barcode bit time: ' + str(self.barcode_time) + '\n')
+                f.write('Barcode bit time: ' + str(self.barcode_bit_time) + '\n')
                 f.write('Barcode init time: ' + str(self.barcode_init_time) + '\n')
 
         print("Flushed flipper timestamps to " + self._flipper_filename)
