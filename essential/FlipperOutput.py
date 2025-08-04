@@ -1,11 +1,11 @@
-from gpiozero import DigitalOutputDevice
+from gpiozero import LED
 from threading import Thread, Event
 import io
 import time
 import random
 
 
-class FlipperOutput(DigitalOutputDevice):
+class FlipperOutput(LED):
     def __init__(self, session_info, pin=None):
         super(FlipperOutput, self).__init__(pin=pin)
         self._flip_thread = None
@@ -16,6 +16,7 @@ class FlipperOutput(DigitalOutputDevice):
         self.on()
 
         # barcode
+        self.emit_barcodes = session_info['emit_barcodes']
         self.barcode_bit_time = .03
         self.barcode_init_time = .01
         self.barcode_bits = 32
@@ -30,8 +31,9 @@ class FlipperOutput(DigitalOutputDevice):
             target=self._flip_device, args=(time_min, time_max, n)
         )
 
-        print("Generating start barcode")
-        self.generate_barcode()
+        if self.emit_barcodes:
+            print("Generating start barcode")
+            self.generate_barcode()
 
         self._flip_thread.start()
         if not background:
@@ -67,33 +69,30 @@ class FlipperOutput(DigitalOutputDevice):
             print("Flipper thread is closed!")
             self._flip_thread = None
 
-        print("Generating end barcode")
-        self.generate_barcode()
+        if self.emit_barcodes:
+            print("Generating end barcode")
+            self.generate_barcode()
+
+        self.on()
 
     def _flip_device(self, time_min, time_max, n):
         while self._running:
-            on_time = round(random.uniform(time_min, time_max), 3)
-            off_time = round(random.uniform(time_min, time_max), 3)
-
-            # self._write(True)
-            self.on()
-            # self.off()
-            pin_state = self.is_active
-            timestamp = (pin_state, time.time())
+            self.toggle()
+            timestamp = (self.is_active, time.time())
             self._flipper_timestamp.append(timestamp)
-            if self._stop_flag.wait(on_time):
-                # self._write(False)
-                self.off()
+            wait_time = round(random.uniform(time_min, time_max), 3)
+            if self._stop_flag.wait(wait_time):
+                time.sleep(.05)  # give some time for the toggle to register
                 # self.on()
                 break
 
-            # self._write(False)
-            self.off()
-            # self.on()
-            pin_state = self.is_active
-            timestamp = (pin_state, time.time())
+            self.toggle()
+            timestamp = (self.is_active, time.time())
             self._flipper_timestamp.append(timestamp)
-            if self._stop_flag.wait(off_time):
+            wait_time = round(random.uniform(time_min, time_max), 3)
+            if self._stop_flag.wait(wait_time):
+                time.sleep(.05)
+                # self.on()
                 break
 
     def flipper_flush(self):
@@ -102,11 +101,12 @@ class FlipperOutput(DigitalOutputDevice):
             for entry in self._flipper_timestamp:
                 f.write('%f,%f\n' % entry)
 
-        with io.open(self._barcode_fname, 'w') as f:
-            f.write('Barcode: ' + str(self.barcode) + '\n')
-            f.write('Bits: ' + str(self.barcode_bits) + '\n')
-            f.write('Barcode bit time: ' + str(self.barcode_time) + '\n')
-            f.write('Barcode init time: ' + str(self.barcode_init_time) + '\n')
+        if self.emit_barcodes:
+            with io.open(self._barcode_fname, 'w') as f:
+                f.write('Barcode: ' + str(self.barcode) + '\n')
+                f.write('Bits: ' + str(self.barcode_bits) + '\n')
+                f.write('Barcode bit time: ' + str(self.barcode_time) + '\n')
+                f.write('Barcode init time: ' + str(self.barcode_init_time) + '\n')
 
         print("Flushed flipper timestamps to " + self._flipper_filename)
 
@@ -128,5 +128,3 @@ class FlipperOutput(DigitalOutputDevice):
         time.sleep(self.barcode_init_time)
         self.off()
         time.sleep(self.barcode_init_time)
-
-        # self.on()

@@ -20,6 +20,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
     session_info['task_config']				    = 'alternating_latent'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
     session_info['control']                     = False
+    session_info['emit_barcodes']               = True  # whether to emit barcodes for the flipper
 
     # behavior parameters - ideally set these to a default for each session type, which is adjustable
     # session_info['max_trial_number']            = 100  # we use max session time instead
