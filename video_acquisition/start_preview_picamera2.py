@@ -19,7 +19,7 @@ def signal_handler(signum, frame):
 
 def flipper_callback_GPIO(pin):
     flip_state = GPIO.input(pin)
-    print("Flip state: {}; Timestamp: {}; UTC: {}".format(flip_state, time.time(), dt.datetime.now(dt.timezone.utc).time()))
+    #print("Flip state: {}; Timestamp: {}; UTC: {}".format(flip_state, time.time(), dt.datetime.now(dt.timezone.utc).time()))
 
 
 pin_flipper = 4
