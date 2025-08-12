@@ -116,14 +116,14 @@ class TimestampOutput(object):
 
     def flush(self):
         with io.open(self._timestampFile, 'w') as f:
-            f.write('Sensor Timestamp (ns), Frame Duration (ms), time.time()\n')
+            f.write('Sensor Timestamp (ns),Frame Duration (ms),time.time()\n')
             for entry in self._timestamps:
                 f.write('%f,%f,%f\n' % entry)
 
         with io.open(self._flipper_file, 'w') as f:
-            f.write('Input State, time.time(), time.perf_counter_ns()\n')
+            f.write('Input State,time.time()\n')
             for entry in self._flipper_timestamps:
-                f.write('%f,%f,%f\n' % entry)
+                f.write('%f,%f\n' % entry)
 
         irig.finish()
 

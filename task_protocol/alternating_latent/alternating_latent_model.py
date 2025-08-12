@@ -107,6 +107,7 @@ class AlternatingLatentModel(Model):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
         # self.last_state = self.state
         self.reset_counters()
+        logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str(""))
 
     def exit_right_patch(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_right_active;" + str(""))
@@ -133,11 +134,13 @@ class AlternatingLatentModel(Model):
         self.t_ITI_start = time.perf_counter()
         t.start()
         self.ITI_thread = t
+        logging.info(";" + str(time.time()) + ";[transition];trial_stop;" + str(""))
 
     def end_ITI(self):
         # ic(time.perf_counter() - self.t_ITI_start)
         self.lick_side_buffer *= 0
         self.ITI_active = False
+        logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str(""))
 
     def sample_next_block(self):
         self.reset_counters()
