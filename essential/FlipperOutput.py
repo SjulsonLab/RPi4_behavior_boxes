@@ -97,29 +97,43 @@ class FlipperOutput(LED):
 
     def flipper_flush(self):
         with io.open(self._flipper_filename, 'w') as f:
-            f.write('pin_state, time.time()\n')
+            f.write('pin_state,time.time()\n')
             for entry in self._flipper_timestamp:
                 f.write('%f,%f\n' % entry)
 
         if self.emit_barcodes:
             with io.open(self._barcode_fname, 'w') as f:
+                barcode_str = format(self.barcode, '0' + str(self.barcode_bits) + 'b')
+                f.write('Barcode string: ' + barcode_str + '\n')
                 f.write('Barcode: ' + str(self.barcode) + '\n')
                 f.write('Bits: ' + str(self.barcode_bits) + '\n')
-                f.write('Barcode bit time: ' + str(self.barcode_time) + '\n')
+                f.write('Barcode bit time: ' + str(self.barcode_bit_time) + '\n')
                 f.write('Barcode init time: ' + str(self.barcode_init_time) + '\n')
 
         print("Flushed flipper timestamps to " + self._flipper_filename)
 
     def generate_barcode(self):
-        self.barcode_wrapper_pulse()
         barcode_str = format(self.barcode, '0' + str(self.barcode_bits) + 'b')
+        # self.barcode_wrapper_pulse()
+        self.off()
+        time.sleep(self.barcode_init_time)
+        self.on()
+        time.sleep(self.barcode_init_time)
+        self.off()
+        time.sleep(self.barcode_init_time)
         for bit in barcode_str:
             if int(bit) == 1:
                 self.on()
             else:
                 self.off()
             time.sleep(self.barcode_bit_time)
-        self.barcode_wrapper_pulse()
+        self.off()
+        time.sleep(self.barcode_init_time)
+        self.on()
+        time.sleep(self.barcode_init_time)
+        self.off()
+        time.sleep(self.barcode_init_time)
+        # self.barcode_wrapper_pulse()
 
     def barcode_wrapper_pulse(self):
         self.off()

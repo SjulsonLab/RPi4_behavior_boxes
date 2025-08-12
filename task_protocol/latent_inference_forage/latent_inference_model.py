@@ -225,9 +225,11 @@ class LatentInferenceModel(Model):  # subclass from base task
         return time_since_start
 
     def turn_LED_on(self) -> None:
+        logging.info(";" + str(time.time()) + ";[transition];LED_on;" + str(""))
         self.presenter_commands.append('turn_LED_on')
 
     def turn_LED_off(self) -> None:
+        logging.info(";" + str(time.time()) + ";[transition];LED_off;" + str(""))
         self.presenter_commands.append('turn_LED_off')
 
     def give_correct_reward(self) -> bool:
