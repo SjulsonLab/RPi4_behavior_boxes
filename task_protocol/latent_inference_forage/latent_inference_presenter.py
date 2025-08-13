@@ -76,10 +76,12 @@ class LatentInferencePresenter(Presenter):
             if c == 'turn_LED_on':
                 self.box.cueLED1.on()
                 self.box.cueLED2.on()
+                logging.info(";" + str(time.time()) + ";[transition];LED_on;" + str(""))
 
             elif c == 'turn_LED_off':
                 self.box.cueLED1.off()
                 self.box.cueLED2.off()
+                logging.info(";" + str(time.time()) + ";[transition];LED_off;" + str(""))
 
             elif c == 'give_training_reward':
                 reward_size = self.reward_size_large

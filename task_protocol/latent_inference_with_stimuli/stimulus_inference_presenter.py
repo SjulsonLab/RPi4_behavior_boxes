@@ -176,12 +176,12 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         if command == 'turn_LED_on':
             self.box.cueLED1.on()
             self.box.cueLED2.on()
-            logging.info(";" + str(time.time()) + ";[action];LED_on;" + str(""))
+            logging.info(";" + str(time.time()) + ";[transition];LED_on;" + str(""))
 
         elif command == 'turn_LED_off':
             self.box.cueLED1.off()
             self.box.cueLED2.off()
-            logging.info(";" + str(time.time()) + ";[action];LED_off;" + str(""))
+            logging.info(";" + str(time.time()) + ";[transition];LED_off;" + str(""))
 
         elif command == 'turn_L_stimulus_on':
             self.L_stimulus_on()
