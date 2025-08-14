@@ -180,21 +180,21 @@ class Model(ABC):
         return choice
 
     def log_correct_choice(self, choice: int, event_time: float, reward_given: bool) -> None:
-        logging.info(";" + str(time.time()) + ";[transition];correct_choice_{};reward_{}".format(self.state, reward_given))
+        logging.info(";" + str(time.time()) + ";[outcome];correct_choice_{};reward_{}".format(self.state, reward_given))
         self.trial_choice_list.append(choice)
         self.trial_choice_times.append(event_time)
         self.trial_correct_list.append(True)
         self.error_count = 0
 
     def log_incorrect_choice(self, choice: int, event_time: float, reward_given: bool) -> None:
-        logging.info(";" + str(time.time()) + ";[transition];wrong_choice_{};reward_{}".format(self.state, reward_given))
+        logging.info(";" + str(time.time()) + ";[outcome];wrong_choice_{};reward_{}".format(self.state, reward_given))
         self.trial_choice_list.append(choice)
         self.trial_choice_times.append(event_time)
         self.trial_correct_list.append(False)
         self.error_count += 1
 
     def log_training_reward(self, choice_ix: int, event_time: float) -> None:
-        logging.info(";" + str(time.time()) + ";[reward];giving_reward_{};reward_{}".format(self.state, True))
+        logging.info(";" + str(time.time()) + ";[outcome];giving_reward_{};reward_{}".format(self.state, True))
         self.trial_choice_list.append(choice_ix)
         self.trial_choice_times.append(event_time)
         self.trial_correct_list.append(False)
@@ -342,17 +342,17 @@ class Presenter(ABC):
 
     def K_1_down_callback(self) -> None:
         # left entry
-        logging.info(";" + str(time.time()) + ";[action];key_pressed_left_entry();")
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_left_entry;")
         self.left_entry()
 
     def K_2_down_callback(self) -> None:
         # center entry
-        logging.info(";" + str(time.time()) + ";[action];key_pressed_center_entry();")
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_center_entry;")
         self.center_entry()
 
     def K_3_down_callback(self) -> None:
         # right entry
-        logging.info(";" + str(time.time()) + ";[action];key_pressed_right_entry();")
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_right_entry;")
         self.right_entry()
 
     def K_4_down_callback(self) -> None:
@@ -368,15 +368,15 @@ class Presenter(ABC):
         pass
 
     def K_1_up_callback(self) -> None:
-        logging.info(";" + str(time.time()) + ";[action];key_released_left_entry();")
+        logging.info(";" + str(time.time()) + ";[action];key_released_left_entry;")
         self.left_exit()
 
     def K_2_up_callback(self) -> None:
-        logging.info(";" + str(time.time()) + ";[action];key_released_center_entry();")
+        logging.info(";" + str(time.time()) + ";[action];key_released_center_entry;")
         self.center_exit()
 
     def K_3_up_callback(self) -> None:
-        logging.info(";" + str(time.time()) + ";[action];key_released_right_entry();")
+        logging.info(";" + str(time.time()) + ";[action];key_released_right_entry;")
         self.right_exit()
 
     def K_4_up_callback(self) -> None:
@@ -393,32 +393,32 @@ class Presenter(ABC):
 
     def K_q_callback(self) -> None:
         # print("Q down: syringe pump 1 moves")
-        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump1;")
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_pump1;")
         self.pump.reward("key_1", self.session_info["key_reward_amount"])
 
     def K_w_callback(self) -> None:
         # print("W down: syringe pump 2 moves")
-        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump2;")
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_pump2;")
         self.pump.reward("key_2", self.session_info["key_reward_amount"])
 
     def K_e_callback(self) -> None:
         # print("E down: syringe pump 3 moves")
-        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump3;")
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_pump3;")
         self.pump.reward("key_3", self.session_info["key_reward_amount"])
 
     def K_r_callback(self) -> None:
         # print("R down: syringe pump 4 moves")
-        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump4;")
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_pump4;")
         self.pump.reward("key_4", self.session_info["key_reward_amount"])
 
     def K_t_callback(self) -> None:
         # print("T down: vacuum on")
-        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_vacuum;")
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_pump_vacuum;")
         self.pump.reward("key_vacuum", 1)
 
     def K_y_callback(self) -> None:
         # print("T down: vacuum on")
-        logging.info(";" + str(time.time()) + ";[reward];key_pressed_pump_air_puff;")
+        logging.info(";" + str(time.time()) + ";[action];key_pressed_pump_air_puff;")
         self.pump.reward("key_air_puff", 1)
 
     def K_a_callback(self) -> None:

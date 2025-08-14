@@ -82,7 +82,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         sound_on_time = 0.1
         # self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_B_thread))
         self.stimulus_A_thread = Thread(target=self.stimulus_loop, args=(grating_name, self.play_soundA, self.stimulus_B_thread))
-        # logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_on;")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_on;")
         self.current_stimulus = 'A'
         self.stimulus_A_thread.start()
 
@@ -91,7 +91,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         sound_on_time = 0.2
         # self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, sound_on_time, self.stimulus_A_thread))
         self.stimulus_B_thread = Thread(target=self.stimulus_loop, args=(grating_name, self.play_soundB, self.stimulus_A_thread))
-        # logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_on;")
+        logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_on;")
         self.current_stimulus = 'B'
         self.stimulus_B_thread.start()
 
@@ -110,8 +110,10 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.gratings_on = False
         if self.stimulus_A_thread is not None:
             self.stimulus_A_thread.join()
+            logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_off;")
         if self.stimulus_B_thread is not None:
             self.stimulus_B_thread.join()
+            logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_off;")
 
     def stimulus_loop(self, grating_name: str, sound_fn: Callable, prev_stim_thread: Thread) -> None:
         if prev_stim_thread is not None and prev_stim_thread.is_alive():
@@ -164,7 +166,7 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.box.cueLED2.off()
         self.box.cueLED3.off()  # DAQ signal that sound/visuals are off
         self.sounds_off()
-        # self.join_stimulus_threads()
+        self.join_stimulus_threads()
         self.box.visualstim.display_dark_greyscale()
         logging.info(";" + str(time.time()) + ";[stimulus];" + "stimuli_off;")
 
@@ -176,28 +178,28 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         if command == 'turn_LED_on':
             self.box.cueLED1.on()
             self.box.cueLED2.on()
-            logging.info(";" + str(time.time()) + ";[transition];LED_on;" + str(""))
+            logging.info(";" + str(time.time()) + ";[stimulus];LED_on;" + str(""))
 
         elif command == 'turn_LED_off':
             self.box.cueLED1.off()
             self.box.cueLED2.off()
-            logging.info(";" + str(time.time()) + ";[transition];LED_off;" + str(""))
+            logging.info(";" + str(time.time()) + ";[stimulus];LED_off;" + str(""))
 
         elif command == 'turn_L_stimulus_on':
             self.L_stimulus_on()
-            logging.info(";" + str(time.time()) + ";[action];left_stimulus_on;" + str(""))
+            logging.info(";" + str(time.time()) + ";[stimulus];left_stimulus_on;" + str(""))
 
         elif command == 'turn_L_stimulus_off':
             self.stimuli_reset()  # self.stimuli_off()
-            logging.info(";" + str(time.time()) + ";[action];left_stimulus_off;" + str(""))
+            logging.info(";" + str(time.time()) + ";[stimulus];left_stimulus_off;" + str(""))
 
         elif command == 'turn_R_stimulus_on':
             self.R_stimulus_on()
-            logging.info(";" + str(time.time()) + ";[action];right_stimulus_on;" + str(""))
+            logging.info(";" + str(time.time()) + ";[stimulus];right_stimulus_on;" + str(""))
 
         elif command == 'turn_R_stimulus_off':
             self.stimuli_reset()  # self.stimuli_off()
-            logging.info(";" + str(time.time()) + ";[action];right_stimulus_off;" + str(""))
+            logging.info(";" + str(time.time()) + ";[stimulus];right_stimulus_off;" + str(""))
 
         elif command == 'turn_stimulus_C_on':
             self.stimulus_C_on()
