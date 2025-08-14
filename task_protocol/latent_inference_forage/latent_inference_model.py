@@ -15,7 +15,6 @@ import logging.config
 from collections import deque
 from typing import List, Tuple, Union
 
-import logging.config
 import threading
 
 # SEED = 0
