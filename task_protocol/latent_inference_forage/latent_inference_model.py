@@ -259,8 +259,6 @@ class LatentInferenceModel(Model):  # subclass from base task
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
         self.next_dark_time = time.time() + self.session_info['epoch_length']
         self.reset_counters()
-        self.turn_LED_on()
-        logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
 
     def enter_right_patch(self):
         self.rewards_earned_in_block = 0
@@ -295,11 +293,12 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.rewards_earned_in_block = 0
         logging.info(";" + str(time.time()) + ";[transition];exit_dark_period;" + str())
         self.next_dark_time = time.time() + self.session_info['epoch_length']
-        logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
 
     def start_task(self):
         ic('starting task')
         self.next_dark_time = time.time() + self.session_info['epoch_length']
+
+        # don't turn on LED and log trial until the next patch is selected/started
         self.sample_next_patch()
         self.turn_LED_on()
         logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
@@ -341,6 +340,8 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.rewards_earned_in_block = 0
         self.correct_trials_in_block = 0
         self.reset_counters()
+
+        # don't turn on LED and log trial until the next patch is selected/started
         self.sample_next_patch()
         self.turn_LED_on()
         logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
@@ -352,3 +353,4 @@ class LatentInferenceModel(Model):  # subclass from base task
             self.switch_to_left_patch()
         else:
             self.switch_to_right_patch()
+

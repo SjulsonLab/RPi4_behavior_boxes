@@ -12,13 +12,13 @@ def make_session_info() -> Dict[str, Any]:
     # Information for this session (the user should edit this each session)
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test-mouse'
-    session_info['debug']                     	= False
+    session_info['debug']                     	= True
     session_info['ephys_rig']                 	= False
     session_info['lick_input_setting']          = 'signal_high'  # ['signal_high', 'signal_low']
 
     session_info['weight']                	    = 0  # in grams
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
-    session_info['task_config']				    = 'alternating_latent'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
+    session_info['task_config']				    = 'latent_inference'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
     session_info['control']                     = False
     session_info['emit_barcodes']               = True  # whether to emit barcodes for the flipper
 
@@ -28,7 +28,7 @@ def make_session_info() -> Dict[str, Any]:
     # session_info['initiation_timeout'] = 120  # s; does anything use this?
     session_info['timeout_length']              = 5  # in seconds, not currently implemented
     session_info['reward_size']					= 10  # in microliters
-    session_info["lick_threshold"]              = 2  # number of consecutive licks to one side to indicate a choice
+    session_info["lick_threshold"]              = 1  # number of consecutive licks to one side to indicate a choice
     session_info['intertrial_interval']         = 4  # in seconds
     session_info['quiet_ITI']                   = False
     session_info['biased_side']                 = 'none'  # 'left', 'right', 'none' - must use 'none' instead of None, NoneType is not a string
