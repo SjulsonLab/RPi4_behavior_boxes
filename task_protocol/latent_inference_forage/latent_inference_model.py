@@ -171,6 +171,7 @@ class LatentInferenceModel(Model):  # subclass from base task
         if self.state in ['left_patch', 'right_patch'] and cur_time >= self.next_dark_time:
             self.lick_side_buffer *= 0
             self.activate_dark_period()
+            logging.info(";" + str(time.time()) + ";[transition];trial_stop;" + str())
             return time_since_start
 
         if self.ITI_active:
@@ -184,8 +185,10 @@ class LatentInferenceModel(Model):  # subclass from base task
         choice_flag = choice_side in ['right', 'left', 'switch']
         training_reward_flag = ((self.error_count >= self.errors_to_reward and self.automate_training_rewards)
                                 or self.give_training_reward)
+
         if choice_flag or training_reward_flag:
             self.activate_ITI()
+            logging.info(";" + str(time.time()) + ";[transition];trial_stop;" + str())
 
         reward_earned = False
         if choice_side in ['right', 'left'] or training_reward_flag:  # no rewards for switch
@@ -257,6 +260,7 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.next_dark_time = time.time() + self.session_info['epoch_length']
         self.reset_counters()
         self.turn_LED_on()
+        logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
 
     def enter_right_patch(self):
         self.rewards_earned_in_block = 0
@@ -284,19 +288,21 @@ class LatentInferenceModel(Model):  # subclass from base task
         logging.info(";" + str(time.time()) + ";[transition];enter_dark_period;" + str(""))
         self.rewards_earned_in_block = 0
         self.correct_trials_in_block = 0
-        self.trial_running = False
+        # self.trial_running = False
 
     def exit_dark_period(self):
         self.correct_trials_in_block = 0
         self.rewards_earned_in_block = 0
         logging.info(";" + str(time.time()) + ";[transition];exit_dark_period;" + str())
         self.next_dark_time = time.time() + self.session_info['epoch_length']
+        logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
 
     def start_task(self):
         ic('starting task')
         self.next_dark_time = time.time() + self.session_info['epoch_length']
         self.sample_next_patch()
         self.turn_LED_on()
+        logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
 
     def activate_ITI(self):
         self.lick_side_buffer *= 0
@@ -315,6 +321,7 @@ class LatentInferenceModel(Model):  # subclass from base task
             self.turn_LED_off()
         else:
             self.turn_LED_on()
+            logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
 
     def activate_dark_period(self):
         # make sure this overrides ITI, so you don't get an LED turned on after darkmode starts
@@ -336,6 +343,7 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.reset_counters()
         self.sample_next_patch()
         self.turn_LED_on()
+        logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
 
     def sample_next_patch(self):
         self.rewards_earned_in_block = 0
