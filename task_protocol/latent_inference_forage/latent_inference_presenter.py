@@ -30,10 +30,6 @@ class LatentInferencePresenter(Presenter):
         self.automatic_training_rewards = False
 
     def run(self) -> None:
-        """
-        Process one event, checking GUI and events as needed.
-        Currently set to give rewards probabilistically (same reward sizes, unequal reward probabilities)
-        """
         if self.task.state == 'right_patch':
             correct_pump = self.session_info['right_reward_pump']
             incorrect_pump = self.session_info['left_reward_pump']
