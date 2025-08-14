@@ -171,6 +171,7 @@ class LatentInferenceModel(Model):  # subclass from base task
         if self.state in ['left_patch', 'right_patch'] and cur_time >= self.next_dark_time:
             self.lick_side_buffer *= 0
             self.activate_dark_period()
+            logging.info(";" + str(time.time()) + ";[transition];trial_stop;" + str())
             return time_since_start
 
         if self.ITI_active:
@@ -187,6 +188,7 @@ class LatentInferenceModel(Model):  # subclass from base task
 
         if choice_flag or training_reward_flag:
             self.activate_ITI()
+            logging.info(";" + str(time.time()) + ";[transition];trial_stop;" + str())
 
         reward_earned = False
         if choice_side in ['right', 'left'] or training_reward_flag:  # no rewards for switch
