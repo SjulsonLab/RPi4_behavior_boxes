@@ -121,3 +121,4 @@ class StimulusInferenceModel(LatentInferenceModel):
             self.set_dark_period_stimuli()
         else:
             self.turn_LED_on()
+            logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
