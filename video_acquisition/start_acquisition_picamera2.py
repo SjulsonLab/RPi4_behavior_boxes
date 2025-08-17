@@ -64,10 +64,16 @@ thickness = 2
 
 # video, timestamps and ttl file name
 video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output_" + video_dt + ".h264"
-TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp_" + video_dt + ".csv"
-FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + video_dt + ".csv"
-IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig_" + video_dt + ".csv"
+# VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output_" + video_dt + ".h264"
+# TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp_" + video_dt + ".csv"
+# FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + video_dt + ".csv"
+# IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig_" + video_dt + ".csv"
+
+# don't need to add timestamp to file names, the base_path already includes a timestamp
+VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output.h264"
+TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp.csv"
+FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper.csv"
+IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig.csv"
 
 # set raspberry pi board layout to BCM
 pin_flipper = 4
