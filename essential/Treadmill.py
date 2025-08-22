@@ -40,6 +40,7 @@ def dacval(bus, address):
 
 
 class Treadmill(object):
+
     def __init__(self, session_info):
         try:
             self.session_info = session_info
@@ -50,8 +51,7 @@ class Treadmill(object):
         self.bus = smbus.SMBus(1)  # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
         # This is the address we setup in the Arduino Program
         self.address = 0x08
-        self.treadmill_filename = self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
-                                  self.session_info['basename'] + "_treadmill_output" + ".csv"
+        self.treadmill_filename = session_info['treadmill_filename'] + ".csv"
         print(self.treadmill_filename)
 
         self._dacval_thread = None
@@ -94,7 +94,7 @@ class Treadmill(object):
         # self._dacval_thread = None
 
     def run(self):
-        while self._running == True:
+        while self._running:
             time.sleep(self.delay)
             self.distance_bit = dacval(self.bus, self.address)
             self.distance_cm = self.distance_bit / self.treadmill_calibrate

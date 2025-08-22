@@ -6,6 +6,7 @@ import random
 
 
 class FlipperOutput(LED):
+
     def __init__(self, session_info, pin=None):
         super(FlipperOutput, self).__init__(pin=pin)
         self._flip_thread = None

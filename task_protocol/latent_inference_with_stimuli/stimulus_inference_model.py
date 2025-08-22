@@ -60,10 +60,10 @@ class StimulusInferenceModel(LatentInferenceModel):
         logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(""))
         if random.random() < self.session_info['p_stimulus']:
             self.L_stimulus_on()
-            logging.info(";" + str(time.time()) + ";[action];left_stimulus_on;" + str(""))
+            logging.info(";" + str(time.time()) + ";[stimulus];left_stimulus_on;" + str(""))
         else:
             self.stimulus_C_on()
-            logging.info(";" + str(time.time()) + ";[action];stimulus_C_on;" + str(""))
+            logging.info(";" + str(time.time()) + ";[stimulus];stimulus_C_on;" + str(""))
 
     def exit_left_patch(self):
         # self.reset_stimuli()
