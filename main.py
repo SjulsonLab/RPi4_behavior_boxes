@@ -119,15 +119,17 @@ def main():
             session_info['session_name'] = ''  # previously this was 'basename'
             session_info['output_dir'] = "./outputs/buffer"
             session_info['video_dir'] = session_info['output_dir'] + '/video'
-            session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
             session_info['external_storage'] = "./outputs/external"
             session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
+            session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
+            session_info['treadmill_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + "_treadmill_output"
         else:
             session_info['session_name'] = session_info['mouse_name'] + '_' + session_info['datetime']
             session_info['output_dir'] = session_info['buffer_dir'] + '/' + session_info['session_name']
             session_info['video_dir'] = session_info['output_dir'] + '/video'
             session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
             session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
+            session_info['treadmill_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + "_treadmill_output"
             # session_info['flipper_filename'] = session_info['external_storage_dir'] + '/' + session_info['session_name'] + '_flipper_output'
 
 
