@@ -47,6 +47,7 @@ class Treadmill(object):
         except:
             self.close()
             raise
+
         self.treadmill_calibrate = 9.14  # bit per cm
         self.bus = smbus.SMBus(1)  # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
         # This is the address we setup in the Arduino Program
@@ -115,7 +116,7 @@ class Treadmill(object):
 
 """
 for each element in the element_list, calculate the consecutive differences
-for the consecutive differences, we can yield a velocity of the displacment
+for the consecutive differences, we can yield a velocity of the displacement
 And from the velocity of the displacement we can get the direction and the acceleration
 
 The problem that need to take into consideration
