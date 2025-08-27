@@ -257,7 +257,10 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.rewards_earned_in_block = 0
         self.correct_trials_in_block = 0
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
-        self.next_dark_time = time.time() + self.session_info['epoch_length']
+        if self.session_info['use_dark_period']:
+            self.next_dark_time = time.time() + self.session_info['epoch_length']
+        else:
+            self.next_dark_time = np.inf
         self.reset_counters()
 
     def enter_right_patch(self):

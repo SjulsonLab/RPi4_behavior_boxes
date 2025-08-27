@@ -84,6 +84,9 @@ class StimulusInferenceModel(LatentInferenceModel):
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
         self.next_dark_time = time.time() + self.session_info['epoch_length']
+        # if self.session_info['use_dark_period']:
+        # else:
+        #     self.next_dark_time = np.inf
         self.reset_counters()
         self.reset_stimuli()
 

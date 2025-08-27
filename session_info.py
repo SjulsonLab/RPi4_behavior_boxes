@@ -41,6 +41,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['default_switch_probability'] = .2
     session_info['epoch_length'] = 120
     session_info['dark_period_times'] = [10]
+    session_info['use_dark_period'] = True
     session_info['max_correct_trials_in_block'] = 2 / session_info['switch_probability']  # either use double the expected trials per block or hardcode 30
 
     # Reward pump parameters
@@ -159,6 +160,7 @@ def sanity_checks(session_info: dict) -> dict:
         assert session_info['grating_duration'] + session_info['inter_grating_interval'] < np.amin(session_info['dark_period_times']), \
             "Intertrial interval too short for dark period"
         assert session_info['num_sounds'] in [1, 2], "Invalid number of sounds"
+    assert session_info['use_dark_period'], "Invalid visual stimulus setting - must use dark periods for visual stimulus task!!"
 
     return session_info
 
