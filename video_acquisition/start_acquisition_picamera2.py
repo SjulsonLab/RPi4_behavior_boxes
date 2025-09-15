@@ -73,7 +73,7 @@ video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output.h264"
 TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp.csv"
 FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper.csv"
-IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig.csv"
+# IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig.csv"
 
 # set raspberry pi board layout to BCM
 pin_flipper = 4
@@ -88,10 +88,10 @@ class TimestampOutput(object):
     def __init__(self, timestamp_filename, flipper_filename, irig_filename=None):
         self._timestampFile = timestamp_filename
         self._flipper_file = flipper_filename
-        self._irig_file = irig_filename  # Placeholder for IRIG file if needed
+        self._irig_file = irig_filename
         self._timestamps = []
         self._flipper_timestamps = []
-        self._irig_timestamps = []  # Placeholder for IRIG timestamps if needed
+        self._irig_timestamps = []
 
         self.flip_state = GPIO.input(pin_flipper)
         self.flip_thread = None
@@ -226,7 +226,7 @@ camera.pre_callback = timestamps.append_timestamps
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 # timestamps.start_flipper_thread()
 GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=timestamps.flipper_callback_GPIO, bouncetime=100)
-irig_sender = irig.IrigHSender(sending_gpio_pin=pin_irig, filename=IRIG_FILE_NAME)
+# irig_sender = irig.IrigHSender(sending_gpio_pin=pin_irig, filename=IRIG_FILE_NAME)
 
 with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     encoder = H264Encoder()
@@ -235,7 +235,7 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         print('Starting Recording')
         camera.start_recording(encoder, output)
         # camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # for V3 camera; comment this out for HQ camera, which uses manual focus
-        irig_sender.start()
+        # irig_sender.start()
         time.sleep(2)
         camera.set_controls({
             'AeEnable': False,
@@ -255,6 +255,6 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         print(e)
 
     finally:
-        irig_sender.finish()
+        # irig_sender.finish()
         timestamps.close()
         sys.exit(0)
