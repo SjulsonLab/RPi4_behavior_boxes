@@ -209,7 +209,8 @@ camera = Picamera2()
 mode = camera.sensor_modes[1]
 config = camera.create_video_configuration(
     sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']},
-    main={"size": (640, 480)},
+    # main={"size": (640, 480)},
+    main={"size": (1320, 990)},  # max HQ resolution for sensor 0
     controls={'FrameDurationLimits': (33333, 33333),
               'AeExposureMode': controls.AeExposureModeEnum.Normal,
               "Brightness": BRIGHTNESS,
