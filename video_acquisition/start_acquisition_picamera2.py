@@ -82,7 +82,7 @@ GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 pin_irig = 6
 
-#timestamp output object to save timestamps according to pi and TTL inputs received and write to file
+# timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class TimestampOutput(object):
 
     def __init__(self, timestamp_filename, flipper_filename, irig_filename=None):
