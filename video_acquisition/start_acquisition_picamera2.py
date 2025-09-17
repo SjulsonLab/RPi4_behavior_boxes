@@ -69,7 +69,7 @@ video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 # FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + video_dt + ".csv"
 # IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig_" + video_dt + ".csv"
 
-# don't need to add timestamp to file names, the base_path already includes a timestamp
+# don't need to add new timestamps to file names, the base_path already includes a timestamp
 VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output.h264"
 TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp.csv"
 FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper.csv"
@@ -205,12 +205,23 @@ class TimestampOutput(object):
 # Picam2 has brightness, contrast, sharpness, saturation, exposure modes, awb_mode
 # Picam2 does not have an image stabilization option
 # hflip and vflip are Transforms now, both default to False
+sensor_mode = 0
+if sensor_mode == 0:
+    resolution = (1320, 990)
+elif sensor_mode == 1:
+    resolution = (1440, 1080)
+elif sensor_mode == 2:
+    resolution = (2000, 1500)
+else:
+    print("Invalid sensor mode selected, setting default resolution")
+    sensor_mode = 0
+    resolution = (640, 480)
+
 camera = Picamera2()
-mode = camera.sensor_modes[1]
+mode = camera.sensor_modes[sensor_mode]
 config = camera.create_video_configuration(
     sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']},
-    # main={"size": (640, 480)},
-    main={"size": (1320, 990)},  # max HQ resolution for sensor 0
+    main={"size": resolution},  # max HQ resolution for sensor 0
     controls={'FrameDurationLimits': (33333, 33333),
               'AeExposureMode': controls.AeExposureModeEnum.Normal,
               "Brightness": BRIGHTNESS,
