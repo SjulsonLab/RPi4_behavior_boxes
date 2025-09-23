@@ -542,9 +542,9 @@ class go_nogo_firstrule(object):
     ########################################################################
     def start_session(self):
         ic("TODO: start video")
-        self.box.video_start()
+        #self.box.video_start()
 
     def end_session(self):
         ic("TODO: stop video")
-        self.box.video_stop()
+        #self.box.video_stop()
         self.box.visualstim_go.myscreen.close()
