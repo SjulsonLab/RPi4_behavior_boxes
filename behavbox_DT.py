@@ -194,7 +194,7 @@ class BehavBox(object):
 
         # Preview check per Kelly request
         #print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
-        #try:
+        try:
             #os.system("ssh pi@" + IP_address_video + " pkill python")
             #print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)
             #print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
