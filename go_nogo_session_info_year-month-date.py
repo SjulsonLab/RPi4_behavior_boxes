@@ -47,4 +47,4 @@ session_info['gray_level']					= 40  # the pixel value from 0-255 for the screen
 session_info['vis_gratings_go']				= ['/home/pi/gratings/first_grating_go.dat']
 session_info['vis_gratings_nogo']           = ['/home/pi/gratings/first_grating_nogo.dat']
 session_info['vis_raws']					= []
-
+session_info['calibrated_drop'] = 0.03
