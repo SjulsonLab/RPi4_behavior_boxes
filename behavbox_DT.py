@@ -56,9 +56,9 @@ class BehavBox(object):
             print("Logging error")
             print(str(error_message))
 
-        #from subprocess import check_output
-        #IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
-        #self.IP_address = IP_address
+        from subprocess import check_output
+        IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
+        self.IP_address = IP_address
         #IP_address_video_list = list(IP_address)
         # IP_address_video_list[-3] = "2"
         #IP_address_video_list[-1] = "2"
@@ -181,7 +181,7 @@ class BehavBox(object):
     # These work with fake video files but haven't been tested with real ones
     ###############################################################################################
     def video_start(self):
-        IP_address_video = self.IP_address_video
+        #IP_address_video = self.IP_address_video
         dir_name = self.session_info['dir_name']
         basename = self.session_info['basename']
         file_name = dir_name + "/" + basename
@@ -193,18 +193,18 @@ class BehavBox(object):
         os.mkdir(hd_dir)
 
         # Preview check per Kelly request
-        #print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
+        print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
         try:
             #os.system("ssh pi@" + IP_address_video + " pkill python")
             #print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)
-            #print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
+            print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
 
             #os.system("ssh pi@" + IP_address_video + " '/home/pi/RPi4_behavior_boxes/start_preview.py'")
             # Kill any python process before start recording
-            #print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
+            print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
 
             #os.system("ssh pi@" + IP_address_video + " pkill python")
-            #time.sleep(2)
+            time.sleep(2)
 
             # Prepare the path for recording
             #os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name)
@@ -249,11 +249,10 @@ class BehavBox(object):
         basename = self.session_info['basename']
         dir_name = self.session_info['dir_name']
         # Get the ip address for the box video:
-        IP_address_video = self.IP_address_video
+        #IP_address_video = self.IP_address_video
         try:
             # Run the stop_video script in the box video
-            os.system(
-                "ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
+            #os.system("ssh pi@" + IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
             time.sleep(2)
             # now stop the flipper after the video stopped recording
             try:  # try to stop the flipper
@@ -267,7 +266,7 @@ class BehavBox(object):
                 except:
                     pass
             hostname = socket.gethostname()
-            print("Moving video files from " + hostname + "video to " + hostname + ":")
+            #print("Moving video files from " + hostname + "video to " + hostname + ":")
 
             # Create a directory for storage on the hard drive mounted on the box behavior
             base_dir = self.session_info['external_storage'] + '/'
