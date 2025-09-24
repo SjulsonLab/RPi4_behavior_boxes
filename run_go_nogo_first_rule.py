@@ -78,7 +78,7 @@ def check_consecutive_dprime(dprime_values, threshold=2.5, min_consecutive=30, i
 
 # define the plotting function here
 def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_count, miss_count,
-                        cr_count, fa_count, lick_times, vstimON_time, plot_dprime, dprimebinp):
+                        cr_count, fa_count, lick_times, vstimON_time, plot_dprime, dprimebinp, lick_per_trial_count):
     ########################################################################
     # initialize the figure
     ########################################################################
@@ -182,6 +182,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     outcome_miss_count_yvalue = miss_count[0:current_trial + 1]
     outcome_cr_count_yvalue = cr_count[0:current_trial + 1]
     outcome_fa_count_yvalue = fa_count[0:current_trial + 1]
+    outcome_lick_count_yvalue = lick_per_trial_count[0:current_trial + 1]
 
     # Plot
     ax3.plot(outcome_xvalue, outcome_hit_count_yvalue, 'r-')
@@ -299,6 +300,7 @@ if __name__ == "__main__":
         cr_count = [0 for o in range(session_info["number_of_trials"])]
         fa_count = [0 for o in range(session_info["number_of_trials"])]
         dprimebinp = [0 for o in range(session_info["number_of_trials"])]
+        lick_per_trial_count = [0 for o in range(session_info["number_of_trials"])]
 
         # start session
         task.start_session()
@@ -350,6 +352,7 @@ if __name__ == "__main__":
                         cr_count[w] = 0
                         fa_count[w] = 0
                         lick_times = task.lick_times
+                        lick_per_trial_count[w] = len(lick_times)
                         reward_time = task.time_at_reward
                         vstimON_time = task.time_at_vstim_ON
                         logging.info(str(time.time()) + ", amount water received " + str(hit_count[w] * session_info["calibrated_drop"]))
@@ -360,7 +363,7 @@ if __name__ == "__main__":
                                                args=(w, trial_list, combine_trial_outcome,
                                                      hit_count, miss_count, cr_count,
                                                      fa_count, lick_times, vstimON_time, plot_dprime,
-                                                     dprimebinp))
+                                                     dprimebinp, lick_per_trial_count))
                         plot_process.start()  # no join because we do not want to wait until the plotting is finished
 
                         # Determine if Hit criterion is achieved and automatically exit
@@ -452,6 +455,7 @@ if __name__ == "__main__":
                 cr_count[i] = combine_trial_outcome.count("CR!")
                 fa_count[i] = combine_trial_outcome.count("FA !!!")
                 lick_times = task.lick_times
+                lick_per_trial_count[i] = len(lick_times)
                 reward_time = task.time_at_reward
                 vstimON_time = task.time_at_vstim_ON
                 logging.info(str(time.time()) + ", amount water received " + str(hit_count[i] * session_info["calibrated_drop"]))
@@ -509,7 +513,7 @@ if __name__ == "__main__":
                 plot_process = Process(target=plot_trial_progress, args=(i, trial_list, combine_trial_outcome,
                                                                          hit_count, miss_count, cr_count, fa_count,
                                                                          lick_times, vstimON_time, plot_dprime,
-                                                                         dprimebinp,))
+                                                                         dprimebinp, lick_per_trial_count))
                 plot_process.start()  # no join because we do not want to wait until the plotting is finished
                 
             raise SystemExit
