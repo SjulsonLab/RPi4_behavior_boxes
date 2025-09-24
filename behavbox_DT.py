@@ -297,7 +297,13 @@ class BehavBox(object):
             print(e)
 
     def task_stop(self):
+        # Get the basename from the session information
+        basename = self.session_info['basename']
+        dir_name = self.session_info['dir_name']        
         try:
+            hostname = socket.gethostname()
+            base_dir = self.session_info['external_storage'] + '/'
+            hd_dir = base_dir + basename
             os.system(
                 "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/ "
                 + hd_dir
