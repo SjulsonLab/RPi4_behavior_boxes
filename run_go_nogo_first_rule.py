@@ -83,10 +83,11 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     # initialize the figure
     ########################################################################
     fig = plt.figure(figsize=(14, 9))
-    ax1 = fig.add_subplot(231)  # outcome
+    ax1 = fig.add_subplot(241)  # outcome
     ax2 = fig.add_subplot(212)  # eventplot
-    ax3 = fig.add_subplot(232)
-    ax4 = fig.add_subplot(233)
+    ax3 = fig.add_subplot(242) # outcomes
+    ax4 = fig.add_subplot(243) # dprime
+    ax5 = fig.add_subplot(244) # lick count
 
     ########################################################################
     # create an outcome plot
@@ -199,6 +200,14 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     ax3.set_xlabel('Current trial', fontsize=9)
     ax3.set_ylabel('Number of trials', fontsize=9)
     ax3.legend()
+
+    ax5.plot(outcome_xvalue,outcome_lick_count_yvalue,'g-')
+    ax5.lines[-1].set_label('Lick Count')
+    ax5.set_title('Lick count', fontsize=11)
+    ax5.set_xlim([0, current_trial+1])
+    ax5.set_xlabel('Current trial', fontsize=9)
+    ax5.set_ylabel('Number of trials', fontsize=9)
+    ax5.legend()
 
     ########################################################################
     # create the d' figure
