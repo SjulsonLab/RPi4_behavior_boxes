@@ -546,5 +546,6 @@ class go_nogo_firstrule(object):
 
     def end_session(self):
         ic("TODO: stop video")
+        #self.box.video_stop()
         self.box.task_stop()
         self.box.visualstim_go.myscreen.close()
