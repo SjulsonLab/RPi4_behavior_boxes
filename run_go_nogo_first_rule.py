@@ -227,11 +227,21 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
 
     ax5.plot(outcome_xvalue,outcome_lick_count_yvalue,'g-')
     ax5.lines[-1].set_label('Lick Count')
-    ax5.set_title('Lick count', fontsize=11)
     ax5.set_xlim([0, current_trial+1])
     ax5.set_xlabel('Current trial', fontsize=9)
     ax5.set_ylabel('Number of trials', fontsize=9)
     ax5.legend()
+
+    found_lick_count, indices_lick_count = check_consecutive_lick_counts(lick_per_trial_count)
+    if found_lick_count:
+        ax5.set_title('ANIMAL DISENGAGED !!!', fontsize=13)
+        ax5.scatter(np.arange(indices[0],indices[1]+1), lick_per_trial_count[indices[0]:indices[1]+1], marker='o', color='orange')
+        textstr_disengagement = f"Found {indices[1] - indices[0] + 1} consecutive trials with licks < 2\nStarting at index {indices_lick_count[0]}, ending at index {indices_lick_count[1]}"
+        ax5.text(0.05, 2.5, textstr_disengagement, fontsize=11, verticalalignment='bottom')
+    else:
+        ax5.set_title('Lick Count', fontsize=11)
+        textstr_disengagement = f"Still Engaged"
+        ax5.text(0.05, 2.5, textstr_disengagement, fontsize=11, verticalalignment='bottom')
 
     ########################################################################
     # create the d' figure
