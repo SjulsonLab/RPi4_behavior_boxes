@@ -76,17 +76,42 @@ def check_consecutive_dprime(dprime_values, threshold=2.5, min_consecutive=30, i
     
     return False, None
 
+def check_consecutive_lick_counts(lick_count_values, threshold=2, min_consecutive=100, ignore_first=0):
+    """
+    Same as the above function, but for lick counts
+    """
+    if ignore_first >= len(lick_count_values):
+        return False, None
+    
+    consecutive_count = 0
+    start_index = -1
+    
+    for i in range(ignore_first, len(lick_count_values)):
+        value = lick_count_values[i]
+        if value < threshold:
+            consecutive_count += 1
+            if consecutive_count == 1:  # First in potential sequence
+                start_index = i
+            if consecutive_count >= min_consecutive:
+                return True, (start_index, i)
+        else:
+            consecutive_count = 0
+            start_index = -1
+    
+    return False, None
+
 # define the plotting function here
 def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_count, miss_count,
-                        cr_count, fa_count, lick_times, vstimON_time, plot_dprime, dprimebinp):
+                        cr_count, fa_count, lick_times, vstimON_time, plot_dprime, dprimebinp, lick_per_trial_count):
     ########################################################################
     # initialize the figure
     ########################################################################
     fig = plt.figure(figsize=(14, 9))
-    ax1 = fig.add_subplot(231)  # outcome
+    ax1 = fig.add_subplot(241)  # outcome
     ax2 = fig.add_subplot(212)  # eventplot
-    ax3 = fig.add_subplot(232)
-    ax4 = fig.add_subplot(233)
+    ax3 = fig.add_subplot(242)
+    ax4 = fig.add_subplot(243)
+    ax5 = fig.add_subplot(244)
 
     ########################################################################
     # create an outcome plot
@@ -198,6 +223,24 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     ax3.set_xlabel('Current trial', fontsize=9)
     ax3.set_ylabel('Number of trials', fontsize=9)
     ax3.legend()
+
+    ax5.plot(outcome_xvalue,outcome_lick_count_yvalue,'g-')
+    ax5.lines[-1].set_label('Lick Count')
+    ax5.set_xlim([0, current_trial+1])
+    ax5.set_xlabel('Current trial', fontsize=9)
+    ax5.set_ylabel('Number of licks', fontsize=9)
+    #ax5.legend()
+
+    found_lick_count, indices_lick_count = check_consecutive_lick_counts(lick_per_trial_count)
+    if found_lick_count:
+        ax5.set_title('ANIMAL DISENGAGED !!!', fontsize=13)
+        ax5.scatter(np.arange(indices[0],indices[1]+1), lick_per_trial_count[indices[0]:indices[1]+1], marker='o', color='orange')
+        textstr_disengagement = f"Found {indices[1] - indices[0] + 1} consecutive trials with licks < 2\nStarting at index {indices_lick_count[0]}, ending at index {indices_lick_count[1]}"
+        ax5.text(0.05, 2.5, textstr_disengagement, fontsize=11, verticalalignment='bottom')
+    else:
+        ax5.set_title('Lick Count', fontsize=11)
+        textstr_disengagement = f"Still Engaged"
+        ax5.text(0.05, 2.5, textstr_disengagement, fontsize=11, verticalalignment='bottom')
 
     ########################################################################
     # create the d' figure
