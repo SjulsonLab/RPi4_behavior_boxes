@@ -76,7 +76,7 @@ def check_consecutive_dprime(dprime_values, threshold=2.5, min_consecutive=30, i
     
     return False, None
 
-def check_consecutive_lick_counts(lick_count_values, threshold=2, min_consecutive=100, ignore_first=30):
+def check_consecutive_lick_counts(lick_count_values, threshold=2, min_consecutive=100, ignore_first=0):
     """
     Same as the above function, but for lick counts
     """
