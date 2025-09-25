@@ -229,8 +229,8 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     ax5.lines[-1].set_label('Lick Count')
     ax5.set_xlim([0, current_trial+1])
     ax5.set_xlabel('Current trial', fontsize=9)
-    ax5.set_ylabel('Number of trials', fontsize=9)
-    ax5.legend()
+    #ax5.set_ylabel('Number of trials', fontsize=9)
+    #ax5.legend()
 
     found_lick_count, indices_lick_count = check_consecutive_lick_counts(lick_per_trial_count)
     if found_lick_count:
