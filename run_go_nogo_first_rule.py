@@ -343,7 +343,7 @@ if __name__ == "__main__":
         cr_count = [0 for o in range(session_info["number_of_trials"])]
         fa_count = [0 for o in range(session_info["number_of_trials"])]
         dprimebinp = [0 for o in range(session_info["number_of_trials"])]
-        lick_per_trial_count = [0 for o in range(session_info["number_of_trials"])]
+        lick_per_trial_count = np.full(session_info["number_of_trials"],np.nan)
 
         # start session
         task.start_session()
