@@ -498,7 +498,7 @@ if __name__ == "__main__":
                 cr_count[i] = combine_trial_outcome.count("CR!")
                 fa_count[i] = combine_trial_outcome.count("FA !!!")
                 lick_times = task.lick_times
-                lick_per_trial_count[w] = len(lick_times)
+                lick_per_trial_count[i] = len(lick_times)
                 reward_time = task.time_at_reward
                 vstimON_time = task.time_at_vstim_ON
                 logging.info(str(time.time()) + ", amount water received " + str(hit_count[i] * session_info["calibrated_drop"]))
