@@ -207,6 +207,7 @@ def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_co
     outcome_miss_count_yvalue = miss_count[0:current_trial + 1]
     outcome_cr_count_yvalue = cr_count[0:current_trial + 1]
     outcome_fa_count_yvalue = fa_count[0:current_trial + 1]
+    outcome_lick_count_yvalue = lick_per_trial_count[0:current_trial + 1]
 
     # Plot
     ax3.plot(outcome_xvalue, outcome_hit_count_yvalue, 'r-')
