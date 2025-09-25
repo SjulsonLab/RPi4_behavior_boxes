@@ -76,6 +76,30 @@ def check_consecutive_dprime(dprime_values, threshold=2.5, min_consecutive=30, i
     
     return False, None
 
+def check_consecutive_lick_counts(lick_count_values, threshold=2, min_consecutive=100, ignore_first=30):
+    """
+    Same as the above function, but for lick counts
+    """
+    if ignore_first >= len(lick_count_values):
+        return False, None
+    
+    consecutive_count = 0
+    start_index = -1
+    
+    for i in range(ignore_first, len(lick_count_values)):
+        value = lick_count_values[i]
+        if value < threshold:
+            consecutive_count += 1
+            if consecutive_count == 1:  # First in potential sequence
+                start_index = i
+            if consecutive_count >= min_consecutive:
+                return True, (start_index, i)
+        else:
+            consecutive_count = 0
+            start_index = -1
+    
+    return False, None
+
 # define the plotting function here
 def plot_trial_progress(current_trial, trial_list, combine_trial_outcome, hit_count, miss_count,
                         cr_count, fa_count, lick_times, vstimON_time, plot_dprime, dprimebinp, lick_per_trial_count):
