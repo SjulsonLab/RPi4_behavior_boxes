@@ -307,8 +307,8 @@ class go_nogo_firstrule(object):
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
-        self.trial_outcome = 2  # Miss is default outcome
-        logging.info(str(time.time()) + ", Miss! by default in reward_available")
+        self.trial_outcome = 0  # Miss is default outcome
+        logging.info(str(time.time()) + ", trial outcolme default to 0")
         self.countdown_trial(1.8)
 
     def exit_reward_available(self):
@@ -355,6 +355,9 @@ class go_nogo_firstrule(object):
 
     def enter_assessment(self):
         logging.info(str(time.time()) + ", entering assessment")
+        if self.trial_outcome == 0:
+            self.trial_outcome = 2
+            logging.info(str(time.time()) + ", changing outcome to Miss!")
         logging.info(str(time.time()) + ","+ str(self.trial_outcome))
 
     def exit_assessment(self):
@@ -459,8 +462,8 @@ class go_nogo_firstrule(object):
 
         elif self.state == "temp1":
             if event_name == "trial countdown ends":
-                self.trial_outcome = 1 # redundant Hit, an attempt to correct for missing hit trial count
-                logging.info(str(time.time()) + ", Hit! in temp1")
+                # self.trial_outcome = 1 # redundant Hit, an attempt to correct for missing hit trial count
+                # logging.info(str(time.time()) + ", Hit! in temp1")
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time + 0.2
                 self.start_reward_lockout_temp1()
 
