@@ -307,7 +307,8 @@ class go_nogo_firstrule(object):
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
-        self.trial_outcome = 2  # Miss!!
+        self.trial_outcome = 2  # Miss is default outcome
+        logging.info(str(time.time()) + ", Miss! by default in reward_available")
         self.countdown_trial(1.8)
 
     def exit_reward_available(self):
@@ -324,8 +325,8 @@ class go_nogo_firstrule(object):
     def enter_temp1(self):
         logging.info(str(time.time()) + ", entering temp1")
         # entering temp1 means reward was delivered immediately before the transition
-        # self.trial_outcome = 1  # Hit!
-        # logging.info(str(time.time()) + ", Hit!")
+        self.trial_outcome = 1  # Hit! (redundant but could potentially fix the wrong outcome!)
+        logging.info(str(time.time()) + ", Hit! in temp1")
 
     def exit_temp1(self):
         logging.info(str(time.time()) + ", exiting temp1")
@@ -447,6 +448,7 @@ class go_nogo_firstrule(object):
             # otherwise transition to vacuum after 1s
             if event_name == "left_entry":
                 self.trial_outcome = 1  # Hit!
+                logging.info(str(time.time()) + ", Hit! in reward_available state")
                 self.pump.reward("1", self.session_info["solenoid_blink_duration"], 0.01, 6)
                 logging.info(str(time.time()) + ", reward delivered!")
                 self.time_at_reward = time.time() - self.trial_start_time
