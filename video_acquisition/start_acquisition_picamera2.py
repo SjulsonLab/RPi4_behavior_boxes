@@ -69,11 +69,11 @@ video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 # FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + video_dt + ".csv"
 # IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig_" + video_dt + ".csv"
 
-# don't need to add timestamp to file names, the base_path already includes a timestamp
+# don't need to add new timestamps to file names, the base_path already includes a timestamp
 VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output.h264"
 TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp.csv"
 FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper.csv"
-IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig.csv"
+# IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig.csv"
 
 # set raspberry pi board layout to BCM
 pin_flipper = 4
@@ -82,16 +82,16 @@ GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 pin_irig = 6
 
-#timestamp output object to save timestamps according to pi and TTL inputs received and write to file
+# timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class TimestampOutput(object):
 
     def __init__(self, timestamp_filename, flipper_filename, irig_filename=None):
         self._timestampFile = timestamp_filename
         self._flipper_file = flipper_filename
-        self._irig_file = irig_filename  # Placeholder for IRIG file if needed
+        self._irig_file = irig_filename
         self._timestamps = []
         self._flipper_timestamps = []
-        self._irig_timestamps = []  # Placeholder for IRIG timestamps if needed
+        self._irig_timestamps = []
 
         self.flip_state = GPIO.input(pin_flipper)
         self.flip_thread = None
@@ -205,11 +205,23 @@ class TimestampOutput(object):
 # Picam2 has brightness, contrast, sharpness, saturation, exposure modes, awb_mode
 # Picam2 does not have an image stabilization option
 # hflip and vflip are Transforms now, both default to False
+sensor_mode = 0
+if sensor_mode == 0:
+    resolution = (1320, 990)
+elif sensor_mode == 1:
+    resolution = (1440, 1080)
+elif sensor_mode == 2:
+    resolution = (2000, 1500)
+else:
+    print("Invalid sensor mode selected, setting default resolution")
+    sensor_mode = 0
+    resolution = (640, 480)
+
 camera = Picamera2()
-mode = camera.sensor_modes[1]
+mode = camera.sensor_modes[sensor_mode]
 config = camera.create_video_configuration(
     sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']},
-    main={"size": (640, 480)},
+    main={"size": resolution},  # max HQ resolution for sensor 0
     controls={'FrameDurationLimits': (33333, 33333),
               'AeExposureMode': controls.AeExposureModeEnum.Normal,
               "Brightness": BRIGHTNESS,
@@ -226,7 +238,7 @@ camera.pre_callback = timestamps.append_timestamps
 camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 # timestamps.start_flipper_thread()
 GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=timestamps.flipper_callback_GPIO, bouncetime=100)
-irig_sender = irig.IrigHSender(sending_gpio_pin=pin_irig, filename=IRIG_FILE_NAME)
+# irig_sender = irig.IrigHSender(sending_gpio_pin=pin_irig, filename=IRIG_FILE_NAME)
 
 with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     encoder = H264Encoder()
@@ -235,7 +247,7 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         print('Starting Recording')
         camera.start_recording(encoder, output)
         # camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # for V3 camera; comment this out for HQ camera, which uses manual focus
-        irig_sender.start()
+        # irig_sender.start()
         time.sleep(2)
         camera.set_controls({
             'AeEnable': False,
@@ -255,6 +267,6 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         print(e)
 
     finally:
-        irig_sender.finish()
+        # irig_sender.finish()
         timestamps.close()
         sys.exit(0)

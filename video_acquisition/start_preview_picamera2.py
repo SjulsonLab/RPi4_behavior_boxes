@@ -38,14 +38,16 @@ camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 # mode2 = {'size': (4056, 3040), 'bit_depth': 12, 'fps': 40.01}
 
 
-mode = camera.sensor_modes[1]
+mode = camera.sensor_modes[0]
 # config = camera.create_preview_configuration(sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']})
 # camera.configure(config)
 
 camera.preview_configuration.sensor.output_size = mode['size']
 camera.preview_configuration.sensor.bit_depth = mode['bit_depth']
-# camera.preview_configuration.size = (640, 480) # defaults, fine for V3 camera
-camera.preview_configuration.size = (1600, 1200)  # with HQ camera
+# camera.preview_configuration.size = (640, 480) # default setting, fine for preview screen
+# camera.preview_configuration.size = (1320, 990)  # max HQ resolution for sensor 0
+# camera.preview_configuration.size = (1440, 1080)  # max HQ resolution for sensor 1
+# camera.preview_configuration.size = (2000, 1500)  # max HQ resolution for sensor 2
 camera.preview_configuration.align()
 camera.preview_configuration.controls.FrameRate = 30.0
 camera.configure("preview")
