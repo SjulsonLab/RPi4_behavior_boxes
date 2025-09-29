@@ -325,8 +325,8 @@ class go_nogo_firstrule(object):
     def enter_temp1(self):
         logging.info(str(time.time()) + ", entering temp1")
         # entering temp1 means reward was delivered immediately before the transition
-        self.trial_outcome = 1  # Hit! (redundant but could potentially fix the wrong outcome!)
-        logging.info(str(time.time()) + ", Hit! in temp1")
+        # self.trial_outcome = 1  # Hit! (redundant but could potentially fix the wrong outcome!)
+        # logging.info(str(time.time()) + ", Hit! in temp1")
 
     def exit_temp1(self):
         logging.info(str(time.time()) + ", exiting temp1")
@@ -459,6 +459,8 @@ class go_nogo_firstrule(object):
 
         elif self.state == "temp1":
             if event_name == "trial countdown ends":
+                self.trial_outcome = 1 # redundant Hit, an attempt to correct for missing hit trial count
+                logging.info(str(time.time()) + ", Hit! in temp1")
                 self.time_at_vstim_OFF = time.time() - self.trial_start_time + 0.2
                 self.start_reward_lockout_temp1()
 
