@@ -355,10 +355,7 @@ class go_nogo_firstrule(object):
 
     def enter_assessment(self):
         logging.info(str(time.time()) + ", entering assessment")
-        if self.trial_outcome == 0:
-            self.trial_outcome = 2
-            logging.info(str(time.time()) + ", changing outcome to Miss!")
-        logging.info(str(time.time()) + ","+ str(self.trial_outcome))
+        logging.info(str(time.time()) + ", "+ str(self.trial_outcome))
 
     def exit_assessment(self):
         logging.info(str(time.time()) + ", exiting assessment")
@@ -476,6 +473,9 @@ class go_nogo_firstrule(object):
             self.start_assessment()
 
         elif self.state == "assessment":
+            if self.time_at_reward == -1
+                self.trial_outcome = 2 # Miss! trial
+                logging.info(str(time.time()) + ", Miss! in assessment")
             self.start_normal_iti()
 
         elif self.state == "normal_iti":
