@@ -473,7 +473,7 @@ class go_nogo_firstrule(object):
             self.start_assessment()
 
         elif self.state == "assessment":
-            if self.time_at_reward == -1
+            if self.time_at_reward == -1:
                 self.trial_outcome = 2 # Miss! trial
                 logging.info(str(time.time()) + ", Miss! in assessment")
             self.start_normal_iti()
