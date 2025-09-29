@@ -307,8 +307,8 @@ class go_nogo_firstrule(object):
 
     def enter_reward_available(self):
         logging.info(str(time.time()) + ", entering reward_available")
-        self.trial_outcome = 0  # Miss is default outcome
-        logging.info(str(time.time()) + ", trial outcolme default to 0")
+        #self.trial_outcome = 0  # Miss is default outcome
+        #logging.info(str(time.time()) + ", trial outcolme default to 0")
         self.countdown_trial(1.8)
 
     def exit_reward_available(self):
@@ -476,8 +476,10 @@ class go_nogo_firstrule(object):
             if self.time_at_reward == -1:
                 self.trial_outcome = 2 # Miss! trial
                 logging.info(str(time.time()) + ", Miss! in assessment")
-            self.start_normal_iti()
-
+                self.start_normal_iti()
+            else:
+                self.start_normal_iti()
+                
         elif self.state == "normal_iti":
             pass
 
