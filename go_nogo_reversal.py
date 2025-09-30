@@ -301,7 +301,7 @@ class go_nogo_reversal(object):
         logging.info(str(time.time()) + ", exiting lockout period")
 
     def enter_reward_available(self):
-        #logging.info(str(time.time()) + ", entering reward_available")
+        logging.info(str(time.time()) + ", entering reward_available")
         #self.trial_outcome = 2  # Miss!!
         self.countdown_trial(1.8)
 
