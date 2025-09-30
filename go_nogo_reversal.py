@@ -470,8 +470,6 @@ class go_nogo_reversal(object):
                 self.start_normal_iti()
             else:
                 self.start_normal_iti()
-                
-            self.start_normal_iti()
 
         elif self.state == "normal_iti":
             pass
