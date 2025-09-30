@@ -464,6 +464,13 @@ class go_nogo_reversal(object):
             self.start_assessment()
 
         elif self.state == "assessment":
+            if self.time_at_reward == -1:
+                self.trial_outcome = 2 # Miss!
+                logging.info(str(time.time()) + ", Miss! in assessment")
+                self.start_normal_iti()
+            else:
+                self.start_normal_iti()
+                
             self.start_normal_iti()
 
         elif self.state == "normal_iti":
