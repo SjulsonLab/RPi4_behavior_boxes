@@ -278,6 +278,7 @@ class go_nogo_firstrule(object):
         self.trial_start_time = time.time()
         self.lick_times = np.array([])
         self.time_at_reward = -1
+        self.trial_outcome = 0
 
     def enter_vstim_go(self):
         self.trial_running = True
