@@ -37,13 +37,25 @@ camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 # mode1 = {'size': (2028, 1080), 'bit_depth': 12, 'fps': 50.03}
 # mode2 = {'size': (4056, 3040), 'bit_depth': 12, 'fps': 40.01}
 
+sensor_mode = 0
+if sensor_mode == 0:
+    resolution = (1320, 990)
+elif sensor_mode == 1:
+    resolution = (1440, 1080)
+elif sensor_mode == 2:
+    resolution = (2000, 1500)
+else:
+    print("Invalid sensor mode selected, setting default resolution")
+    sensor_mode = 0
+    resolution = (640, 480)
 
-mode = camera.sensor_modes[0]
 # config = camera.create_preview_configuration(sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']})
 # camera.configure(config)
 
+mode = camera.sensor_modes[sensor_mode]
 camera.preview_configuration.sensor.output_size = mode['size']
 camera.preview_configuration.sensor.bit_depth = mode['bit_depth']
+camera.preview_configuration.main.size = resolution
 # camera.preview_configuration.size = (640, 480) # default setting, fine for preview screen
 # camera.preview_configuration.size = (1320, 990)  # max HQ resolution for sensor 0
 # camera.preview_configuration.size = (1440, 1080)  # max HQ resolution for sensor 1
