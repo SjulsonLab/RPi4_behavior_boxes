@@ -67,9 +67,9 @@ thickness = 2
 # FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + video_dt + ".csv"
 
 # don't need to add new timestamps to file names, the base_path already includes a timestamp
-VIDEO_FILE_NAME = base_path.resolve() + "_cam" + camId + "_output.h264"
-TIMESTAMP_FILE_NAME = base_path.resolve() + "_cam" + camId + "_timestamp.csv"
-FLIPPER_FILE_NAME = base_path.resolve() + "_cam"+ camId + "_flipper.csv"
+VIDEO_FILE_NAME = str(base_path.resolve()) + "_cam" + camId + "_output.h264"
+TIMESTAMP_FILE_NAME = str(base_path.resolve()) + "_cam" + camId + "_timestamp.csv"
+FLIPPER_FILE_NAME = str(base_path.resolve()) + "_cam"+ camId + "_flipper.csv"
 
 # set raspberry pi board layout to BCM
 pin_flipper = 4
