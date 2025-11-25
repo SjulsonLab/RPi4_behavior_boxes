@@ -160,7 +160,7 @@ def sanity_checks(session_info: dict) -> dict:
         assert session_info['grating_duration'] + session_info['inter_grating_interval'] < np.amin(session_info['dark_period_times']), \
             "Intertrial interval too short for dark period"
         assert session_info['num_sounds'] in [1, 2], "Invalid number of sounds"
-    assert session_info['use_dark_period'], "Invalid visual stimulus setting - must use dark periods for visual stimulus task!!"
+        assert session_info['use_dark_period'], "Invalid visual stimulus setting - must use dark periods for visual stimulus task!!"
 
     return session_info
 
