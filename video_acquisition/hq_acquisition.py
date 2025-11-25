@@ -40,13 +40,13 @@ except:
     print("set nice level failed. \nsudo nano /etc/security/limits.conf \npi	-       nice    -20")
 
 # camera parameter setting
-WIDTH  = 640
-HEIGHT = 480
-FRAMERATE = 30
-BRIGHTNESS = 0  # 0:100 in Picam1, -1:1 in Picam2
-CONTRAST = 1  # 50 / 100
-SHARPNESS = 1  # 50
-SATURATION = 1  # 30
+# WIDTH  = 640
+# HEIGHT = 480
+# FRAMERATE = 30
+# BRIGHTNESS = 0  # 0:100 in Picam1, -1:1 in Picam2
+# CONTRAST = 1  # 50 / 100
+# SHARPNESS = 1  # 50
+# SATURATION = 1  # 30
 # AWB_MODE = 'off'
 # AWB_GAINS = 1.4
 
@@ -207,10 +207,10 @@ config = camera.create_video_configuration(
     main={"size": resolution},  # max HQ resolution for sensor 0
     controls={'FrameDurationLimits': (33333, 33333),
               'AeExposureMode': controls.AeExposureModeEnum.Normal,
-              "Brightness": BRIGHTNESS,
-              "Contrast": CONTRAST,
-              "Sharpness": SHARPNESS,
-              "Saturation": SATURATION
+              # "Brightness": BRIGHTNESS,
+              # "Contrast": CONTRAST,
+              # "Sharpness": SHARPNESS,
+              # "Saturation": SATURATION
 })
 camera.align_configuration(config)
 camera.configure(config)
