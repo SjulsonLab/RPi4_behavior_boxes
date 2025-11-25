@@ -219,10 +219,10 @@ config = camera.create_video_configuration(
     main={"size": resolution},  # max HQ resolution for sensor 0
     controls={'FrameDurationLimits': (33333, 33333),
               'AeExposureMode': controls.AeExposureModeEnum.Normal,
-              "Brightness": BRIGHTNESS,
-              "Contrast": CONTRAST,
-              "Sharpness": SHARPNESS,
-              "Saturation": SATURATION
+              # "Brightness": BRIGHTNESS,
+              # "Contrast": CONTRAST,
+              # "Sharpness": SHARPNESS,
+              # "Saturation": SATURATION
 })
 camera.align_configuration(config)
 camera.configure(config)
