@@ -29,7 +29,9 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-base_path = Path.home() / 'buffer'
+
+video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+base_path = Path.home() / 'buffer' / video_dt
 
 # set high thread priority - may require sudo access
 try:
@@ -60,15 +62,14 @@ scale = 1
 thickness = 2
 
 # video, timestamps and ttl file name
-video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 # VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output_" + video_dt + ".h264"
 # TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp_" + video_dt + ".csv"
 # FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + video_dt + ".csv"
 
 # don't need to add new timestamps to file names, the base_path already includes a timestamp
-VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output.h264"
-TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp.csv"
-FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper.csv"
+VIDEO_FILE_NAME = base_path.resolve() + "_cam" + camId + "_output.h264"
+TIMESTAMP_FILE_NAME = base_path.resolve() + "_cam" + camId + "_timestamp.csv"
+FLIPPER_FILE_NAME = base_path.resolve() + "_cam"+ camId + "_flipper.csv"
 
 # set raspberry pi board layout to BCM
 pin_flipper = 4
