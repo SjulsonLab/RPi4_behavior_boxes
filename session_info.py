@@ -135,6 +135,7 @@ def session_defaults(session_info: dict) -> dict:
     if session_info['task_config'] == 'flush':
         ic('Defaulting intertrial interval to 4 seconds')
         session_info['intertrial_interval'] = 4  # in seconds
+        session_info['use_dark_period'] = True
 
     elif session_info['task_config'] == 'alternating_latent':
         ic('Defaulting intertrial interval to 2 seconds')
