@@ -203,18 +203,18 @@ class LatentInferenceModel(Model):  # subclass from base task
             self.rewards_earned_in_block = 0
             if self.state == 'right_patch':
                 if self.session_info['biased_side'] == 'right':
-                    self.session_info['switch_probability'] = self.session_info['biased_switch_probability']
+                    self.session_info['switch_probability'] = self.session_info['default_switch_probability']  # going into left patch with a right bias, use a normal switch prob on the left
                 elif self.session_info['biased_side'] == 'left':
-                    self.session_info['switch_probability'] = self.session_info['default_switch_probability']
-                else:  # biased_side is None
+                    self.session_info['switch_probability'] = self.session_info['biased_switch_probability']  # going into left patch with a left bias, use a higher switch prob on the left
+                else:  # biased_side is 'none'
                     pass
                 self.switch_to_left_patch()
 
             elif self.state == 'left_patch':
                 if self.session_info['biased_side'] == 'left':
-                    self.session_info['switch_probability'] = self.session_info['biased_switch_probability']
+                    self.session_info['switch_probability'] = self.session_info['default_switch_probability'] # going into right patch with a left bias, use a normal switch prob on the right
                 elif self.session_info['biased_side'] == 'right':
-                    self.session_info['switch_probability'] = self.session_info['default_switch_probability']
+                    self.session_info['switch_probability'] = self.session_info['biased_switch_probability'] # going into right patch with a right bias, use a higher switch prob on the right
                 else:  # biased_side is 'none'
                     pass
                 self.switch_to_right_patch()

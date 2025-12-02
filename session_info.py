@@ -36,9 +36,9 @@ def make_session_info() -> Dict[str, Any]:
     # Parameters for latent inference tasks
     session_info['correct_reward_probability'] = .9
     session_info['incorrect_reward_probability'] = 0
-    session_info['switch_probability'] = .2
-    session_info['biased_switch_probability'] = .5
-    session_info['default_switch_probability'] = .2
+    session_info['biased_switch_probability'] = .5  # when on the biased side, use a higher probability of switching. requires biased_side = left or right to be used
+    session_info['default_switch_probability'] = .2  # when on the unbiased side, use a higher probability of switching. requires biased_side = left or right to be used
+    session_info['switch_probability'] = session_info['default_switch_probability']  # this is the switch param - when no bias is set, it is the only parameter used. In session_info settings, setting it based off default_switch reduced user parameters
     session_info['epoch_length'] = 120
     session_info['dark_period_times'] = [10]
     session_info['use_dark_period'] = True
