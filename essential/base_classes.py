@@ -2,7 +2,6 @@ import logging
 import time
 from typing import List, Tuple, Union, Dict
 from abc import ABC, abstractmethod
-from icecream import ic
 from transitions import State, Machine
 from transitions.extensions.states import add_state_features, Timeout
 import numpy as np
@@ -11,11 +10,13 @@ import matplotlib.lines
 import collections
 import pygame
 import threading
+import re
 from multiprocessing import Process, Queue
 from threading import Thread
-import os
-from colorama import Fore, Style
 import queue
+import os
+from icecream import ic
+from colorama import Fore, Style
 
 
 class PumpBase(ABC):
@@ -135,6 +136,7 @@ class TimedStateMachine(Machine):
 
 
 class Model(ABC):
+    session_info: dict
     automate_training_rewards: bool = False
     give_training_reward: bool
     state: str
@@ -148,6 +150,9 @@ class Model(ABC):
     # Lick detection
     lick_threshold: int = 2
     lick_side_buffer: np.ndarray = np.zeros(2)
+    lick_entry_buffer: np.ndarray = np.zeros(2)
+    lick_exit_buffer: np.ndarray = np.array([np.inf, np.inf])
+
     error_count: int = 0
     trial_number: int = 0
     last_choice_time: float = -np.inf
@@ -165,7 +170,6 @@ class Model(ABC):
 
     def determine_choice(self) -> str:
         """Determine whether there has been a choice to the left ports, right ports, or a switch."""
-
         sides_licked = np.sum(self.lick_side_buffer.astype(bool))  # get nonzero sides
         if sides_licked > 1:
             # made a switch, reset the counter
@@ -178,6 +182,40 @@ class Model(ABC):
         else:
             choice = ''  # no choice made/not enough licks
         return choice
+
+    def debounce_lick(self, event: str, cur_time: float):
+        right_ix = self.session_info['right_ix']
+        left_ix = self.session_info['left_ix']
+
+        if event == 'right_entry':
+            self.lick_entry_buffer[right_ix] = cur_time
+        elif event == 'left_entry':
+            self.lick_entry_buffer[left_ix] = cur_time
+        elif event == 'right_exit':
+            self.lick_exit_buffer[right_ix] = cur_time
+        elif event == 'left_exit':
+            self.lick_exit_buffer[left_ix] = cur_time
+
+        lick_intervals = self.lick_exit_buffer - self.lick_entry_buffer
+        if self.session_info['lick_min_time'] < lick_intervals[right_ix] < self.session_info['lick_max_time']:
+            self.lick_side_buffer[right_ix] += 1
+            self.lick_entry_buffer[right_ix] = 0
+            self.lick_exit_buffer[right_ix] = np.inf
+
+        if self.session_info['lick_min_time'] < lick_intervals[left_ix] < self.session_info['lick_max_time']:
+            self.lick_side_buffer[left_ix] += 1
+            self.lick_entry_buffer[left_ix] = 0
+            self.lick_exit_buffer[left_ix] = np.inf
+
+    def detect_lick_no_debounce(self, event):
+        if event == 'right_entry':
+            self.lick_side_buffer[self.session_info['right_ix']] += 1
+        elif event == 'left_entry':
+            self.lick_side_buffer[self.session_info['left_ix']] += 1
+        elif event == 'right_exit':
+            pass
+        elif event == 'left_exit':
+            pass
 
     def log_correct_choice(self, choice: int, event_time: float, reward_given: bool) -> None:
         logging.info(";" + str(time.time()) + ";[outcome];correct_choice_{};reward_{}".format(self.state, reward_given))
@@ -202,6 +240,9 @@ class Model(ABC):
 
     def reset_counters(self) -> None:
         self.lick_side_buffer *= 0
+        self.lick_entry_buffer *= 0
+        self.lick_exit_buffer *= np.inf
+
         self.rewards_earned_in_block = 0
         self.error_count = 0
         self.event_list.clear()

@@ -21,9 +21,6 @@ import threading
 Model for the task - i.e. only sees the the task state machine and status, necessary parameters, and presenter messages.
 """
 
-RIGHT_IX = 0
-LEFT_IX = 1
-
 # SEED = 0
 # random.seed(SEED)
 
@@ -32,6 +29,7 @@ class AlternatingLatentModel(Model):
 
     def __init__(self, session_info: dict):  # name and session_info should be provided as kwargs
         # TASK + BEHAVIOR STATUS
+        self.session_info = session_info
         self.trial_running = False
         self.trial_number = 0  # I don't think stopping at max trials is implemented - do that
 
@@ -183,13 +181,16 @@ class AlternatingLatentModel(Model):
         else:
             event = ''
 
-        if event == 'right_entry':
-            self.lick_side_buffer[RIGHT_IX] += 1
-        elif event == 'left_entry':
-            self.lick_side_buffer[LEFT_IX] += 1
+        if event in ['right_entry', 'left_entry', 'right_exit', 'left_exit']:
+            if self.session_info['debounce_licks']:
+                self.debounce_lick(event, cur_time)
+            else:
+                self.detect_lick_no_debounce(event)
 
         if self.state == 'standby' or self.ITI_active:
             self.lick_side_buffer *= 0
+            self.lick_entry_buffer *= 0
+            self.lick_exit_buffer *= np.inf
             # self.give_training_reward = False  # only toggle this in left/right active???
             return
 
@@ -200,9 +201,9 @@ class AlternatingLatentModel(Model):
             self.presenter_commands.append('give_training_reward')
             self.trial_reward_given.append(True)
             if self.state == 'right_patch':
-                self.log_training_reward(RIGHT_IX, time_since_start)
+                self.log_training_reward(self.session_info['right_ix'], time_since_start)
             elif self.state == 'left_patch':
-                self.log_training_reward(LEFT_IX, time_since_start)
+                self.log_training_reward(self.session_info['left_ix'], time_since_start)
             else:
                 raise RuntimeError('state not recognized')
 
@@ -210,20 +211,20 @@ class AlternatingLatentModel(Model):
             self.activate_ITI()
             if self.state == 'right_patch':
                 reward_given = self.give_correct_reward()
-                self.log_correct_choice(RIGHT_IX, time_since_start, reward_given)
+                self.log_correct_choice(self.session_info['right_ix'], time_since_start, reward_given)
             elif self.state == 'left_patch':
                 reward_given = self.give_incorrect_reward()
-                self.log_incorrect_choice(RIGHT_IX, time_since_start, reward_given)
+                self.log_incorrect_choice(self.session_info['right_ix'], time_since_start, reward_given)
                 # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str())
 
         elif choice_side == 'left':
             self.activate_ITI()
             if self.state == 'left_patch':
                 reward_given = self.give_correct_reward()
-                self.log_correct_choice(LEFT_IX, time_since_start, reward_given)
+                self.log_correct_choice(self.session_info['left_ix'], time_since_start, reward_given)
             elif self.state == 'right_patch':
                 reward_given = self.give_incorrect_reward()
-                self.log_incorrect_choice(LEFT_IX, time_since_start, reward_given)
+                self.log_incorrect_choice(self.session_info['left_ix'], time_since_start, reward_given)
                 # logging.info(";" + str(time.time()) + ";[transition];wrong_choice_right_patch;" + str(""))
 
         elif choice_side == 'switch':
