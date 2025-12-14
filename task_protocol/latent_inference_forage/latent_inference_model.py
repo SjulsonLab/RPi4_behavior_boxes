@@ -159,10 +159,16 @@ class LatentInferenceModel(Model):  # subclass from base task
         else:
             event = ''
 
-        if event == 'right_entry':
-            self.lick_side_buffer[RIGHT_IX] += 1
-        elif event == 'left_entry':
-            self.lick_side_buffer[LEFT_IX] += 1
+        # if event == 'right_entry':
+        #     self.lick_side_buffer[RIGHT_IX] += 1
+        # elif event == 'left_entry':
+        #     self.lick_side_buffer[LEFT_IX] += 1
+
+        if event in ['right_entry', 'left_entry', 'right_exit', 'left_exit']:
+            if self.session_info['debounce_licks']:
+                self.debounce_lick(event, cur_time)
+            else:
+                self.detect_lick_no_debounce(event)
 
         if self.state in ['standby', 'dark_period']:
             self.lick_side_buffer *= 0
