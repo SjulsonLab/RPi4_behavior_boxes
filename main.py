@@ -83,14 +83,15 @@ def close_logs():
     ic('All logs closed!')
 
 
-def main():
+def run_program(session_info: dict = None):
     try:
         # load in session_info file, check that dates are correct, put in automatic
         # time and date stamps for when the experiment was run
 
         datestr = datetime.now().strftime("%Y-%m-%d")
         timestr = datetime.now().strftime('%H%M%S')
-        session_info = make_session_info()
+        if session_info is None:
+            session_info = make_session_info()
         if session_info['debug']:
             from essential import dummy_box as behavbox
         else:
@@ -287,4 +288,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run_program()

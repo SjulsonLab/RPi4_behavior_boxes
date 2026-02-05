@@ -12,13 +12,17 @@ def make_session_info() -> Dict[str, Any]:
     # Information for this session (the user should edit this each session)
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test-mouse'
-    session_info['debug']                     	= False
+    session_info['debug']                     	= True
     session_info['ephys_rig']                 	= True  # determines reward pumps and ssh IPs
     session_info['lick_input_setting']          = 'signal_high'  # ['signal_high', 'signal_low']
 
+    session_info['debounce_licks']              = True  # use this to check if lick signals are long enough. Licks will be detected by lick onset AND offset; throw out signals that are too short/noise
+    session_info['lick_min_time'] = .2
+    session_info['lick_max_time'] = 1
+
     session_info['weight']                	    = 0  # in grams
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
-    session_info['task_config']				    = 'flush'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
+    session_info['task_config']				    = 'alternating_latent'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
     session_info['control']                     = False
     session_info['emit_barcodes']               = True  # whether to emit barcodes for the flipper
 
@@ -36,9 +40,9 @@ def make_session_info() -> Dict[str, Any]:
     # Parameters for latent inference tasks
     session_info['correct_reward_probability'] = .9
     session_info['incorrect_reward_probability'] = 0
-    session_info['switch_probability'] = .2
-    session_info['biased_switch_probability'] = .5
-    session_info['default_switch_probability'] = .2
+    session_info['biased_switch_probability'] = .5  # when on the biased side, use a higher probability of switching. requires biased_side = left or right to be used
+    session_info['default_switch_probability'] = .2  # when on the unbiased side, use a higher probability of switching. requires biased_side = left or right to be used
+    session_info['switch_probability'] = session_info['default_switch_probability']  # this is the switch param - when no bias is set, it is the only parameter used. In session_info settings, setting it based off default_switch reduced user parameters
     session_info['epoch_length'] = 120
     session_info['dark_period_times'] = [10]
     session_info['use_dark_period'] = True
@@ -135,6 +139,7 @@ def session_defaults(session_info: dict) -> dict:
     if session_info['task_config'] == 'flush':
         ic('Defaulting intertrial interval to 4 seconds')
         session_info['intertrial_interval'] = 4  # in seconds
+        session_info['use_dark_period'] = True
 
     elif session_info['task_config'] == 'alternating_latent':
         ic('Defaulting intertrial interval to 2 seconds')
@@ -160,7 +165,7 @@ def sanity_checks(session_info: dict) -> dict:
         assert session_info['grating_duration'] + session_info['inter_grating_interval'] < np.amin(session_info['dark_period_times']), \
             "Intertrial interval too short for dark period"
         assert session_info['num_sounds'] in [1, 2], "Invalid number of sounds"
-    assert session_info['use_dark_period'], "Invalid visual stimulus setting - must use dark periods for visual stimulus task!!"
+        assert session_info['use_dark_period'], "Invalid visual stimulus setting - must use dark periods for visual stimulus task!!"
 
     return session_info
 

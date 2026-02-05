@@ -28,6 +28,7 @@ LEFT_IX = 1
 class FlushModel(Model):
 
     def __init__(self, session_info: dict):  # name and session_info should be provided as kwargs
+        self.session_info = session_info
         self.ITI = session_info['intertrial_interval']
         self.lick_threshold = session_info['lick_threshold']
 

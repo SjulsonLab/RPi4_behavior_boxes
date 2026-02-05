@@ -216,7 +216,7 @@ camera = Picamera2()
 mode = camera.sensor_modes[sensor_mode]
 config = camera.create_video_configuration(
     sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']},
-    main={"size": resolution},  # max HQ resolution for sensor 0
+    #main={"size": resolution},  # max HQ resolution for sensor 0
     controls={'FrameDurationLimits': (33333, 33333),
               'AeExposureMode': controls.AeExposureModeEnum.Normal,
               # "Brightness": BRIGHTNESS,
@@ -230,17 +230,20 @@ print("Camera configuration aligned to {}".format(camera.video_configuration.siz
 
 timestamps = TimestampOutput(TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
 camera.pre_callback = timestamps.append_timestamps
-camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
+# camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
+camera.start_preview(Preview.DRM, x=100, y=0, width=1320, height=990)
 # timestamps.start_flipper_thread()
 GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=timestamps.flipper_callback_GPIO, bouncetime=100)
 # irig_sender = irig.IrigHSender(sending_gpio_pin=pin_irig, filename=IRIG_FILE_NAME)
 
 with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     encoder = H264Encoder()
+    encoder = H264Encoder()
     output = FileOutput(file=buffer)#, pts=TIMESTAMP_FILE_NAME)
     try:
         print('Starting Recording')
-        camera.start_recording(encoder, output)
+        camera.start_recording(encoder, output, quality=Quality.VERY_HIGH)
+        # camera.start_recording(encoder, output)
         # camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # for V3 camera; comment this out for HQ camera, which uses manual focus
         # irig_sender.start()
         time.sleep(2)
@@ -265,3 +268,4 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         # irig_sender.finish()
         timestamps.close()
         sys.exit(0)
+

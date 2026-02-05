@@ -55,7 +55,7 @@ else:
 mode = camera.sensor_modes[sensor_mode]
 camera.preview_configuration.sensor.output_size = mode['size']
 camera.preview_configuration.sensor.bit_depth = mode['bit_depth']
-camera.preview_configuration.main.size = resolution
+#camera.preview_configuration.main.size = resolution
 # camera.preview_configuration.size = (640, 480) # default setting, fine for preview screen
 # camera.preview_configuration.size = (1320, 990)  # max HQ resolution for sensor 0
 # camera.preview_configuration.size = (1440, 1080)  # max HQ resolution for sensor 1
