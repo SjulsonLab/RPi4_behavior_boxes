@@ -1,4 +1,9 @@
 #!/usr/bin/env -S ipython3 -i
+try:
+    import mock_gpiozero
+    mock_gpiozero.patch()
+except ImportError:
+    pass
 # run_headfixed2FC_task.py
 """
 author: tian qiu & Soyoun Kim

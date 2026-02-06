@@ -1,3 +1,8 @@
+try:
+    import mock_gpiozero
+    mock_gpiozero.patch()
+except ImportError:
+    pass
 from gpiozero import Button, LED
 import time
 

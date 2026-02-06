@@ -1,6 +1,11 @@
 #run_self_admin.task
 
 #!/usr/bin/env -S ipython3 -i
+try:
+    import mock_gpiozero
+    mock_gpiozero.patch()
+except ImportError:
+    pass
 # run_self_admin_task.py
 """
 author: tian qiu
