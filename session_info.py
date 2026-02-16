@@ -17,7 +17,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['lick_input_setting']          = 'signal_high'  # ['signal_high', 'signal_low']
 
     session_info['debounce_licks']              = True  # use this to check if lick signals are long enough. Licks will be detected by lick onset AND offset; throw out signals that are too short/noise
-    session_info['lick_min_time'] = .2
+    session_info['lick_min_time'] = .05
     session_info['lick_max_time'] = 1
 
     session_info['weight']                	    = 0  # in grams
