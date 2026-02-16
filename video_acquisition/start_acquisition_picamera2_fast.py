@@ -5,7 +5,6 @@ import time
 import signal
 import numpy as np
 import cv2
-import RPi.GPIO as GPIO
 
 from picamera2 import Picamera2, Preview, MappedArray
 from picamera2.encoders import H264Encoder
@@ -18,9 +17,8 @@ from libcamera import controls
 
 FRAMERATE = 30
 FRAME_DURATION_US = int(1e6 / FRAMERATE)
-BITRATE = 25000000  # adjust up/down after testing
+BITRATE = 30000000  # 30 Mbps safe starting point
 
-# ---- Sensor mode selection (same as before) ----
 sensor_mode = 0  # change manually when testing
 
 # --------------------------------------------------
@@ -34,32 +32,34 @@ VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output.h264"
 TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp.csv"
 
 # --------------------------------------------------
-# PRE-RENDER DIGITS (FAST BURN-IN)
+# PRE-RENDER DIGITS + SYMBOLS
 # --------------------------------------------------
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 SCALE = 0.8
 THICKNESS = 2
 
-digit_cache = {}
+char_cache = {}
+chars = "0123456789.-"
 
-for i in range(10):
+for c in chars:
     img = np.zeros((40, 30), dtype=np.uint8)
-    cv2.putText(img, str(i), (2, 30), FONT, SCALE, 255, THICKNESS)
-    digit_cache[str(i)] = img
+    cv2.putText(img, c, (2, 30), FONT, SCALE, 255, THICKNESS)
+    char_cache[c] = img
 
-def draw_number_fast(frame_y_plane, number, x=10, y=50):
-    s = str(number)
+def draw_text_fast(frame_y, text, x=10, y=50):
     offset = 0
-    for char in s:
-        if char in digit_cache:
-            digit = digit_cache[char]
-            h, w = digit.shape
-            frame_y_plane[y-h:y, x+offset:x+offset+w] = np.maximum(
-                frame_y_plane[y-h:y, x+offset:x+offset+w],
-                digit
+    for char in text:
+        if char in char_cache:
+            glyph = char_cache[char]
+            h, w = glyph.shape
+            frame_y[y-h:y, x+offset:x+offset+w] = np.maximum(
+                frame_y[y-h:y, x+offset:x+offset+w],
+                glyph
             )
             offset += w + 2
+        else:
+            offset += 15  # spacing for unsupported chars
 
 # --------------------------------------------------
 # TIMESTAMP STORAGE
@@ -70,12 +70,22 @@ timestamps = []
 def append_timestamp(request):
     meta = request.get_metadata()
     sensor_ts = meta["SensorTimestamp"]
-    timestamps.append(sensor_ts)
+    # unix_ts = time.time()
+    unix_ts = time.time_ns() * 1e-9
 
-    # Burn into Y plane only (fastest)
+    timestamps.append((sensor_ts, unix_ts))
+
+    # Format Unix time with microsecond precision
+    unix_str = f"{unix_ts:.6f}"
+
     with MappedArray(request, "main") as m:
         frame_y = m.array[:, :, 0]
-        draw_number_fast(frame_y, sensor_ts)
+
+        # Top line: UNIX timestamp
+        draw_text_fast(frame_y, unix_str, x=10, y=50)
+
+        # Second line: SensorTimestamp (ns)
+        draw_text_fast(frame_y, str(sensor_ts), x=10, y=100)
 
 # --------------------------------------------------
 # CAMERA SETUP
@@ -83,16 +93,8 @@ def append_timestamp(request):
 
 camera = Picamera2()
 
-# Validate sensor mode
 if sensor_mode >= len(camera.sensor_modes):
     raise ValueError("Invalid sensor_mode index")
-
-# configs for camera sensors at 30 fps
-# for camera V3 standard module, using bit_depth 10, size (2304, 1296), max fps 56.03
-# for HQ camera, sensor modes 0, 1, and 2 are okay
-# mode0 = {'size': (1332, 990), 'fps': 120}, dunno bit depth
-# mode1 = {'size': (2028, 1080), 'bit_depth': 12, 'fps': 50.03}
-# mode2 = {'size': (4056, 3040), 'bit_depth': 12, 'fps': 40.01}
 
 mode = camera.sensor_modes[sensor_mode]
 print(f"Using sensor mode {sensor_mode}: {mode['size']}")
@@ -109,9 +111,7 @@ video_config = camera.create_video_configuration(
 )
 
 camera.configure(video_config)
-
 camera.pre_callback = append_timestamp
-
 camera.start_preview(Preview.DRM)
 
 encoder = H264Encoder(bitrate=BITRATE)
@@ -127,10 +127,10 @@ def shutdown(sig, frame):
     camera.stop_preview()
 
     with open(TIMESTAMP_FILE_NAME, "w") as f:
-        for ts in timestamps:
-            f.write(f"{ts}\n")
+        f.write("SensorTimestamp_ns,UnixTimestamp_s\n")
+        for sensor_ts, unix_ts in timestamps:
+            f.write(f"{sensor_ts},{unix_ts}\n")
 
-    GPIO.cleanup()
     sys.exit(0)
 
 signal.signal(signal.SIGINT, shutdown)
@@ -139,18 +139,16 @@ signal.signal(signal.SIGINT, shutdown)
 # START RECORDING
 # --------------------------------------------------
 
-print("Starting high-quality recording...")
+print("Starting recording...")
 camera.start_recording(encoder, output)
 
-# Allow AE/AWB to settle
 time.sleep(2)
-
 camera.set_controls({
     "AeEnable": False,
     "AwbEnable": False,
 })
 
-print("Recording with burned-in timestamps. Press Ctrl+C to stop.")
+print("Recording... Press Ctrl+C to stop.")
 
 while True:
     time.sleep(1)
