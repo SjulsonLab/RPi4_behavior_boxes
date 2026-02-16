@@ -23,6 +23,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['weight']                	    = 0  # in grams
     session_info['date']					    = datetime.now().strftime("%Y-%m-%d")  # for example, '2023-09-28'
     session_info['task_config']				    = 'alternating_latent'   # 'alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'
+    session_info['resume_pre_dark_context']     = True   # option to resume the context used before entering a dark period. Only relevant if task_config is 'latent_inference' or 'latent_inference_with_stimuli'
     session_info['control']                     = False
     session_info['emit_barcodes']               = True  # whether to emit barcodes for the flipper
 
