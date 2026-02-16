@@ -204,7 +204,7 @@ camera = Picamera2()
 mode = camera.sensor_modes[sensor_mode]
 config = camera.create_video_configuration(
     sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']},
-    main={"size": resolution},  # max HQ resolution for sensor 0
+    #main={"size": resolution},  # max HQ resolution for sensor 0
     controls={'FrameDurationLimits': (33333, 33333),
               'AeExposureMode': controls.AeExposureModeEnum.Normal,
               # "Brightness": BRIGHTNESS,
@@ -227,7 +227,7 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     output = FileOutput(file=buffer)#, pts=TIMESTAMP_FILE_NAME)
     try:
         print('Starting Recording')
-        camera.start_recording(encoder, output)
+        camera.start_recording(encoder, output, quality=Quality.VERY_HIGH)
         # camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # for V3 camera; comment this out for HQ camera, which uses manual focus
         time.sleep(2)
         camera.set_controls({
