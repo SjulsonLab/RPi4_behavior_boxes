@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BehavBox Hardware Library Refactor &mdash; Branch Analysis &amp; Unification Plan</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a2e;
+    --accent: #0f3460;
+    --accent2: #16213e;
+    --highlight: #e94560;
+    --green: #2d6a4f;
+    --light-bg: #f4f6fb;
+    --border: #d0d7e3;
+    --code-bg: #f0f2f5;
+    --table-stripe: #f8f9fc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+    line-height: 1.6;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 2.5rem;
+  }
+  h1 {
+    font-size: 1.9rem;
+    color: var(--accent);
+    border-bottom: 3px solid var(--highlight);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.3rem;
+  }
+  .subtitle { color: #666; font-size: 0.95rem; margin-bottom: 2rem; }
+  h2 {
+    font-size: 1.4rem;
+    color: var(--accent2);
+    margin-top: 2.5rem;
+    margin-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.3rem;
+  }
+  h3 {
+    font-size: 1.15rem;
+    color: var(--accent);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  h4 {
+    font-size: 1rem;
+    color: #444;
+    margin-top: 1rem;
+    margin-bottom: 0.4rem;
+  }
+  p, li { margin-bottom: 0.5rem; }
+  ul, ol { padding-left: 1.5rem; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  th {
+    background: var(--accent2);
+    color: #fff;
+    text-align: left;
+    padding: 0.55rem 0.7rem;
+    font-weight: 600;
+  }
+  td {
+    padding: 0.45rem 0.7rem;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:nth-child(even) td { background: var(--table-stripe); }
+  code {
+    background: var(--code-bg);
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.88rem;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 0.8rem 0;
+    border: 1px solid var(--border);
+  }
+  pre code { background: none; padding: 0; }
+  .callout {
+    background: #fff8e1;
+    border-left: 4px solid #ffa726;
+    padding: 0.8rem 1rem;
+    margin: 1rem 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout-blue {
+    background: #e3f2fd;
+    border-left: 4px solid #42a5f5;
+    padding: 0.8rem 1rem;
+    margin: 1rem 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout-green {
+    background: #e8f5e9;
+    border-left: 4px solid #66bb6a;
+    padding: 0.8rem 1rem;
+    margin: 1rem 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout-red {
+    background: #fce4ec;
+    border-left: 4px solid var(--highlight);
+    padding: 0.8rem 1rem;
+    margin: 1rem 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .tag {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+  .tag-headfixed { background: #e3f2fd; color: #1565c0; }
+  .tag-freemove { background: #f3e5f5; color: #7b1fa2; }
+  .tag-major { background: #fce4ec; color: #c62828; }
+  .tag-minor { background: #e8f5e9; color: #2e7d32; }
+  .tag-none { background: #f5f5f5; color: #757575; }
+  .pin-conflict { background: #ffebee; }
+  .toc { background: var(--light-bg); padding: 1.2rem 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+  .toc h3 { margin-top: 0; }
+  .toc ol { margin-bottom: 0; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .branch-card {
+    background: var(--light-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+  }
+  .branch-card h4 { margin-top: 0; }
+  .verdict { font-weight: 600; color: var(--green); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1>BehavBox Hardware Library Refactor</h1>
+<p class="subtitle">Branch analysis and unification plan &mdash; prepared February 2026 for the Sjulson Lab</p>
+
+<div class="toc">
+<h3>Contents</h3>
+<ol>
+  <li><a href="#overview">Overview &amp; Motivation</a></li>
+  <li><a href="#branches">Branch-by-Branch Analysis</a></li>
+  <li><a href="#pin-conflicts">GPIO Pin Conflicts Across Branches</a></li>
+  <li><a href="#pump-configs">Pump Hardware Configurations</a></li>
+  <li><a href="#arch-patterns">Architectural Patterns</a></li>
+  <li><a href="#headfixed-vs-freemove">Head-Fixed vs. Freely-Moving</a></li>
+  <li><a href="#unification">Unification Plan</a></li>
+  <li><a href="#autodetect">Platform Auto-Detection</a></li>
+  <li><a href="#migration">Migration Path</a></li>
+</ol>
+</div>
+
+<!-- ================================================================== -->
+<h2 id="overview">1. Overview &amp; Motivation</h2>
+
+<p>The <code>essential/</code> directory in <strong>RPi4_behavior_boxes</strong> contains the hardware interface layer: <code>behavbox.py</code>, <code>FlipperOutput.py</code>, <code>Treadmill.py</code>, <code>ADS1x15.py</code>, and <code>visualstim.py</code>. This code was intended to be written once and shared by all users, but because task code lives in the same repository, users created per-person branches and began modifying the hardware layer to suit their specific experimental configurations.</p>
+
+<p>The result: <strong>at least 6 distinct, incompatible versions</strong> of the hardware interface code across the repository's branches. The goal of this refactor is to:</p>
+<ol>
+  <li>Audit every branch's hardware changes</li>
+  <li>Unify them into a single, configurable hardware library in a <strong>new dedicated repository</strong></li>
+  <li>Support both head-fixed and freely-moving configurations</li>
+  <li>Auto-detect RPi vs. desktop platforms (macOS, Linux x86-64, WSL) and use real or mock GPIO accordingly</li>
+</ol>
+
+<!-- ================================================================== -->
+<h2 id="branches">2. Branch-by-Branch Analysis</h2>
+
+<p>17 remote branches were examined. They fall into four categories:</p>
+
+<table>
+  <tr>
+    <th>Category</th>
+    <th>Branches</th>
+    <th>Hardware Changes</th>
+  </tr>
+  <tr>
+    <td><span class="tag tag-major">Major changes</span></td>
+    <td>matt-behavior, headfixed_soyounk, mitchfarrell-context, benville_gonogo</td>
+    <td>Significant modifications to pins, classes, or architecture</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-minor">Minor changes</span></td>
+    <td>treadmill_only, context, context_vis</td>
+    <td>Small pin reassignments or pump calibration tweaks</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-none">No changes</span></td>
+    <td>charlie-irig, juliabenville_CueIVSA, rbb-lab, devEFO</td>
+    <td>Identical to main</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-none">Deleted essential/</span></td>
+    <td>go_nogo, go_nogo_temp_branch</td>
+    <td>Hardware code removed entirely (task-only branches)</td>
+  </tr>
+</table>
+
+<!-- matt-behavior -->
+<div class="branch-card">
+<h4><code>origin/matt-behavior</code> &mdash; Matthew Chin <span class="tag tag-major">Major</span> <span class="tag tag-headfixed">Head-fixed</span></h4>
+<p><strong>Last updated:</strong> 2026-02-04 &nbsp;|&nbsp; <strong>The most extensively modified branch.</strong></p>
+
+<p><strong>Architectural changes:</strong></p>
+<ul>
+  <li><strong>New file: <code>base_classes.py</code></strong> &mdash; abstract base classes (<code>Box</code>, <code>PumpBase</code>, <code>Presenter</code>, <code>Model</code>, <code>GUI</code>, <code>VisualStimBase</code>) defining the interface contract for the whole system</li>
+  <li><strong>New file: <code>gui.py</code></strong> &mdash; extracted <code>PygameGUI</code> class (plotting/display separated from BehavBox)</li>
+  <li><strong>New file: <code>pyqtgui.py</code></strong> &mdash; alternative PyQt-based GUI</li>
+  <li><strong>New file: <code>dummy_box.py</code></strong> &mdash; software mock of BehavBox for off-Pi testing</li>
+  <li><strong>New file: <code>visualstim_concurrent.py</code></strong> &mdash; multiprocess grating system with Queue-based commands</li>
+  <li><strong>BehavBox now inherits from <code>Box</code></strong> (abstract base class) instead of <code>object</code></li>
+  <li><strong>Callbacks extracted from BehavBox</strong> into a <code>Presenter</code> class via <code>set_callbacks(presenter)</code> &mdash; all IR and lick callbacks are wired to the presenter, not hardcoded in BehavBox</li>
+  <li><strong>GUI removed from BehavBox</strong> &mdash; no more <code>check_keybd()</code> or <code>check_plot()</code> in the hardware layer</li>
+  <li><strong>Lick debouncing</strong> added in <code>Model</code> base class with configurable <code>lick_min_time</code>/<code>lick_max_time</code></li>
+</ul>
+
+<p><strong>Hardware changes:</strong></p>
+<ul>
+  <li><strong>Lick callback inversion REVERSED:</strong> <code>when_pressed = left_entry</code> (opposite of main). Comment: <em>"This makes more sense intuitively??"</em></li>
+  <li><strong>Configurable lick polarity:</strong> new <code>session_info["lick_input_setting"]</code> with <code>"signal_low"</code> / <code>"signal_high"</code> options</li>
+  <li><strong>cueLED4 changed:</strong> GPIO 14 from <code>PWMLED</code> to plain <code>LED</code>, aliased as <code>sound3</code></li>
+  <li><strong>DIO5 (GPIO 11) commented out</strong></li>
+  <li><strong>Ephys rig support:</strong> new <code>session_info['ephys_rig']</code> flag with dedicated video IP and picamera2 scripts</li>
+</ul>
+
+<p><strong>FlipperOutput changes:</strong></p>
+<ul>
+  <li>Base class changed from <code>DigitalOutputDevice</code> to <code>LED</code></li>
+  <li><strong>Barcode system:</strong> encodes a random 32-bit integer as a serial bit pattern for temporal alignment with ephys data</li>
+  <li>Better thread management with shared <code>Event()</code> flag</li>
+  <li>Flipper idles in ON state (high) instead of OFF</li>
+</ul>
+
+<p><strong>Pump changes:</strong></p>
+<ul>
+  <li>Inherits from <code>PumpBase(ABC)</code></li>
+  <li>New <code>blink()</code> and <code>toggle()</code> methods for calibration</li>
+  <li>Calibration coefficients cached at init</li>
+</ul>
+</div>
+
+<!-- headfixed_soyounk -->
+<div class="branch-card">
+<h4><code>origin/headfixed_soyounk</code> &mdash; Soyoun Kim <span class="tag tag-minor">Minor</span> <span class="tag tag-headfixed">Head-fixed</span></h4>
+<p><strong>Last updated:</strong> 2024-03-15</p>
+<ul>
+  <li><strong>lick3 (GPIO 15) disabled</strong> and repurposed as <code>sound3 = LED(15)</code></li>
+  <li><strong>sound4 added</strong> on GPIO 9 (was DIO3, previously commented out)</li>
+  <li>Needs 4 sound triggers for head-fixed auditory experiments, doesn't need center lick</li>
+</ul>
+</div>
+
+<!-- mitchfarrell branches -->
+<div class="branch-card">
+<h4><code>origin/mitchfarrell-context</code>, <code>context_vis</code>, <code>context</code> &mdash; Mitch Farrell <span class="tag tag-major">Major</span> <span class="tag tag-freemove">Freely-moving</span></h4>
+<p><strong>Last updated:</strong> 2024-09-13 (mitchfarrell-context), 2023-09-18 / 2023-04-26 (others)</p>
+<ul>
+  <li><strong>All IR sensors removed</strong> &mdash; freely-moving context task uses lick sensors only</li>
+  <li><strong>reserved_rx1 (GPIO 13) and reserved_rx2 (GPIO 16) added</strong> as extra button inputs (repurposed from IR_rx4/rx5)</li>
+  <li><strong>cueLED3 (GPIO 17), DIO4 (GPIO 10), DIO5 (GPIO 11) commented out</strong></li>
+  <li><strong>Pump uses hardcoded <code>tube_fit = 0.13 ml/s</code></strong> calibration instead of polynomial coefficients, and takes no <code>session_info</code> argument</li>
+  <li><strong>Directory structure changed:</strong> <code>essential/</code> deleted; files moved to repo root</li>
+</ul>
+</div>
+
+<!-- benville_gonogo / ssrt / visualstim / context_video_stim -->
+<div class="branch-card">
+<h4><code>origin/benville_gonogo</code>, <code>ssrt_task</code>, <code>visualstim</code>, <code>context_video_stim</code> &mdash; Duy Tran / Season <span class="tag tag-major">Major</span> <span class="tag tag-freemove">Freely-moving</span></h4>
+<p><strong>Last updated:</strong> 2024-05-30 (benville_gonogo), 2022-01-10 (ssrt_task)</p>
+<ul>
+  <li><strong>No lick sensors at all</strong> &mdash; GPIO 26, 27, 15 repurposed as <code>sound1</code>, <code>sound2</code>, <code>sound3</code></li>
+  <li><strong>5 total sound outputs</strong> (GPIO 26, 27, 15, 23, 24)</li>
+  <li><strong>IR callbacks use semantic names:</strong> <code>left_IR_entry</code> / <code>right_IR_entry</code> instead of <code>IR_1_entry</code> / <code>IR_2_entry</code></li>
+  <li><strong>Syringe pump stepper motors</strong> instead of solenoid valves &mdash; completely different Pump class that calculates stepper steps from syringe diameter (12.06mm for 5mL syringe)</li>
+  <li><strong>pump4 on GPIO 8</strong> (not 7), <strong>pump5 on GPIO 7</strong>, <strong>pump_en on GPIO 25</strong> (enable pin for stepper)</li>
+  <li>Smaller pygame window (200&times;200)</li>
+</ul>
+</div>
+
+<!-- treadmill_only -->
+<div class="branch-card">
+<h4><code>origin/treadmill_only</code> &mdash; Season (Tian Qiu) <span class="tag tag-minor">Minor</span> <span class="tag tag-headfixed">Head-fixed</span></h4>
+<p><strong>Last updated:</strong> 2023-04-27</p>
+<ul>
+  <li><strong>DIO4 (GPIO 10) &rarr; reserved_rx1 (Button)</strong>, <strong>DIO5 (GPIO 11) &rarr; reserved_rx2 (Button)</strong></li>
+  <li>Otherwise identical to main (has both IR sensors and lick sensors active)</li>
+</ul>
+</div>
+
+<!-- No-change branches -->
+<div class="branch-card">
+<h4>Branches with <strong>no hardware changes</strong> <span class="tag tag-none">Identical to main</span></h4>
+<p><code>charlie-irig</code> (Charlie, 2025-07-30), <code>juliabenville_CueIVSA</code> (Julia Benville, 2025-05-29), <code>rbb-lab</code> (Eliezyer, 2025-01-08), <code>devEFO</code> (Eliezyer, 2023-06-02)</p>
+</div>
+
+<!-- ================================================================== -->
+<h2 id="pin-conflicts">3. GPIO Pin Conflicts Across Branches</h2>
+
+<p>The following table highlights pins whose usage <strong>differs</strong> across branches. Cells with a red background indicate a conflict with the main branch assignment.</p>
+
+<div style="overflow-x: auto;">
+<table>
+  <tr>
+    <th>GPIO</th>
+    <th>main</th>
+    <th>matt-behavior</th>
+    <th>soyounk</th>
+    <th>mitchfarrell</th>
+    <th>benville/ssrt</th>
+    <th>treadmill_only</th>
+  </tr>
+  <tr>
+    <td><strong>7</strong></td>
+    <td>pump4</td>
+    <td>pump4</td>
+    <td>pump4</td>
+    <td>pump4</td>
+    <td class="pin-conflict">pump5</td>
+    <td>pump4</td>
+  </tr>
+  <tr>
+    <td><strong>8</strong></td>
+    <td>pump_air</td>
+    <td>pump_air</td>
+    <td>pump_air</td>
+    <td>pump_air</td>
+    <td class="pin-conflict">pump4</td>
+    <td>pump_air</td>
+  </tr>
+  <tr>
+    <td><strong>9</strong></td>
+    <td><em>commented</em></td>
+    <td><em>commented</em></td>
+    <td class="pin-conflict">sound4 (LED)</td>
+    <td><em>commented</em></td>
+    <td><em>commented</em></td>
+    <td><em>commented</em></td>
+  </tr>
+  <tr>
+    <td><strong>10</strong></td>
+    <td>DIO4 (LED)</td>
+    <td>DIO4 (LED)</td>
+    <td>DIO4 (LED)</td>
+    <td><em>commented</em></td>
+    <td>DIO4 (LED)</td>
+    <td class="pin-conflict">reserved_rx1 (Button)</td>
+  </tr>
+  <tr>
+    <td><strong>11</strong></td>
+    <td>DIO5 (LED)</td>
+    <td><em>commented</em></td>
+    <td>DIO5 (LED)</td>
+    <td><em>commented</em></td>
+    <td>DIO5 (LED)</td>
+    <td class="pin-conflict">reserved_rx2 (Button)</td>
+  </tr>
+  <tr>
+    <td><strong>13</strong></td>
+    <td>IR_rx4 (Button)</td>
+    <td>IR_rx4 (Button)</td>
+    <td>IR_rx4 (Button)</td>
+    <td class="pin-conflict">reserved_rx1 (Button)</td>
+    <td>IR_rx4 (Button)</td>
+    <td>IR_rx4 (Button)</td>
+  </tr>
+  <tr>
+    <td><strong>14</strong></td>
+    <td>cueLED4 (PWMLED)</td>
+    <td class="pin-conflict">cueLED4 (LED) + sound3</td>
+    <td>cueLED4 (PWMLED)</td>
+    <td>cueLED4 (PWMLED)</td>
+    <td>cueLED4 (PWMLED)</td>
+    <td>cueLED4 (PWMLED)</td>
+  </tr>
+  <tr>
+    <td><strong>15</strong></td>
+    <td>lick3 (Button)</td>
+    <td>lick3 (Button)</td>
+    <td class="pin-conflict">sound3 (LED)</td>
+    <td>lick3 (Button)</td>
+    <td class="pin-conflict">sound3 (LED)</td>
+    <td>lick3 (Button)</td>
+  </tr>
+  <tr>
+    <td><strong>16</strong></td>
+    <td>IR_rx5 (Button)</td>
+    <td>IR_rx5 (Button)</td>
+    <td>IR_rx5 (Button)</td>
+    <td class="pin-conflict">reserved_rx2 (Button)</td>
+    <td>IR_rx5 (Button)</td>
+    <td>IR_rx5 (Button)</td>
+  </tr>
+  <tr>
+    <td><strong>17</strong></td>
+    <td>cueLED3 (PWMLED)</td>
+    <td>cueLED3 (PWMLED)</td>
+    <td>cueLED3 (PWMLED)</td>
+    <td class="pin-conflict"><em>commented</em></td>
+    <td>cueLED3 (PWMLED)</td>
+    <td>cueLED3 (PWMLED)</td>
+  </tr>
+  <tr>
+    <td><strong>25</strong></td>
+    <td>pump_vacuum</td>
+    <td>pump_vacuum</td>
+    <td>pump_vacuum</td>
+    <td>pump_vacuum</td>
+    <td class="pin-conflict">pump_en (stepper enable)</td>
+    <td>pump_vacuum</td>
+  </tr>
+  <tr>
+    <td><strong>26</strong></td>
+    <td>lick1 (Button)</td>
+    <td>lick1 (Button)</td>
+    <td>lick1 (Button)</td>
+    <td>lick1 (Button)</td>
+    <td class="pin-conflict">sound1 (LED)</td>
+    <td>lick1 (Button)</td>
+  </tr>
+  <tr>
+    <td><strong>27</strong></td>
+    <td>lick2 (Button)</td>
+    <td>lick2 (Button)</td>
+    <td>lick2 (Button)</td>
+    <td>lick2 (Button)</td>
+    <td class="pin-conflict">sound2 (LED)</td>
+    <td>lick2 (Button)</td>
+  </tr>
+</table>
+</div>
+
+<div class="callout">
+<strong>Key takeaway:</strong> The pin conflicts are not random &mdash; they reflect <strong>two fundamentally different hardware configurations</strong> (head-fixed vs. freely-moving) that need different sets of sensors and actuators on the same physical GPIO header.
+</div>
+
+<!-- ================================================================== -->
+<h2 id="pump-configs">4. Pump Hardware Configurations</h2>
+
+<table>
+  <tr>
+    <th>Branches</th>
+    <th>Pump Type</th>
+    <th>Calibration Method</th>
+    <th>Pump Pins</th>
+  </tr>
+  <tr>
+    <td>main, matt-behavior, headfixed_soyounk, treadmill_only</td>
+    <td>Solenoid valves</td>
+    <td>Linear coefficients from <code>session_info</code>: <code>slope * (reward_size/1000) + intercept</code></td>
+    <td>19, 20, 21, 7, 8 (air), 25 (vacuum)</td>
+  </tr>
+  <tr>
+    <td>mitchfarrell-context, context_vis, context</td>
+    <td>Solenoid valves</td>
+    <td>Hardcoded <code>tube_fit = 0.13 ml/s</code>: <code>duration = (reward_size/1000) / tube_fit</code></td>
+    <td>Same as above</td>
+  </tr>
+  <tr>
+    <td>benville_gonogo, ssrt_task, visualstim, context_video_stim</td>
+    <td><strong>Syringe pump stepper motors</strong></td>
+    <td>Calculated from syringe diameter (12.06mm for 5mL)</td>
+    <td>19, 20, 21, <strong>8</strong>, <strong>7</strong> (pump5), <strong>25</strong> (enable)</td>
+  </tr>
+</table>
+
+<!-- ================================================================== -->
+<h2 id="arch-patterns">5. Architectural Patterns</h2>
+
+<table>
+  <tr>
+    <th>Feature</th>
+    <th>main</th>
+    <th>matt-behavior</th>
+    <th>Others</th>
+  </tr>
+  <tr>
+    <td>Abstract base classes</td>
+    <td>No</td>
+    <td><strong>Yes</strong> (Box, PumpBase, Presenter, Model, GUI, VisualStimBase)</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>Callback ownership</td>
+    <td>Hardcoded in BehavBox.__init__</td>
+    <td><strong>Delegated to Presenter</strong> via set_callbacks()</td>
+    <td>Hardcoded in BehavBox.__init__</td>
+  </tr>
+  <tr>
+    <td>GUI in BehavBox</td>
+    <td>Yes (pygame + matplotlib)</td>
+    <td><strong>Separated</strong> (gui.py / pyqtgui.py)</td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td>Lick debouncing</td>
+    <td>No</td>
+    <td><strong>Yes</strong> (configurable min/max time, threshold)</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>Flipper barcode</td>
+    <td>No</td>
+    <td><strong>Yes</strong> (32-bit serial barcode for ephys sync)</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>Configurable lick polarity</td>
+    <td>No (hardcoded True)</td>
+    <td><strong>Yes</strong> (session_info["lick_input_setting"])</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>Ephys rig support</td>
+    <td>No</td>
+    <td><strong>Yes</strong> (dedicated IP, picamera2)</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>Off-Pi mock</td>
+    <td>No</td>
+    <td><strong>Yes</strong> (dummy_box.py)</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>Syringe pump support</td>
+    <td>No</td>
+    <td>No</td>
+    <td><strong>Yes</strong> (benville_gonogo/ssrt)</td>
+  </tr>
+</table>
+
+<div class="callout">
+<strong>Lick callback inversion:</strong> This is a critical semantic decision. On main, <code>when_pressed = exit</code> (inverted). Matt's branch reverses this to <code>when_pressed = entry</code>. Matt also added a configurable <code>lick_input_setting</code> that controls the <code>active_state</code> of the Button, which effectively determines the polarity. <strong>The unified library must make this explicit and configurable</strong> &mdash; the meaning of "pressed" depends on the electrical wiring of each specific box.
+</div>
+
+<!-- ================================================================== -->
+<h2 id="headfixed-vs-freemove">6. Head-Fixed vs. Freely-Moving: Do We Need Two Configurations?</h2>
+
+<h3>What's actually different?</h3>
+
+<div class="two-col">
+<div>
+<h4>Head-Fixed Configuration</h4>
+<ul>
+  <li>Up to 3 lick sensors (left, right, center)</li>
+  <li>Up to 5 IR sensors</li>
+  <li>2&ndash;4 sound outputs</li>
+  <li>4 cue LEDs (PWM)</li>
+  <li>Solenoid valve pumps</li>
+  <li>Treadmill (I2C)</li>
+  <li>Visual gratings (rpg library)</li>
+</ul>
+<p><em>Branches: main, matt-behavior, headfixed_soyounk, treadmill_only</em></p>
+</div>
+<div>
+<h4>Freely-Moving Configuration</h4>
+<ul>
+  <li>0&ndash;3 lick sensors (sometimes repurposed as sound outputs)</li>
+  <li>0&ndash;3 IR nosepoke sensors</li>
+  <li>2&ndash;5 sound outputs</li>
+  <li>3&ndash;4 cue LEDs</li>
+  <li>Solenoid valves <strong>or</strong> syringe pump steppers</li>
+  <li>No treadmill</li>
+  <li>Visual gratings (optional)</li>
+</ul>
+<p><em>Branches: mitchfarrell-context, benville_gonogo, ssrt_task</em></p>
+</div>
+</div>
+
+<h3>Recommendation: One class, declarative configuration &mdash; no internal "modes"</h3>
+
+<div class="callout-green">
+<p><strong>The differences are not about two distinct hardware designs &mdash; they're about which subset of a common set of GPIO pins each experimenter needs.</strong> The physical GPIO header is the same in both cases. The only real hardware difference is the pump type (solenoid vs. stepper).</p>
+</div>
+
+<p>Rather than having a <code>configuration="headfixed"</code> / <code>configuration="freemoving"</code> switch that selects between two internal code paths, the unified BehavBox should:</p>
+
+<ol>
+  <li><strong>Declare all possible GPIO resources</strong> (lick sensors, IR sensors, sound outputs, cue LEDs, pumps, DIO lines) with their default pin assignments</li>
+  <li><strong>Let <code>session_info</code> enable/disable each resource</strong> &mdash; if a user doesn't need lick3, they set <code>"lick3": False</code> (or omit it), and that pin is never initialized</li>
+  <li><strong>Allow pin remapping</strong> &mdash; if a user wants GPIO 15 as a sound output instead of a lick sensor, they can configure that</li>
+  <li><strong>Support multiple pump backends</strong> (solenoid and stepper) selected via configuration</li>
+</ol>
+
+<p>This avoids the problem of proliferating "modes" as new configurations are needed. It also means that the head-fixed and freely-moving setups are just two different <code>session_info</code> configurations, not two branches of code.</p>
+
+<!-- ================================================================== -->
+<h2 id="unification">7. Unification Plan</h2>
+
+<h3>7.1 New repository: <code>behavbox</code></h3>
+
+<p>The new package will be installable via <code>pip install -e ./behavbox</code> (or from a git URL). Proposed structure:</p>
+
+<pre><code>behavbox/
+  pyproject.toml
+  README.md
+  src/
+    behavbox/
+      __init__.py          # public API: BehavBox, Pump, BoxLED, FlipperOutput, Treadmill
+      box.py               # BehavBox class
+      pump.py              # Pump base + SolenoidPump + SyringePump
+      led.py               # BoxLED (PWMLED subclass)
+      flipper.py           # FlipperOutput with barcode support
+      treadmill.py         # Treadmill (I2C)
+      adc.py               # ADS1x15 driver
+      visualstim.py        # VisualStim (rpg gratings)
+      platform.py          # auto-detect RPi vs desktop, patch gpiozero if needed
+      config.py            # default pin maps, configuration validation
+      mock/
+        __init__.py        # mock_gpiozero (absorbed from mock-gpiozero package)
+        devices.py         # Mock LED, Button, PWMLED, DigitalOutputDevice
+        keyboard_sim.py    # KeyboardSimulator (tkinter subprocess)
+        event_sim.py       # programmatic event injection
+        pin_logger.py      # pin state change log
+        _tk_window.py      # tkinter subprocess window</code></pre>
+
+<h3>7.2 Incorporating changes from each branch</h3>
+
+<table>
+  <tr>
+    <th>Feature / Change</th>
+    <th>Origin Branch</th>
+    <th>Plan</th>
+  </tr>
+  <tr>
+    <td>Abstract base classes (Box, PumpBase, etc.)</td>
+    <td>matt-behavior</td>
+    <td><span class="verdict">Adopt.</span> Clean interface contracts are valuable. Simplify where possible (not every task needs a full Presenter/Model split)</td>
+  </tr>
+  <tr>
+    <td>Callbacks delegated to Presenter</td>
+    <td>matt-behavior</td>
+    <td><span class="verdict">Adopt, with modification.</span> BehavBox should provide a <code>set_callbacks(handler)</code> method, but also support simple direct callback assignment for lightweight use cases</td>
+  </tr>
+  <tr>
+    <td>GUI separated from BehavBox</td>
+    <td>matt-behavior</td>
+    <td><span class="verdict">Adopt.</span> GUI/plotting has no place in the hardware layer</td>
+  </tr>
+  <tr>
+    <td>Configurable lick polarity</td>
+    <td>matt-behavior</td>
+    <td><span class="verdict">Adopt.</span> Via <code>session_info["lick_active_state"]</code> (True/False)</td>
+  </tr>
+  <tr>
+    <td>Lick debouncing</td>
+    <td>matt-behavior</td>
+    <td><span class="verdict">Adopt as optional feature.</span> Configurable via <code>session_info["lick_debounce_ms"]</code>, disabled by default (0)</td>
+  </tr>
+  <tr>
+    <td>FlipperOutput barcode</td>
+    <td>matt-behavior</td>
+    <td><span class="verdict">Adopt.</span> Via <code>session_info["emit_barcodes"]</code> flag (default False)</td>
+  </tr>
+  <tr>
+    <td>FlipperOutput base class LED (not DigitalOutputDevice)</td>
+    <td>matt-behavior</td>
+    <td><span class="verdict">Adopt.</span> LED provides <code>toggle()</code> and <code>is_active</code></td>
+  </tr>
+  <tr>
+    <td>Ephys rig support</td>
+    <td>matt-behavior</td>
+    <td><span class="verdict">Adopt.</span> Via <code>session_info["ephys_rig"]</code> flag</td>
+  </tr>
+  <tr>
+    <td>Syringe pump stepper motor support</td>
+    <td>benville_gonogo/ssrt</td>
+    <td><span class="verdict">Adopt.</span> New <code>SyringePump</code> class alongside existing <code>SolenoidPump</code>, selected via <code>session_info["pump_type"]</code></td>
+  </tr>
+  <tr>
+    <td>Semantic IR callback names (left_IR_entry vs IR_1_entry)</td>
+    <td>benville_gonogo</td>
+    <td><span class="verdict">Keep numeric naming.</span> The physical IR sensor positions are not inherently "left" or "right" &mdash; that's a task-level mapping. The hardware layer should use <code>IR_1</code>, <code>IR_2</code>, etc.</td>
+  </tr>
+  <tr>
+    <td>Extra sound outputs on GPIO 9, 15</td>
+    <td>headfixed_soyounk</td>
+    <td><span class="verdict">Support via configuration.</span> Sound outputs are just LED objects; let users configure which pins are sound triggers</td>
+  </tr>
+  <tr>
+    <td>Hardcoded tube_fit pump calibration</td>
+    <td>mitchfarrell-context</td>
+    <td><span class="verdict">Deprecate.</span> All pump calibration should use <code>session_info</code> coefficients. A simple flow-rate model can be a special case of the linear model (slope=1/flow_rate, intercept=0)</td>
+  </tr>
+  <tr>
+    <td>reserved_rx generic button inputs</td>
+    <td>mitchfarrell, treadmill_only</td>
+    <td><span class="verdict">Support via configuration.</span> Any DIO or unused sensor pin can be configured as a generic button input</td>
+  </tr>
+  <tr>
+    <td>FlipperOutput header typo ("pin_tate")</td>
+    <td>main</td>
+    <td><span class="verdict">Fix.</span></td>
+  </tr>
+</table>
+
+<h3>7.3 Declarative pin configuration</h3>
+
+<p>BehavBox's <code>__init__</code> will read a <code>"hardware"</code> dict from <code>session_info</code> to determine which devices to initialize. Example:</p>
+
+<pre><code>session_info["hardware"] = {
+    # Lick sensors (set to False or omit to disable)
+    "lick1": {"pin": 26, "active_state": True},   # left
+    "lick2": {"pin": 27, "active_state": True},   # right
+    "lick3": {"pin": 15, "active_state": True},   # center (set False to use as sound)
+
+    # IR sensors (set to False or omit to disable)
+    "IR_rx1": {"pin": 5},
+    "IR_rx2": {"pin": 6},
+    "IR_rx3": {"pin": 12},
+    "IR_rx4": {"pin": 13},   # omit this for mitchfarrell config
+    "IR_rx5": {"pin": 16},
+
+    # Cue LEDs
+    "cueLED1": {"pin": 22, "pwm": True, "frequency": 200},
+    "cueLED2": {"pin": 18, "pwm": True, "frequency": 200},
+    "cueLED3": {"pin": 17, "pwm": True, "frequency": 200},
+    "cueLED4": {"pin": 14, "pwm": True, "frequency": 200},
+
+    # Sound outputs (accent pins as needed)
+    "sound1": {"pin": 23},
+    "sound2": {"pin": 24},
+    # "sound3": {"pin": 15},  -- would conflict with lick3; disable lick3 first
+
+    # Digital I/O
+    "DIO4": {"pin": 10, "direction": "output"},
+    "DIO5": {"pin": 11, "direction": "output"},
+
+    # Pump configuration
+    "pump_type": "solenoid",  # or "syringe"
+    "pumps": {
+        "1": {"pin": 19},
+        "2": {"pin": 20},
+        "3": {"pin": 21},
+        "4": {"pin": 7},
+        "air":    {"pin": 8},
+        "vacuum": {"pin": 25},
+    },
+
+    # Peripherals
+    "flipper":   {"pin": 4, "emit_barcodes": False},
+    "treadmill": {"enabled": True, "i2c_bus": 1, "i2c_address": 0x08},
+    "visual_stimulus": False,
+}</code></pre>
+
+<p>For backwards compatibility, if <code>session_info["hardware"]</code> is absent, BehavBox falls back to the current main-branch defaults. This lets existing session_info files work without modification during the transition.</p>
+
+<h3>7.4 Pump unification</h3>
+
+<pre><code>class PumpBase(ABC):
+    @abstractmethod
+    def reward(self, which_pump: str, reward_size: float) -> None: ...
+    @abstractmethod
+    def toggle(self, which_pump: str) -> None: ...
+
+class SolenoidPump(PumpBase):
+    """Solenoid valve pumps with linear calibration coefficients."""
+    # duration = slope * (reward_size / 1000) + intercept
+
+class SyringePump(PumpBase):
+    """Stepper motor syringe pumps with volumetric calculation."""
+    # steps = volume / (pi * (diameter/2)^2 * distance_per_step)</code></pre>
+
+<p>Selected via <code>session_info["hardware"]["pump_type"]</code>. Both share the same <code>reward(which_pump, reward_size)</code> interface so task code doesn't change.</p>
+
+<!-- ================================================================== -->
+<h2 id="autodetect">8. Platform Auto-Detection</h2>
+
+<p>The new package will <strong>automatically detect the platform</strong> and use real or mock GPIO. No more try/except bootstrap in every script.</p>
+
+<pre><code># behavbox/platform.py
+import platform, os
+
+def is_raspberry_pi() -> bool:
+    """Detect if running on a Raspberry Pi."""
+    if platform.machine().startswith("aarch64") or platform.machine().startswith("arm"):
+        # Check for RPi-specific indicators
+        try:
+            with open("/proc/device-tree/model") as f:
+                return "raspberry pi" in f.read().lower()
+        except FileNotFoundError:
+            pass
+    return False
+
+def setup_gpio():
+    """Import real gpiozero on RPi, mock on everything else."""
+    if is_raspberry_pi():
+        import gpiozero  # real hardware
+    else:
+        from behavbox.mock import patch
+        patch()  # sets sys.modules['gpiozero'] to mock</code></pre>
+
+<p><code>behavbox/__init__.py</code> will call <code>setup_gpio()</code> at import time, so simply doing <code>import behavbox</code> handles everything. The existing <code>try: import mock_gpiozero; mock_gpiozero.patch()</code> pattern in task scripts can be removed.</p>
+
+<div class="callout-blue">
+<strong>Platform coverage:</strong>
+<ul>
+  <li><strong>Raspberry Pi (aarch64/armv7l + /proc/device-tree/model):</strong> real gpiozero</li>
+  <li><strong>macOS (darwin):</strong> mock (KeyboardSimulator uses subprocess for tkinter compatibility)</li>
+  <li><strong>x86-64 Linux:</strong> mock</li>
+  <li><strong>WSL (Windows Subsystem for Linux):</strong> mock (detected by absence of /proc/device-tree/model)</li>
+</ul>
+</div>
+
+<!-- ================================================================== -->
+<h2 id="migration">9. Migration Path</h2>
+
+<h3>Phase 1: Create the new <code>behavbox</code> package</h3>
+<ol>
+  <li>Create new repository <code>behavbox</code></li>
+  <li>Port <code>essential/</code> files from main, incorporating the changes listed in Section 7.2</li>
+  <li>Absorb <code>mock-gpiozero/</code> into <code>behavbox/mock/</code></li>
+  <li>Add platform auto-detection</li>
+  <li>Add declarative pin configuration with backwards-compatible defaults</li>
+  <li>Unify pump classes (solenoid + syringe)</li>
+  <li>Write tests using the built-in mock</li>
+</ol>
+
+<h3>Phase 2: Update this repository (RPi4_behavior_boxes)</h3>
+<ol>
+  <li>Add <code>behavbox</code> as a dependency</li>
+  <li>Remove <code>essential/</code> directory</li>
+  <li>Remove <code>mock-gpiozero/</code> directory</li>
+  <li>Remove <code>try: import mock_gpiozero</code> bootstrap from all scripts</li>
+  <li>Update imports: <code>from behavbox import BehavBox, Pump</code></li>
+  <li>Ensure all existing task protocols work with the new package</li>
+</ol>
+
+<h3>Phase 3: User migration</h3>
+<ol>
+  <li>Each user installs the <code>behavbox</code> package: <code>pip install -e /path/to/behavbox</code></li>
+  <li>Each user creates their own task repository (or continues using a branch of RPi4_behavior_boxes for tasks)</li>
+  <li>Users update their <code>session_info</code> files to include a <code>"hardware"</code> section if they need non-default pin configurations</li>
+  <li>Users with the freely-moving configuration provide their specific <code>"hardware"</code> config; users with the standard head-fixed setup can use defaults unchanged</li>
+</ol>
+
+<hr>
+
+<p style="text-align: center; color: #999; font-size: 0.85rem; margin-top: 2rem;">
+  Generated by Claude Code &mdash; February 2026
+</p>
+
+</body>
+</html>
