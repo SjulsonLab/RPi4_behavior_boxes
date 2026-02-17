@@ -3,6 +3,8 @@
 import sys
 import time
 import signal
+import datetime as dt
+from pathlib import Path
 import numpy as np
 import cv2
 
@@ -25,11 +27,12 @@ sensor_mode = 0  # change manually when testing
 # FILE PATHS
 # --------------------------------------------------
 
-base_path = sys.argv[1]
+video_dt = dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+base_path = Path.home() / "buffer" / video_dt
 camId = "0"
 
-VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output.h264"
-TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp.csv"
+VIDEO_FILE_NAME = str(base_path.resolve()) + "_cam" + camId + "_output.h264"
+TIMESTAMP_FILE_NAME = str(base_path.resolve()) + "_cam" + camId + "_timestamp.csv"
 
 # --------------------------------------------------
 # PRE-RENDER DIGITS + SYMBOLS
@@ -47,19 +50,21 @@ for c in chars:
     cv2.putText(img, c, (2, 30), FONT, SCALE, 255, THICKNESS)
     char_cache[c] = img
 
+
 def draw_text_fast(frame_y, text, x=10, y=50):
     offset = 0
     for char in text:
         if char in char_cache:
             glyph = char_cache[char]
             h, w = glyph.shape
-            frame_y[y-h:y, x+offset:x+offset+w] = np.maximum(
-                frame_y[y-h:y, x+offset:x+offset+w],
+            frame_y[y - h:y, x + offset:x + offset + w] = np.maximum(
+                frame_y[y - h:y, x + offset:x + offset + w],
                 glyph
             )
             offset += w + 2
         else:
             offset += 15  # spacing for unsupported chars
+
 
 # --------------------------------------------------
 # TIMESTAMP STORAGE
@@ -67,10 +72,10 @@ def draw_text_fast(frame_y, text, x=10, y=50):
 
 timestamps = []
 
+
 def append_timestamp(request):
     meta = request.get_metadata()
     sensor_ts = meta["SensorTimestamp"]
-    # unix_ts = time.time()
     unix_ts = time.time_ns() * 1e-9
 
     timestamps.append((sensor_ts, unix_ts))
@@ -86,6 +91,7 @@ def append_timestamp(request):
 
         # Second line: SensorTimestamp (ns)
         draw_text_fast(frame_y, str(sensor_ts), x=10, y=100)
+
 
 # --------------------------------------------------
 # CAMERA SETUP
@@ -121,6 +127,7 @@ output = FileOutput(VIDEO_FILE_NAME)
 # CLEAN SHUTDOWN
 # --------------------------------------------------
 
+
 def shutdown(sig, frame):
     print("Stopping...")
     camera.stop_recording()
@@ -132,6 +139,7 @@ def shutdown(sig, frame):
             f.write(f"{sensor_ts},{unix_ts}\n")
 
     sys.exit(0)
+
 
 signal.signal(signal.SIGINT, shutdown)
 
