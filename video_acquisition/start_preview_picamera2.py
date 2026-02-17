@@ -37,7 +37,7 @@ camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 # mode1 = {'size': (2028, 1080), 'bit_depth': 12, 'fps': 50.03}
 # mode2 = {'size': (4056, 3040), 'bit_depth': 12, 'fps': 40.01}
 
-sensor_mode = 0
+sensor_mode = 2
 if sensor_mode == 0:
     resolution = (1320, 990)
 elif sensor_mode == 1:
@@ -80,8 +80,8 @@ def apply_timestamp(request):
     with MappedArray(request, "main") as m:
         cv2.putText(m.array, txt, origin, font, scale, colour, thickness)
 
-
-camera.pre_callback = apply_timestamp
+# camera.pre_callback = apply_timestamp
+camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 camera.start()
 
 # comment this out for the HQ camera, which has no autofocus/uses manual focus
