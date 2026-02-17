@@ -228,6 +228,7 @@ class BehavBox(Box):
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
             if self.session_info['ephys_rig']:
                 recording_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition_picamera2.sh'
+                # recording_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition_picamera2_fast.sh'
             else:
                 recording_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.sh'
 
