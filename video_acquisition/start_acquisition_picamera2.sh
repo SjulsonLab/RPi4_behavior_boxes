@@ -10,7 +10,7 @@ echo "Starting video log"
 date >> "$1/videolog.log"
 
 echo "Starting video acquisition"
-echo "nohup python /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition_picamera2.py "$2" >> "$1/videolog.log" 2>&1 &"
-nohup python /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition_picamera2.py "$2" >> "$1/videolog.log" 2>&1 &
+echo "nohup python /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition_picamera2_fast.py "$2" >> "$1/videolog.log" 2>&1 &"
+nohup python /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition_picamera2_fast.py "$2" >> "$1/videolog.log" 2>&1 &
 
 exit 0

@@ -19,7 +19,7 @@ FRAMERATE = 30
 FRAME_DURATION_US = int(1e6 / FRAMERATE)
 BITRATE = 30000000  # 30 Mbps safe starting point
 
-sensor_mode = 0  # change manually when testing
+sensor_mode = 2  # change manually when testing
 
 # --------------------------------------------------
 # FILE PATHS

@@ -254,7 +254,6 @@ class BehavBox(Box):
             else:
                 os.system("ssh pi@" + self.IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
 
-
         except Exception as e:
             print(e)
 
