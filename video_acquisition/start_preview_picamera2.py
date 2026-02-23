@@ -29,7 +29,6 @@ GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=flipper_callback_GPIO, bo
 signal.signal(signal.SIGINT, signal_handler)
 
 camera = Picamera2()
-camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
 
 # configs for camera sensors at 30 fps
 # for camera V3 standard module, using bit_depth 10, size (2304, 1296), max fps 56.03
@@ -51,6 +50,9 @@ else:
 
 # config = camera.create_preview_configuration(sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']})
 # camera.configure(config)
+
+if sensor_mode < 0 or sensor_mode >= len(camera.sensor_modes):
+    raise ValueError("Invalid sensor_mode index")
 
 mode = camera.sensor_modes[sensor_mode]
 camera.preview_configuration.sensor.output_size = mode['size']
