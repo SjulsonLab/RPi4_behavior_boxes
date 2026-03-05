@@ -26,7 +26,7 @@ sensor_mode = 2  # change manually when testing
 # --------------------------------------------------
 
 base_path = sys.argv[1]
-camId = "0"
+camId = str(sys.argv[2]) if len(sys.argv) > 2 else "0"
 
 VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output.h264"
 TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp.csv"

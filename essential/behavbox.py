@@ -16,6 +16,7 @@ import os, sys
 from pathlib import Path
 import socket
 import subprocess
+import signal
 import time
 from collections import deque
 from icecream import ic
@@ -56,14 +57,12 @@ class BehavBox(Box):
         self.IP_address = IP_address.split(' ')[0]  # if there is an ethernet and wifi connection, this will take the
         # first IP assuming that one is the ethernet connection. Make sure you confirm this is the case!!!
         self.hostname = socket.gethostname()
-        if self.session_info['ephys_rig']:
-            self.IP_address_video = "10.49.98.88"  # hard-coded address for the ephys rig video pi
-        else:
-            IP_address_video_list = list(self.IP_address)
-            # IP_address_video_list[-3] = "2"
-            IP_address_video_list[-1] = "2"
-            self.IP_address_video = "".join(IP_address_video_list)
-        ic(self.IP_address_video)
+        self.camera_nodes = self._resolve_camera_nodes()
+        self.required_camera_nodes = [node for node in self.camera_nodes if node['required']]
+        self.started_camera_nodes = []
+        self.recording_camera_nodes = []
+        self.IP_address_video = self.required_camera_nodes[0]['host']
+        ic(self.required_camera_nodes)
 
         ###############################################################################################
         # below are all the pin numbers for Yi's breakout board
@@ -205,57 +204,254 @@ class BehavBox(Box):
         self.lick2.when_released = presenter.right_exit
         self.lick3.when_released = presenter.center_exit
 
+    def _default_camera_host(self):
+        if self.session_info['ephys_rig']:
+            return "10.49.98.88"
+        ip_address_video_list = list(self.IP_address)
+        ip_address_video_list[-1] = "2"
+        return "".join(ip_address_video_list)
+
+    def _normalize_camera_node(self, node: Dict[str, Any], index: int) -> Dict[str, Any]:
+        backend = node.get('backend', 'picamera2' if self.session_info['ephys_rig'] else 'picamera')
+        host = node.get('host', '')
+        if not host and index == 0:
+            host = self._default_camera_host()
+        camera_node = {
+            'camera_id': str(node.get('camera_id', f"cam{index}")),
+            'host': host,
+            'ssh_user': str(node.get('ssh_user', 'pi')),
+            'backend': backend,
+            'required': bool(node.get('required', True)),
+        }
+        return camera_node
+
+    def _resolve_camera_nodes(self) -> List[Dict[str, Any]]:
+        configured_nodes = self.session_info.get('camera_nodes', [])
+        camera_nodes = []
+        if isinstance(configured_nodes, list) and configured_nodes:
+            for index, node in enumerate(configured_nodes):
+                camera_nodes.append(self._normalize_camera_node(node, index))
+        else:
+            camera_nodes.append(
+                self._normalize_camera_node(
+                    {
+                        'camera_id': 'cam0',
+                        'host': self._default_camera_host(),
+                        'ssh_user': 'pi',
+                        'backend': 'picamera2' if self.session_info['ephys_rig'] else 'picamera',
+                        'required': True,
+                    },
+                    index=0,
+                )
+            )
+
+        if not self.session_info.get('use_multiple_cameras', False):
+            primary_required = [node for node in camera_nodes if node['required']]
+            camera_nodes = [primary_required[0] if primary_required else camera_nodes[0]]
+            camera_nodes[0]['required'] = True
+
+        required_nodes = [node for node in camera_nodes if node['required']]
+        if not required_nodes:
+            raise RuntimeError("At least one required camera node must be configured.")
+
+        if self.session_info.get('use_multiple_cameras', False) and len(required_nodes) < 2:
+            raise RuntimeError("Multi-camera mode requires at least two required camera nodes.")
+
+        missing_hosts = [node['camera_id'] for node in required_nodes if not node['host']]
+        if missing_hosts:
+            raise RuntimeError(f"Required camera nodes are missing host values: {missing_hosts}")
+
+        return camera_nodes
+
+    @staticmethod
+    def _preview_script(node: Dict[str, Any]) -> str:
+        if node['backend'] == 'picamera2':
+            return '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview_picamera2.py'
+        return '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview.py'
+
+    @staticmethod
+    def _recording_script(node: Dict[str, Any]) -> str:
+        if node['backend'] == 'picamera2':
+            return '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition_picamera2.sh'
+        return '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.sh'
+
+    @staticmethod
+    def _stop_script(node: Dict[str, Any]) -> str:
+        if node['backend'] == 'picamera2':
+            return '/home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition_picamera2.sh'
+        return '/home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh'
+
+    @staticmethod
+    def _ssh_target(node: Dict[str, Any]) -> str:
+        return f"{node['ssh_user']}@{node['host']}"
+
+    @staticmethod
+    def _video_backend_check_command(node: Dict[str, Any]) -> str:
+        if node['backend'] == 'picamera2':
+            return "python3 -c \"from picamera2 import Picamera2; cam = Picamera2(); cam.close()\""
+        return "python3 -c \"from picamera import PiCamera; cam = PiCamera(); cam.close()\""
+
+    def _camera_output_dir(self, node: Dict[str, Any]) -> str:
+        return str(Path(self.session_info['output_dir']) / 'video' / node['camera_id'])
+
+    def _run_ssh(self, node: Dict[str, Any], remote_args: List[str], timeout: int = 10, capture_output: bool = True):
+        cmd = [
+            'ssh',
+            '-o',
+            'BatchMode=yes',
+            '-o',
+            f'ConnectTimeout={timeout}',
+            self._ssh_target(node),
+        ] + remote_args
+        return subprocess.run(cmd, capture_output=capture_output, text=True)
+
+    def _verify_camera_node(self, node: Dict[str, Any]) -> Dict[str, Any]:
+        result = {
+            'camera_id': node['camera_id'],
+            'host': node['host'],
+            'required': node['required'],
+            'backend': node['backend'],
+            'ssh_ok': False,
+            'scripts_ok': False,
+            'camera_ok': False,
+            'status': 'fail',
+            'error': '',
+        }
+
+        ping_result = self._run_ssh(node, ['echo', 'camera_ping'], timeout=5)
+        if ping_result.returncode != 0:
+            result['error'] = f"SSH unavailable ({ping_result.stderr.strip()})"
+            return result
+        result['ssh_ok'] = True
+
+        scripts_exist_cmd = " && ".join(
+            [
+                f"test -f {self._preview_script(node)}",
+                f"test -f {self._recording_script(node)}",
+                f"test -f {self._stop_script(node)}",
+            ]
+        )
+        scripts_result = self._run_ssh(node, ['bash', '-lc', scripts_exist_cmd], timeout=5)
+        if scripts_result.returncode != 0:
+            result['error'] = "Required acquisition scripts not found"
+            return result
+        result['scripts_ok'] = True
+
+        camera_check_result = self._run_ssh(
+            node,
+            ['bash', '-lc', self._video_backend_check_command(node)],
+            timeout=15,
+        )
+        if camera_check_result.returncode != 0:
+            result['error'] = f"Camera backend check failed ({camera_check_result.stderr.strip()})"
+            return result
+        result['camera_ok'] = True
+        result['status'] = 'pass'
+        return result
+
+    def camera_dry_run(self) -> Dict[str, Any]:
+        results = [self._verify_camera_node(node) for node in self.camera_nodes]
+        all_required_passed = all(
+            result['status'] == 'pass' for result in results if result['required']
+        )
+        return {
+            'results': results,
+            'all_required_passed': all_required_passed,
+        }
+
+    def verify_camera_nodes(self):
+        report = self.camera_dry_run()
+        failed_required = [
+            result for result in report['results']
+            if result['required'] and result['status'] != 'pass'
+        ]
+        if failed_required:
+            error_lines = [
+                f"{result['camera_id']} ({result['host']}): {result['error']}"
+                for result in failed_required
+            ]
+            raise RuntimeError("Camera verification failed:\n- " + "\n- ".join(error_lines))
+
+    def _stop_remote_python(self, node: Dict[str, Any]):
+        self._run_ssh(node, ['pkill', 'python'], timeout=5, capture_output=False)
+
     def video_start(self):
-        try:
-            os.system("ssh pi@" + self.IP_address_video + " pkill python")
-            # time.sleep(1)
+        self.verify_camera_nodes()
+        self.started_camera_nodes = []
+        self.recording_camera_nodes = []
 
-            # Preview check
-            print(Fore.CYAN + "\nStart Previewing..." + Style.RESET_ALL)
+        for node in self.required_camera_nodes:
+            self._stop_remote_python(node)
+
+        print(Fore.CYAN + "\nStart Previewing..." + Style.RESET_ALL)
+        preview_processes = []
+        if len(self.required_camera_nodes) == 1:
             print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
-            if self.session_info['ephys_rig']:
-                preview_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview_picamera2.py'
-            else:
-                preview_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview.py'
-            os.system("ssh pi@{} {}".format(self.IP_address_video, preview_script))
+            node = self.required_camera_nodes[0]
+            os.system("ssh {} {}".format(self._ssh_target(node), self._preview_script(node)))
+        else:
+            print(Fore.RED + "\n Verify all preview windows, then press Enter to start recording" + Style.RESET_ALL)
+            for node in self.required_camera_nodes:
+                preview_process = subprocess.Popen(['ssh', self._ssh_target(node), self._preview_script(node)])
+                preview_processes.append(preview_process)
 
-            # Kill any python process before start recording
-            print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
-            os.system("ssh pi@" + self.IP_address_video + " pkill python")
-            time.sleep(2)
+            response = input("Preview check complete? Press Enter to continue or type 'cancel' to abort: ").strip().lower()
+            if response in ['cancel', 'c', 'n', 'no', 'q', 'quit']:
+                for preview_process in preview_processes:
+                    if preview_process.poll() is None:
+                        preview_process.terminate()
+                for node in self.required_camera_nodes:
+                    self._stop_remote_python(node)
+                raise RuntimeError("Session cancelled during camera preview verification.")
 
-            # start recording
-            print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
-            if self.session_info['ephys_rig']:
-                recording_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition_picamera2.sh'
-                # recording_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition_picamera2_fast.sh'
-            else:
-                recording_script = '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.sh'
+            for preview_process in preview_processes:
+                if preview_process.poll() is None:
+                    preview_process.send_signal(signal.SIGINT)
+                    try:
+                        preview_process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        preview_process.terminate()
 
+        print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
+        for node in self.required_camera_nodes:
+            self._stop_remote_python(node)
+        time.sleep(2)
+
+        print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
+        for node in self.required_camera_nodes:
             shell_output = subprocess.run(
-                ['ssh', 'pi@{}'.format(self.IP_address_video), recording_script,
-                 self.session_info['output_dir'], self.session_info['file_basename']])
+                [
+                    'ssh',
+                    self._ssh_target(node),
+                    self._recording_script(node),
+                    self._camera_output_dir(node),
+                    self.session_info['file_basename'],
+                    node['camera_id'],
+                ],
+                capture_output=True,
+                text=True,
+            )
 
-            if shell_output.returncode == 0:
-                print("Recording started!")
-            else:
-                print("Recording failed to start!")
-                print(shell_output.stderr)
-                raise RuntimeError("Recording failed to start!")
-            print(Fore.RED + Style.BRIGHT + "Please check if the preview screen is on! Cancel the session if it's not!" + Style.RESET_ALL)
+            if shell_output.returncode != 0:
+                self.video_stop()
+                raise RuntimeError(
+                    f"Recording failed to start for {node['camera_id']} ({node['host']}): {shell_output.stderr}"
+                )
+            self.started_camera_nodes.append(node)
+            self.recording_camera_nodes.append(node)
+            print(f"Recording started on {node['camera_id']} ({node['host']})")
 
-        except Exception as e:
-            print(e)
+        print(
+            Fore.RED + Style.BRIGHT +
+            "Please check that all preview screens are on! Cancel the session if one is not." +
+            Style.RESET_ALL
+        )
 
     def video_stop(self):
-        try:
-            if self.session_info['ephys_rig']:
-                os.system("ssh pi@" + self.IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition_picamera2.sh")
-            else:
-                os.system("ssh pi@" + self.IP_address_video + " /home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh")
-
-        except Exception as e:
-            print(e)
+        nodes_to_stop = self.started_camera_nodes if self.started_camera_nodes else self.required_camera_nodes
+        for node in nodes_to_stop:
+            subprocess.run(['ssh', self._ssh_target(node), self._stop_script(node)], capture_output=True, text=True)
+        self.started_camera_nodes = []
 
     def treadmill_start(self):
         if self.treadmill:
@@ -288,23 +484,48 @@ class BehavBox(Box):
             print(error_message)
 
     def transfer_files_to_external_storage(self):
+        nodes_to_transfer = self.recording_camera_nodes
         n_fails = 0
         while True:
-            # shell_output = subprocess.run(['sh', './transfer_files.sh', self.IP_address_video, self.session_info['output_dir'],
-            #                                self.session_info['external_storage_dir'], str(not self.session_info['ephys_rig'])])
-            shell_output = subprocess.run(
-                ['sh', '/home/pi/RPi4_behavior_boxes/transfer_files.sh', self.session_info['output_dir'],
-                 self.session_info['external_storage_dir'], self.IP_address_video])
-            if shell_output.returncode == 0:
+            try:
+                for node in nodes_to_transfer:
+                    destination_dir = Path(self.session_info['external_storage_dir']) / 'video' / node['camera_id']
+                    destination_dir.mkdir(parents=True, exist_ok=True)
+                    remote_source = f"{self._ssh_target(node)}:{self._camera_output_dir(node)}/"
+                    shell_output = subprocess.run(
+                        ['rsync', '-av', '--progress', '--remove-source-files', remote_source, str(destination_dir)],
+                        capture_output=True,
+                        text=True,
+                    )
+                    if shell_output.returncode != 0:
+                        raise RuntimeError(
+                            f"Video transfer failed for {node['camera_id']} ({node['host']}): {shell_output.stderr}"
+                        )
+
+                local_transfer = subprocess.run(
+                    [
+                        'rsync',
+                        '-arvz',
+                        '--progress',
+                        '--remove-source-files',
+                        f"{self.session_info['output_dir']}/",
+                        self.session_info['external_storage_dir'],
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                if local_transfer.returncode != 0:
+                    raise RuntimeError(f"Buffer transfer failed: {local_transfer.stderr}")
+
                 print("rsync finished!")
                 break
-            else:
+
+            except Exception as transfer_error_message:
                 n_fails += 1
                 if n_fails >= 5:
-                    print("rsync failed 5 times, giving up")
+                    print(f"rsync failed 5 times, giving up ({transfer_error_message})")
                     break
-                else:
-                    print("rsync failed, retrying in 2 seconds")
+                print(f"rsync failed, retrying in 2 seconds ({transfer_error_message})")
                 time.sleep(2)
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)

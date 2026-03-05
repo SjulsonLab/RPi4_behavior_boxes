@@ -14,6 +14,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['mouse_name']                 	= 'test-mouse'
     session_info['debug']                     	= True
     session_info['ephys_rig']                 	= True  # determines reward pumps and ssh IPs
+    session_info['use_multiple_cameras']        = False
     session_info['lick_input_setting']          = 'signal_high'  # ['signal_high', 'signal_low']
 
     session_info['debounce_licks']              = True  # use this to check if lick signals are long enough. Licks will be detected by lick onset AND offset; throw out signals that are too short/noise
@@ -80,6 +81,23 @@ def make_session_info() -> Dict[str, Any]:
 
     # Parameters - box and rig
     session_info['box_name']             		= socket.gethostname()
+    # Two-camera example (set use_multiple_cameras=True to require both cameras)
+    session_info['camera_nodes'] = [
+        {
+            'camera_id': 'cam0',
+            'host': '10.49.98.88',
+            'ssh_user': 'pi',
+            'backend': 'picamera2',
+            'required': True,
+        },
+        {
+            'camera_id': 'cam1',
+            'host': '10.49.98.89',
+            'ssh_user': 'pi',
+            'backend': 'picamera2',
+            'required': True,
+        },
+    ]
 
     # Parameters - visual stimuli
     gratings_dir = '/home/pi/gratings'  # './dummy_vis'
@@ -156,6 +174,29 @@ def sanity_checks(session_info: dict) -> dict:
     assert session_info['task_config'] in ['alternating_latent', 'latent_inference', 'flush', 'latent_inference_with_stimuli'], "Invalid task config, check your spelling!!"
     assert session_info['lick_input_setting'] in ['signal_high', 'signal_low'], "Invalid lick input setting"
     assert session_info['biased_side'] in ['left', 'right', 'none'], "Invalid biased side"
+
+    camera_nodes = session_info.get('camera_nodes', [])
+    assert isinstance(camera_nodes, list), "camera_nodes must be a list"
+    assert len(camera_nodes) > 0, "camera_nodes cannot be empty"
+    camera_ids = []
+    valid_backends = {'picamera', 'picamera2'}
+    for node in camera_nodes:
+        assert isinstance(node, dict), "Each camera node must be a dictionary"
+        camera_id = node.get('camera_id', '')
+        backend = node.get('backend', '')
+        host = node.get('host', '')
+        assert camera_id, "Each camera node must include camera_id"
+        assert backend in valid_backends, "Each camera node backend must be picamera or picamera2"
+        assert isinstance(host, str), "Each camera node host must be a string"
+        camera_ids.append(camera_id)
+
+    assert len(set(camera_ids)) == len(camera_ids), "camera_id values must be unique"
+
+    if session_info.get('use_multiple_cameras', False):
+        required_nodes = [node for node in camera_nodes if node.get('required', True)]
+        assert len(required_nodes) >= 2, "Multi-camera mode requires at least two required camera nodes"
+        for node in required_nodes:
+            assert node.get('host', ''), f"Required camera node {node.get('camera_id', '<unknown>')} is missing host"
 
     if session_info['visual_stimulus']:
         assert session_info['vis_gratings'], "No visual stimuli specified"

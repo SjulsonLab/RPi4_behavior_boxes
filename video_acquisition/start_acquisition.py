@@ -26,6 +26,7 @@ def signal_handler(signum, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 base_path = sys.argv[1]
+camId = str(sys.argv[2]) if len(sys.argv) > 2 else "0"
 
 # set high thread priority - may require sudo access
 try:
@@ -48,7 +49,6 @@ AWB_GAINS = 1.4
 
 #Flipper TTL Pulse BounceTme in milliseconds
 BOUNCETIME = 100
-camId = str(0)
 
 #video, timestamps and ttl file name
 VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output_" + str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")) + ".h264"
