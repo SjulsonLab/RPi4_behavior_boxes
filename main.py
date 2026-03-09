@@ -22,6 +22,7 @@ from pathlib import Path
 from session_info import make_session_info
 from subprocess import check_output
 import re
+import argparse
 
 sys.path.insert(0, './essential')  # essential holds behavbox and equipment classes
 sys.path.insert(0, '.')
@@ -83,7 +84,36 @@ def close_logs():
     ic('All logs closed!')
 
 
-def run_program(session_info: dict = None):
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--camera-dry-run',
+        action='store_true',
+        help='Verify camera/network connectivity for all configured camera nodes and exit.',
+    )
+    return parser.parse_args()
+
+
+def print_camera_dry_run_report(report: dict):
+    print("\nCamera verification results:")
+    for result in report['results']:
+        status = "PASS" if result['status'] == 'pass' else "FAIL"
+        required_str = "required" if result['required'] else "optional"
+        print(
+            f"[{status}] {result['camera_id']} ({result['host']}) "
+            f"[{required_str}] backend={result['backend']}"
+        )
+        if result['status'] != 'pass':
+            print(f"       reason: {result['error']}")
+
+    if report['all_required_passed']:
+        print("\nAll required cameras verified.")
+    else:
+        print("\nVerification failed for one or more required cameras.")
+
+
+def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
+    exit_code = 0
     try:
         # load in session_info file, check that dates are correct, put in automatic
         # time and date stamps for when the experiment was run
@@ -92,17 +122,26 @@ def run_program(session_info: dict = None):
         timestr = datetime.now().strftime('%H%M%S')
         if session_info is None:
             session_info = make_session_info()
-        if session_info['debug']:
+        if session_info['debug'] and not camera_dry_run:
             from essential import dummy_box as behavbox
         else:
             from essential import behavbox
 
-            # check for presence of external hd
-            storage = check_output('lsblk')
-            if re.search(r'sda', storage.decode('utf-8')):
-                print('[***] External storage found [***]')
-            else:
-                raise RuntimeError('External storage not found')
+            if not camera_dry_run:
+                # check for presence of external hd
+                storage = check_output('lsblk')
+                if re.search(r'sda', storage.decode('utf-8')):
+                    print('[***] External storage found [***]')
+                else:
+                    raise RuntimeError('External storage not found')
+
+        if camera_dry_run:
+            box = behavbox.BehavBox(session_info=session_info)
+            report = box.camera_dry_run()
+            print_camera_dry_run_report(report)
+            if not report['all_required_passed']:
+                raise RuntimeError("One or more required camera nodes failed verification.")
+            return 0
 
         # query user to confirm current options
         options_correct = False
@@ -263,6 +302,7 @@ def run_program(session_info: dict = None):
                 traceback.print_exc()
         else:
             pass
+        exit_code = 0
 
     # exit because of error
     except RuntimeError as ex:
@@ -270,22 +310,29 @@ def run_program(session_info: dict = None):
         print(ex)
 
         close_logs()
-        presenter.end_session()
+        if 'presenter' in locals():
+            presenter.end_session()
+        elif 'box' in locals() and not camera_dry_run:
+            box.video_stop()
+        exit_code = 1
 
     finally:
-        if session_info['debug'] is False:
+        if (not camera_dry_run
+                and session_info is not None
+                and session_info.get('debug') is False
+                and 'box' in locals()):
             box.video_stop()
-            if session_info['visual_stimulus']:
+            if session_info['visual_stimulus'] and hasattr(box, 'visualstim'):
                 box.visualstim.myscreen.close()
             time.sleep(2)
-
             box.transfer_files_to_external_storage()
 
         pygame.display.quit()
         pygame.quit()
         print("Exiting now...")
-        sys.exit()
+    return exit_code
 
 
 if __name__ == '__main__':
-    run_program()
+    args = parse_args()
+    sys.exit(run_program(camera_dry_run=args.camera_dry_run))

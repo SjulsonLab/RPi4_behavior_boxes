@@ -30,6 +30,7 @@ def signal_handler(signum, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 base_path = sys.argv[1]
+camId = str(sys.argv[2]) if len(sys.argv) > 2 else "0"
 
 # set high thread priority - may require sudo access
 try:
@@ -50,7 +51,6 @@ SATURATION = 1  # 30
 
 # Flipper TTL Pulse BounceTme in milliseconds
 BOUNCETIME = 100
-camId = str(0)
 
 # overlay text for preview window timestamps
 colour = (255, 255, 255)  # white
@@ -266,4 +266,3 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         # irig_sender.finish()
         timestamps.close()
         sys.exit(0)
-
