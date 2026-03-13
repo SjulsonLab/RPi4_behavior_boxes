@@ -35,15 +35,29 @@ import time
 import struct
 
 
+# def dacval(bus, address):
+#     try:
+#         block = bus.read_i2c_block_data(address, 1)
+#         distance = struct.unpack("<f", bytes(block[:4]))[0]
+#     except IOError:
+#         subprocess.call(['i2cdetect', '-y', '1'])
+#         block = bus.read_i2c_block_data(address, 1)
+#         distance = struct.unpack("<f", bytes(block[:4]))[0]
+#     return distance
+
 def dacval(bus, address):
     try:
-        block = bus.read_i2c_block_data(address, 1)
-        distance = struct.unpack("<f", bytes(block[:4]))[0]
-    except IOError:
-        subprocess.call(['i2cdetect', '-y', '1'])
-        block = bus.read_i2c_block_data(address, 1)
-        distance = struct.unpack("<f", bytes(block[:4]))[0]
-    return distance
+        block = bus.read_i2c_block_data(address, 1, 4)
+        print(f"addr=0x{address:02X} raw={block}")
+
+        as_float = struct.unpack("<f", bytes(block[:4]))[0]
+        as_int = struct.unpack("<l", bytes(block[:4]))[0]
+
+        print(f"float={as_float}, int={as_int}, int_div100={as_int/100.0}")
+        return as_int / 100.0
+    except IOError as e:
+        print(f"I2C read failed at 0x{address:02X}: {e}")
+        return None
 
 
 class Treadmill(object):
@@ -56,7 +70,7 @@ class Treadmill(object):
         self.treadmill_calibrate = 9.14  # bit per cm
         self.bus = smbus.SMBus(1)  # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
         # This is the address we setup in the Arduino Program
-        self.address = 0x48
+        self.address = 0x60
         self.treadmill_filename = self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
                                   self.session_info['basename'] + "_treadmill_output" + ".csv"
         print(self.treadmill_filename)
@@ -100,16 +114,31 @@ class Treadmill(object):
         #     self._dacval_thread.stop()
         # self._dacval_thread = None
 
-    def run(self):
-        while self._running == True:
-            time.sleep(self.delay)
-            self.distance_bit = dacval(self.bus, self.address)
-            self.distance_cm = self.distance_bit / self.treadmill_calibrate
-            self.treadmill_log.append(
-                (time.time(),
-                 self.distance_bit,
-                 self.distance_cm)
-            )
+    # def run(self):
+    #     while self._running == True:
+    #         time.sleep(self.delay)
+    #         self.distance_bit = dacval(self.bus, self.address)
+    #         self.distance_cm = self.distance_bit / self.treadmill_calibrate
+    #         self.treadmill_log.append(
+    #             (time.time(),
+    #              self.distance_bit,
+    #              self.distance_cm)
+    #         )
+
+   def run(self):
+    while self._running:
+        time.sleep(self.delay)
+        value = dacval(self.bus, self.address)
+        if value is None:
+            continue
+
+        self.distance_bit = value
+        self.distance_cm = self.distance_bit / self.treadmill_calibrate
+        self.treadmill_log.append(
+            (time.time(),
+             self.distance_bit,
+             self.distance_cm)
+        )
 
     # save the element list
     def treadmill_flush(self):
@@ -126,6 +155,7 @@ for the consecutive differences, we can yield a velocity of the displacment
 And from the velocity of the displacement we can get the direction and the acceleration
 The problem that need to take into consideration
 """
+
 
 
 
