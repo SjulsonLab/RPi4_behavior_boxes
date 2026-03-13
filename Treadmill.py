@@ -125,20 +125,20 @@ class Treadmill(object):
     #              self.distance_cm)
     #         )
 
-   def run(self):
-      while self._running:
-        time.sleep(self.delay)
-        value = dacval(self.bus, self.address)
-        if value is None:
-            continue
-
-        self.distance_bit = value
-        self.distance_cm = self.distance_bit / self.treadmill_calibrate
-        self.treadmill_log.append(
-            (time.time(),
-             self.distance_bit,
-             self.distance_cm)
-        )
+    def run(self):
+        while self._running:
+            time.sleep(self.delay)
+            value = dacval(self.bus, self.address)
+            if value is None:
+                continue
+   
+            self.distance_bit = value
+            self.distance_cm = self.distance_bit / self.treadmill_calibrate
+            self.treadmill_log.append(
+                (time.time(),
+                 self.distance_bit,
+                 self.distance_cm)
+            )
 
     # save the element list
     def treadmill_flush(self):
@@ -155,6 +155,7 @@ for the consecutive differences, we can yield a velocity of the displacment
 And from the velocity of the displacement we can get the direction and the acceleration
 The problem that need to take into consideration
 """
+
 
 
 
