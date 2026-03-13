@@ -7,13 +7,23 @@ import struct
 bus = smbus.SMBus(1) # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
 # This is the address we setup in the Arduino Program
 address = 0x60
-def dacval():
-    time.sleep(1)
-    block = bus.read_i2c_block_data(address, 1)
-    n = struct.unpack("<l", bytes(block[:4]))[0]
-    dvl = n / 100
-    while n != -1:
-        return dvl
+#def dacval():
+   # time.sleep(1)
+    #block = bus.read_i2c_block_data(address, 1)
+   # n = struct.unpack("<l", bytes(block[:4]))[0]
+   # dvl = n / 100
+   # while n != -1:
+       # return dvl
+#chat added solution for debugging error
+def dacval(bus, address):
+    block = bus.read_i2c_block_data(address, 1, 4)
+    print(f"addr=0x{address:02X} raw={block}")
+
+    as_float = struct.unpack("<f", bytes(block[:4]))[0]
+    as_int = struct.unpack("<l", bytes(block[:4]))[0]
+
+    print(f"float={as_float}, int={as_int}, int_div100={as_int/100.0}")
+    return as_float
 """
 
 # import datetime as dt
@@ -116,6 +126,7 @@ for the consecutive differences, we can yield a velocity of the displacment
 And from the velocity of the displacement we can get the direction and the acceleration
 The problem that need to take into consideration
 """
+
 
 
 
