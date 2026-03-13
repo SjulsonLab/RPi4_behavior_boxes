@@ -126,7 +126,7 @@ class Treadmill(object):
     #         )
 
    def run(self):
-    while self._running:
+      while self._running:
         time.sleep(self.delay)
         value = dacval(self.bus, self.address)
         if value is None:
@@ -155,6 +155,7 @@ for the consecutive differences, we can yield a velocity of the displacment
 And from the velocity of the displacement we can get the direction and the acceleration
 The problem that need to take into consideration
 """
+
 
 
 
