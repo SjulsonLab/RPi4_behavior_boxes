@@ -46,7 +46,7 @@ class Treadmill(object):
         self.treadmill_calibrate = 9.14  # bit per cm
         self.bus = smbus.SMBus(1)  # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
         # This is the address we setup in the Arduino Program
-        self.address = 0x08
+        self.address = 0x48
         self.treadmill_filename = self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
                                   self.session_info['basename'] + "_treadmill_output" + ".csv"
         print(self.treadmill_filename)
@@ -116,6 +116,7 @@ for the consecutive differences, we can yield a velocity of the displacment
 And from the velocity of the displacement we can get the direction and the acceleration
 The problem that need to take into consideration
 """
+
 
 
 
