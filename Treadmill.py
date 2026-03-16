@@ -6,7 +6,7 @@ import struct
 # bus = smbus.SMBus(0)
 bus = smbus.SMBus(1) # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
 # This is the address we setup in the Arduino Program
-address = 0x60
+address = 0x08
 #def dacval():
    # time.sleep(1)
     #block = bus.read_i2c_block_data(address, 1)
@@ -70,7 +70,7 @@ class Treadmill(object):
         self.treadmill_calibrate = 9.14  # bit per cm
         self.bus = smbus.SMBus(1)  # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
         # This is the address we setup in the Arduino Program
-        self.address = 0x60
+        self.address = 0x08
         self.treadmill_filename = self.session_info['basedir'] + "/" + self.session_info['basename'] + "/" + \
                                   self.session_info['basename'] + "_treadmill_output" + ".csv"
         print(self.treadmill_filename)
