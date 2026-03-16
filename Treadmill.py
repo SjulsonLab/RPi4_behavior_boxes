@@ -35,29 +35,29 @@ import time
 import struct
 
 
-# def dacval(bus, address):
-#     try:
-#         block = bus.read_i2c_block_data(address, 1)
-#         distance = struct.unpack("<f", bytes(block[:4]))[0]
-#     except IOError:
-#         subprocess.call(['i2cdetect', '-y', '1'])
-#         block = bus.read_i2c_block_data(address, 1)
-#         distance = struct.unpack("<f", bytes(block[:4]))[0]
-#     return distance
-
 def dacval(bus, address):
     try:
-        block = bus.read_i2c_block_data(address, 1, 4)
-        print(f"addr=0x{address:02X} raw={block}")
+        block = bus.read_i2c_block_data(address, 1)
+        distance = struct.unpack("<f", bytes(block[:4]))[0]
+    except IOError:
+        subprocess.call(['i2cdetect', '-y', '1'])
+        block = bus.read_i2c_block_data(address, 1)
+        distance = struct.unpack("<f", bytes(block[:4]))[0]
+    return distance
 
-        as_float = struct.unpack("<f", bytes(block[:4]))[0]
-        as_int = struct.unpack("<l", bytes(block[:4]))[0]
+# def dacval(bus, address):
+#     try:
+#         block = bus.read_i2c_block_data(address, 1, 4)
+#         print(f"addr=0x{address:02X} raw={block}")
 
-        print(f"float={as_float}, int={as_int}, int_div100={as_int/100.0}")
-        return as_int / 100.0
-    except IOError as e:
-        print(f"I2C read failed at 0x{address:02X}: {e}")
-        return None
+#         as_float = struct.unpack("<f", bytes(block[:4]))[0]
+#         as_int = struct.unpack("<l", bytes(block[:4]))[0]
+
+#         print(f"float={as_float}, int={as_int}, int_div100={as_int/100.0}")
+#         return as_int / 100.0
+#     except IOError as e:
+#         print(f"I2C read failed at 0x{address:02X}: {e}")
+#         return None
 
 
 class Treadmill(object):
@@ -114,31 +114,31 @@ class Treadmill(object):
         #     self._dacval_thread.stop()
         # self._dacval_thread = None
 
-    # def run(self):
-    #     while self._running == True:
-    #         time.sleep(self.delay)
-    #         self.distance_bit = dacval(self.bus, self.address)
-    #         self.distance_cm = self.distance_bit / self.treadmill_calibrate
-    #         self.treadmill_log.append(
-    #             (time.time(),
-    #              self.distance_bit,
-    #              self.distance_cm)
-    #         )
-
     def run(self):
-        while self._running:
+        while self._running == True:
             time.sleep(self.delay)
-            value = dacval(self.bus, self.address)
-            if value is None:
-                continue
-   
-            self.distance_bit = value
+            self.distance_bit = dacval(self.bus, self.address)
             self.distance_cm = self.distance_bit / self.treadmill_calibrate
             self.treadmill_log.append(
                 (time.time(),
                  self.distance_bit,
                  self.distance_cm)
             )
+
+    # def run(self):
+    #     while self._running:
+    #         time.sleep(self.delay)
+    #         value = dacval(self.bus, self.address)
+    #         if value is None:
+    #             continue
+   
+    #         self.distance_bit = value
+    #         self.distance_cm = self.distance_bit / self.treadmill_calibrate
+    #         self.treadmill_log.append(
+    #             (time.time(),
+    #              self.distance_bit,
+    #              self.distance_cm)
+    #         )
 
     # save the element list
     def treadmill_flush(self):
