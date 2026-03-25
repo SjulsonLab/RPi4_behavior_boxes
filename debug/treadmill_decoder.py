@@ -208,13 +208,13 @@ class TreadmillDecoder:
             if a == b:
                 self._state.direction = FW
                 self._state.counts -= 1
-                self._state.distance_mm -= self.dist_per_count
+                self._state.distance_mm += self.dist_per_count
                 if dt_s is not None:
                     self._state.run_speed_mms = self.dist_per_count / dt_s
             else:
                 self._state.direction = BW
                 self._state.counts += 1
-                self._state.distance_mm += self.dist_per_count
+                self._state.distance_mm -= self.dist_per_count
                 if dt_s is not None:
                     self._state.run_speed_mms = -(self.dist_per_count / dt_s)
 
@@ -259,29 +259,43 @@ def behavior_loop(
     run_behavior_step: Callable[[int, float, float], None],
     *,
     sleep_s: float = 0.001,
+    print_speed_delta: float = 1e-6,
 ) -> None:
     """Simple main-process behavior loop.
 
-    The decoder callback updates shared state; this loop snapshots it and passes
-    the current count, distance, and speed into the task code.
+    The decoder callback updates shared state; this loop snapshots it, runs the
+    task code every cycle, and only prints when speed meaningfully changes.
     """
+    last_printed_speed: Optional[float] = None
+
     decoder.start()
     try:
         while True:
             enc = decoder.snapshot()
             speed = decoder.get_speed_mms()
             run_behavior_step(enc.counts, enc.distance_mm, speed)
+            if (
+                last_printed_speed is None
+                or abs(speed - last_printed_speed) > print_speed_delta
+            ):
+                print_console_output(enc.counts, enc.distance_mm, speed)
+                last_printed_speed = speed
             if sleep_s > 0:
                 time.sleep(sleep_s)
     finally:
         decoder.stop()
 
 
-def run_behavior_step(counts: int, distance_mm: float, speed_mms: float) -> None:
-    # Replace with your real behavior update function.
+def print_console_output(counts: int, distance_mm: float, speed_mms: float) -> None:
+    """Print treadmill state for debugging when speed changes."""
     print(
         f"counts={counts:6d} distance_mm={distance_mm:9.3f} speed_mms={speed_mms:8.3f}"
     )
+
+
+def run_behavior_step(counts: int, distance_mm: float, speed_mms: float) -> None:
+    """Placeholder for real behavior logic."""
+    pass
 
 
 if __name__ == "__main__":
