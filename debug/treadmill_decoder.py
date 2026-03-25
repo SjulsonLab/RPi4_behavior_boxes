@@ -207,13 +207,13 @@ class TreadmillDecoder:
 
             if a == b:
                 self._state.direction = FW
-                self._state.counts -= 1
+                self._state.counts += 1
                 self._state.distance_mm += self.dist_per_count
                 if dt_s is not None:
                     self._state.run_speed_mms = self.dist_per_count / dt_s
             else:
                 self._state.direction = BW
-                self._state.counts += 1
+                self._state.counts -= 1
                 self._state.distance_mm -= self.dist_per_count
                 if dt_s is not None:
                     self._state.run_speed_mms = -(self.dist_per_count / dt_s)
