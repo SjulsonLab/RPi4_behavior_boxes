@@ -4,6 +4,11 @@ from threading import Lock
 from time import monotonic
 from typing import Callable, Optional
 
+try:
+    import RPi.GPIO as GPIO
+except (ImportError, RuntimeError):
+    GPIO = None
+
 # -----------------------------------------------------------------------------
 # Constants / defaults
 # -----------------------------------------------------------------------------
@@ -68,8 +73,10 @@ class TreadmillDecoder:
         self._lock = Lock()
         self._state = EncoderState(last_edge_time_s=monotonic())
         self._last_edge_time_s: Optional[float] = None
+        self._gpio = None
         self._gpio_ready = False
         self._running = False
+        self._callback_registered = False
 
         self._setup_gpio()
 
@@ -79,16 +86,40 @@ class TreadmillDecoder:
     def _setup_gpio(self) -> None:
         """Configure GPIO and register an A-rising callback.
 
-        Replace the body of this method with your actual GPIO backend setup.
-        For design work, this placeholder marks where to:
-          1. configure A and B as inputs with pull-ups
+        This default implementation uses RPi.GPIO, which is available on
+        Raspberry Pi OS for Python 3.7 and mirrors the intended hardware wiring:
+          1. configure A and B as pull-up inputs
           2. register self._on_a_rising on channel A rising edges
         """
-        # Example future responsibilities:
-        #   - open GPIO chip / factory
-        #   - set a_pin and b_pin as inputs
-        #   - enable pull-ups if desired
-        #   - register self._on_a_rising for A rising edges
+        if GPIO is None:
+            raise RuntimeError(
+                "RPi.GPIO is not available. Install RPi.GPIO and run this on a Raspberry Pi."
+            )
+
+        self._gpio = GPIO
+        self._gpio.setwarnings(False)
+
+        mode = self._gpio.getmode()
+        if mode is None:
+            self._gpio.setmode(self._gpio.BCM)
+        elif mode != self._gpio.BCM:
+            raise RuntimeError(
+                "TreadmillDecoder requires BCM GPIO numbering, "
+                "but RPi.GPIO is already using a different mode."
+            )
+
+        self._gpio.setup(self.a_pin, self._gpio.IN, pull_up_down=self._gpio.PUD_UP)
+        self._gpio.setup(self.b_pin, self._gpio.IN, pull_up_down=self._gpio.PUD_UP)
+        self._gpio.add_event_detect(
+            self.a_pin,
+            self._gpio.RISING,
+            callback=self._on_a_rising,
+        )
+
+        with self._lock:
+            self._state.last_b_state = int(self._gpio.input(self.b_pin))
+
+        self._callback_registered = True
         self._gpio_ready = True
 
     def start(self) -> None:
@@ -100,33 +131,46 @@ class TreadmillDecoder:
         self._running = True
 
     def stop(self) -> None:
-        """Disarm the decoder and leave GPIO cleanup to a later backend pass."""
+        """Disarm the decoder while leaving pin configuration in place."""
         self._running = False
 
     def close(self) -> None:
-        """Cleanup hook for the eventual GPIO backend."""
+        """Remove edge detection and release only the pins owned by this decoder."""
         self.stop()
+        if self._gpio is not None:
+            if self._callback_registered:
+                try:
+                    self._gpio.remove_event_detect(self.a_pin)
+                except RuntimeError:
+                    pass
+            for pin in (self.a_pin, self.b_pin):
+                try:
+                    self._gpio.cleanup(pin)
+                except RuntimeError:
+                    pass
+        self._callback_registered = False
         self._gpio_ready = False
 
     def _read_a(self) -> int:
-        """Read channel A from the eventual GPIO backend.
-
-        Replace this stub during integration.
-        """
-        raise NotImplementedError("Implement GPIO read for channel A")
+        """Read channel A from the configured GPIO backend."""
+        if not self._gpio_ready or self._gpio is None:
+            raise RuntimeError("GPIO backend is not initialized")
+        return int(self._gpio.input(self.a_pin))
 
     def _read_b(self) -> int:
-        """Read channel B from the eventual GPIO backend.
-
-        Replace this stub during integration.
-        """
-        raise NotImplementedError("Implement GPIO read for channel B")
+        """Read channel B from the configured GPIO backend."""
+        if not self._gpio_ready or self._gpio is None:
+            raise RuntimeError("GPIO backend is not initialized")
+        return int(self._gpio.input(self.b_pin))
 
     # ------------------------------------------------------------------
     # Core decoding logic
     # ------------------------------------------------------------------
     def _on_a_rising(
-        self, gpio: int | None = None, level: int | None = None, tick: int | None = None
+        self,
+        gpio: Optional[int] = None,
+        level: Optional[int] = None,
+        tick: Optional[int] = None,
     ) -> None:
         """Minimal callback for channel A rising edges.
 
@@ -242,6 +286,5 @@ def run_behavior_step(counts: int, distance_mm: float, speed_mms: float) -> None
 
 if __name__ == "__main__":
     decoder = TreadmillDecoder(ENC_A_PIN, ENC_B_PIN, MM_PER_COUNT)
-    print("TreadmillDecoder skeleton initialized.")
-    print("Implement _setup_gpio(), _read_a(), and _read_b() for your Pi GPIO backend.")
-    # behavior_loop(decoder, run_behavior_step)
+    print("TreadmillDecoder initialized with the RPi.GPIO backend.")
+    behavior_loop(decoder, run_behavior_step)
