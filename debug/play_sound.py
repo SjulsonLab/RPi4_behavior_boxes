@@ -100,9 +100,7 @@ def _play_with_aplay(path: Path, loops: int, device: str | None) -> None:
         base_cmd += ["-D", device]
 
     for _ in range(loops):
-        cmd = base_cmd + [str(path)]
-        print(f"DEBUG: Running command: {' '.join(cmd)}", file=sys.stderr)
-        subprocess.run(cmd, check=True)
+        subprocess.run(base_cmd + [str(path)], check=True)
 
 
 def main() -> None:
