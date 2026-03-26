@@ -56,12 +56,13 @@ def _parse_args(sound_map: dict[str, Path]) -> argparse.Namespace:
     parser.add_argument(
         "--backend",
         choices=("auto", "pygame", "aplay"),
-        default="auto",
-        help="Preferred playback backend (auto picks pygame unless aplay is available)",
+        default="aplay",
+        help="Preferred playback backend (default: aplay)",
     )
     parser.add_argument(
         "--device",
-        help="ALSA device to pass to aplay (e.g. plughw:2,0); ignored for pygame",
+        default="plughw:2,0",
+        help="ALSA device to pass to aplay (default: plughw:2,0); ignored for pygame",
     )
     return parser.parse_args()
 
@@ -100,9 +101,7 @@ def _play_with_aplay(path: Path, loops: int, device: str | None) -> None:
         base_cmd += ["-D", device]
 
     for _ in range(loops):
-        full_cmd = base_cmd + [str(path)]
-        print(f"Running: {' '.join(full_cmd)}")
-        subprocess.run(full_cmd, check=True)
+        subprocess.run(base_cmd + [str(path)], check=True)
 
 
 def main() -> None:
