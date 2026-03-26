@@ -124,19 +124,13 @@ def _play_with_aplay(path: Path, loops: int, duration: float | None, device: str
         base_cmd += ["-D", device]
 
     if duration is not None:
-        # Play for duration seconds by running aplay in background and timing out
-        start_time = time.time()
-        while (time.time() - start_time) < duration:
-            proc = subprocess.Popen(base_cmd + [str(path)])
-            # Calculate remaining time
-            elapsed = time.time() - start_time
-            remaining = duration - elapsed
-            if remaining > 0:
-                try:
-                    proc.wait(timeout=remaining)
-                except subprocess.TimeoutExpired:
-                    proc.terminate()
-                    break
+        # Play for duration seconds by running aplay and timing out
+        proc = subprocess.Popen(base_cmd + [str(path)])
+        try:
+            proc.wait(timeout=duration)
+        except subprocess.TimeoutExpired:
+            proc.terminate()
+            proc.wait(timeout=1)
     else:
         for _ in range(loops):
             subprocess.run(base_cmd + [str(path)], check=True)
