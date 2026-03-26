@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 import argparse
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
-import pygame
+try:
+    import pygame
+except ModuleNotFoundError:
+    pygame = None
 
 
 SOUND_DIR = Path(__file__).resolve().parents[1] / "essential" / "sound"
@@ -48,12 +53,30 @@ def _parse_args(sound_map: dict[str, Path]) -> argparse.Namespace:
         default=1,
         help="How many times to play the file (default 1)",
     )
+    parser.add_argument(
+        "--backend",
+        choices=("auto", "pygame", "aplay"),
+        default="auto",
+        help="Preferred playback backend (auto picks pygame unless aplay is available)",
+    )
+    parser.add_argument(
+        "--device",
+        help="ALSA device to pass to aplay (e.g. plughw:2,0); ignored for pygame",
+    )
     return parser.parse_args()
 
 
-def _play_sound(path: Path, loops: int) -> None:
+def _play_sound(path: Path, loops: int, backend: str, device: str | None) -> None:
     """Load and play the selected file, waiting until playback completes."""
 
+    if backend in ("aplay", "auto") and shutil.which("aplay"):
+        _play_with_aplay(path, loops, device)
+        return
+
+    if pygame is None:
+        raise SystemExit(
+            "pygame is not installed; install it or run with --backend aplay"
+        )
     pygame.mixer.init()
     try:
         pygame.mixer.music.load(str(path))
@@ -63,6 +86,21 @@ def _play_sound(path: Path, loops: int) -> None:
             pygame.time.wait(100)
     finally:
         pygame.mixer.quit()
+
+
+def _play_with_aplay(path: Path, loops: int, device: str | None) -> None:
+    """Use ALSA aplay utility to play a file when SDL audio is not configured."""
+
+    aplay_exec = shutil.which("aplay")
+    if not aplay_exec:
+        raise SystemExit("aplay is required for the ALSA backend but was not found")
+
+    base_cmd = [aplay_exec]
+    if device:
+        base_cmd += ["-D", device]
+
+    for _ in range(loops):
+        subprocess.run(base_cmd + [str(path)], check=True)
 
 
 def main() -> None:
@@ -82,7 +120,7 @@ def main() -> None:
     assert path is not None  # mypy prefers this guard even though choices blocks missing keys.
 
     print(f"Playing {path.name} ({args.loops} loop(s) requested)")
-    _play_sound(path, args.loops)
+    _play_sound(path, args.loops, args.backend, args.device)
 
 
 if __name__ == "__main__":
