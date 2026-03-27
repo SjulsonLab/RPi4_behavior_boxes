@@ -69,7 +69,7 @@ config = camera.create_preview_configuration(
     sensor={"output_size": mode["size"], "bit_depth": mode["bit_depth"]},
     controls={"FrameRate": 30.0,
               "AfMode": controls.AfModeEnum.Manual,
-              "LensPosition": 10.0}
+              "LensPosition": 10.0}  # ranges from 0 (max focal distance) to 32 (min focal distance)
 )
 # default LensPosition is 1, max focal range is zero (infinite distance), min focal range is 32 (min distance)
 # Using 10 is fine for general use, but for up-close eye recording you may want higher values
