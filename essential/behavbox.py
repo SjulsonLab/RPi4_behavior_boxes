@@ -266,7 +266,7 @@ class BehavBox(Box):
     @staticmethod
     def _preview_script(node: Dict[str, Any]) -> str:
         if node['backend'] == 'picamera2':
-            return '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview_picamera2.py'
+            return '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview_v3_camera.py'
         return '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview.py'
 
     @staticmethod
