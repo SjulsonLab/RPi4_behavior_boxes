@@ -206,7 +206,7 @@ class BehavBox(Box):
 
     def _default_camera_host(self):
         if self.session_info['ephys_rig']:
-            return "10.49.98.88"
+            return "10.49.98.252"
         ip_address_video_list = list(self.IP_address)
         ip_address_video_list[-1] = "2"
         return "".join(ip_address_video_list)
@@ -266,7 +266,7 @@ class BehavBox(Box):
     @staticmethod
     def _preview_script(node: Dict[str, Any]) -> str:
         if node['backend'] == 'picamera2':
-            return '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview_v3_camera.py'
+            return '/home/pi/RPi4_behavior_boxes/video_acquisition/preview_v3_camera.py'
         return '/home/pi/RPi4_behavior_boxes/video_acquisition/start_preview.py'
 
     @staticmethod
