@@ -8,7 +8,7 @@ from libcamera import controls
 import cv2
 import time
 import datetime as dt
-import RPi.GPIO as GPIO
+
 
 def signal_handler(signum, frame):
     print("SIGINT detected")
@@ -16,26 +16,18 @@ def signal_handler(signum, frame):
     camera.close()
     sys.exit(0)
 
-
-def flipper_callback_GPIO(pin):
-    flip_state = GPIO.input(pin)
-    #print("Flip state: {}; Timestamp: {}; UTC: {}".format(flip_state, time.time(), dt.datetime.now(dt.timezone.utc).time()))
-
-
-pin_flipper = 4
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=flipper_callback_GPIO, bouncetime=100)
 signal.signal(signal.SIGINT, signal_handler)
 
 camera = Picamera2()
 
-# configs for camera sensors at 30 fps
+
+### V3 camera sensor modes:
 # for camera V3 standard module, using bit_depth 10, size (2304, 1296), max fps 56.03
 # for HQ camera, sensor modes 1 and 2 are okay; mode 0 has 120 fps but we only want 30 so we can get a bit more resolution
 # mode1 = {'size': (2028, 1080), 'bit_depth': 12, 'fps': 50.03}
 # mode2 = {'size': (4056, 3040), 'bit_depth': 12, 'fps': 40.01}
 
+### HQ camera sensor modes:
 sensor_mode = 2
 if sensor_mode == 0:
     resolution = (1320, 990)
@@ -47,6 +39,11 @@ else:
     print("Invalid sensor mode selected, setting default resolution")
     sensor_mode = 0
     resolution = (640, 480)
+
+
+### GS camera sensor modes:
+# sensor_mode = 0
+# resolution = (1456, 1088)
 
 # config = camera.create_preview_configuration(sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']})
 # camera.configure(config)

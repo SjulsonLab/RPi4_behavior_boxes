@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from gpiozero import Button
 import io
 import time
 import datetime as dt
@@ -9,14 +8,10 @@ from picamera2.encoders import H264Encoder, Quality
 from picamera2.outputs import FileOutput
 import cv2
 from libcamera import controls
-from threading import Thread, Event
+from pprint import pprint
 import sys
-import RPi.GPIO as GPIO
 import os
 import signal
-# import irig_h_gpio as irig
-from pathlib import Path
-
 
 # this function is called when the program receives a SIGINT
 def signal_handler(signum, frame):
@@ -49,51 +44,26 @@ SATURATION = 1  # 30
 # AWB_MODE = 'off'
 # AWB_GAINS = 1.4
 
-# Flipper TTL Pulse BounceTme in milliseconds
-BOUNCETIME = 100
-
 # overlay text for preview window timestamps
 colour = (255, 255, 255)  # white
-origin = (0, 30)
 font = cv2.FONT_HERSHEY_SIMPLEX
-scale = 1
-thickness = 2
 
 # video, timestamps and ttl file name
 video_dt = str(dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 # VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output_" + video_dt + ".h264"
 # TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp_" + video_dt + ".csv"
-# FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper_" + video_dt + ".csv"
-# IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig_" + video_dt + ".csv"
 
 # don't need to add new timestamps to file names, the base_path already includes a timestamp
 VIDEO_FILE_NAME = base_path + "_cam" + camId + "_output.h264"
 TIMESTAMP_FILE_NAME = base_path + "_cam" + camId + "_timestamp.csv"
-FLIPPER_FILE_NAME = base_path + "_cam"+ camId + "_flipper.csv"
-# IRIG_FILE_NAME = base_path + "_cam" + camId + "_irig.csv"
 
-# set raspberry pi board layout to BCM
-pin_flipper = 4
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(pin_flipper, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-# pin_irig = 6
 
 # timestamp output object to save timestamps according to pi and TTL inputs received and write to file
 class TimestampOutput(object):
 
-    def __init__(self, timestamp_filename, flipper_filename, irig_filename=None):
+    def __init__(self, timestamp_filename):
         self._timestampFile = timestamp_filename
-        self._flipper_file = flipper_filename
         self._timestamps = []
-        self._flipper_timestamps = []
-        # self._irig_file = irig_filename
-        # self._irig_timestamps = []
-
-        self.flip_state = GPIO.input(pin_flipper)
-        self.flip_thread = None
-        self.event_thread = None
-        self.state_change = Event()
         self._stop_flag = False
 
     def append_timestamps(self, request):
@@ -123,56 +93,6 @@ class TimestampOutput(object):
             for entry in self._timestamps:
                 f.write('%f,%f,%f\n' % entry)
 
-        with io.open(self._flipper_file, 'w') as f:
-            f.write('Input State,time.time()\n')
-            for entry in self._flipper_timestamps:
-                f.write('%f,%f\n' % entry)
-
-        # irig.finish()
-
-    def GPIO_loop(self, bouncetime=BOUNCETIME):
-        while True:
-            cur_state = GPIO.input(pin_flipper)
-            if cur_state != self.flip_state:
-                self.flip_state = cur_state
-                self.state_change.set()
-                time.sleep(bouncetime / 1000)  # Convert milliseconds to seconds
-            else:
-                self.state_change.clear()
-                time.sleep(.001)
-
-            if self._stop_flag:
-                print("Stopping GPIO loop")
-                break
-
-    def flipper_callback_GPIO(self, pin):
-        self.flip_state = GPIO.input(pin)
-        self._flipper_timestamps.append((self.flip_state,
-                                         time.time()))
-
-    def flipper_callback(self):
-        self._flipper_timestamps.append((self.flip_state,
-                                         time.time()))
-
-    # def irig_callback(self, irig_data):
-    #     self._irig_timestamps.append((
-    #         irig_data,
-    #         time.time(),
-    #         time.perf_counter_ns()
-    #     ))
-
-    def event_loop(self):
-        while True:
-            if self.state_change.is_set():
-                self.flipper_callback()
-                self.state_change.clear()
-            else:
-                time.sleep(0.001)
-
-            if self._stop_flag:
-                print("Stopping event loop")
-                break
-
     def close_threads(self):
         print("Closing threads")
         self._stop_flag = True
@@ -187,62 +107,67 @@ class TimestampOutput(object):
         self.close_threads()
         self.flush()
 
-    def start_flipper_thread(self):
-        if self.flip_thread is None:
-            self.flip_thread = Thread(target=self.GPIO_loop)
-            self.event_thread = Thread(target=self.event_loop)
-            self.event_thread.start()
-            self.flip_thread.start()
-        else:
-            print("Flipper thread already running")
 
+camera = Picamera2()
+### V3 camera sensor modes:
+# Use mode 0, 1, or 2 for 30 fps recording
+# Sensor modes 0 and 1 have fast visuals
+# Sensor mode 2 will look lagged on the preview screen, but should still record at 30 fps
+
+# mode0 = {'size': (1332, 990), 'bit_depth': 10, 'fps': 120.05}
+# mode1 = {'size': (2028, 1080), 'bit_depth': 12, 'fps': 50.03}
+# mode2 = {'size': (4056, 3040), 'bit_depth': 12, 'fps': 40.01}
+# mode3 = {'size': (4056, 3040), 'bit_depth': 12, 'fps': 10.0}
+## see for yourself:
+print_sensor_modes = False
+if print_sensor_modes:
+    pprint(camera.sensor_modes)
 
 # Picam2 has brightness, contrast, sharpness, saturation, exposure modes, awb_mode
 # Picam2 does not have an image stabilization option
 # hflip and vflip are Transforms now, both default to False
-sensor_mode = 0
+sensor_mode = 1
+# Preview text settings
 if sensor_mode == 0:
-    resolution = (1320, 990)
+    origin = (0, 30)
+    scale = 1
+    thickness = 2
 elif sensor_mode == 1:
-    resolution = (1440, 1080)
+    origin = (0, 50)
+    scale = 2
+    thickness = 4
 elif sensor_mode == 2:
-    resolution = (2000, 1500)
-else:
-    print("Invalid sensor mode selected, setting default resolution")
-    sensor_mode = 0
-    resolution = (640, 480)
+    origin = (0, 100)
+    scale = 4
+    thickness = 6
 
-camera = Picamera2()
 mode = camera.sensor_modes[sensor_mode]
 config = camera.create_video_configuration(
+    main={"size": (1024, 768)},  # preview size; can be set to same as sensor output size or smaller for faster preview performance
     sensor={'output_size': mode['size'], 'bit_depth': mode['bit_depth']},
-    #main={"size": resolution},  # max HQ resolution for sensor 0
-    controls={'FrameDurationLimits': (33333, 33333),
+    controls={'FrameDurationLimits': (20000, 20000),  # 50 fps; set to (33333, 33333) for 30 fps
               'AeExposureMode': controls.AeExposureModeEnum.Normal,
-              # "Brightness": BRIGHTNESS,
-              # "Contrast": CONTRAST,
-              # "Sharpness": SHARPNESS,
-              # "Saturation": SATURATION
-})
+              "AfMode": controls.AfModeEnum.Manual,  # for V3 camera; comment this out for HQ camera, which uses manual focus
+              "LensPosition": 32}
+)
+# Lens position ranges from 0 (max focal distance) to 32 (min focal distance). 10 is good for general use, but for
+# up-close eye recording you may want higher values
 camera.align_configuration(config)
 camera.configure(config)
 print("Camera configuration aligned to {}".format(camera.video_configuration.size))
 
-timestamps = TimestampOutput(TIMESTAMP_FILE_NAME, FLIPPER_FILE_NAME)
+timestamps = TimestampOutput(TIMESTAMP_FILE_NAME)
 camera.pre_callback = timestamps.append_timestamps
-camera.start_preview(Preview.DRM, x=100, y=0, width=1067, height=800)
-# camera.start_preview(Preview.DRM, x=100, y=0, width=1320, height=990)
-# timestamps.start_flipper_thread()
-GPIO.add_event_detect(pin_flipper, GPIO.BOTH, callback=timestamps.flipper_callback_GPIO, bouncetime=100)
-# irig_sender = irig.IrigHSender(sending_gpio_pin=pin_irig, filename=IRIG_FILE_NAME)
+x, y, w, h = 100, 0, 1024, 768
+camera.start_preview(Preview.DRM, x=x, y=y, width=w, height=h)
+print(f"Using preview window x={x} y={y} w={w} h={h}")
 
 with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
     encoder = H264Encoder()
-    output = FileOutput(file=buffer)#, pts=TIMESTAMP_FILE_NAME)
+    output = FileOutput(file=buffer)
     try:
         print('Starting Recording')
         camera.start_recording(encoder, output, quality=Quality.VERY_HIGH)
-        # camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # for V3 camera; comment this out for HQ camera, which uses manual focus
         time.sleep(2)
         camera.set_controls({
             'AeEnable': False,
@@ -262,6 +187,5 @@ with io.open(VIDEO_FILE_NAME, 'wb') as buffer:
         print(e)
 
     finally:
-        # irig_sender.finish()
         timestamps.close()
         sys.exit(0)
