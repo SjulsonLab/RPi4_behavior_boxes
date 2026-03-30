@@ -14,10 +14,10 @@ from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
 
 
-FRAMERATE = 40
+FRAMERATE = 50
 FRAME_DURATION_US = int(1e6 / FRAMERATE)
 BITRATE = 30_000_000
-SENSOR_MODE = 0
+SENSOR_MODE = 1
 PREVIEW_SIZE = (1024, 768)
 PREVIEW_WINDOW = (100, 0, 1024, 768)
 LENS_POSITION = 32.0
@@ -60,13 +60,14 @@ def draw_text_fast(frame_y, text, x=10, y=50):
 
 def require_args():
     if len(sys.argv) < 2:
-        raise SystemExit("Usage: start_acquisition_v3_camera_fast.py <base_path> [camera_id]")
+        raise SystemExit("Usage: start_acquisition_v3_camera_fast.py <base_path> [camera_id] [pidfile]")
     base_path = Path(sys.argv[1])
     camera_id = str(sys.argv[2]) if len(sys.argv) > 2 else "0"
-    return base_path, camera_id
+    pidfile = Path(sys.argv[3]) if len(sys.argv) > 3 else None
+    return base_path, camera_id, pidfile
 
 
-base_path, cam_id = require_args()
+base_path, cam_id, pidfile_path = require_args()
 video_file_name = f"{base_path}_cam{cam_id}_output.h264"
 timestamp_file_name = f"{base_path}_cam{cam_id}_timestamp.csv"
 
@@ -132,6 +133,12 @@ def shutdown(signum=None, frame=None):
     if output is not None:
         try:
             output.close()
+        except Exception:
+            pass
+
+    if pidfile_path is not None:
+        try:
+            pidfile_path.unlink(missing_ok=True)
         except Exception:
             pass
 

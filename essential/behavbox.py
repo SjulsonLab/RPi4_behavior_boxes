@@ -480,13 +480,39 @@ class BehavBox(Box):
 
     def video_stop(self):
         nodes_to_stop = self.started_camera_nodes if self.started_camera_nodes else self.required_camera_nodes
+        failed_nodes = []
+        failed_camera_ids = set()
         for node in nodes_to_stop:
-            subprocess.run(
-                self._ssh_shell_cmd(node, self._stop_script(node)),
+            stop_command = " ".join(
+                [
+                    shlex.quote(self._stop_script(node)),
+                    shlex.quote(self._camera_output_dir(node)),
+                ]
+            )
+            shell_output = subprocess.run(
+                self._ssh_shell_cmd(node, stop_command),
                 capture_output=True,
                 text=True,
             )
-        self.started_camera_nodes = []
+            if shell_output.returncode != 0:
+                failed_camera_ids.add(node['camera_id'])
+                failed_nodes.append(
+                    f"{node['camera_id']} ({node['host']}): "
+                    f"{shell_output.stderr.strip() or shell_output.stdout.strip() or 'unknown stop failure'}"
+                )
+
+        if failed_nodes:
+            print(
+                Fore.RED + Style.BRIGHT +
+                "Camera stop failed:\n- " + "\n- ".join(failed_nodes) +
+                Style.RESET_ALL
+            )
+            self.started_camera_nodes = [
+                node for node in nodes_to_stop
+                if node['camera_id'] in failed_camera_ids
+            ]
+        else:
+            self.started_camera_nodes = []
 
     def treadmill_start(self):
         if self.treadmill:
