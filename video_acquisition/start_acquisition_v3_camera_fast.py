@@ -68,8 +68,8 @@ def require_args():
 
 
 base_path, cam_id, pidfile_path = require_args()
-video_file_name = f"{base_path}_cam{cam_id}_output.h264"
-timestamp_file_name = f"{base_path}_cam{cam_id}_timestamp.csv"
+video_file_name = f"{base_path}_{cam_id}_output.h264"
+timestamp_file_name = f"{base_path}_{cam_id}_timestamp.csv"
 
 # set high thread priority - may require sudo access
 try:
