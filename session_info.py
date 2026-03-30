@@ -12,12 +12,12 @@ def make_session_info() -> Dict[str, Any]:
     # Information for this session (the user should edit this each session)
     session_info                              	= collections.OrderedDict()
     session_info['mouse_name']                 	= 'test-mouse'
-    session_info['debug']                     	= True
+    session_info['debug']                     	= False
     session_info['ephys_rig']                 	= True  # determines reward pumps and ssh IPs
     session_info['use_multiple_cameras']        = False
     session_info['lick_input_setting']          = 'signal_high'  # ['signal_high', 'signal_low']
 
-    session_info['debounce_licks']              = True  # use this to check if lick signals are long enough. Licks will be detected by lick onset AND offset; throw out signals that are too short/noise
+    session_info['debounce_licks']              = False  # use this to check if lick signals are long enough. Licks will be detected by lick onset AND offset; throw out signals that are too short/noise
     session_info['lick_min_time'] = .05
     session_info['lick_max_time'] = 1
 
@@ -40,7 +40,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['biased_side']                 = 'none'  # 'left', 'right', 'none' - must use 'none' instead of None, NoneType is not a string
 
     # Parameters for latent inference tasks
-    session_info['correct_reward_probability'] = .9
+    session_info['correct_reward_probability'] = .8
     session_info['incorrect_reward_probability'] = 0
     session_info['biased_switch_probability'] = .5  # when on the biased side, use a higher probability of switching. requires biased_side = left or right to be used
     session_info['default_switch_probability'] = .2  # when on the unbiased side, use a higher probability of switching. requires biased_side = left or right to be used
@@ -85,7 +85,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['camera_nodes'] = [
         {
             'camera_id': 'cam0',
-            'host': '10.49.98.252',
+            'host': '10.49.98.88',
             'ssh_user': 'pi',
             'backend': 'picamera2',
             'required': True,

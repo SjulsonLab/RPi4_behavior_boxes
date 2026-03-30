@@ -15,6 +15,7 @@ from gpiozero import PWMLED, LED, Button
 import os, sys
 from pathlib import Path
 import socket
+import shlex
 import subprocess
 import signal
 import time
@@ -301,15 +302,20 @@ class BehavBox(Box):
     def _camera_output_dir(self, node: Dict[str, Any]) -> str:
         return str(Path(self.session_info['output_dir']) / 'video' / node['camera_id'])
 
-    def _run_ssh(self, node: Dict[str, Any], remote_args: List[str], timeout: int = 10, capture_output: bool = True):
-        cmd = [
+    def _ssh_shell_cmd(self, node: Dict[str, Any], command: str, timeout: int = 10) -> List[str]:
+        remote_command = f"bash -lc {shlex.quote(command)}"
+        return [
             'ssh',
             '-o',
             'BatchMode=yes',
             '-o',
             f'ConnectTimeout={timeout}',
             self._ssh_target(node),
-        ] + remote_args
+            remote_command,
+        ]
+
+    def _run_ssh(self, node: Dict[str, Any], command: str, timeout: int = 10, capture_output: bool = True):
+        cmd = self._ssh_shell_cmd(node, command, timeout=timeout)
         return subprocess.run(cmd, capture_output=capture_output, text=True)
 
     def _verify_camera_node(self, node: Dict[str, Any]) -> Dict[str, Any]:
@@ -326,7 +332,7 @@ class BehavBox(Box):
             'error': '',
         }
 
-        ping_result = self._run_ssh(node, ['echo', 'camera_ping'], timeout=5)
+        ping_result = self._run_ssh(node, 'echo camera_ping', timeout=5)
         if ping_result.returncode != 0:
             result['error'] = f"SSH unavailable ({ping_result.stderr.strip()})"
             return result
@@ -336,7 +342,7 @@ class BehavBox(Box):
         for file_check in result['file_checks']:
             file_result = self._run_ssh(
                 node,
-                ['bash', '-lc', f"test -f {file_check['path']}"],
+                f"test -f {shlex.quote(file_check['path'])}",
                 timeout=5,
             )
             file_check['present'] = file_result.returncode == 0
@@ -352,7 +358,7 @@ class BehavBox(Box):
 
         camera_check_result = self._run_ssh(
             node,
-            ['bash', '-lc', self._video_backend_check_command(node)],
+            self._video_backend_check_command(node),
             timeout=15,
         )
         if camera_check_result.returncode != 0:
@@ -386,7 +392,7 @@ class BehavBox(Box):
             raise RuntimeError("Camera verification failed:\n- " + "\n- ".join(error_lines))
 
     def _stop_remote_python(self, node: Dict[str, Any]):
-        self._run_ssh(node, ['pkill', 'python'], timeout=5, capture_output=False)
+        self._run_ssh(node, 'pkill python', timeout=5, capture_output=False)
 
     def video_start(self):
         self.verify_camera_nodes()
@@ -401,11 +407,11 @@ class BehavBox(Box):
         if len(self.required_camera_nodes) == 1:
             print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
             node = self.required_camera_nodes[0]
-            os.system("ssh {} {}".format(self._ssh_target(node), self._preview_script(node)))
+            subprocess.run(self._ssh_shell_cmd(node, self._preview_script(node)), check=False)
         else:
             print(Fore.RED + "\n Verify all preview windows, then press Enter to start recording" + Style.RESET_ALL)
             for node in self.required_camera_nodes:
-                preview_process = subprocess.Popen(['ssh', self._ssh_target(node), self._preview_script(node)])
+                preview_process = subprocess.Popen(self._ssh_shell_cmd(node, self._preview_script(node)))
                 preview_processes.append(preview_process)
 
             response = input("Preview check complete? Press Enter to continue or type 'cancel' to abort: ").strip().lower()
@@ -432,15 +438,16 @@ class BehavBox(Box):
 
         print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
         for node in self.required_camera_nodes:
-            shell_output = subprocess.run(
+            recording_command = " ".join(
                 [
-                    'ssh',
-                    self._ssh_target(node),
-                    self._recording_script(node),
-                    self._camera_output_dir(node),
-                    self.session_info['file_basename'],
-                    node['camera_id'],
-                ],
+                    shlex.quote(self._recording_script(node)),
+                    shlex.quote(self._camera_output_dir(node)),
+                    shlex.quote(self.session_info['file_basename']),
+                    shlex.quote(node['camera_id']),
+                ]
+            )
+            shell_output = subprocess.run(
+                self._ssh_shell_cmd(node, recording_command),
                 capture_output=True,
                 text=True,
             )
@@ -463,7 +470,11 @@ class BehavBox(Box):
     def video_stop(self):
         nodes_to_stop = self.started_camera_nodes if self.started_camera_nodes else self.required_camera_nodes
         for node in nodes_to_stop:
-            subprocess.run(['ssh', self._ssh_target(node), self._stop_script(node)], capture_output=True, text=True)
+            subprocess.run(
+                self._ssh_shell_cmd(node, self._stop_script(node)),
+                capture_output=True,
+                text=True,
+            )
         self.started_camera_nodes = []
 
     def treadmill_start(self):
