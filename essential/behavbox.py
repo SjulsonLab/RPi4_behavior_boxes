@@ -291,6 +291,13 @@ class BehavBox(Box):
             return "python3 -c \"from picamera2 import Picamera2; cam = Picamera2(); cam.close()\""
         return "python3 -c \"from picamera import PiCamera; cam = PiCamera(); cam.close()\""
 
+    def _required_camera_files(self, node: Dict[str, Any]) -> List[Dict[str, Any]]:
+        return [
+            {'label': 'preview', 'path': self._preview_script(node), 'present': None},
+            {'label': 'recording', 'path': self._recording_script(node), 'present': None},
+            {'label': 'stop', 'path': self._stop_script(node), 'present': None},
+        ]
+
     def _camera_output_dir(self, node: Dict[str, Any]) -> str:
         return str(Path(self.session_info['output_dir']) / 'video' / node['camera_id'])
 
@@ -311,6 +318,7 @@ class BehavBox(Box):
             'host': node['host'],
             'required': node['required'],
             'backend': node['backend'],
+            'file_checks': self._required_camera_files(node),
             'ssh_ok': False,
             'scripts_ok': False,
             'camera_ok': False,
@@ -324,16 +332,21 @@ class BehavBox(Box):
             return result
         result['ssh_ok'] = True
 
-        scripts_exist_cmd = " && ".join(
-            [
-                f"test -f {self._preview_script(node)}",
-                f"test -f {self._recording_script(node)}",
-                f"test -f {self._stop_script(node)}",
-            ]
-        )
-        scripts_result = self._run_ssh(node, ['bash', '-lc', scripts_exist_cmd], timeout=5)
-        if scripts_result.returncode != 0:
-            result['error'] = "Required acquisition scripts not found"
+        missing_files = []
+        for file_check in result['file_checks']:
+            file_result = self._run_ssh(
+                node,
+                ['bash', '-lc', f"test -f {file_check['path']}"],
+                timeout=5,
+            )
+            file_check['present'] = file_result.returncode == 0
+            if not file_check['present']:
+                missing_files.append(file_check['path'])
+
+        if missing_files:
+            result['error'] = (
+                "Missing required acquisition files: " + ", ".join(missing_files)
+            )
             return result
         result['scripts_ok'] = True
 

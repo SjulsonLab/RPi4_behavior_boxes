@@ -55,9 +55,9 @@ if mode_ix == 0:
     scale = 1
     thickness = 2
 elif mode_ix == 1:
-    origin = (0, 50)
-    scale = 2
-    thickness = 4
+    origin = (0, 30)
+    scale = 1
+    thickness = 2
 elif mode_ix == 2:
     origin = (0, 100)
     scale = 4
