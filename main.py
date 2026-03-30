@@ -103,6 +103,17 @@ def print_camera_dry_run_report(report: dict):
             f"[{status}] {result['camera_id']} ({result['host']}) "
             f"[{required_str}] backend={result['backend']}"
         )
+        for file_check in result.get('file_checks', []):
+            if file_check['present'] is True:
+                file_status = "present"
+            elif file_check['present'] is False:
+                file_status = "missing"
+            else:
+                file_status = "not checked"
+            print(
+                f"       {file_check['label']}: {file_status} "
+                f"({file_check['path']})"
+            )
         if result['status'] != 'pass':
             print(f"       reason: {result['error']}")
 

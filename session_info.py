@@ -85,14 +85,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['camera_nodes'] = [
         {
             'camera_id': 'cam0',
-            'host': '10.49.98.88',
-            'ssh_user': 'pi',
-            'backend': 'picamera2',
-            'required': True,
-        },
-        {
-            'camera_id': 'cam1',
-            'host': '10.49.98.89',
+            'host': '10.49.98.252',
             'ssh_user': 'pi',
             'backend': 'picamera2',
             'required': True,
