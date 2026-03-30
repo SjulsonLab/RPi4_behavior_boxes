@@ -302,6 +302,9 @@ class BehavBox(Box):
     def _camera_output_dir(self, node: Dict[str, Any]) -> str:
         return str(Path(self.session_info['output_dir']) / 'video' / node['camera_id'])
 
+    def _remote_recording_dir(self) -> str:
+        return str(Path(self.session_info['file_basename']).parent)
+
     def _ssh_shell_cmd(self, node: Dict[str, Any], command: str, timeout: int = 10) -> List[str]:
         remote_command = f"bash -lc {shlex.quote(command)}"
         return [
@@ -550,9 +553,9 @@ class BehavBox(Box):
         while True:
             try:
                 for node in nodes_to_transfer:
-                    destination_dir = Path(self.session_info['external_storage_dir']) / 'video' / node['camera_id']
+                    destination_dir = Path(self.session_info['external_storage_dir'])
                     destination_dir.mkdir(parents=True, exist_ok=True)
-                    remote_source = f"{self._ssh_target(node)}:{self._camera_output_dir(node)}/"
+                    remote_source = f"{self._ssh_target(node)}:{self._remote_recording_dir()}/"
                     shell_output = subprocess.run(
                         ['rsync', '-av', '--progress', '--remove-source-files', remote_source, str(destination_dir)],
                         capture_output=True,
