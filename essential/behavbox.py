@@ -407,7 +407,18 @@ class BehavBox(Box):
         if len(self.required_camera_nodes) == 1:
             print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
             node = self.required_camera_nodes[0]
-            subprocess.run(self._ssh_shell_cmd(node, self._preview_script(node)), check=False)
+            preview_process = subprocess.Popen(self._ssh_shell_cmd(node, self._preview_script(node)))
+            try:
+                preview_process.wait()
+            except KeyboardInterrupt:
+                if preview_process.poll() is None:
+                    preview_process.send_signal(signal.SIGINT)
+                    try:
+                        preview_process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        preview_process.terminate()
+                # Ensure the remote preview process is gone before recording starts.
+                self._stop_remote_python(node)
         else:
             print(Fore.RED + "\n Verify all preview windows, then press Enter to start recording" + Style.RESET_ALL)
             for node in self.required_camera_nodes:
