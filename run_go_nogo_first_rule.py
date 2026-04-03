@@ -316,6 +316,8 @@ if __name__ == "__main__":
         session_info['datetime'] = session_info['date'] + '_' + session_info['time']
         session_info['basename'] = session_info['mouse_name'] + '_' + session_info['datetime']
         session_info['dir_name'] = session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info['datetime']
+        ## new edit 2026.04.03 add the sync pin number 22 Cue1/CueLED1
+        session_info['frame_sync_pin'] = session_info.get('frame_sync_pin', 22) 
 
         if session_info['manual_date'] != session_info['date']:  # check if file is updated
             print('wrong date!!')
@@ -384,6 +386,12 @@ if __name__ == "__main__":
                         #  Run trial in loop
                         while task.trial_running:
                             task.run_go()
+                            ## new edits 2026.04.03, add frame sync flush                       
+                            task.box.flush_frame_events()
+
+                        task.box.flush_frame_events()
+                        
+                        
 
                         # assess trial outcome
                         trial_outcome = task.trial_outcome
@@ -473,10 +481,14 @@ if __name__ == "__main__":
                     #  Run trial in loop
                     while task.trial_running:
                         task.run_go()
+                        task.box.flush_frame_events() # new edit 2026.04.03
+                    task.box.flush_frame_events()     # new edit 2026.04.03
                 elif trial_ident == "nogo_trial":
                     task.nogo_trial_start()
                     while task.trial_running:
                         task.run_nogo()
+                        task.box.flush_frame_events()
+                    task.box.flush_frame_events()
 
                 # get task variables from the task object
                 # print to make sure that it works
@@ -566,7 +578,15 @@ if __name__ == "__main__":
     except (KeyboardInterrupt, SystemExit):
         print(Fore.RED + Style.BRIGHT + 'Exiting now...' + Style.RESET_ALL)
         ic('about to call end_session()')
+        try:
+            task.box.flush_frame_events()
+        except Exception:
+            pass
         task.end_session()
+        try:
+            task.box.flush_frame_events()
+        except Exception:
+            pass
         ic('just called end_session()')
         # save dicts to disk
         scipy.io.savemat(session_info['file_basename'] + '_session_info.mat', {'session_info' : session_info})
