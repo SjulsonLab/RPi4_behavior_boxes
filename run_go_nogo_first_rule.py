@@ -316,8 +316,8 @@ if __name__ == "__main__":
         session_info['datetime'] = session_info['date'] + '_' + session_info['time']
         session_info['basename'] = session_info['mouse_name'] + '_' + session_info['datetime']
         session_info['dir_name'] = session_info['basedir'] + "/" + session_info['mouse_name'] + "_" + session_info['datetime']
-        ## new edit 2026.04.03 add the sync pin number 22 Cue1/CueLED1
-        session_info['frame_sync_pin'] = session_info.get('frame_sync_pin', 22) 
+        ## new edit 2026.04.03 add the sync pin number 16
+        session_info['frame_sync_pin'] = session_info.get('frame_sync_pin', 16) 
 
         if session_info['manual_date'] != session_info['date']:  # check if file is updated
             print('wrong date!!')
