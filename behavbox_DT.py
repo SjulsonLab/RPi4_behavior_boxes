@@ -116,6 +116,27 @@ class BehavBox(object):
         self.lick3.when_released = self.center_entry
 
         ###############################################################################################
+        # Frame TTL capture (camera / 2p) ## new edit on 2026.04.03
+        # Keep frame sync separate from behavior event_list and .log callbacks
+        ###############################################################################################
+        # Use a free BCM pin; default 16 is currently unused in this file.
+        self.frame_sync_pin = self.session_info.get('frame_sync_pin', 16)
+        self.frame_events = deque()
+        self.frame_counter = 0
+        self.frame_log_path = Path(self.session_info['dir_name']) / (
+            self.session_info['file_basename'] + '_frame_sync.csv'
+        )
+
+        # pull_up=False assumes an active-high TTL pulse.
+        # If your device idles HIGH and pulses LOW, this should be changed.
+        self.frame_sync = Button(self.frame_sync_pin, pull_up=False)
+        self.frame_sync.when_pressed = self.frame_sync_rise
+
+        if not self.frame_log_path.exists():
+            with open(self.frame_log_path, "w") as f:
+                f.write("timestamp_monotonic_ns,frame_number\n")
+
+        ###############################################################################################
         # sound: audio board DIO - pins sending TTL to the Tsunami soundboard via SMA connectors
         ###############################################################################################
         # pins originally reserved for the lick detection is now used for audio board TTL input signal
@@ -347,6 +368,23 @@ class BehavBox(object):
     def right_exit(self):
         self.event_list.append("right_exit")
         logging.info(str(time.time()) + ", right_exit")
+
+
+    ### new edits 2026.04.03 to save frame sync time from 2P
+    def frame_sync_rise(self):
+        # Keep this callback tiny: no logging, no file I/O, no event_list append
+        ts_ns = time.monotonic_ns()
+        self.frame_counter += 1
+        self.frame_events.append((ts_ns, self.frame_counter))
+
+    def flush_frame_events(self):
+        if not self.frame_events:
+            return
+
+        with open(self.frame_log_path, "a") as f:
+            while self.frame_events:
+                ts_ns, frame_num = self.frame_events.popleft()
+                f.write(f"{ts_ns},{frame_num}\n")    
 
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
