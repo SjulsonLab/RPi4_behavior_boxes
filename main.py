@@ -232,6 +232,11 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
         )
 
         box = behavbox.BehavBox(session_info=session_info)  # gets this far then quits
+        if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is None:
+            raise RuntimeError(
+                'Visual stimulus initialization failed. The Raspberry Pi display backend is not available. '
+                'Check that /dev/fb0 exists and that rpg.Screen() can open it.'
+            )
         gui = PygameGUI(session_info=session_info)
         # gui = GUI(session_info=session_info)
 
@@ -280,7 +285,7 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
 
         task.presenter_commands.clear()
         box.presenter_commands.clear()
-        if session_info['visual_stimulus']:
+        if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is not None:
             box.visualstim.empty_presenter_queue()
             box.visualstim.empty_stimulus_queue()
 
@@ -333,7 +338,7 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
                 and session_info.get('debug') is False
                 and 'box' in locals()):
             box.video_stop()
-            if session_info['visual_stimulus'] and hasattr(box, 'visualstim'):
+            if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is not None:
                 box.visualstim.myscreen.close()
             time.sleep(2)
             box.transfer_files_to_external_storage()

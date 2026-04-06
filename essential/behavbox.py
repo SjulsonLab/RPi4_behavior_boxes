@@ -21,6 +21,7 @@ import signal
 import time
 from collections import deque
 from icecream import ic
+import traceback
 
 import logging
 from colorama import Fore, Style
@@ -140,6 +141,7 @@ class BehavBox(Box):
         ###############################################################################################
         # visual stimuli initiation
         ###############################################################################################
+        self.visualstim = None
         if self.session_info["visual_stimulus"]:
             try:
                 self.visualstim = VisualStimMultiprocess(self.session_info)
@@ -147,6 +149,7 @@ class BehavBox(Box):
             except Exception as error_message:
                 print("visualstim issue - module not loaded \n")
                 print(str(error_message))
+                traceback.print_exc()
                 
         else:
             pass

@@ -85,7 +85,8 @@ class VisualStim(VisualStimBase):
         logging.info(";" + str(time.time()) + ";[stimulus];grayscale_on;")
 
     def __del__(self):
-        self.myscreen.close()
+        if hasattr(self, "myscreen"):
+            self.myscreen.close()
 
     def loop_grating(self, grating_name: str, duration: float):
         pass
