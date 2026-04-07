@@ -62,7 +62,8 @@ class BehavBox(object):
         self.IP_address = IP_address
         IP_address_video_list = list(IP_address)
         # IP_address_video_list[-3] = "2"
-        IP_address_video_list[-1] = "2"
+        # IP_address_video_list[-1] = "2"
+        self.IP_address_video = "192.168.1.152"
         self.IP_address_video = "".join(IP_address_video_list)
 
         ###############################################################################################
@@ -217,24 +218,36 @@ class BehavBox(object):
         # Preview check per Kelly request
         print(Fore.YELLOW + "Killing any python process prior to this session!\n" + Style.RESET_ALL)
         try:
-            os.system("ssh pi@" + IP_address_video + " pkill python")
+            #os.system("ssh pi@" + IP_address_video + " pkill python")
+            os.system("ssh -i /home/pi/.ssh/id_ed25519 pi@" + IP_address_video + " pkill python")
             print(Fore.CYAN + "\nStart Previewing ..." + Style.RESET_ALL)
             print(Fore.RED + "\n CRTL + C to quit previewing and start recording" + Style.RESET_ALL)
 
-            os.system("ssh pi@" + IP_address_video + " '/home/pi/RPi4_behavior_boxes/start_preview.py'")
+            #os.system("ssh pi@" + IP_address_video + " '/home/pi/RPi4_behavior_boxes/start_preview.py'")
+            os.system("ssh -i /home/pi/.ssh/id_ed25519 pi@" + IP_address_video + " pkill python")
             # Kill any python process before start recording
             print(Fore.GREEN + "\nKilling any python process before start recording!" + Style.RESET_ALL)
 
-            os.system("ssh pi@" + IP_address_video + " pkill python")
+            #os.system("ssh pi@" + IP_address_video + " pkill python")
+            os.system("ssh -i /home/pi/.ssh/id_ed25519 pi@" + IP_address_video + " pkill python")
             time.sleep(2)
 
             # Prepare the path for recording
-            os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name)
-            os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
+            #os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name
+            #os.system("ssh pi@" + IP_address_video + " 'date >> ~/video/videolog.log' ")  # I/O redirection
+            os.system("ssh -i /home/pi/.ssh/id_ed25519 pi@" + IP_address_video + " mkdir " + dir_name)
+            os.system("ssh -i /home/pi/.ssh/id_ed25519 pi@" + IP_address_video + " 'date >> ~/video/videolog.log'")
+            # tempstr = (
+            #         "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
+            #         + file_name
+            #         + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
+            # )
+
             tempstr = (
-                    "ssh pi@" + IP_address_video + " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
-                    + file_name
-                    + " >> ~/video/videolog.log 2>&1 & ' "  # file descriptors
+                    "ssh -i /home/pi/.ssh/id_ed25519 pi@" + IP_address_video +
+                    " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
+                    + file_name +
+                    " >> ~/video/videolog.log 2>&1 & ' "
             )
             # start the flipper before the recording start
             # initiate the flipper
@@ -299,21 +312,46 @@ class BehavBox(object):
             print("dumping session_info")
             pickle.dump(self.session_info, open(hd_dir + "/" + basename + '_session_info.pkl', "wb"))
 
-            # Move the video + log from the box_video SD card to the box_behavior external hard drive
+            # # Move the video + log from the box_video SD card to the box_behavior external hard drive
+            # os.system(
+            # #     "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + "/ "
+            # #     + hd_dir
+    
+
+            #         rsync -av --progress -e "ssh -i /home/pi/.ssh/id_ed25519" --remove-source-files pi@IP:dir hd_dir
+
+            # )
+
+            # os.system(
+            #     # "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":~/video/*.log "
+            #     # + hd_dir
+            #     rsync -av --progress -e "ssh -i /home/pi/.ssh/id_ed25519" --remove-source-files pi@IP:dir hd_dir + ":~/video/*.log
+            # )
+
+            # os.system(
+            #     # "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/ "
+            #     # + hd_dir
+            #     rsync -av --progress -e "ssh -i /home/pi/.ssh/id_ed25519" --remove-source-files pi@IP:dir hd_dir
+            # )
+            # print("rsync finished!")
             os.system(
-                "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":" + dir_name + "/ "
+                "rsync -av --progress -e \"ssh -i /home/pi/.ssh/id_ed25519\" --remove-source-files "
+                + "pi@" + IP_address_video + ":" + dir_name + "/ "
                 + hd_dir
-            )
+             )
 
             os.system(
-                "rsync -av --progress --remove-source-files pi@" + IP_address_video + ":~/video/*.log "
+                "rsync -av --progress -e \"ssh -i /home/pi/.ssh/id_ed25519\" --remove-source-files "
+                + "pi@" + IP_address_video + ":~/video/*.log "
                 + hd_dir
-            )
+                )
 
             os.system(
-                "rsync -arvz --progress --remove-source-files " + self.session_info['dir_name'] + "/ "
+                "rsync -arvz --progress --remove-source-files "
+                + self.session_info['dir_name'] + "/ "
                 + hd_dir
-            )
+                )
+
             print("rsync finished!")
 
         except Exception as e:
