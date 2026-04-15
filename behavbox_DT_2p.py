@@ -195,8 +195,10 @@ class BehavBox(object):
         # self.sound1 = LED(26)  # originally lick1
         # self.sound2 = LED(27)  # originally lick2
         # self.sound3 = LED(15)  # originally lick3
-        self.sound1 = LED(23)  # new_lick modification
-        self.sound2 = LED(24)  # new_lick modification
+        self.sound1 = LED(23)
+        self.sound2 = LED(23)
+        # self.sound1 = LED(23)  # new_lick modification
+        # self.sound2 = LED(24)  # new_lick modification
         self.sound1.off()
         self.sound2.off()
 
