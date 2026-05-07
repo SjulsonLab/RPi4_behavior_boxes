@@ -14,10 +14,16 @@ from picamera2.encoders import H264Encoder
 from picamera2.outputs import FileOutput
 
 
-FRAMERATE = 50
+SENSOR_MODE = 2
+if SENSOR_MODE in [0, 1]:
+    FRAMERATE = 50
+elif SENSOR_MODE == 2:
+    FRAMERATE = 40
+else:
+    raise ValueError(f"Unsupported SENSOR_MODE: {SENSOR_MODE}")
+
 FRAME_DURATION_US = int(1e6 / FRAMERATE)
 BITRATE = 30_000_000
-SENSOR_MODE = 1
 PREVIEW_SIZE = (1024, 768)
 PREVIEW_WINDOW = (100, 0, 1024, 768)
 LENS_POSITION = 32.0

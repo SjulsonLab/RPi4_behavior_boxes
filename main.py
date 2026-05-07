@@ -123,8 +123,47 @@ def print_camera_dry_run_report(report: dict):
         print("\nVerification failed for one or more required cameras.")
 
 
+def configure_session_output_paths(session_info: dict, datestr: str, timestr: str) -> dict:
+    """Populate per-session output paths.
+
+    Data contract:
+    - Inputs:
+      - `session_info`: `dict` with at least `debug`, `mouse_name`, `buffer_dir`, and `external_storage`.
+      - `datestr`: `str`, session date formatted as `YYYY-MM-DD`.
+      - `timestr`: `str`, session start time formatted as `HHMMSS`.
+    - Output:
+      - Returns the same `dict` populated with `date`, `time`, `datetime`, `session_name`,
+        `output_dir`, `video_dir`, `external_storage_dir`, `flipper_filename`,
+        `treadmill_filename`, and `file_basename`.
+    """
+    session_info['date'] = datestr
+    session_info['time'] = timestr
+    session_info['datetime'] = session_info['date'] + '_' + session_info['time']
+
+    if session_info['debug']:
+        session_info['session_name'] = ''
+        session_info['output_dir'] = "./outputs/buffer"
+        session_info['video_dir'] = session_info['output_dir'] + '/video'
+        session_info['external_storage'] = "./outputs/external"
+        session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
+        session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
+        session_info['treadmill_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + "_treadmill"
+        session_info['file_basename'] = 'test_debug'
+    else:
+        session_info['session_name'] = session_info['mouse_name'] + '_' + session_info['datetime']
+        session_info['output_dir'] = session_info['buffer_dir'] + '/' + session_info['session_name']
+        session_info['video_dir'] = session_info['output_dir'] + '/video'
+        session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
+        session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
+        session_info['treadmill_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + "_treadmill"
+        session_info['file_basename'] = session_info['output_dir'] + '/' + session_info['session_name']
+
+    return session_info
+
+
 def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
     exit_code = 0
+    session_cleanup_done = False
     try:
         # load in session_info file, check that dates are correct, put in automatic
         # time and date stamps for when the experiment was run
@@ -163,31 +202,7 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
         #     print(Fore.RED + Style.BRIGHT + 'ERROR: Mouse info not set! Exiting now' + Style.RESET_ALL)
         #     quit()
 
-        session_info['date'] = datestr
-        session_info['time'] = timestr
-        session_info['datetime'] = session_info['date'] + '_' + session_info['time']
-        if session_info['debug']:
-            session_info['session_name'] = ''  # previously this was 'basename'
-            session_info['output_dir'] = "./outputs/buffer"
-            session_info['video_dir'] = session_info['output_dir'] + '/video'
-            session_info['external_storage'] = "./outputs/external"
-            session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
-            session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
-            session_info['treadmill_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + "_treadmill_output"
-        else:
-            session_info['session_name'] = session_info['mouse_name'] + '_' + session_info['datetime']
-            session_info['output_dir'] = session_info['buffer_dir'] + '/' + session_info['session_name']
-            session_info['video_dir'] = session_info['output_dir'] + '/video'
-            session_info['external_storage_dir'] = session_info['external_storage'] + '/' + session_info['session_name']
-            session_info['flipper_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + '_flipper_output'
-            session_info['treadmill_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + "_treadmill_output"
-            # session_info['flipper_filename'] = session_info['external_storage_dir'] + '/' + session_info['session_name'] + '_flipper_output'
-
-
-        if session_info['debug']:
-            session_info['file_basename'] = 'test_debug'
-        else:
-            session_info['file_basename'] = session_info['output_dir'] + '/' + session_info['session_name']
+        session_info = configure_session_output_paths(session_info, datestr, timestr)
 
         log_path = Path(session_info['output_dir']) / (session_info['file_basename'] + '.log')
         # if not debugging, stop if log path exists
@@ -232,6 +247,11 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
         )
 
         box = behavbox.BehavBox(session_info=session_info)  # gets this far then quits
+        if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is None:
+            raise RuntimeError(
+                'Visual stimulus initialization failed. The Raspberry Pi display backend is not available. '
+                'Check that /dev/fb0 exists and that rpg.Screen() can open it.'
+            )
         gui = PygameGUI(session_info=session_info)
         # gui = GUI(session_info=session_info)
 
@@ -280,7 +300,7 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
 
         task.presenter_commands.clear()
         box.presenter_commands.clear()
-        if session_info['visual_stimulus']:
+        if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is not None:
             box.visualstim.empty_presenter_queue()
             box.visualstim.empty_stimulus_queue()
 
@@ -307,6 +327,7 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
             try:
                 ic('Calling end_session()')
                 presenter.end_session()
+                session_cleanup_done = True
                 ic('Call to end_session() was successful')
             except Exception as ex:
                 ic('could not call end_session()')
@@ -323,8 +344,10 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
         close_logs()
         if 'presenter' in locals():
             presenter.end_session()
+            session_cleanup_done = True
         elif 'box' in locals() and not camera_dry_run:
             box.video_stop()
+            session_cleanup_done = True
         exit_code = 1
 
     finally:
@@ -332,8 +355,9 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
                 and session_info is not None
                 and session_info.get('debug') is False
                 and 'box' in locals()):
-            box.video_stop()
-            if session_info['visual_stimulus'] and hasattr(box, 'visualstim'):
+            if not session_cleanup_done:
+                box.video_stop()
+            if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is not None:
                 box.visualstim.myscreen.close()
             time.sleep(2)
             box.transfer_files_to_external_storage()

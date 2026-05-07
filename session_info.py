@@ -113,14 +113,11 @@ def make_session_info() -> Dict[str, Any]:
         session_info['p_stimulus'] = 0.5
         session_info['num_sounds'] = 1
 
-    session_info['treadmill_setup']             = {}
     session_info['treadmill']                   = False
-
-    if session_info['treadmill']:
-        session_info['treadmill_setup']['distance_initiation'] = 10  # cm
-        session_info['treadmill_setup']['distance_cue'] = 25  # cm
-    else:
-        session_info['treadmill_setup'] = ''
+    session_info['treadmill_setup']             = {
+        'encoder_a_pin': 17,  # BCM numbering
+        'encoder_b_pin': 27,  # BCM numbering
+    }
 
     session_info['air_duration'] = 0
     session_info["vacuum_duration"] = 1
@@ -201,6 +198,20 @@ def sanity_checks(session_info: dict) -> dict:
             "Intertrial interval too short for dark period"
         assert session_info['num_sounds'] in [1, 2], "Invalid number of sounds"
         assert session_info['use_dark_period'], "Invalid visual stimulus setting - must use dark periods for visual stimulus task!!"
+
+    if session_info.get('treadmill', False):
+        treadmill_setup = session_info.get('treadmill_setup')
+        assert isinstance(treadmill_setup, dict), "treadmill_setup must be a dictionary"
+        assert 'encoder_a_pin' in treadmill_setup, "treadmill_setup must include encoder_a_pin"
+        assert 'encoder_b_pin' in treadmill_setup, "treadmill_setup must include encoder_b_pin"
+
+        encoder_a_pin = treadmill_setup['encoder_a_pin']
+        encoder_b_pin = treadmill_setup['encoder_b_pin']
+        assert isinstance(encoder_a_pin, int), "encoder_a_pin must be an integer BCM pin number"
+        assert isinstance(encoder_b_pin, int), "encoder_b_pin must be an integer BCM pin number"
+        assert encoder_a_pin >= 0, "encoder_a_pin must be non-negative"
+        assert encoder_b_pin >= 0, "encoder_b_pin must be non-negative"
+        assert encoder_a_pin != encoder_b_pin, "encoder_a_pin and encoder_b_pin must be different"
 
     return session_info
 

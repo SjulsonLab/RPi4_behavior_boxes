@@ -22,8 +22,9 @@ stop_pid() {
         sleep 0.1
     done
 
-    echo "Timed out waiting for acquisition PID $pid to exit."
-    return 1
+    echo "Hard-kill fallback used for acquisition PID $pid"
+    kill -9 "$pid"
+    return 0
 }
 
 if [ -n "$PIDFILE" ] && [ -f "$PIDFILE" ]; then
@@ -42,6 +43,24 @@ PROCNUM=$(pgrep -f '/home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisi
 if [ -n "$PROCNUM" ]; then
     echo "stop_acquisition: fallback SIGINT to process(es) $PROCNUM"
     kill -2 $PROCNUM
+
+    for _ in $(seq 1 50); do
+        REMAINING=""
+        for pid in $PROCNUM; do
+            if kill -0 "$pid" 2>/dev/null; then
+                REMAINING="$REMAINING $pid"
+            fi
+        done
+
+        if [ -z "$REMAINING" ]; then
+            [ -n "$PIDFILE" ] && rm -f "$PIDFILE"
+            exit 0
+        fi
+        sleep 0.1
+    done
+
+    echo "Hard-kill fallback used for acquisition process(es):$REMAINING"
+    kill -9 $REMAINING
     [ -n "$PIDFILE" ] && rm -f "$PIDFILE"
     exit 0
 fi

@@ -1,123 +1,151 @@
-"""
-### Older version ###
-import smbus
-import time
-import struct
-
-# bus = smbus.SMBus(0)
-bus = smbus.SMBus(1) # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
-# This is the address we setup in the Arduino Program
-address = 0x08
-
-
-def dacval():
-    time.sleep(1)
-    block = bus.read_i2c_block_data(address, 1)
-    n = struct.unpack("<l", bytes(block[:4]))[0]
-    dvl = n / 100
-    while n != -1:
-        return dvl
-"""
-
-# import datetime as dt
+import csv
 import io
-from threading import Thread, Event
-import subprocess
-import smbus
 import time
-import struct
+from pathlib import Path
+from threading import Lock
+from typing import Callable, Dict, List, Optional
 
-
-def dacval(bus, address):
-    try:
-        block = bus.read_i2c_block_data(address, 1)
-        distance = struct.unpack("<f", bytes(block[:4]))[0]
-    except IOError:
-        subprocess.call(['i2cdetect', '-y', '1'])
-        block = bus.read_i2c_block_data(address, 1)
-        distance = struct.unpack("<f", bytes(block[:4]))[0]
-    return distance
+from essential.treadmill_decoder import (
+    DISTANCE_MM_PER_COUNT,
+    EncoderState,
+    TreadmillDecoder,
+)
 
 
 class Treadmill(object):
+    """Record treadmill encoder events for the current session.
 
-    def __init__(self, session_info):
-        try:
-            self.session_info = session_info
-        except:
-            self.close()
-            raise
+    Data contract:
+    - Inputs:
+      - `session_info`: `dict` containing:
+        - `treadmill_filename`: `str`, CSV basename without the `.csv` suffix.
+        - `treadmill_setup`: `dict` with integer BCM pins `encoder_a_pin` and `encoder_b_pin`.
+    - Optional inputs:
+      - `decoder_factory`: callable returning a decoder object with `start()` and `close()` methods.
+      - `clock`: callable returning `float` wall-clock seconds in `time.time()` units.
+    - Outputs:
+      - `record_event()`: appends one treadmill event row in memory.
+      - `close()`: flushes all recorded rows to `<treadmill_filename>.csv`.
+    """
 
-        self.treadmill_calibrate = 9.14  # bit per cm
-        self.bus = smbus.SMBus(1)  # "On all recent (since 2014) raspberries the GPIO pin's I2C device is /dev/i2c-1"
-        # This is the address we setup in the Arduino Program
-        self.address = 0x08
-        self.treadmill_filename = session_info['treadmill_filename'] + ".csv"
-        print(self.treadmill_filename)
-
-        self._dacval_thread = None
+    def __init__(
+        self,
+        session_info: Dict[str, object],
+        decoder_factory: Optional[Callable[..., object]] = None,
+        clock: Callable[[], float] = time.time,
+    ) -> None:
+        self.session_info = session_info
+        self.treadmill_filename = session_info["treadmill_filename"] + ".csv"
+        self.clock = clock
+        self._lock = Lock()
+        self._closed = False
         self._running = False
 
-        self.treadmill_log = []
-        self.delay = 0.3
+        treadmill_setup = session_info["treadmill_setup"]
+        self.encoder_a_pin = treadmill_setup["encoder_a_pin"]
+        self.encoder_b_pin = treadmill_setup["encoder_b_pin"]
+        self.treadmill_log: List[Dict[str, object]] = []
 
-        self.distance_bit = None
-        self.distance_cm = None
+        self.counts = 0
+        self.distance_mm = 0.0
+        self.distance_cm = 0.0
+        self.speed_mms = 0.0
+        self.direction = 0
 
-    def start(self, background=True):
-        self._stop_dacval()
+        if decoder_factory is None:
+            decoder_factory = TreadmillDecoder
+
+        self.decoder = decoder_factory(
+            self.encoder_a_pin,
+            self.encoder_b_pin,
+            DISTANCE_MM_PER_COUNT,
+            event_callback=self._record_decoder_state,
+        )
+
+    # Helper methods: decoder callback bridge and buffering.
+    def _record_decoder_state(self, state: EncoderState) -> None:
+        self.record_event(
+            counts=state.counts,
+            distance_mm=state.distance_mm,
+            speed_mms=state.run_speed_mms,
+            direction=state.direction,
+        )
+
+    # User-facing lifecycle methods.
+    def start(self, background: bool = True) -> None:
+        del background
         self._running = True
-        self._dacval_thread = Thread(target=self.run)
-        self._dacval_thread.stopping = Event()
-        self._dacval_thread.start()
+        self.decoder.start()
 
-        if not background:
-            self._dacval_thread.join()
-            self._dacval_thread = None
+    def close(self) -> None:
+        with self._lock:
+            if self._closed:
+                return
+            self._closed = True
 
-    def close(self):
-        try:
-            self._dacval_thread.stopping.set()
-            print("Attempts to close the treadmill thread!")
-            self._dacval_thread.join(5)
-            self._dacval_thread = None
-            self._stop_dacval()
-            self.treadmill_flush()
-        except:
-            pass
-
-    def _stop_dacval(self):
-        print("Entered _stop_dacval")
         self._running = False
-        # if getattr(self, '_stop_dacval', None):
-        #     print("enter _stop_dacval.stop()")
-        #     self._dacval_thread.stop()
-        # self._dacval_thread = None
+        try:
+            self.decoder.close()
+        finally:
+            self.treadmill_flush()
 
-    def run(self):
-        while self._running:
-            time.sleep(self.delay)
-            self.distance_bit = dacval(self.bus, self.address)
-            self.distance_cm = self.distance_bit / self.treadmill_calibrate
-            self.treadmill_log.append(
-                (time.time(),
-                 self.distance_bit,
-                 self.distance_cm)
+    def record_event(
+        self,
+        *,
+        counts: int,
+        distance_mm: float,
+        speed_mms: float,
+        direction: int,
+    ) -> None:
+        """Store one treadmill event.
+
+        Data contract:
+        - Inputs:
+          - `counts`: `int`, cumulative encoder counts.
+          - `distance_mm`: `float`, cumulative treadmill distance in millimeters.
+          - `speed_mms`: `float`, instantaneous treadmill speed in millimeters/second.
+          - `direction`: `int`, `1` for forward and `-1` for backward.
+        - Output:
+          - Appends one row to the in-memory treadmill event buffer.
+        """
+        timestamp = self.clock()
+        event_row = {
+            "timestamp": timestamp,
+            "counts": counts,
+            "distance_mm": distance_mm,
+            "speed_mms": speed_mms,
+            "direction": direction,
+        }
+
+        with self._lock:
+            self.counts = counts
+            self.distance_mm = distance_mm
+            self.distance_cm = distance_mm / 10.0
+            self.speed_mms = speed_mms
+            self.direction = direction
+            self.treadmill_log.append(event_row)
+
+    def treadmill_flush(self) -> None:
+        """Write buffered treadmill rows to CSV.
+
+        Data contract:
+        - Output file:
+          - path: `<session_info['treadmill_filename']>.csv`
+          - columns: `timestamp`, `counts`, `distance_mm`, `speed_mms`, `direction`
+          - timestamp units: `float` seconds from `time.time()`
+          - distance units: millimeters
+          - speed units: millimeters/second
+        """
+        treadmill_path = Path(self.treadmill_filename)
+        treadmill_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with self._lock:
+            treadmill_rows = list(self.treadmill_log)
+
+        with io.open(treadmill_path, "w", newline="") as csv_file:
+            writer = csv.DictWriter(
+                csv_file,
+                fieldnames=["timestamp", "counts", "distance_mm", "speed_mms", "direction"],
             )
-
-    # save the element list
-    def treadmill_flush(self):
-        print("Flushing: " + self.treadmill_filename)
-        with io.open(self.treadmill_filename, 'w') as f:
-            f.write('time.time(), distance_bit, distance_cm\n')
-            for entry in self.treadmill_log:
-                f.write('%f, %f, %f\n' % entry)
-
-
-"""
-for each element in the element_list, calculate the consecutive differences
-for the consecutive differences, we can yield a velocity of the displacement
-And from the velocity of the displacement we can get the direction and the acceleration
-
-The problem that need to take into consideration
-"""
+            writer.writeheader()
+            writer.writerows(treadmill_rows)
