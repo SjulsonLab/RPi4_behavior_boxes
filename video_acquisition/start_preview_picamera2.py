@@ -87,3 +87,4 @@ camera.start()
 #camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})  # default is 1, max focal range is zero, min focal range is 32. Using 10 is fine
 
 signal.pause()
+    

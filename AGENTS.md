@@ -146,6 +146,20 @@ Dependency discipline:
 - Prefer standard library, NumPy, SciPy, and widely-used scientific libraries.
 - Ask before introducing niche or uncommon dependencies.
 
+___
+
+# Editing constraints (NON-NEGOTIABLE)
+
+You may be in a dirty git worktree.
+
+* NEVER revert existing changes you did not make unless explicitly requested, since these changes were made by the user.
+* If asked to make a commit or code edits and there are unrelated changes to your work or changes that you didn't make in those files, don't revert those changes.
+* If the changes are in files you've touched recently, you should read carefully and understand how you can work with the changes rather than reverting them.
+* If the changes are in unrelated files, just ignore them and don't revert them.
+* Do not amend a commit unless explicitly requested to do so.
+* While you are working, you might notice unexpected changes that you didn't make. If this happens, STOP IMMEDIATELY and ask the user how they would like to proceed.
+* **NEVER** use destructive commands like `git reset --hard` or `git checkout --` unless specifically requested or approved by the user.
+
 ---
 
 ## Bash commands (NON-NEGOTIABLE)

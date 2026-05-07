@@ -163,6 +163,7 @@ def configure_session_output_paths(session_info: dict, datestr: str, timestr: st
 
 def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
     exit_code = 0
+    session_cleanup_done = False
     try:
         # load in session_info file, check that dates are correct, put in automatic
         # time and date stamps for when the experiment was run
@@ -326,6 +327,7 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
             try:
                 ic('Calling end_session()')
                 presenter.end_session()
+                session_cleanup_done = True
                 ic('Call to end_session() was successful')
             except Exception as ex:
                 ic('could not call end_session()')
@@ -342,8 +344,10 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
         close_logs()
         if 'presenter' in locals():
             presenter.end_session()
+            session_cleanup_done = True
         elif 'box' in locals() and not camera_dry_run:
             box.video_stop()
+            session_cleanup_done = True
         exit_code = 1
 
     finally:
@@ -351,7 +355,8 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
                 and session_info is not None
                 and session_info.get('debug') is False
                 and 'box' in locals()):
-            box.video_stop()
+            if not session_cleanup_done:
+                box.video_stop()
             if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is not None:
                 box.visualstim.myscreen.close()
             time.sleep(2)
