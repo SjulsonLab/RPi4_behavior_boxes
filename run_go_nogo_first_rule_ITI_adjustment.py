@@ -10,6 +10,7 @@ import pygame
 from colorama import Fore, Style
 import time
 import random
+import signal
 from scipy.stats import norm
 
 # import packages for starting a new process and plotting trial progress in real time
@@ -325,6 +326,95 @@ def safe_stop_plot_process(plot_process):
         print("Plot cleanup warning: " + str(cleanup_error))
 
 
+def _call_no_arg_method(owner, method_name):
+    """
+    Safely call a zero-argument cleanup method.
+
+    Parameters:
+    - owner: object. Candidate object that may expose a cleanup method.
+    - method_name: str. Name of a zero-argument method such as stop or off.
+
+    Returns:
+    - bool. True if the method existed and was called without an exception,
+      otherwise False. No physical units are involved.
+    """
+    method = getattr(owner, method_name, None)
+    if not callable(method):
+        return False
+
+    try:
+        method()
+        return True
+    except TypeError:
+        # Some hardware APIs use methods with required arguments. Do not guess
+        # arguments here because the wrong value could trigger hardware output.
+        return False
+    except Exception as cleanup_error:
+        print("Cleanup warning for " + method_name + ": " + str(cleanup_error))
+        return False
+
+
+def force_stop_cues(task):
+    """
+    Immediately force task-controlled cues and audio outputs off.
+
+    Parameters:
+    - task: go_nogo_firstrule instance or None. The object may contain cue,
+      stimulus, sound, light, speaker, or display controllers.
+
+    Returns:
+    - None. This function performs best-effort hardware/audio shutdown and does
+      not return data. No physical units are involved.
+
+    Notes:
+    - This is intentionally more aggressive than task.end_session(). It is meant
+      for Ctrl+C during an active cue or ITI, where the normal trial loop may be
+      interrupted before the cue-off code runs.
+    - It avoids calling methods that require arguments, because guessing hardware
+      arguments could accidentally turn something on.
+    """
+    try:
+        pygame.mixer.stop()
+        pygame.mixer.quit()
+    except Exception as cleanup_error:
+        print("Pygame audio cleanup warning: " + str(cleanup_error))
+
+    if task is None:
+        return
+
+    try:
+        task.trial_running = False
+    except Exception:
+        pass
+
+    # Try common task-level cleanup method names first.
+    for method_name in (
+        'all_off', 'stop_all', 'stop_cues', 'cue_off', 'cues_off',
+        'stim_off', 'vstim_off', 'sound_off', 'speaker_off', 'light_off',
+        'led_off', 'off', 'stop'
+    ):
+        _call_no_arg_method(task, method_name)
+
+    # Then inspect likely hardware/cue sub-objects attached to the task. This
+    # keeps the shutdown localized and avoids broad, unsafe introspection.
+    likely_name_parts = (
+        'cue', 'stim', 'vstim', 'sound', 'speaker', 'audio', 'tone',
+        'light', 'led', 'screen', 'display', 'pygame'
+    )
+    likely_stop_methods = (
+        'all_off', 'stop_all', 'stop_cues', 'cue_off', 'cues_off',
+        'stim_off', 'vstim_off', 'sound_off', 'speaker_off', 'light_off',
+        'led_off', 'off', 'stop', 'close', 'quit'
+    )
+
+    for attr_name, attr_value in vars(task).items():
+        lowered_name = attr_name.lower()
+        if not any(name_part in lowered_name for name_part in likely_name_parts):
+            continue
+        for method_name in likely_stop_methods:
+            _call_no_arg_method(attr_value, method_name)
+
+
 def safe_end_task_session(task):
     """
     End the behavioral task session and turn off task-controlled outputs.
@@ -334,14 +424,17 @@ def safe_end_task_session(task):
       pump, and other hardware outputs for this session.
 
     Returns:
-    - None. Hardware cleanup is attempted exactly once when task is available.
+    - None. Hardware cleanup is attempted when task is available. No physical
+      units are involved.
 
     Notes:
-    - task.end_session() is intentionally called before saving files or computing
-      criterion status so Ctrl+C during ITI shuts down cues as quickly as possible.
+    - force_stop_cues() is called before task.end_session() so Ctrl+C during an
+      active cue or ITI attempts immediate cue shutdown.
     """
     if task is None:
         return
+
+    force_stop_cues(task)
 
     try:
         ic('about to call end_session()')
@@ -349,6 +442,8 @@ def safe_end_task_session(task):
         ic('just called end_session()')
     except Exception as cleanup_error:
         print("Task cleanup warning: " + str(cleanup_error))
+
+    force_stop_cues(task)
 
 
 def safe_save_session_info(session_info):
@@ -376,6 +471,24 @@ if __name__ == "__main__":
     session_info = None
     dprimebinp = []
     plot_process = None
+
+    def handle_ctrl_c(signal_number, current_stack_frame):
+        """
+        Turn off cues immediately when Ctrl+C is pressed.
+
+        Parameters:
+        - signal_number: int. POSIX signal number supplied by signal.signal.
+        - current_stack_frame: frame object or None. Interrupted execution frame.
+
+        Returns:
+        - None. Raises KeyboardInterrupt after best-effort output shutdown so the
+          existing save-and-exit path still runs. No physical units are involved.
+        """
+        print(Fore.RED + Style.BRIGHT + '\nCtrl+C detected: forcing cues off...' + Style.RESET_ALL)
+        force_stop_cues(task)
+        raise KeyboardInterrupt
+
+    signal.signal(signal.SIGINT, handle_ctrl_c)
 
     try:
         # load in session_info file, check that dates are correct, put in automatic
@@ -665,6 +778,7 @@ if __name__ == "__main__":
 
         # First make the rig safe. This is intentionally before criterion
         # calculation or file saving so Ctrl+C during ITI shuts cues off quickly.
+        force_stop_cues(task)
         safe_stop_plot_process(plot_process)
         safe_end_task_session(task)
 
