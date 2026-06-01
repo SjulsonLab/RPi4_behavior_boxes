@@ -55,8 +55,8 @@ def make_session_info() -> Dict[str, Any]:
         session_info['right_reward_pump'] = '3'
         session_info['left_reward_pump'] = '2'
     else:
-        session_info['right_reward_pump'] = '2'
-        session_info['left_reward_pump'] = '1'
+        session_info['right_reward_pump'] = '1'
+        session_info['left_reward_pump'] = '2'
 
     session_info['pump1_ix'] = 0
     session_info['pump2_ix'] = 1
