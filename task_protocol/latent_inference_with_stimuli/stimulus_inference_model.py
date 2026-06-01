@@ -104,6 +104,7 @@ class StimulusInferenceModel(LatentInferenceModel):
         if self.ITI_thread:
             self.ITI_thread.cancel()
 
+        self.close_choice_window()
         self.reset_counters()
         self.switch_to_dark_period()
 
@@ -123,5 +124,6 @@ class StimulusInferenceModel(LatentInferenceModel):
         if self.state == 'dark_period':
             self.set_dark_period_stimuli()
         else:
+            self.open_choice_window()
             self.turn_LED_on()
             logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
