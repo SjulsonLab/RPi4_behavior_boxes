@@ -29,12 +29,14 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.session_info = session_info
 
         # TASK + BEHAVIOR STATUS
-        # self.trial_number = 0  # I don't think stopping at max trials is implemented - do that
-        # self.rewards_earned_in_block = 0  # implemented in base class
-        # self.correct_trials_in_block = 0
+        self.trial_number = 0
+        self.rewards_earned_in_block = 0
+        self.correct_trials_in_block = 0
 
         # Lick detection
-        # self.lick_side_buffer = np.zeros(2)
+        self.lick_side_buffer = np.zeros(2)
+        self.lick_entry_buffer = np.zeros(2)
+        self.lick_exit_buffer = np.array([np.inf, np.inf])
 
         self.last_choice_time = -np.inf
         self.rewards_available_in_block = random.randint(1, 4)
@@ -55,17 +57,18 @@ class LatentInferenceModel(Model):  # subclass from base task
         # self.last_state_fxn = self.switch_to_standby
         self.block_type_counter = np.zeros(2)
 
-        # self.trial_choice_list: list = []
-        # self.trial_correct_list: list = []
-        # self.trial_choice_times: list = []
-        # self.trial_reward_given: list = []
-        # self.event_list = deque()
+        self.trial_choice_list: list = []
+        self.trial_correct_list: list = []
+        self.trial_choice_times: list = []
+        self.trial_reward_given: list = []
+        self.event_list = deque()
         self.t_session_start = time.time()
 
-        # self.presenter_commands = []
-        # self.ITI_active = False
-        # self.ITI_thread = None
-        # self.t_ITI_start = 0
+        self.presenter_commands = []
+        self.ITI_active = False
+        self.ITI_thread = None
+        self.t_ITI_start = 0
+        self.t_choice_window_open = np.inf
 
         self.end_dark_time = 0
         self.next_dark_time = 0
@@ -150,25 +153,72 @@ class LatentInferenceModel(Model):  # subclass from base task
 
         return reward_earned
 
+    def drain_pending_input_events(self) -> bool:
+        """Process all queued input events that are eligible for the current choice window.
+
+        Data contract:
+        - Inputs: none; queued event timestamps use seconds from `time.time()`.
+        - Output:
+          - `bool`, true when one or more lick events occurred during ITI and should
+            restart the ITI if `quiet_ITI` is enabled.
+        """
+        iti_lick_detected = False
+        while self.event_list:
+            event = self.normalize_event(self.event_list.popleft())
+            if not self.is_lick_event(event.name):
+                continue
+
+            discard_reason = self.lick_discard_reason(event)
+            if discard_reason is not None:
+                self.discard_lick_event(event, discard_reason)
+                if discard_reason == "ITI":
+                    iti_lick_detected = True
+                continue
+
+            if self.session_info['debounce_licks']:
+                self.debounce_lick(event.name, event.timestamp)
+            else:
+                self.detect_lick_no_debounce(event.name)
+
+        return iti_lick_detected
+
+    def restart_ITI(self) -> None:
+        """Restart the current intertrial interval after a quiet-ITI lick.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; cancels the active timer when present and starts a new ITI timer.
+        """
+        if self.ITI_thread is not None:
+            self.ITI_thread.cancel()
+        self.activate_ITI()
+
+    def open_choice_window(self) -> None:
+        """Mark the current time as the earliest event time eligible for choices.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; stores `time.time()` seconds in `t_choice_window_open`.
+        """
+        self.t_choice_window_open = time.time()
+
+    def close_choice_window(self) -> None:
+        """Prevent queued licks from being accepted until the next trial starts.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; stores `np.inf` in `t_choice_window_open`.
+        """
+        self.t_choice_window_open = np.inf
+
     def run_event_loop(self, control: bool = False):
         cur_time = time.time()
         time_since_start = cur_time - self.t_session_start
 
-        if self.event_list:
-            event = self.event_list.popleft()
-        else:
-            event = ''
-
-        # if event == 'right_entry':
-        #     self.lick_side_buffer[RIGHT_IX] += 1
-        # elif event == 'left_entry':
-        #     self.lick_side_buffer[LEFT_IX] += 1
-
-        if event in ['right_entry', 'left_entry', 'right_exit', 'left_exit']:
-            if self.session_info['debounce_licks']:
-                self.debounce_lick(event, cur_time)
-            else:
-                self.detect_lick_no_debounce(event)
+        iti_lick_detected = self.drain_pending_input_events()
 
         if self.state in ['standby', 'dark_period']:
             self.lick_side_buffer *= 0
@@ -182,9 +232,8 @@ class LatentInferenceModel(Model):  # subclass from base task
 
         if self.ITI_active:
             self.lick_side_buffer *= 0
-            if self.session_info['quiet_ITI'] and self.lick_side_buffer.sum() > 0:
-                self.ITI_thread.cancel()
-                self.activate_ITI()
+            if self.session_info['quiet_ITI'] and iti_lick_detected:
+                self.restart_ITI()
             return time_since_start
 
         choice_side = self.determine_choice()
@@ -309,11 +358,15 @@ class LatentInferenceModel(Model):  # subclass from base task
 
         # don't turn on LED and log trial until the next patch is selected/started
         self.sample_next_patch()
+        self.open_choice_window()
         self.turn_LED_on()
         logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
 
     def activate_ITI(self):
         self.lick_side_buffer *= 0
+        self.lick_entry_buffer *= 0
+        self.lick_exit_buffer *= np.inf
+        self.close_choice_window()
         self.ITI_active = True
         self.turn_LED_off()
         t = threading.Timer(interval=self.ITI, function=self.end_ITI)
@@ -328,6 +381,7 @@ class LatentInferenceModel(Model):  # subclass from base task
         if self.state == 'dark_period':
             self.turn_LED_off()
         else:
+            self.open_choice_window()
             self.turn_LED_on()
             logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
 
@@ -338,6 +392,7 @@ class LatentInferenceModel(Model):  # subclass from base task
             self.ITI_thread.cancel()
 
         self.turn_LED_off()
+        self.close_choice_window()
         self.reset_counters()
         self.switch_to_dark_period()
 
@@ -352,6 +407,7 @@ class LatentInferenceModel(Model):  # subclass from base task
 
         # don't turn on LED and log trial until the next patch is selected/started
         self.sample_next_patch()
+        self.open_choice_window()
         self.turn_LED_on()
         logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str())
 
@@ -362,4 +418,3 @@ class LatentInferenceModel(Model):  # subclass from base task
             self.switch_to_left_patch()
         else:
             self.switch_to_right_patch()
-

@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import List, Tuple, Union, Dict
+from typing import Any, List, Tuple, Union, Dict, NamedTuple
 from abc import ABC, abstractmethod
 from transitions import State, Machine
 from transitions.extensions.states import add_state_features, Timeout
@@ -49,6 +49,18 @@ class GUI(ABC):
     @abstractmethod
     def check_plot(self, figure: plt.Figure=None, FPS: int=144, savefig: bool=False):
         ...
+
+
+class InputEvent(NamedTuple):
+    """Timestamped behavior-box input event.
+
+    Data contract:
+    - `name`: `str`, event name such as `"left_entry"` or `"right_exit"`.
+    - `timestamp`: `float`, event time in seconds from `time.time()`.
+    """
+
+    name: str
+    timestamp: float
 
 
 class VisualStimBase(ABC):
@@ -168,6 +180,8 @@ class Model(ABC):
 
     presenter_commands: List[str] = []
 
+    LICK_EVENTS = frozenset(("right_entry", "left_entry", "right_exit", "left_exit"))
+
     def determine_choice(self) -> str:
         """Determine whether there has been a choice to the left ports, right ports, or a switch."""
         sides_licked = np.sum(self.lick_side_buffer.astype(bool))  # get nonzero sides
@@ -182,6 +196,84 @@ class Model(ABC):
         else:
             choice = ''  # no choice made/not enough licks
         return choice
+
+    def normalize_event(self, event: Any) -> InputEvent:
+        """Convert queued input to the timestamped event contract.
+
+        Data contract:
+        - Inputs:
+          - `event`: `InputEvent`, object with `name` and `timestamp` attributes, or legacy `str`.
+        - Output:
+          - `InputEvent` with timestamp in seconds from `time.time()`.
+        """
+        if isinstance(event, InputEvent):
+            return event
+        if hasattr(event, "name") and hasattr(event, "timestamp"):
+            return InputEvent(name=str(event.name), timestamp=float(event.timestamp))
+        return InputEvent(name=str(event), timestamp=time.time())
+
+    def is_lick_event(self, event_name: str) -> bool:
+        """Return whether an event should be considered for lick-choice processing.
+
+        Data contract:
+        - Inputs:
+          - `event_name`: `str`, behavior event name.
+        - Output:
+          - `bool`, true for left/right lick entry/exit events.
+        """
+        return event_name in self.LICK_EVENTS
+
+    def is_choice_state(self) -> bool:
+        """Return whether the task state can accept left/right choices.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - `bool`, true when `state` is `"left_patch"` or `"right_patch"`.
+        """
+        return self.state in ["left_patch", "right_patch"]
+
+    def lick_discard_reason(self, event: InputEvent) -> Union[str, None]:
+        """Return why a lick event is ineligible for choice processing.
+
+        Data contract:
+        - Inputs:
+          - `event`: `InputEvent`; timestamp in seconds from `time.time()`.
+        - Output:
+          - `str` reason (`"ITI"`, `"standby"`, `"dark_period"`, or `"stale"`) when
+            the lick should be discarded from choice processing.
+          - `None` when the lick is eligible for choice processing.
+        """
+        if self.ITI_active:
+            return "ITI"
+        if self.state == "standby":
+            return "standby"
+        if self.state == "dark_period":
+            return "dark_period"
+        if not self.is_choice_state():
+            return "non_choice_state"
+        if event.timestamp < getattr(self, "t_choice_window_open", -np.inf):
+            return "stale"
+        return None
+
+    def discard_lick_event(self, event: InputEvent, reason: str) -> None:
+        """Log that a lick was discarded from choice processing.
+
+        Data contract:
+        - Inputs:
+          - `event`: `InputEvent`; timestamp in seconds from `time.time()`.
+          - `reason`: `str`, discard reason.
+        - Output:
+          - Returns `None`; writes a diagnostic log entry without replacing the normal action log.
+        """
+        logging.info(
+            ";{};[action];discarded_{};reason_{};event_time_{};".format(
+                time.time(),
+                event.name,
+                reason,
+                event.timestamp,
+            )
+        )
 
     def debounce_lick(self, event: str, cur_time: float):
         right_ix = self.session_info['right_ix']
@@ -313,69 +405,85 @@ class Presenter(ABC):
         # self.task.switch_to_timeout()
 
     def left_entry(self) -> None:
-        self.task.event_list.append("left_entry")
-        logging.info(";" + str(time.time()) + ";[action];left_entry;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("left_entry", event_time))
+        logging.info(";" + str(event_time) + ";[action];left_entry;")
 
     def center_entry(self) -> None:
-        self.task.event_list.append("center_entry")
-        logging.info(";" + str(time.time()) + ";[action];center_entry;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("center_entry", event_time))
+        logging.info(";" + str(event_time) + ";[action];center_entry;")
 
     def right_entry(self) -> None:
-        self.task.event_list.append("right_entry")
-        logging.info(";" + str(time.time()) + ";[action];right_entry;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("right_entry", event_time))
+        logging.info(";" + str(event_time) + ";[action];right_entry;")
 
     def left_exit(self) -> None:
-        self.task.event_list.append("left_exit")
-        logging.info(";" + str(time.time()) + ";[action];left_exit;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("left_exit", event_time))
+        logging.info(";" + str(event_time) + ";[action];left_exit;")
 
     def center_exit(self) -> None:
-        self.task.event_list.append("center_exit;")
-        logging.info(";" + str(time.time()) + ";[action];center_exit;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("center_exit", event_time))
+        logging.info(";" + str(event_time) + ";[action];center_exit;")
 
     def right_exit(self) -> None:
-        self.task.event_list.append("right_exit")
-        logging.info(";" + str(time.time()) + ";[action];right_exit;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("right_exit", event_time))
+        logging.info(";" + str(event_time) + ";[action];right_exit;")
 
     def IR_1_entry(self) -> None:
-        self.task.event_list.append("IR_1_entry")
-        logging.info(str(time.time()) + ", IR_1_entry;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("IR_1_entry", event_time))
+        logging.info(str(event_time) + ", IR_1_entry;")
 
     def IR_2_entry(self) -> None:
-        self.task.event_list.append("IR_2_entry")
-        logging.info(str(time.time()) + ", IR_2_entry;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("IR_2_entry", event_time))
+        logging.info(str(event_time) + ", IR_2_entry;")
 
     def IR_3_entry(self) -> None:
-        self.task.event_list.append("IR_3_entry")
-        logging.info(str(time.time()) + ", IR_3_entry;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("IR_3_entry", event_time))
+        logging.info(str(event_time) + ", IR_3_entry;")
 
     def IR_4_entry(self) -> None:
-        self.task.event_list.append("IR_4_entry")
-        logging.info(str(time.time()) + ", IR_4_entry;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("IR_4_entry", event_time))
+        logging.info(str(event_time) + ", IR_4_entry;")
 
     def IR_5_entry(self) -> None:
-        self.task.event_list.append("IR_5_entry")
-        logging.info(str(time.time()) + ", IR_5_entry;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("IR_5_entry", event_time))
+        logging.info(str(event_time) + ", IR_5_entry;")
 
     def IR_1_exit(self) -> None:
-        self.task.event_list.append("IR_1_exit")
-        logging.info(str(time.time()) + ", IR_1_exit;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("IR_1_exit", event_time))
+        logging.info(str(event_time) + ", IR_1_exit;")
 
     def IR_2_exit(self) -> None:
-        self.task.event_list.append("IR_2_exit")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("IR_2_exit", event_time))
         # self.cueLED2.off()
-        logging.info(str(time.time()) + ", IR_2_exit;")
+        logging.info(str(event_time) + ", IR_2_exit;")
 
     def IR_3_exit(self) -> None:
-        self.task.event_list.append("IR_3_exit")
-        logging.info(str(time.time()) + ", IR_3_exit;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("IR_3_exit", event_time))
+        logging.info(str(event_time) + ", IR_3_exit;")
 
     def IR_4_exit(self) -> None:
-        self.task.event_list.append("IR_4_exit")
-        logging.info(str(time.time()) + ", IR_4_exit;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("IR_4_exit", event_time))
+        logging.info(str(event_time) + ", IR_4_exit;")
 
     def IR_5_exit(self) -> None:
-        self.task.event_list.append("IR_5_exit")
-        logging.info(str(time.time()) + ", IR_5_exit;")
+        event_time = time.time()
+        self.task.event_list.append(InputEvent("IR_5_exit", event_time))
+        logging.info(str(event_time) + ", IR_5_exit;")
 
     def K_escape_callback(self) -> None:
         pass

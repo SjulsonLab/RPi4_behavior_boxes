@@ -42,6 +42,7 @@ from essential import base_classes
 from essential.base_classes import Presenter
 from task_protocol.latent_inference_forage import latent_inference_model
 from task_protocol.latent_inference_forage.latent_inference_model import LatentInferenceModel
+from task_protocol.latent_inference_with_stimuli.stimulus_inference_model import StimulusInferenceModel
 
 
 FallbackInputEvent = namedtuple("FallbackInputEvent", ["name", "timestamp"])
@@ -307,3 +308,16 @@ def test_string_events_still_work_through_normalize_event(task):
     task.run_event_loop()
 
     assert task.trial_choice_list == [task.session_info["left_ix"]]
+
+
+def test_stimulus_task_reopens_choice_window_after_iti(session_info):
+    session_info["p_stimulus"] = 0.0
+    model = StimulusInferenceModel(session_info=session_info)
+    model.switch_to_left_patch()
+    model.activate_ITI()
+
+    model.end_ITI()
+    model.event_list.append(make_event("left_entry", model.t_choice_window_open + 0.1))
+    model.run_event_loop()
+
+    assert model.trial_choice_list == [session_info["left_ix"]]

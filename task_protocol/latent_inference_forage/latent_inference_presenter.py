@@ -41,8 +41,7 @@ class LatentInferencePresenter(Presenter):
             incorrect_pump = None
             # raise RuntimeError('state not recognized')
 
-        if self.task.state in ['right_patch', 'left_patch']:
-            time_since_start = self.task.run_event_loop()  # determine choice, trigger ITI
+        self.task.run_event_loop()  # determine choice, discard ineligible licks, trigger ITI
 
         self.perform_task_commands(correct_pump, incorrect_pump)  # switch state, give rewards, toggle stimuli, etc.
         self.update_plot()
@@ -52,16 +51,9 @@ class LatentInferencePresenter(Presenter):
         """
         Controls switch between left and right patches as before, but only reward the right spout.
         """
-        if self.task.state in ['right_patch', 'left_patch']:
-            # correct_pump = self.session_info['pump1_ix']
-            # incorrect_pump = self.session_info['pump2_ix']
-
-            correct_pump = self.session_info['right_reward_pump']
-            incorrect_pump = self.session_info['left_reward_pump']
-            time_since_start = self.task.run_event_loop(control=True)  # determine choice, trigger ITI
-        else:
-            correct_pump = None
-            incorrect_pump = None
+        correct_pump = self.session_info['right_reward_pump']
+        incorrect_pump = self.session_info['left_reward_pump']
+        self.task.run_event_loop(control=True)  # determine choice, discard ineligible licks, trigger ITI
 
         self.perform_task_commands(correct_pump, incorrect_pump)  # switch state, give rewards, toggle stimuli, etc.
         self.update_plot()
@@ -129,4 +121,3 @@ class LatentInferencePresenter(Presenter):
             #                                                               self.task.rewards_earned_in_block))
 
         self.task.presenter_commands.clear()
-
