@@ -4,6 +4,7 @@ import time
 import types
 from collections import namedtuple
 
+import numpy as np
 import pytest
 
 pygame_stub = types.SimpleNamespace(
@@ -321,3 +322,98 @@ def test_stimulus_task_reopens_choice_window_after_iti(session_info):
     model.run_event_loop()
 
     assert model.trial_choice_list == [session_info["left_ix"]]
+
+
+def test_latent_start_task_does_not_set_transient_dark_time_when_disabled(session_info, monkeypatch):
+    """Starting without dark periods should not briefly schedule a dark-period deadline.
+
+    Data contract:
+    - Inputs:
+      - `session_info`: dict fixture with time values in seconds.
+      - `monkeypatch`: pytest fixture.
+    - Output:
+      - Asserts `next_dark_time` is `np.inf` before patch selection side effects run.
+    """
+    session_info["use_dark_period"] = False
+    model = LatentInferenceModel(session_info=session_info)
+
+    def assert_dark_period_not_scheduled():
+        """Assert start-task scheduling respects disabled dark periods.
+
+        Data contract:
+        - Inputs: none.
+        - Output: returns `None`; raises AssertionError if a finite dark deadline exists.
+        """
+        assert model.next_dark_time == np.inf
+
+    monkeypatch.setattr(model, "sample_next_patch", assert_dark_period_not_scheduled)
+
+    model.start_task()
+
+
+def test_latent_start_task_schedules_dark_period_when_enabled(session_info, monkeypatch):
+    """Starting with dark periods enabled should schedule the next dark deadline.
+
+    Data contract:
+    - Inputs:
+      - `session_info`: dict fixture with `epoch_length` in seconds.
+      - `monkeypatch`: pytest fixture.
+    - Output:
+      - Asserts `next_dark_time` is finite and within the expected scheduling window.
+    """
+    session_info["use_dark_period"] = True
+    session_info["epoch_length"] = 12.0
+    model = LatentInferenceModel(session_info=session_info)
+
+    before = time.time()
+
+    def assert_dark_period_scheduled():
+        """Assert start-task scheduling creates a finite dark-period deadline.
+
+        Data contract:
+        - Inputs: none.
+        - Output: returns `None`; raises AssertionError if the deadline is outside the expected window.
+        """
+        after = time.time()
+        assert before + session_info["epoch_length"] <= model.next_dark_time <= after + session_info["epoch_length"]
+
+    monkeypatch.setattr(model, "sample_next_patch", assert_dark_period_scheduled)
+
+    model.start_task()
+
+
+def test_latent_exit_dark_period_respects_disabled_dark_periods(session_info):
+    """Dark-period exit should not schedule another dark period when disabled.
+
+    Data contract:
+    - Inputs:
+      - `session_info`: dict fixture with time values in seconds.
+    - Output:
+      - Asserts `next_dark_time` is `np.inf`.
+    """
+    session_info["use_dark_period"] = False
+    model = LatentInferenceModel(session_info=session_info)
+
+    model.exit_dark_period()
+
+    assert model.next_dark_time == np.inf
+
+
+def test_latent_exit_dark_period_schedules_when_enabled(session_info):
+    """Dark-period exit should schedule the next dark period when enabled.
+
+    Data contract:
+    - Inputs:
+      - `session_info`: dict fixture with `epoch_length` in seconds.
+    - Output:
+      - Asserts `next_dark_time` is finite and within the expected scheduling window.
+    """
+    session_info["use_dark_period"] = True
+    session_info["epoch_length"] = 12.0
+    model = LatentInferenceModel(session_info=session_info)
+
+    before = time.time()
+    model.exit_dark_period()
+    after = time.time()
+
+    assert before + session_info["epoch_length"] <= model.next_dark_time <= after + session_info["epoch_length"]
