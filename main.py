@@ -299,7 +299,6 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
         t_end = time.time() + 60 * t_minute
 
         task.presenter_commands.clear()
-        box.presenter_commands.clear()
         if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is not None:
             box.visualstim.empty_presenter_queue()
             box.visualstim.empty_stimulus_queue()
