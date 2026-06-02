@@ -43,11 +43,7 @@ class AlternatingLatentPresenter(Presenter):
             incorrect_pump = None
             # raise RuntimeError('state not recognized')
 
-        if self.task.state == 'standby' or self.task.ITI_active:
-            self.task.lick_side_buffer *= 0
-            self.task.event_list.clear()
-        else:
-            self.task.run_event_loop()
+        self.task.run_event_loop()
 
         self.perform_task_commands(correct_pump, incorrect_pump)
         self.update_plot()
