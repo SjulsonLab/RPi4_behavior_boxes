@@ -1,6 +1,9 @@
 import importlib
 import sys
 import types
+from pathlib import Path
+
+import pytest
 
 
 class FakeBox:
@@ -194,3 +197,149 @@ def test_startup_does_not_require_box_presenter_commands(monkeypatch, tmp_path):
 
     assert exit_code == 0
     assert FakeBox.last_instance.video_stop_calls == 1
+
+
+def test_parse_args_accepts_external_output_dir(monkeypatch):
+    """Command-line parsing should accept an external output parent directory.
+
+    Data contract:
+    - Inputs:
+      - `monkeypatch`: pytest fixture for fake hardware imports.
+    - Output:
+      - Asserts parsed args expose the requested relative parent path string.
+    """
+    main_module = load_main_with_fakes(monkeypatch, CompletingPresenter)
+
+    args = main_module.parse_args([
+        "--external-output-dir",
+        "CT020_20260603_latent_inference/rpi",
+    ])
+
+    assert args.external_output_dir == "CT020_20260603_latent_inference/rpi"
+
+
+def test_configure_session_output_paths_uses_relative_external_output_parent(monkeypatch, tmp_path):
+    """Relative external parents should resolve under external storage and keep session naming.
+
+    Data contract:
+    - Inputs:
+      - `monkeypatch`: pytest fixture for fake hardware imports.
+      - `tmp_path`: pytest temporary directory fixture.
+    - Output:
+      - Asserts `external_storage_dir` is `<external parent>/<session_name>`.
+    """
+    main_module = load_main_with_fakes(monkeypatch, CompletingPresenter)
+    session_info = make_session_info(tmp_path)
+    external_parent = Path(session_info["external_storage"]) / "CT020_20260603_latent_inference" / "rpi"
+    external_parent.mkdir(parents=True)
+
+    configured = main_module.configure_session_output_paths(
+        session_info,
+        datestr="2026-06-03",
+        timestr="123456",
+        external_output_dir="CT020_20260603_latent_inference/rpi",
+    )
+
+    expected_session_name = "test_mouse_2026-06-03_123456"
+    assert configured["session_name"] == expected_session_name
+    assert configured["external_storage_dir"] == str(external_parent / expected_session_name)
+
+
+def test_configure_session_output_paths_uses_absolute_external_output_parent(monkeypatch, tmp_path):
+    """Absolute external parents under external storage should keep session naming.
+
+    Data contract:
+    - Inputs:
+      - `monkeypatch`: pytest fixture for fake hardware imports.
+      - `tmp_path`: pytest temporary directory fixture.
+    - Output:
+      - Asserts an absolute parent path is used as `<parent>/<session_name>`.
+    """
+    main_module = load_main_with_fakes(monkeypatch, CompletingPresenter)
+    session_info = make_session_info(tmp_path)
+    external_parent = Path(session_info["external_storage"]) / "CT020_20260603_latent_inference" / "rpi"
+    external_parent.mkdir(parents=True)
+
+    configured = main_module.configure_session_output_paths(
+        session_info,
+        datestr="2026-06-03",
+        timestr="123456",
+        external_output_dir=str(external_parent),
+    )
+
+    expected_session_name = "test_mouse_2026-06-03_123456"
+    assert configured["external_storage_dir"] == str(external_parent / expected_session_name)
+
+
+def test_external_output_parent_must_exist(monkeypatch, tmp_path):
+    """External output parent validation should not auto-create the requested parent.
+
+    Data contract:
+    - Inputs:
+      - `monkeypatch`: pytest fixture for fake hardware imports.
+      - `tmp_path`: pytest temporary directory fixture.
+    - Output:
+      - Asserts missing parent directories raise `RuntimeError`.
+    """
+    main_module = load_main_with_fakes(monkeypatch, CompletingPresenter)
+    session_info = make_session_info(tmp_path)
+
+    with pytest.raises(RuntimeError, match="does not exist"):
+        main_module.configure_session_output_paths(
+            session_info,
+            datestr="2026-06-03",
+            timestr="123456",
+            external_output_dir="CT020_20260603_latent_inference/rpi",
+        )
+
+
+def test_external_output_parent_must_be_under_external_storage(monkeypatch, tmp_path):
+    """External output parents outside external storage should be rejected.
+
+    Data contract:
+    - Inputs:
+      - `monkeypatch`: pytest fixture for fake hardware imports.
+      - `tmp_path`: pytest temporary directory fixture.
+    - Output:
+      - Asserts absolute paths outside `external_storage` raise `RuntimeError`.
+    """
+    main_module = load_main_with_fakes(monkeypatch, CompletingPresenter)
+    session_info = make_session_info(tmp_path)
+    outside_parent = tmp_path / "outside" / "rpi"
+    outside_parent.mkdir(parents=True)
+
+    with pytest.raises(RuntimeError, match="must be inside external storage"):
+        main_module.configure_session_output_paths(
+            session_info,
+            datestr="2026-06-03",
+            timestr="123456",
+            external_output_dir=str(outside_parent),
+        )
+
+
+def test_run_program_applies_external_output_dir_to_session_info(monkeypatch, tmp_path):
+    """Startup should pass the requested external parent into session path configuration.
+
+    Data contract:
+    - Inputs:
+      - `monkeypatch`: pytest fixture for fake hardware imports.
+      - `tmp_path`: pytest temporary directory fixture.
+    - Output:
+      - Asserts the behavior box receives a session-specific destination under the parent.
+    """
+    main_module = load_main_with_fakes(monkeypatch, CompletingPresenter)
+    prepare_main_for_shutdown_test(monkeypatch, main_module)
+    monkeypatch.setattr(main_module, "set_session_time", lambda: 0)
+    session_info = make_session_info(tmp_path)
+    external_parent = Path(session_info["external_storage"]) / "CT020_20260603_latent_inference" / "rpi"
+    external_parent.mkdir(parents=True)
+
+    exit_code = main_module.run_program(
+        session_info=session_info,
+        external_output_dir="CT020_20260603_latent_inference/rpi",
+    )
+
+    assert exit_code == 0
+    assert FakeBox.last_instance.session_info["external_storage_dir"] == str(
+        external_parent / FakeBox.last_instance.session_info["session_name"]
+    )
