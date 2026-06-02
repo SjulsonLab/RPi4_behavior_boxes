@@ -41,6 +41,7 @@ sys.modules.setdefault("icecream", types.SimpleNamespace(ic=lambda *args, **kwar
 from essential.base_classes import InputEvent
 from task_protocol.alternating_latent import alternating_latent_model
 from task_protocol.alternating_latent.alternating_latent_model import AlternatingLatentModel
+from task_protocol.alternating_latent.alternating_latent_presenter import AlternatingLatentPresenter
 from task_protocol.flush.flush_model import FlushModel
 
 
@@ -81,6 +82,30 @@ class FakeTimer:
         - Output: returns `None`; sets `cancelled=True`.
         """
         self.cancelled = True
+
+
+class PumpStub:
+    """Presenter pump double that records delivered rewards.
+
+    Data contract:
+    - Inputs: none.
+    - Output:
+      - `rewards`: list of `(pump_key, reward_size)` tuples.
+    """
+
+    def __init__(self):
+        self.rewards = []
+
+    def reward(self, pump_key, reward_size):
+        """Record a reward delivery request.
+
+        Data contract:
+        - Inputs:
+          - `pump_key`: str pump identifier.
+          - `reward_size`: float reward amount in microliters.
+        - Output: returns `None`.
+        """
+        self.rewards.append((pump_key, reward_size))
 
 
 @pytest.fixture(autouse=True)
@@ -183,6 +208,29 @@ def make_alternating_model(session_info, state="left_patch"):
     return model
 
 
+def make_alternating_presenter(model, session_info, monkeypatch):
+    """Create an alternating presenter with plotting disabled.
+
+    Data contract:
+    - Inputs:
+      - `model`: `AlternatingLatentModel`.
+      - `session_info`: dict fixture.
+      - `monkeypatch`: pytest fixture.
+    - Output:
+      - Tuple `(presenter, pump)` where `pump` records reward deliveries.
+    """
+    pump = PumpStub()
+    presenter = AlternatingLatentPresenter(
+        model=model,
+        box=types.SimpleNamespace(),
+        pump=pump,
+        gui=None,
+        session_info=session_info,
+    )
+    monkeypatch.setattr(presenter, "update_plot", lambda *args, **kwargs: None)
+    return presenter, pump
+
+
 def test_alternating_latent_input_event_left_choice_still_rewards_left_patch(session_info):
     model = make_alternating_model(session_info, state="left_patch")
     model.event_list.append(make_event("left_entry"))
@@ -246,6 +294,101 @@ def test_alternating_latent_quiet_iti_lick_restarts_iti(session_info):
     assert original_timer.cancelled is True
     assert model.ITI_thread is not original_timer
     assert model.ITI_active is True
+
+
+def test_alternating_presenter_processes_iti_events_through_model(session_info, monkeypatch, caplog):
+    """Presenter should not silently clear ITI licks before model discard logging.
+
+    Data contract:
+    - Inputs:
+      - `session_info`: dict fixture.
+      - `monkeypatch`: pytest fixture.
+      - `caplog`: pytest log capture fixture.
+    - Output:
+      - Asserts presenter-run drains ITI events through model logic and logs discard.
+    """
+    model = make_alternating_model(session_info, state="left_patch")
+    presenter, _ = make_alternating_presenter(model, session_info, monkeypatch)
+    model.activate_ITI()
+    model.event_list.append(make_event("left_entry"))
+
+    with caplog.at_level(logging.INFO):
+        presenter.run()
+
+    assert len(model.event_list) == 0
+    assert model.trial_choice_list == []
+    assert any("[action];discarded_left_entry;reason_ITI" in record.message for record in caplog.records)
+
+
+def test_alternating_presenter_quiet_iti_lick_restarts_iti(session_info, monkeypatch):
+    """Presenter-run should preserve model quiet-ITI extension behavior.
+
+    Data contract:
+    - Inputs:
+      - `session_info`: dict fixture.
+      - `monkeypatch`: pytest fixture.
+    - Output:
+      - Asserts an ITI lick cancels the old timer and starts a replacement timer.
+    """
+    session_info["quiet_ITI"] = True
+    model = make_alternating_model(session_info, state="left_patch")
+    presenter, _ = make_alternating_presenter(model, session_info, monkeypatch)
+    model.activate_ITI()
+    original_timer = model.ITI_thread
+    model.event_list.append(make_event("left_entry"))
+
+    presenter.run()
+
+    assert original_timer.cancelled is True
+    assert model.ITI_thread is not original_timer
+    assert model.ITI_active is True
+
+
+def test_alternating_presenter_iti_licks_do_not_trigger_choice_or_reward(session_info, monkeypatch):
+    """Queued ITI licks should not be converted into choices by presenter-run.
+
+    Data contract:
+    - Inputs:
+      - `session_info`: dict fixture.
+      - `monkeypatch`: pytest fixture.
+    - Output:
+      - Asserts threshold-satisfying ITI licks leave no choice, command, or reward.
+    """
+    session_info["lick_threshold"] = 2
+    model = make_alternating_model(session_info, state="left_patch")
+    presenter, pump = make_alternating_presenter(model, session_info, monkeypatch)
+    model.activate_ITI()
+    event_time = time.time()
+    model.event_list.append(make_event("left_entry", event_time))
+    model.event_list.append(make_event("left_entry", event_time + 0.001))
+
+    presenter.run()
+
+    assert model.trial_choice_list == []
+    assert list(model.presenter_commands) == []
+    assert pump.rewards == []
+
+
+def test_alternating_presenter_active_choice_path_still_rewards(session_info, monkeypatch):
+    """Presenter-run should still deliver a reward for an eligible active choice.
+
+    Data contract:
+    - Inputs:
+      - `session_info`: dict fixture.
+      - `monkeypatch`: pytest fixture.
+    - Output:
+      - Asserts a left-patch left lick logs a choice and delivers the left reward.
+    """
+    model = make_alternating_model(session_info, state="left_patch")
+    model.rewards_available_in_block = 100
+    presenter, pump = make_alternating_presenter(model, session_info, monkeypatch)
+    model.event_list.append(make_event("left_entry"))
+
+    presenter.run()
+
+    assert model.trial_choice_list == [session_info["left_ix"]]
+    assert model.trial_correct_list == [True]
+    assert pump.rewards == [(session_info["left_reward_pump"], session_info["reward_size_large"])]
 
 
 def test_alternating_latent_instances_do_not_share_event_or_trial_state(session_info):
