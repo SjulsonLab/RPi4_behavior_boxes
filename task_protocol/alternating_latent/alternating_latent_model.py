@@ -38,7 +38,9 @@ class AlternatingLatentModel(Model):
         self.rewards_available_in_block = random.randint(1, 4)
 
         # Lick detection
-        # self.lick_side_buffer = np.zeros(2)
+        self.lick_side_buffer = np.zeros(2)
+        self.lick_entry_buffer = np.zeros(2)
+        self.lick_exit_buffer = np.array([np.inf, np.inf])
 
         ### TRAINING REWARDS PARAMETERS ###
         self.automate_training_rewards = False  # keep here, use in controller
@@ -56,10 +58,16 @@ class AlternatingLatentModel(Model):
 
         self.t_session_start = time.time()
 
-        # self.presenter_commands = []
-        # self.ITI_active = False
-        # self.ITI_thread = None
-        # self.t_ITI_start = 0
+        self.trial_choice_list = []
+        self.trial_correct_list = []
+        self.trial_choice_times = []
+        self.trial_reward_given = []
+        self.event_list = deque()
+        self.presenter_commands = []
+        self.ITI_active = False
+        self.ITI_thread = None
+        self.t_ITI_start = 0
+        self.t_choice_window_open = -np.inf
 
     def make_state_machine(self, timeout_time: float):
         # reward_available is not used - it would allow licking either side but this task does not use that
@@ -127,6 +135,9 @@ class AlternatingLatentModel(Model):
 
     def activate_ITI(self):
         self.lick_side_buffer *= 0
+        self.lick_entry_buffer *= 0
+        self.lick_exit_buffer *= np.inf
+        self.close_choice_window()
         self.ITI_active = True
         t = threading.Timer(interval=self.ITI, function=self.end_ITI)
         self.t_ITI_start = time.perf_counter()
@@ -138,7 +149,40 @@ class AlternatingLatentModel(Model):
         # ic(time.perf_counter() - self.t_ITI_start)
         self.lick_side_buffer *= 0
         self.ITI_active = False
+        self.open_choice_window()
         logging.info(";" + str(time.time()) + ";[transition];trial_start;" + str(""))
+
+    def restart_ITI(self) -> None:
+        """Restart the current intertrial interval after a quiet-ITI lick.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; cancels the active timer when present and starts a new ITI timer.
+        """
+        if self.ITI_thread is not None:
+            self.ITI_thread.cancel()
+        self.activate_ITI()
+
+    def open_choice_window(self) -> None:
+        """Mark the current time as the earliest event time eligible for choices.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; stores `time.time()` seconds in `t_choice_window_open`.
+        """
+        self.t_choice_window_open = time.time()
+
+    def close_choice_window(self) -> None:
+        """Prevent queued licks from being accepted until the next trial starts.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; stores `np.inf` in `t_choice_window_open`.
+        """
+        self.t_choice_window_open = np.inf
 
     def sample_next_block(self):
         self.reset_counters()
@@ -172,25 +216,50 @@ class AlternatingLatentModel(Model):
             else:
                 self.block_type_counter[1] += 1
 
+        if self.state in ['right_patch', 'left_patch']:
+            self.open_choice_window()
+
+    def drain_pending_input_events(self) -> bool:
+        """Process all queued lick events eligible for the current choice window.
+
+        Data contract:
+        - Inputs: none; queued event timestamps use seconds from `time.time()`.
+        - Output:
+          - `bool`, true when one or more lick events occurred during ITI and should
+            restart the ITI if `quiet_ITI` is enabled.
+        """
+        iti_lick_detected = False
+        while self.event_list:
+            event = self.normalize_event(self.event_list.popleft())
+            if not self.is_lick_event(event.name):
+                continue
+
+            discard_reason = self.lick_discard_reason(event)
+            if discard_reason is not None:
+                self.discard_lick_event(event, discard_reason)
+                if discard_reason == "ITI":
+                    iti_lick_detected = True
+                continue
+
+            if self.session_info['debounce_licks']:
+                self.debounce_lick(event.name, event.timestamp)
+            else:
+                self.detect_lick_no_debounce(event.name)
+
+        return iti_lick_detected
+
     def run_event_loop(self) -> None:
         cur_time = time.time()
         time_since_start = cur_time - self.t_session_start
 
-        if self.event_list:
-            event = self.event_list.popleft()
-        else:
-            event = ''
-
-        if event in ['right_entry', 'left_entry', 'right_exit', 'left_exit']:
-            if self.session_info['debounce_licks']:
-                self.debounce_lick(event, cur_time)
-            else:
-                self.detect_lick_no_debounce(event)
+        iti_lick_detected = self.drain_pending_input_events()
 
         if self.state == 'standby' or self.ITI_active:
             self.lick_side_buffer *= 0
             self.lick_entry_buffer *= 0
             self.lick_exit_buffer *= np.inf
+            if self.ITI_active and self.session_info['quiet_ITI'] and iti_lick_detected:
+                self.restart_ITI()
             # self.give_training_reward = False  # only toggle this in left/right active???
             return
 

@@ -1,4 +1,5 @@
 import logging
+import importlib
 import sys
 import time
 import types
@@ -97,6 +98,28 @@ def fake_timers(monkeypatch):
     monkeypatch.setattr(alternating_latent_model.threading, "Timer", FakeTimer)
     yield
     FakeTimer.instances = []
+
+
+@pytest.fixture(scope="module", autouse=True)
+def cleanup_imported_protocol_modules():
+    """Avoid leaking real task modules into tests that replace them with fakes.
+
+    Data contract:
+    - Inputs: none.
+    - Output:
+      - After this module's tests finish, removes imported protocol submodules from
+        `sys.modules` and their parent package attributes.
+    """
+    yield
+    imported_modules = [
+        ("task_protocol.alternating_latent", "alternating_latent_model"),
+        ("task_protocol.flush", "flush_model"),
+    ]
+    for package_name, module_attr in imported_modules:
+        package = importlib.import_module(package_name)
+        if hasattr(package, module_attr):
+            delattr(package, module_attr)
+        sys.modules.pop(f"{package_name}.{module_attr}", None)
 
 
 @pytest.fixture

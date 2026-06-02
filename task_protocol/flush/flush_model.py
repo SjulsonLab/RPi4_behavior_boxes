@@ -33,6 +33,13 @@ class FlushModel(Model):
         self.lick_threshold = session_info['lick_threshold']
 
         self.event_list = deque()
+        self.trial_choice_list = []
+        self.trial_correct_list = []
+        self.trial_choice_times = []
+        self.trial_reward_given = []
+        self.lick_side_buffer = np.zeros(2)
+        self.lick_entry_buffer = np.zeros(2)
+        self.lick_exit_buffer = np.array([np.inf, np.inf])
         self.t_session = time.time()
 
         self.presenter_commands = []
@@ -56,10 +63,8 @@ class FlushModel(Model):
         self.presenter_commands.append('turn_LED_on')
 
     def run_event_loop(self) -> None:
-        if self.event_list:
-            event = self.event_list.popleft()
-        else:
-            event = ''
+        while self.event_list:
+            self.normalize_event(self.event_list.popleft())
 
         if self.ITI_active:
             self.lick_side_buffer *= 0
