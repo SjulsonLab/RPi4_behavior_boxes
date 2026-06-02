@@ -242,8 +242,9 @@ class FlushPresenter(Presenter):
         self.task.presenter_commands.append('toggle_pump6')
 
     def K_7_down_callback(self) -> None:
-        logging.info(";" + str(time.time()) + ";[action];key_pressed_toggle_pump_signal;")
-        self.task.presenter_commands.append('toggle_pump_signal')
+        pass
+        # logging.info(";" + str(time.time()) + ";[action];key_pressed_toggle_pump_signal;")
+        # self.task.presenter_commands.append('toggle_pump_signal')
 
     def end_ITI(self):
         self.ITI_active = False
