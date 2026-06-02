@@ -214,6 +214,21 @@ class LatentInferenceModel(Model):  # subclass from base task
         """
         self.t_choice_window_open = np.inf
 
+    def schedule_next_dark_period(self) -> None:
+        """Schedule or disable the next dark-period deadline.
+
+        Data contract:
+        - Inputs: none; reads `session_info['use_dark_period']` and
+          `session_info['epoch_length']`, where `epoch_length` is seconds.
+        - Output:
+          - Returns `None`; stores `next_dark_time` as seconds from `time.time()`
+            or `np.inf` when dark periods are disabled.
+        """
+        if self.session_info['use_dark_period']:
+            self.next_dark_time = time.time() + self.session_info['epoch_length']
+        else:
+            self.next_dark_time = np.inf
+
     def run_event_loop(self, control: bool = False):
         cur_time = time.time()
         time_since_start = cur_time - self.t_session_start
@@ -312,10 +327,7 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.rewards_earned_in_block = 0
         self.correct_trials_in_block = 0
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))
-        if self.session_info['use_dark_period']:
-            self.next_dark_time = time.time() + self.session_info['epoch_length']
-        else:
-            self.next_dark_time = np.inf
+        self.schedule_next_dark_period()
         self.reset_counters()
 
     def enter_right_patch(self):
@@ -350,11 +362,11 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.correct_trials_in_block = 0
         self.rewards_earned_in_block = 0
         logging.info(";" + str(time.time()) + ";[transition];exit_dark_period;" + str())
-        self.next_dark_time = time.time() + self.session_info['epoch_length']
+        self.schedule_next_dark_period()
 
     def start_task(self):
         ic('starting task')
-        self.next_dark_time = time.time() + self.session_info['epoch_length']
+        self.schedule_next_dark_period()
 
         # don't turn on LED and log trial until the next patch is selected/started
         self.sample_next_patch()
