@@ -37,6 +37,15 @@ class FakeModel:
         self.session_info = session_info
         self.presenter_commands = []
 
+    def start_task(self):
+        """No-op task startup hook.
+
+        Data contract:
+        - Inputs: none.
+        - Output: returns `None`.
+        """
+        return None
+
 
 class InterruptingPresenter:
     """Presenter that simulates Ctrl-C immediately after session start."""
@@ -59,6 +68,41 @@ class FailingEndSessionPresenter(InterruptingPresenter):
     def end_session(self):
         self.end_session_calls += 1
         raise RuntimeError("end_session failed before camera stop")
+
+
+class CompletingPresenter(InterruptingPresenter):
+    """Presenter that lets startup proceed until the timed task loop exits."""
+
+    def __init__(self, model, box, pump, gui, session_info):
+        super().__init__(model, box, pump, gui, session_info)
+        self.print_controls_calls = 0
+
+    def start_session(self):
+        """Allow normal startup to continue.
+
+        Data contract:
+        - Inputs: none.
+        - Output: returns `None`.
+        """
+        return None
+
+    def print_controls(self):
+        """Record that controls would be printed.
+
+        Data contract:
+        - Inputs: none.
+        - Output: returns `None`; increments `print_controls_calls`.
+        """
+        self.print_controls_calls += 1
+
+    def run(self):
+        """No-op task loop iteration.
+
+        Data contract:
+        - Inputs: none.
+        - Output: returns `None`.
+        """
+        return None
 
 
 def load_main_with_fakes(monkeypatch, presenter_class):
@@ -134,6 +178,17 @@ def test_keyboard_interrupt_uses_fallback_video_stop_if_end_session_fails(
 ):
     main_module = load_main_with_fakes(monkeypatch, FailingEndSessionPresenter)
     prepare_main_for_shutdown_test(monkeypatch, main_module)
+
+    exit_code = main_module.run_program(session_info=make_session_info(tmp_path))
+
+    assert exit_code == 0
+    assert FakeBox.last_instance.video_stop_calls == 1
+
+
+def test_startup_does_not_require_box_presenter_commands(monkeypatch, tmp_path):
+    main_module = load_main_with_fakes(monkeypatch, CompletingPresenter)
+    prepare_main_for_shutdown_test(monkeypatch, main_module)
+    monkeypatch.setattr(main_module, "set_session_time", lambda: 0)
 
     exit_code = main_module.run_program(session_info=make_session_info(tmp_path))
 
