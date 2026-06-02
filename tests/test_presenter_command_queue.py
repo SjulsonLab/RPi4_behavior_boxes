@@ -434,3 +434,25 @@ def test_stimulus_presenter_turn_sounds_off_still_turns_all_sounds_off(session_i
     assert ("sound1", "off", ()) in box.events
     assert ("sound2", "off", ()) in box.events
     assert ("sound3", "off", ()) in box.events
+
+
+def test_stimulus_presenter_perform_task_commands_drains_deque(session_info):
+    """Stimulus presenter should drain deque-backed command queues.
+
+    Data contract:
+    - Inputs:
+      - `session_info`: dict fixture.
+    - Output:
+      - Asserts `perform_task_commands()` processes a deque command and leaves it empty.
+    """
+    task = types.SimpleNamespace(state="left_patch", presenter_commands=deque(["turn_sounds_off"]))
+    box = BoxStub()
+    presenter = StimulusInferencePresenter(task, box, PumpStub(), gui=None, session_info=session_info)
+    box.clear()
+
+    presenter.perform_task_commands(correct_pump="2", incorrect_pump="3")
+
+    assert len(task.presenter_commands) == 0
+    assert ("sound1", "off", ()) in box.events
+    assert ("sound2", "off", ()) in box.events
+    assert ("sound3", "off", ()) in box.events
