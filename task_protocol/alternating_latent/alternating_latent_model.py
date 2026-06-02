@@ -63,7 +63,7 @@ class AlternatingLatentModel(Model):
         self.trial_choice_times = []
         self.trial_reward_given = []
         self.event_list = deque()
-        self.presenter_commands = []
+        self.presenter_commands = deque()
         self.ITI_active = False
         self.ITI_thread = None
         self.t_ITI_start = 0

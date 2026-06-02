@@ -56,7 +56,17 @@ class AlternatingLatentPresenter(Presenter):
             self.task.sample_next_block()
 
     def perform_task_commands(self, correct_pump: str, incorrect_pump: str) -> None:
-        for c in self.task.presenter_commands:
+        """Drain queued task commands in FIFO order.
+
+        Data contract:
+        - Inputs:
+          - `correct_pump`: str pump key for currently correct choices.
+          - `incorrect_pump`: str pump key for currently incorrect choices.
+        - Output:
+          - Returns `None`; consumes commands from `task.presenter_commands`.
+        """
+        while self.task.presenter_commands:
+            c = self.task.presenter_commands.popleft()
             if c == 'give_training_reward':
                 reward_size = self.reward_size_large
                 # self.task.rewards_earned_in_block += 1  # trying this out - not incrementing collected rewards if they are given by experimenter
@@ -97,5 +107,3 @@ class AlternatingLatentPresenter(Presenter):
                 print('current state: {}; rewards earned in block: {}'.format(self.task.state,
                                                                               self.task.rewards_earned_in_block))
                 self.deliver_reward(pump_key=incorrect_pump, reward_size=reward_size)
-
-        self.task.presenter_commands.clear()

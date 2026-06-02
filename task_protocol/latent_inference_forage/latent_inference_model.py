@@ -64,7 +64,7 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.event_list = deque()
         self.t_session_start = time.time()
 
-        self.presenter_commands = []
+        self.presenter_commands = deque()
         self.ITI_active = False
         self.ITI_thread = None
         self.t_ITI_start = 0

@@ -171,6 +171,23 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.box.sound2.off()
         self.box.sound3.off()
 
+    def sounds_on(self) -> None:
+        """Turn on the sound pattern associated with the current stimulus.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; drives A, B, or neutral/background sound channels.
+        """
+        if self.current_stimulus == 'A':
+            self.play_soundA()
+        elif self.current_stimulus == 'B':
+            self.play_soundB()
+        else:
+            self.box.sound1.off()
+            self.box.sound3.off()
+            self.box.sound2.on()
+
     def stimuli_reset(self) -> None:
         self.sounds_off()
         self.join_stimulus_threads()
@@ -229,6 +246,10 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
             self.sounds_off()
             logging.info(";" + str(time.time()) + ";[action];sounds_off;" + str(""))
 
+        elif command == 'turn_sounds_on':
+            self.sounds_on()
+            logging.info(";" + str(time.time()) + ";[action];sounds_on;" + str(""))
+
         elif command == 'turn_stimuli_off':
             self.stimuli_off()
             logging.info(";" + str(time.time()) + ";[action];stimuli_off;" + str(""))
@@ -276,8 +297,17 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         #                                                               self.task.rewards_earned_in_block))
 
     def perform_task_commands(self, correct_pump: str, incorrect_pump: str) -> None:
-        for i in range(len(self.task.presenter_commands)):
-            c = self.task.presenter_commands.pop(0)
+        """Drain queued task commands in FIFO order.
+
+        Data contract:
+        - Inputs:
+          - `correct_pump`: str pump key for currently correct choices.
+          - `incorrect_pump`: str pump key for currently incorrect choices.
+        - Output:
+          - Returns `None`; consumes commands from `task.presenter_commands`.
+        """
+        while self.task.presenter_commands:
+            c = self.task.presenter_commands.popleft()
             self.match_command(c, correct_pump, incorrect_pump)
 
     def update_plot(self, save_fig=False, n_plot=20) -> None:

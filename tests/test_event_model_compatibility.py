@@ -191,7 +191,7 @@ def test_alternating_latent_input_event_left_choice_still_rewards_left_patch(ses
 
     assert model.trial_choice_list == [session_info["left_ix"]]
     assert model.trial_correct_list == [True]
-    assert model.presenter_commands == ["give_correct_reward"]
+    assert list(model.presenter_commands) == ["give_correct_reward"]
     assert model.rewards_earned_in_block == 0
 
 
@@ -203,7 +203,7 @@ def test_alternating_latent_input_event_right_choice_still_rewards_right_patch(s
 
     assert model.trial_choice_list == [session_info["right_ix"]]
     assert model.trial_correct_list == [True]
-    assert model.presenter_commands == ["give_correct_reward"]
+    assert list(model.presenter_commands) == ["give_correct_reward"]
     assert model.rewards_earned_in_block == 0
 
 
@@ -218,7 +218,7 @@ def test_alternating_latent_threshold_two_counts_two_events_in_one_drain(session
 
     assert len(model.event_list) == 0
     assert model.trial_choice_list == [session_info["left_ix"]]
-    assert model.presenter_commands == ["give_correct_reward"]
+    assert list(model.presenter_commands) == ["give_correct_reward"]
 
 
 def test_alternating_latent_iti_lick_is_logged_discarded_and_no_choice(session_info, caplog):
@@ -268,7 +268,7 @@ def test_flush_drains_input_events_without_adding_choice_behavior(session_info):
 
     assert len(model.event_list) == 0
     assert model.trial_choice_list == []
-    assert model.presenter_commands == []
+    assert list(model.presenter_commands) == []
 
 
 def test_flush_instances_do_not_share_event_or_command_state(session_info):
@@ -279,4 +279,4 @@ def test_flush_instances_do_not_share_event_or_command_state(session_info):
     first_model.presenter_commands.append("toggle_pump1")
 
     assert len(second_model.event_list) == 0
-    assert second_model.presenter_commands == []
+    assert list(second_model.presenter_commands) == []

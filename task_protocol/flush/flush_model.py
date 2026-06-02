@@ -42,7 +42,7 @@ class FlushModel(Model):
         self.lick_exit_buffer = np.array([np.inf, np.inf])
         self.t_session = time.time()
 
-        self.presenter_commands = []
+        self.presenter_commands = deque()
         self.ITI_active = False
         self.ITI_thread = None
         self.t_ITI_start = 0

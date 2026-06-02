@@ -51,7 +51,15 @@ class FlushPresenter(Presenter):
         ic("sounds off")
 
     def perform_task_commands(self) -> None:
-        for c in self.task.presenter_commands:
+        """Drain queued task commands in FIFO order.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; consumes commands from `task.presenter_commands`.
+        """
+        while self.task.presenter_commands:
+            c = self.task.presenter_commands.popleft()
             if c == 'toggle_right_water':
                 logging.info(";" + str(time.time()) + ";[reward];toggling_right_water;" + str(""))
                 self.pump.toggle(self.session_info['right_reward_pump'])
@@ -120,8 +128,6 @@ class FlushPresenter(Presenter):
             else:
                 logging.info(";" + str(time.time()) + ";[action];unknown_command;" + str(c))
                 ic("Unknown command:", c)
-
-        self.task.presenter_commands.clear()
 
     def play_soundA(self):
         # for some reason sound1 (white noise) is physically connected to DIO2, and sound2 (tone) is connected to DIO1

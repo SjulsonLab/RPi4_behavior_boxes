@@ -60,7 +60,17 @@ class LatentInferencePresenter(Presenter):
         self.check_keyboard()
 
     def perform_task_commands(self, correct_pump: str, incorrect_pump: str) -> None:
-        for c in self.task.presenter_commands:
+        """Drain queued task commands in FIFO order.
+
+        Data contract:
+        - Inputs:
+          - `correct_pump`: str pump key for currently correct choices.
+          - `incorrect_pump`: str pump key for currently incorrect choices.
+        - Output:
+          - Returns `None`; consumes commands from `task.presenter_commands`.
+        """
+        while self.task.presenter_commands:
+            c = self.task.presenter_commands.popleft()
             if c == 'turn_LED_on':
                 self.box.cueLED1.on()
                 self.box.cueLED2.on()
@@ -119,5 +129,3 @@ class LatentInferencePresenter(Presenter):
 
             # print('current state: {}; rewards earned in block: {}'.format(self.task.state,
             #                                                               self.task.rewards_earned_in_block))
-
-        self.task.presenter_commands.clear()
