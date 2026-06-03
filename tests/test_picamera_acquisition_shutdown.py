@@ -81,3 +81,37 @@ def test_picamera_cleanup_is_idempotent_and_flushes_before_close(monkeypatch):
     assert camera.preview_stopped == 1
     assert output.flushed == 1
     assert output.closed == 1
+
+
+def test_make_output_filenames_uses_full_camera_label(monkeypatch):
+    """Output filenames should treat `camera_id` as the complete camera label.
+
+    Data contract:
+    - Inputs:
+      - `monkeypatch`: pytest fixture used to stub hardware imports.
+    - Output:
+      - Asserts `cam0` appears once and is not expanded to `camcam0`.
+    """
+    module = load_acquisition_module(monkeypatch)
+
+    filenames = module.make_output_filenames("/tmp/session", "cam0")
+
+    assert all("_cam0_" in filename for filename in filenames)
+    assert all("_camcam0_" not in filename for filename in filenames)
+
+
+def test_make_output_filenames_preserves_nonstandard_camera_label(monkeypatch):
+    """Output filenames should preserve nonstandard camera labels exactly.
+
+    Data contract:
+    - Inputs:
+      - `monkeypatch`: pytest fixture used to stub hardware imports.
+    - Output:
+      - Asserts labels such as `side_cam` are not prefixed or normalized.
+    """
+    module = load_acquisition_module(monkeypatch)
+
+    filenames = module.make_output_filenames("/tmp/session", "side_cam")
+
+    assert all("_side_cam_" in filename for filename in filenames)
+    assert all("_camside_cam_" not in filename for filename in filenames)
