@@ -45,7 +45,7 @@ class LatentInferenceModel(Model):  # subclass from base task
         self.automate_training_rewards = False  # keep here, use in controller
         self.give_training_reward = False  # keep here, use in controller
         self.error_count = 0
-        self.errors_to_reward = 5
+        self.errors_to_reward = session_info['errors_to_reward_delivery']
         self.max_correct_trials_in_block = session_info['max_correct_trials_in_block']
 
 
