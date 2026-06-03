@@ -108,7 +108,7 @@ class VisualStimBase(ABC):
 class Box(ABC):
 
     visualstim: VisualStimBase = None
-    presenter_commands: List[str] = []
+    presenter_commands: List[str]
     # sound1: LED
     # sound2: LED
 
@@ -153,17 +153,17 @@ class Model(ABC):
     give_training_reward: bool
     state: str
 
-    event_list: List[str] = collections.deque()
-    trial_choice_list: List[int] = []
-    trial_correct_list: List[bool] = []
-    trial_choice_times: List[float] = []
-    trial_reward_given: List[bool] = []
+    event_list: collections.deque
+    trial_choice_list: List[int]
+    trial_correct_list: List[bool]
+    trial_choice_times: List[float]
+    trial_reward_given: List[bool]
 
     # Lick detection
     lick_threshold: int = 2
-    lick_side_buffer: np.ndarray = np.zeros(2)
-    lick_entry_buffer: np.ndarray = np.zeros(2)
-    lick_exit_buffer: np.ndarray = np.array([np.inf, np.inf])
+    lick_side_buffer: np.ndarray
+    lick_entry_buffer: np.ndarray
+    lick_exit_buffer: np.ndarray
 
     error_count: int = 0
     trial_number: int = 0
@@ -178,7 +178,7 @@ class Model(ABC):
     ITI_thread: threading.Timer = None
     t_ITI_start: float = 0
 
-    presenter_commands: List[str] = []
+    presenter_commands: collections.deque
 
     LICK_EVENTS = frozenset(("right_entry", "left_entry", "right_exit", "left_exit"))
 

@@ -57,7 +57,14 @@ class StimulusInferenceModel(LatentInferenceModel):
         self.presenter_commands.append('set_dark_period_stimuli')
 
     def enter_left_patch(self) -> None:
-        logging.info(";" + str(time.time()) + ";[transition];enter_left_patch;" + str(""))
+        """Enter the left patch while preserving parent block-counter bookkeeping.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; resets patch counters and queues the selected stimulus command.
+        """
+        super().enter_left_patch()
         if random.random() < self.session_info['p_stimulus']:
             self.L_stimulus_on()
             logging.info(";" + str(time.time()) + ";[stimulus];left_stimulus_on;" + str(""))
@@ -66,11 +73,25 @@ class StimulusInferenceModel(LatentInferenceModel):
             logging.info(";" + str(time.time()) + ";[stimulus];stimulus_C_on;" + str(""))
 
     def exit_left_patch(self):
+        """Exit the left patch while preserving parent block-counter bookkeeping.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; resets parent patch counters.
+        """
         # self.reset_stimuli()
-        logging.info(";" + str(time.time()) + ";[transition];exit_left_patch;" + str(""))
+        super().exit_left_patch()
 
     def enter_right_patch(self) -> None:
-        logging.info(";" + str(time.time()) + ";[transition];enter_right_patch;" + str(""))
+        """Enter the right patch while preserving parent block-counter bookkeeping.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; resets patch counters and queues the selected stimulus command.
+        """
+        super().enter_right_patch()
         if random.random() < self.session_info['p_stimulus']:
             self.R_stimulus_on()
             logging.info(";" + str(time.time()) + ";[action];right_stimulus_on;" + str(""))
@@ -79,7 +100,14 @@ class StimulusInferenceModel(LatentInferenceModel):
             logging.info(";" + str(time.time()) + ";[action];stimulus_C_on;" + str(""))
 
     def exit_right_patch(self):
-        logging.info(";" + str(time.time()) + ";[transition];exit_right_patch;" + str(""))
+        """Exit the right patch while preserving parent block-counter bookkeeping.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; resets parent patch counters.
+        """
+        super().exit_right_patch()
 
     def exit_standby(self):
         logging.info(";" + str(time.time()) + ";[transition];exit_standby;" + str(""))

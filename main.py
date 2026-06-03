@@ -84,14 +84,30 @@ def close_logs():
     ic('All logs closed!')
 
 
-def parse_args():
+def parse_args(argv=None):
+    """Parse command-line arguments for behavior-box startup.
+
+    Data contract:
+    - Inputs:
+      - `argv`: optional list of str command-line arguments. When `None`, argparse reads `sys.argv`.
+    - Output:
+      - `argparse.Namespace` with `camera_dry_run: bool` and `external_output_dir: str | None`.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--camera-dry-run',
         action='store_true',
         help='Verify camera/network connectivity for all configured camera nodes and exit.',
     )
-    return parser.parse_args()
+    parser.add_argument(
+        '--external-output-dir',
+        default=None,
+        help=(
+            'Pre-existing external-storage parent directory for final session transfer. '
+            'Relative paths are resolved under session_info["external_storage"].'
+        ),
+    )
+    return parser.parse_args(argv)
 
 
 def print_camera_dry_run_report(report: dict):
@@ -123,7 +139,44 @@ def print_camera_dry_run_report(report: dict):
         print("\nVerification failed for one or more required cameras.")
 
 
-def configure_session_output_paths(session_info: dict, datestr: str, timestr: str) -> dict:
+def resolve_external_output_parent(session_info: dict, external_output_dir: str) -> Path:
+    """Resolve and validate a requested external output parent directory.
+
+    Data contract:
+    - Inputs:
+      - `session_info`: `dict` with `external_storage` path string.
+      - `external_output_dir`: `str`, absolute path or path relative to `external_storage`.
+    - Output:
+      - `Path` for an existing parent directory inside `external_storage`.
+      - Raises `RuntimeError` if the parent is missing, not a directory, or outside external storage.
+    """
+    external_storage = Path(session_info['external_storage']).resolve()
+    requested_parent = Path(external_output_dir)
+    if not requested_parent.is_absolute():
+        requested_parent = external_storage / requested_parent
+
+    requested_parent = requested_parent.resolve()
+    if not requested_parent.exists():
+        raise RuntimeError(f"External output directory does not exist: {requested_parent}")
+    if not requested_parent.is_dir():
+        raise RuntimeError(f"External output path is not a directory: {requested_parent}")
+
+    try:
+        requested_parent.relative_to(external_storage)
+    except ValueError:
+        raise RuntimeError(
+            f"External output directory must be inside external storage {external_storage}: {requested_parent}"
+        )
+
+    return requested_parent
+
+
+def configure_session_output_paths(
+        session_info: dict,
+        datestr: str,
+        timestr: str,
+        external_output_dir: str = None,
+) -> dict:
     """Populate per-session output paths.
 
     Data contract:
@@ -131,6 +184,7 @@ def configure_session_output_paths(session_info: dict, datestr: str, timestr: st
       - `session_info`: `dict` with at least `debug`, `mouse_name`, `buffer_dir`, and `external_storage`.
       - `datestr`: `str`, session date formatted as `YYYY-MM-DD`.
       - `timestr`: `str`, session start time formatted as `HHMMSS`.
+      - `external_output_dir`: optional `str` for an existing external-storage parent directory.
     - Output:
       - Returns the same `dict` populated with `date`, `time`, `datetime`, `session_name`,
         `output_dir`, `video_dir`, `external_storage_dir`, `flipper_filename`,
@@ -158,10 +212,14 @@ def configure_session_output_paths(session_info: dict, datestr: str, timestr: st
         session_info['treadmill_filename'] = session_info['output_dir'] + '/' + session_info['session_name'] + "_treadmill"
         session_info['file_basename'] = session_info['output_dir'] + '/' + session_info['session_name']
 
+    if external_output_dir is not None:
+        external_parent = resolve_external_output_parent(session_info, external_output_dir)
+        session_info['external_storage_dir'] = str(external_parent / session_info['session_name'])
+
     return session_info
 
 
-def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
+def run_program(session_info: dict = None, camera_dry_run: bool = False, external_output_dir: str = None) -> int:
     exit_code = 0
     session_cleanup_done = False
     try:
@@ -202,7 +260,12 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
         #     print(Fore.RED + Style.BRIGHT + 'ERROR: Mouse info not set! Exiting now' + Style.RESET_ALL)
         #     quit()
 
-        session_info = configure_session_output_paths(session_info, datestr, timestr)
+        session_info = configure_session_output_paths(
+            session_info,
+            datestr,
+            timestr,
+            external_output_dir=external_output_dir,
+        )
 
         log_path = Path(session_info['output_dir']) / (session_info['file_basename'] + '.log')
         # if not debugging, stop if log path exists
@@ -299,7 +362,6 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
         t_end = time.time() + 60 * t_minute
 
         task.presenter_commands.clear()
-        box.presenter_commands.clear()
         if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is not None:
             box.visualstim.empty_presenter_queue()
             box.visualstim.empty_stimulus_queue()
@@ -370,4 +432,7 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False) -> int:
 
 if __name__ == '__main__':
     args = parse_args()
-    sys.exit(run_program(camera_dry_run=args.camera_dry_run))
+    sys.exit(run_program(
+        camera_dry_run=args.camera_dry_run,
+        external_output_dir=args.external_output_dir,
+    ))

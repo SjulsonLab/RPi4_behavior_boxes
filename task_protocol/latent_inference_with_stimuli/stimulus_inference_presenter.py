@@ -12,7 +12,7 @@ from icecream import ic
 import time
 import logging
 from essential.base_classes import Presenter, Model, GUI, Box, PumpBase
-from threading import Thread
+from threading import Thread, current_thread
 
 
 # SEED = 0
@@ -107,13 +107,30 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.box.visualstim.display_default_greyscale()
 
     def join_stimulus_threads(self) -> None:
+        """Stop active stimulus loops and wait for other stimulus threads to finish.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; sets `gratings_on=False`, joins live non-current threads,
+            and clears completed thread references.
+        """
         self.gratings_on = False
-        if self.stimulus_A_thread is not None:
-            self.stimulus_A_thread.join()
-            logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_A_off;")
-        if self.stimulus_B_thread is not None:
-            self.stimulus_B_thread.join()
-            logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_B_off;")
+        current = current_thread()
+        for thread_attribute, stimulus_name in [
+            ('stimulus_A_thread', 'A'),
+            ('stimulus_B_thread', 'B'),
+        ]:
+            thread = getattr(self, thread_attribute)
+            if thread is None:
+                continue
+
+            if thread is not current and thread.is_alive():
+                thread.join()
+
+            if thread is not current and not thread.is_alive():
+                setattr(self, thread_attribute, None)
+                logging.info(";" + str(time.time()) + ";[stimulus];" + "stimulus_{}_off;".format(stimulus_name))
 
     def stimulus_loop(self, grating_name: str, sound_fn: Callable, prev_stim_thread: Thread) -> None:
         if prev_stim_thread is not None and prev_stim_thread.is_alive():
@@ -153,6 +170,23 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         self.box.sound1.off()
         self.box.sound2.off()
         self.box.sound3.off()
+
+    def sounds_on(self) -> None:
+        """Turn on the sound pattern associated with the current stimulus.
+
+        Data contract:
+        - Inputs: none.
+        - Output:
+          - Returns `None`; drives A, B, or neutral/background sound channels.
+        """
+        if self.current_stimulus == 'A':
+            self.play_soundA()
+        elif self.current_stimulus == 'B':
+            self.play_soundB()
+        else:
+            self.box.sound1.off()
+            self.box.sound3.off()
+            self.box.sound2.on()
 
     def stimuli_reset(self) -> None:
         self.sounds_off()
@@ -212,6 +246,10 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
             self.sounds_off()
             logging.info(";" + str(time.time()) + ";[action];sounds_off;" + str(""))
 
+        elif command == 'turn_sounds_on':
+            self.sounds_on()
+            logging.info(";" + str(time.time()) + ";[action];sounds_on;" + str(""))
+
         elif command == 'turn_stimuli_off':
             self.stimuli_off()
             logging.info(";" + str(time.time()) + ";[action];stimuli_off;" + str(""))
@@ -259,8 +297,17 @@ class StimulusInferencePresenter(LatentInferencePresenter):  # subclass from bas
         #                                                               self.task.rewards_earned_in_block))
 
     def perform_task_commands(self, correct_pump: str, incorrect_pump: str) -> None:
-        for i in range(len(self.task.presenter_commands)):
-            c = self.task.presenter_commands.pop(0)
+        """Drain queued task commands in FIFO order.
+
+        Data contract:
+        - Inputs:
+          - `correct_pump`: str pump key for currently correct choices.
+          - `incorrect_pump`: str pump key for currently incorrect choices.
+        - Output:
+          - Returns `None`; consumes commands from `task.presenter_commands`.
+        """
+        while self.task.presenter_commands:
+            c = self.task.presenter_commands.popleft()
             self.match_command(c, correct_pump, incorrect_pump)
 
     def update_plot(self, save_fig=False, n_plot=20) -> None:

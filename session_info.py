@@ -47,7 +47,7 @@ def make_session_info() -> Dict[str, Any]:
     session_info['switch_probability'] = session_info['default_switch_probability']  # this is the switch param - when no bias is set, it is the only parameter used. In session_info settings, setting it based off default_switch reduced user parameters
     session_info['epoch_length'] = 120
     session_info['dark_period_times'] = [10]
-    session_info['use_dark_period'] = True
+    session_info['use_dark_period'] = False
     session_info['max_correct_trials_in_block'] = 2 / session_info['switch_probability']  # either use double the expected trials per block or hardcode 30
 
     # Reward pump parameters
