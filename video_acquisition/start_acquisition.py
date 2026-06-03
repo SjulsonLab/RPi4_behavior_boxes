@@ -41,15 +41,15 @@ def make_output_filenames(base_path: str, cam_id: str) -> Tuple[str, str, str]:
     Data contract:
     - Inputs:
       - `base_path`: `str`, absolute or relative path prefix for this session output.
-      - `cam_id`: `str`, camera identifier appended after `_cam`.
+      - `cam_id`: `str`, complete camera identifier appended after `base_path`.
     - Output:
       - Returns `(video_filename, timestamp_filename, flipper_filename)`, a tuple of
         three `str` paths. Video is H264 bytes; timestamp/flipper files are CSV text.
     """
     timestamp = dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    video_filename = base_path + "_cam" + cam_id + "_output_" + timestamp + ".h264"
-    timestamp_filename = base_path + "_cam" + cam_id + "_timestamp_" + timestamp + ".csv"
-    flipper_filename = base_path + "_cam" + cam_id + "_flipper_" + timestamp + ".csv"
+    video_filename = f"{base_path}_{cam_id}_output_{timestamp}.h264"
+    timestamp_filename = f"{base_path}_{cam_id}_timestamp_{timestamp}.csv"
+    flipper_filename = f"{base_path}_{cam_id}_flipper_{timestamp}.csv"
     return video_filename, timestamp_filename, flipper_filename
 
 
