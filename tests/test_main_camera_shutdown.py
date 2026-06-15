@@ -1,8 +1,10 @@
 import importlib
+import json
 import sys
 import types
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 
@@ -343,3 +345,74 @@ def test_run_program_applies_external_output_dir_to_session_info(monkeypatch, tm
     assert FakeBox.last_instance.session_info["external_storage_dir"] == str(
         external_parent / FakeBox.last_instance.session_info["session_name"]
     )
+
+
+def test_make_json_safe_converts_numpy_and_nonfinite_values(monkeypatch):
+    """Session-info JSON conversion should produce strict, readable JSON values.
+
+    Data contract:
+    - Inputs:
+      - `monkeypatch`: pytest fixture for fake hardware imports.
+    - Output:
+      - Asserts nested NumPy values and non-finite floats become JSON-safe values.
+    """
+    main_module = load_main_with_fakes(monkeypatch, CompletingPresenter)
+
+    converted = main_module.make_json_safe(
+        {
+            "positive_infinity": np.inf,
+            "negative_infinity": -np.inf,
+            "not_a_number": np.nan,
+            "numpy_int": np.int64(7),
+            "numpy_float": np.float64(1.25),
+            "path": Path("/tmp/session"),
+            "nested": [np.float32(2.5), {"flag": np.bool_(True)}],
+        }
+    )
+
+    assert converted == {
+        "positive_infinity": "Infinity",
+        "negative_infinity": "-Infinity",
+        "not_a_number": "NaN",
+        "numpy_int": 7,
+        "numpy_float": 1.25,
+        "path": "/tmp/session",
+        "nested": [2.5, {"flag": True}],
+    }
+    json.dumps(converted, allow_nan=False)
+
+
+def test_run_program_saves_readable_session_info_json(monkeypatch, tmp_path):
+    """Startup should save a JSON sidecar beside the pickle session-info file.
+
+    Data contract:
+    - Inputs:
+      - `monkeypatch`: pytest fixture for fake hardware imports.
+      - `tmp_path`: pytest temporary directory fixture.
+    - Output:
+      - Asserts `_session_info.json` exists and contains representative settings.
+    """
+    main_module = load_main_with_fakes(monkeypatch, CompletingPresenter)
+    prepare_main_for_shutdown_test(monkeypatch, main_module)
+    monkeypatch.setattr(main_module, "set_session_time", lambda: 0)
+    session_info = make_session_info(tmp_path)
+    session_info["errors_to_reward_delivery"] = np.inf
+
+    exit_code = main_module.run_program(session_info=session_info)
+
+    assert exit_code == 0
+    saved_session_info = FakeBox.last_instance.session_info
+    json_path = (
+        Path(saved_session_info["output_dir"])
+        / (saved_session_info["file_basename"] + "_session_info.json")
+    )
+    assert json_path.is_file()
+
+    with open(json_path, "r") as f:
+        json_session_info = json.load(f)
+
+    assert json_session_info["mouse_name"] == saved_session_info["mouse_name"]
+    assert json_session_info["task_config"] == saved_session_info["task_config"]
+    assert json_session_info["output_dir"] == saved_session_info["output_dir"]
+    assert json_session_info["external_storage_dir"] == saved_session_info["external_storage_dir"]
+    assert json_session_info["errors_to_reward_delivery"] == "Infinity"
