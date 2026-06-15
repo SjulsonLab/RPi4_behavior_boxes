@@ -10,6 +10,8 @@ name: main.py
 from icecream import ic
 import traceback
 from datetime import datetime
+import json
+import math
 import os
 import scipy.io, pickle
 import pygame
@@ -23,6 +25,7 @@ from session_info import make_session_info
 from subprocess import check_output
 import re
 import argparse
+import numpy as np
 
 sys.path.insert(0, './essential')  # essential holds behavbox and equipment classes
 sys.path.insert(0, '.')
@@ -171,6 +174,48 @@ def resolve_external_output_parent(session_info: dict, external_output_dir: str)
     return requested_parent
 
 
+def make_json_safe(value):
+    """Convert session metadata to strict JSON-compatible values.
+
+    Data contract:
+    - Inputs:
+      - `value`: any nested session-info value. Supported containers are `dict`,
+        `list`, and `tuple`; supported scalar values include Python scalars,
+        NumPy scalar values, NumPy arrays, and `Path` objects.
+    - Output:
+      - A JSON-compatible Python value. Non-finite floating-point values are
+        represented by clear strings: `"Infinity"`, `"-Infinity"`, and `"NaN"`.
+    - Units:
+      - Numeric values keep their original units; only their storage type changes.
+    """
+    if isinstance(value, dict):
+        return {str(key): make_json_safe(item) for key, item in value.items()}
+
+    if isinstance(value, (list, tuple)):
+        return [make_json_safe(item) for item in value]
+
+    if isinstance(value, np.ndarray):
+        return make_json_safe(value.tolist())
+
+    if isinstance(value, np.generic):
+        return make_json_safe(value.item())
+
+    if isinstance(value, Path):
+        return str(value)
+
+    if isinstance(value, float):
+        if math.isinf(value):
+            return "Infinity" if value > 0 else "-Infinity"
+        if math.isnan(value):
+            return "NaN"
+        return value
+
+    if isinstance(value, (str, int, bool)) or value is None:
+        return value
+
+    return str(value)
+
+
 def configure_session_output_paths(
         session_info: dict,
         datestr: str,
@@ -277,6 +322,7 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False, externa
 
         session_info_path = Path(session_info['output_dir']) / (session_info['file_basename'] + '_session_info.pkl')
         mat_path = Path(session_info['output_dir']) / (session_info['file_basename'] + '_session_info.mat')
+        json_path = Path(session_info['output_dir']) / (session_info['file_basename'] + '_session_info.json')
         session_info['log_path'] = str(log_path)
 
         if not os.path.exists(session_info['output_dir']):
@@ -356,6 +402,8 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False, externa
         scipy.io.savemat(mat_path, session_info)
         with open(session_info_path, 'wb') as f:
             pickle.dump(session_info, f)
+        with open(json_path, 'w') as f:
+            json.dump(make_json_safe(session_info), f, indent=2, sort_keys=False, allow_nan=False)
 
         presenter.start_session()
         t_minute = set_session_time()
