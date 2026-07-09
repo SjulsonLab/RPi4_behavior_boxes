@@ -4,7 +4,6 @@ from icecream import ic
 from datetime import datetime
 import os
 import sys
-import copy
 import logging.config
 import importlib
 import scipy.io, pickle
@@ -344,6 +343,26 @@ def _import_session_info_module(module_name, task_info_path):
     return importlib.import_module(module_name)
 
 
+def _mutable_mapping_copy(source_mapping):
+    """Return a mutable top-level dictionary copy of a session metadata mapping.
+
+    Inputs
+    ------
+    source_mapping : mapping
+        Mapping-like object containing session metadata keys and values. This
+        may be a normal ``dict`` or an immutable ``pysistence.PDict`` from the
+        Raspberry Pi session-info files.
+
+    Returns
+    -------
+    dict
+        Mutable top-level dictionary with the same keys and values. Nested
+        values are preserved as-is; no array shapes or physical units are
+        changed.
+    """
+    return dict(source_mapping.items())
+
+
 def load_session_info_for_date(datestr, task_info_path, input_fn=input):
     """Load the date-specific session-info dictionary for this run.
 
@@ -377,8 +396,8 @@ def load_session_info_for_date(datestr, task_info_path, input_fn=input):
 
     try:
         tempmod = _import_session_info_module(target_module_name, task_info_path)
-        session_info = copy.deepcopy(tempmod.session_info)
-        mouse_info = copy.deepcopy(getattr(tempmod, "mouse_info", {}))
+        session_info = _mutable_mapping_copy(tempmod.session_info)
+        mouse_info = _mutable_mapping_copy(getattr(tempmod, "mouse_info", {}))
         return session_info, mouse_info
     except ModuleNotFoundError as exc:
         # Re-raise missing dependencies inside a session-info module. Only
@@ -416,8 +435,8 @@ def load_session_info_for_date(datestr, task_info_path, input_fn=input):
 
     selected_module_name = "go_nogo_session_info_" + selected_date
     tempmod = _import_session_info_module(selected_module_name, task_info_path)
-    session_info = copy.deepcopy(tempmod.session_info)
-    mouse_info = copy.deepcopy(getattr(tempmod, "mouse_info", {}))
+    session_info = _mutable_mapping_copy(tempmod.session_info)
+    mouse_info = _mutable_mapping_copy(getattr(tempmod, "mouse_info", {}))
 
     # Treat the selected file as a template for today's run. Do not write the
     # module back to disk; just make the in-memory session_info pass the
