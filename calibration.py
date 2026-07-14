@@ -18,6 +18,8 @@ from time import sleep
 
 
 DEFAULT_SOLENOID_TIMES_S = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+DEFAULT_SOLENOID_TIMES_S = [0.05, 0.075, 0.1, 0.125] # this range should be sufficient for box 131
+
 DEFAULT_REWARD_COUNT = 100
 DEFAULT_OFF_TIME_S = 0.01
 DEFAULT_PULSE_COUNT = 6
