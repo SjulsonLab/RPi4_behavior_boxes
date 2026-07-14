@@ -105,6 +105,7 @@ def test_run_countup_baseline_returns_manual_metadata_and_two_second_prints(capl
     assert metadata["baseline_lick_times"] == [0.0]
     assert "Baseline elapsed: 2 sec | Ctrl+C to end baseline" in printed_messages
     assert "1000.0, baseline_start" in caplog.text
+    assert "baseline_lick, left_entry, 0 sec, 0.000 s since baseline_start" in caplog.text
     assert "baseline_elapsed, 2 sec, 2.000 s" in caplog.text
     assert "baseline_note, ignore any late task timer messages after baseline_start" in caplog.text
     assert "1006.0, baseline_manual_stop" in caplog.text

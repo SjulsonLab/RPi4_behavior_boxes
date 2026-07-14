@@ -203,7 +203,20 @@ def drain_baseline_events(task, baseline_start_time, baseline_lick_times, time_f
         event_name = event_queue.popleft()
         drained_events.append(event_name)
         if event_name in BASELINE_LICK_EVENTS:
-            baseline_lick_times.append(time_fn() - baseline_start_time)
+            event_time = time_fn()
+            elapsed_seconds = event_time - baseline_start_time
+            baseline_lick_times.append(elapsed_seconds)
+            logging.info(
+                str(event_time)
+                + ", baseline_lick, "
+                + event_name
+                + ", "
+                + format_elapsed_seconds(elapsed_seconds)
+                + ", "
+                + "{:.3f}".format(elapsed_seconds)
+                + " s since baseline_start"
+            )
+            flush_logging_handlers()
     return drained_events
 
 
