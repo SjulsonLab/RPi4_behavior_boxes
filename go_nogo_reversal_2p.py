@@ -353,16 +353,7 @@ class go_nogo_reversal(object):
             event_name = ""
 
         if event_name == "left_entry":
-            lick_time = time.time() - self.trial_start_time
-            self.lick_times = np.append(self.lick_times, lick_time)
-            logging.info(
-                str(time.time())
-                + ", left_entry, trial_elapsed, "
-                + "{:.3f}".format(lick_time)
-                + " s, state, "
-                + str(self.state)
-                + ", trial_type, go"
-            )
+            self.lick_times = np.append(self.lick_times, time.time() - self.trial_start_time)
 
         if self.state == "standby":
             pass
@@ -408,16 +399,7 @@ class go_nogo_reversal(object):
             event_name = ""
 
         if event_name == "left_entry":
-            lick_time = time.time() - self.trial_start_time
-            self.lick_times = np.append(self.lick_times, lick_time)
-            logging.info(
-                str(time.time())
-                + ", left_entry, trial_elapsed, "
-                + "{:.3f}".format(lick_time)
-                + " s, state, "
-                + str(self.state)
-                + ", trial_type, nogo"
-            )
+            self.lick_times = np.append(self.lick_times, time.time() - self.trial_start_time)
 
         if self.state == "standby":
             pass

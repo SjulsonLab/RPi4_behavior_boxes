@@ -490,6 +490,42 @@ def save_session_info_files(session_info):
     return saved_any
 
 
+def log_new_trial_licks(task, previous_lick_count, trial_ident):
+    """Log newly detected left-entry lick timestamps for this baseline launcher.
+
+    Inputs
+    ------
+    task : go_nogo_firstrule-like object
+        Active task object with ``lick_times`` in seconds from trial start and
+        a string-like ``state`` attribute.
+    previous_lick_count : int
+        Number of lick timestamps that had already been logged for this trial.
+    trial_ident : str
+        Current trial identity, either ``go_trial`` or ``nogo_trial``.
+
+    Returns
+    -------
+    int
+        Current number of lick timestamps seen for this trial.
+    """
+    lick_times = getattr(task, "lick_times", [])
+    current_lick_count = len(lick_times)
+    for lick_index in range(previous_lick_count, current_lick_count):
+        lick_time = float(lick_times[lick_index])
+        logging.info(
+            str(time.time())
+            + ", left_entry, trial_elapsed, "
+            + "{:.3f}".format(lick_time)
+            + " s, state, "
+            + str(getattr(task, "state", "unknown"))
+            + ", trial_type, "
+            + trial_ident
+        )
+    if current_lick_count > previous_lick_count:
+        manual_baseline.flush_logging_handlers()
+    return current_lick_count
+
+
 
 if __name__ == "__main__":
     task = None
@@ -583,10 +619,12 @@ if __name__ == "__main__":
                         logging.info(str(time.time()) + ", ##############################")
 
                         task.go_trial_start()
+                        last_lick_count = 0
 
                         #  Run trial in loop
                         while task.trial_running:
                             task.run_go()
+                            last_lick_count = log_new_trial_licks(task, last_lick_count, trial_ident)
                             ## new edits 2026.04.03, add frame sync flush                       
                             task.box.flush_frame_events()
 
@@ -688,15 +726,19 @@ if __name__ == "__main__":
 
                 if trial_ident == "go_trial":
                     task.go_trial_start()
+                    last_lick_count = 0
                     #  Run trial in loop
                     while task.trial_running:
                         task.run_go()
+                        last_lick_count = log_new_trial_licks(task, last_lick_count, trial_ident)
                         task.box.flush_frame_events() # new edit 2026.04.03
                     task.box.flush_frame_events()     # new edit 2026.04.03
                 elif trial_ident == "nogo_trial":
                     task.nogo_trial_start()
+                    last_lick_count = 0
                     while task.trial_running:
                         task.run_nogo()
+                        last_lick_count = log_new_trial_licks(task, last_lick_count, trial_ident)
                         task.box.flush_frame_events()
                     task.box.flush_frame_events()
 
