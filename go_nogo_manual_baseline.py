@@ -256,6 +256,38 @@ def print_baseline_timer(elapsed_seconds, print_fn=print):
     print_fn("Baseline elapsed: " + elapsed_text + " | Ctrl+C to end baseline")
 
 
+def log_baseline_timer(elapsed_seconds, event_time=None):
+    """Log the current manual baseline timer for later review.
+
+    Inputs
+    ------
+    elapsed_seconds : float
+        Elapsed baseline time in seconds. Negative values are clamped to zero
+        for display. Units are seconds.
+    event_time : float or None, optional
+        Absolute UNIX timestamp in seconds for the log line. If None,
+        ``time.time()`` is used.
+
+    Returns
+    -------
+    None
+        Writes one timestamped elapsed-time line to the active session log.
+    """
+    if event_time is None:
+        event_time = time.time()
+    elapsed_seconds = max(0.0, float(elapsed_seconds))
+    elapsed_text = format_elapsed_seconds(elapsed_seconds)
+    logging.info(
+        str(event_time)
+        + ", baseline_elapsed, "
+        + elapsed_text
+        + ", "
+        + "{:.3f}".format(elapsed_seconds)
+        + " s"
+    )
+    flush_logging_handlers()
+
+
 def _log_due_baseline_minute_markers(
     elapsed_seconds,
     next_minute_marker,
@@ -364,6 +396,10 @@ def run_countup_baseline(
 
     log_session_event("baseline_start", baseline_start_time, session_info)
     logging.info(str(baseline_start_time) + ", baseline_target, manual count-up")
+    logging.info(
+        str(baseline_start_time)
+        + ", baseline_note, ignore any late task timer messages after baseline_start"
+    )
     flush_logging_handlers()
 
     print_fn("Starting baseline count-up timer. Press Ctrl+C to end baseline.")
@@ -374,6 +410,7 @@ def run_countup_baseline(
             elapsed_seconds = max(0.0, current_time - baseline_start_time)
             if elapsed_seconds >= next_status_elapsed:
                 print_baseline_timer(elapsed_seconds, print_fn=print_fn)
+                log_baseline_timer(elapsed_seconds, event_time=current_time)
                 next_status_elapsed += status_interval_seconds
 
             next_minute_marker = _log_due_baseline_minute_markers(
@@ -401,10 +438,19 @@ def run_countup_baseline(
     drain_baseline_events(task, baseline_start_time, baseline_lick_times, time_fn=time_fn)
     _flush_frame_events(task, baseline_end_time)
 
+    actual_duration = float(baseline_end_time - baseline_start_time)
     log_session_event("baseline_completed_manual", baseline_end_time, session_info)
     log_session_event("baseline_end", baseline_end_time, session_info)
+    logging.info(
+        str(baseline_end_time)
+        + ", baseline_actual_duration, "
+        + format_elapsed_seconds(actual_duration)
+        + ", "
+        + "{:.3f}".format(actual_duration)
+        + " s"
+    )
+    flush_logging_handlers()
 
-    actual_duration = float(baseline_end_time - baseline_start_time)
     return {
         "baseline_requested": True,
         "baseline_req_dur_s": -1.0,
