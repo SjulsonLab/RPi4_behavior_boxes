@@ -1083,6 +1083,46 @@ def save_session_info_files(session_info):
     return saved_any
 
 
+def log_new_trial_licks(task, previous_lick_count, trial_ident, rule_phase):
+    """Log newly detected left-entry lick timestamps for transition-day trials.
+
+    Inputs
+    ------
+    task : go_nogo_transition_day-like object
+        Active task object with ``lick_times`` in seconds from trial start and
+        a string-like ``state`` attribute.
+    previous_lick_count : int
+        Number of lick timestamps that had already been logged for this trial.
+    trial_ident : str
+        Current trial identity, either ``go_trial`` or ``nogo_trial``.
+    rule_phase : str
+        Current rule phase, either ``first_rule`` or ``reversal``.
+
+    Returns
+    -------
+    int
+        Current number of lick timestamps seen for this trial.
+    """
+    lick_times = getattr(task, "lick_times", [])
+    current_lick_count = len(lick_times)
+    for lick_index in range(previous_lick_count, current_lick_count):
+        lick_time = float(lick_times[lick_index])
+        logging.info(
+            str(time.time())
+            + ", left_entry, trial_elapsed, "
+            + "{:.3f}".format(lick_time)
+            + " s, state, "
+            + str(getattr(task, "state", "unknown"))
+            + ", trial_type, "
+            + trial_ident
+            + ", rule_phase, "
+            + str(rule_phase)
+        )
+    if current_lick_count > previous_lick_count:
+        manual_baseline.flush_logging_handlers()
+    return current_lick_count
+
+
 def prompt_and_bait_first_rule(task, session_info, input_fn=input):
     """Deliver bait rewards until the operator starts the first-rule phase.
 
@@ -1144,14 +1184,28 @@ def run_one_behavior_trial(task, trial_ident, global_trial_index, rule_phase, ph
 
     if trial_ident == "go_trial":
         task.go_trial_start()
+        last_lick_count = 0
         while task.trial_running:
             task.run_go()
+            last_lick_count = log_new_trial_licks(
+                task,
+                last_lick_count,
+                trial_ident,
+                rule_phase,
+            )
             task.box.flush_frame_events()
         task.box.flush_frame_events()
     elif trial_ident == "nogo_trial":
         task.nogo_trial_start()
+        last_lick_count = 0
         while task.trial_running:
             task.run_nogo()
+            last_lick_count = log_new_trial_licks(
+                task,
+                last_lick_count,
+                trial_ident,
+                rule_phase,
+            )
             task.box.flush_frame_events()
         task.box.flush_frame_events()
     else:
