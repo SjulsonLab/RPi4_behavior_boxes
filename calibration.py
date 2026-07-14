@@ -277,9 +277,9 @@ def run_calibration(
 
     for solenoid_time_s in solenoid_times_s:
         print("\n" + "=" * 60)
-        print(f"Solenoid time: {solenoid_time_s:.1f} s")
+        print(f"Solenoid time: {solenoid_time_s:.3f} s")
         initial_weight_g = read_float("Enter starting tube/container weight in grams: ")
-        input(f"Press Enter to deliver {reward_count} rewards at {solenoid_time_s:.1f} s. ")
+        input(f"Press Enter to deliver {reward_count} rewards at {solenoid_time_s:.3f} s. ")
 
         deliver_rewards(
             pump=pump,
