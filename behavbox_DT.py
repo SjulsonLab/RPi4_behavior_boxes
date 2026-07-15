@@ -57,10 +57,9 @@ class BehavBox(object):
             print(str(error_message))
 
         from subprocess import check_output
-        IP_address = check_output(['hostname', '-I']).decode('ascii')[:-2]
+        IP_address = check_output(['hostname', '-I']).decode('ascii').strip().split()[0]
         self.IP_address = IP_address
         IP_address_video_list = list(IP_address)
-        # IP_address_video_list[-3] = "2"
         IP_address_video_list[-1] = "2"
         self.IP_address_video = "".join(IP_address_video_list)
 
