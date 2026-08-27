@@ -222,6 +222,6 @@ with PiCamera(resolution=(WIDTH, HEIGHT), framerate=FRAMERATE) as camera:
         print('Recording Stopped')
         output.close()
         print('Closing Output File')
-        print(e)
+        # print(e)
         GPIO.cleanup()
         sys.exit(0)
