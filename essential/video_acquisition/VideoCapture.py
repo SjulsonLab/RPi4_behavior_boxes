@@ -230,3 +230,85 @@ class VideoCapture():
 
         except Exception as e:
             print(e)
+
+    def video_stop_windows(self):
+        # Get the basename from the session information
+        basename = self.basename
+        dir_name = self.base_dir
+
+        # Get the ip address for the box video
+        IP_address_video = self.IP_address_video
+
+        try:
+            # Run the stop_video script on the video Pi
+            subprocess.run([
+                "ssh",
+                "pi@" + IP_address_video,
+                "/home/pi/RPi4_behavior_boxes/video_acquisition/stop_acquisition.sh"
+            ], check=True)
+
+            time.sleep(2)
+
+            hostname = socket.gethostname()
+            print(
+                "Moving video files from "
+                + IP_address_video
+                + " to "
+                + hostname
+                + ":"
+            )
+
+            # Final destination on the Windows computer
+            hd_dir = self.local_storage_dir
+
+            # Avoid copying while ephys or another process may still
+            # be writing to the destination drive
+            input(
+                "Press Enter to continue with copying the videos "
+                "to the local storage..."
+            )
+
+            print("Copying video files to local storage...")
+
+            # Copy the contents of the recording directory from the Pi
+            subprocess.run([
+                "scp",
+                "-r",
+                "pi@" + IP_address_video + ":" + dir_name + "/.",
+                hd_dir
+            ], check=True)
+
+            # Copy the video log
+            subprocess.run([
+                "scp",
+                "pi@" + IP_address_video + ":~/video/videolog.log",
+                hd_dir
+            ], check=True)
+
+            print("Copy finished successfully.")
+
+            # Only delete source files after all copying succeeded
+            print("Removing copied files from Raspberry Pi...")
+
+            subprocess.run([
+                "ssh",
+                "pi@" + IP_address_video,
+                "rm -rf " + dir_name
+            ], check=True)
+
+            subprocess.run([
+                "ssh",
+                "pi@" + IP_address_video,
+                "rm -f ~/video/videolog.log"
+            ], check=True)
+
+            print("Source files removed from Raspberry Pi.")
+            print("Video transfer finished!")
+
+        except subprocess.CalledProcessError as e:
+            print("Video transfer failed.")
+            print("Source files were NOT deleted from the Raspberry Pi.")
+            print(e)
+
+        except Exception as e:
+            print(e)
