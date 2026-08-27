@@ -129,33 +129,28 @@ class VideoCapture():
             os.system("ssh pi@" + IP_address_video + " pkill python")
             time.sleep(2)
 
-            # Prepare the path for recording
             os.system("ssh pi@" + IP_address_video + " mkdir " + dir_name)
 
-            os.system(
-                "ssh pi@" + IP_address_video
-                + " 'date >> ~/video/videolog.log' "
-            )  # I/O redirection
+            subprocess.run([
+                "ssh",
+                "pi@" + IP_address_video,
+                "date >> ~/video/videolog.log"
+            ])
 
-            tempstr = (
-                "ssh pi@" + IP_address_video
-                + " 'nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
-                + file_name + " "
-                + str(frame_rate)
-                + " >> ~/video/videolog.log 2>&1 & ' "
-            )  # file descriptors
+            remote_command = (
+                    "nohup /home/pi/RPi4_behavior_boxes/video_acquisition/start_acquisition.py "
+                    + file_name + " "
+                    + str(frame_rate)
+                    + " </dev/null >> ~/video/videolog.log 2>&1 &"
+            )
 
-            # start the flipper before the recording start
-            # initiate the flipper
-            try:
-                self.flipper.flip()
-            except Exception as error_message:
-                print("flipper can't run\n")
-                print(str(error_message))
-
-            # start recording
             print(Fore.GREEN + "\nStart Recording!" + Style.RESET_ALL)
-            os.system(tempstr)
+
+            subprocess.run([
+                "ssh",
+                "pi@" + IP_address_video,
+                remote_command
+            ])
 
             print(
                 Fore.RED
