@@ -64,9 +64,9 @@ def make_session_info() -> Dict[str, Any]:
     session_info['left_ix'] = 1
     session_info['trial_choice_map'] = {'right': 0, 'left': 1}  # probably not needed
 
-    session_info['reward_size_large'] = 5
+    session_info['reward_size_large'] = 10
     session_info['reward_size_small'] = 0
-    session_info['errors_to_reward_delivery'] = 5
+    session_info['errors_to_reward_delivery'] = np.inf
     session_info['key_reward_amount'] = session_info['reward_size_large']  # this was 3 before but play with it
     # session_info['flush_duration'] = 2
 
