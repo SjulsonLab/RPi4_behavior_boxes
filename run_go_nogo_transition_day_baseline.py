@@ -995,8 +995,7 @@ def log_new_trial_licks(task, previous_lick_count, trial_ident, rule_phase):
             + ", rule_phase, "
             + str(rule_phase)
         )
-    if current_lick_count > previous_lick_count:
-        return current_lick_count
+    return current_lick_count
 
 
 def prompt_and_bait_first_rule(task, session_info, input_fn=input):
