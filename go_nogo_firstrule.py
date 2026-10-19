@@ -246,8 +246,8 @@ class go_nogo_firstrule(object):
         self.normal_iti_length = self.session_info["normal_iti_length"]  # in seconds
         self.punishment_iti_length = self.session_info["punishment_iti_length"]  # in seconds
 
-        # initialize behavior box
-        self.box = behavbox_DT.BehavBox(self.session_info)
+        # Reuse an existing box when switching task rules within one session.
+        self.box = kwargs.get("box") or behavbox_DT.BehavBox(self.session_info)
 
         # pump class is for reward delivery
         self.pump = self.box.pump

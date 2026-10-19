@@ -1393,8 +1393,8 @@ if __name__ == "__main__":
                 session_info["criterion_end_trial"] = -1
 
             if first_rule_criterion_met:
-                # The behavior-box rule classes own their hardware objects, so
-                # close the first task before constructing the reversal task.
+                # Keep the same behavior-box and camera session running while
+                # changing task logic from first rule to reversal.
                 reversal_start_index = current_global_trial
                 session_info["rule_switch_trial"] = reversal_start_index
                 session_info["rule_switch_reason"] = "criterion"
@@ -1408,9 +1408,9 @@ if __name__ == "__main__":
                     + "Switching to reversal at global trial "
                     + str(reversal_start_index) + Style.RESET_ALL
                 )
-                task.end_session()
-                task = go_nogo_reversal(name="go_nogo_reversal", session_info=session_info)
-                task.start_session()
+                task = go_nogo_reversal(
+                    name="go_nogo_reversal", session_info=session_info, box=task.box
+                )
                 save_session_info_files(session_info)
 
                 reversal_balance_state = init_trial_balance_state()
