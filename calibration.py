@@ -4,13 +4,14 @@ Standalone reward calibration for the GPIO19 solenoid.
 
 The calibration delivers repeated rewards at each selected solenoid time, asks
 for the tube weight before and after water collection, calculates microliters
-per drop, and estimates the solenoid time that should produce a 3 uL reward.
+per drop, and estimates the solenoid time for the selected reward size.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
+import math
 import os
 from dataclasses import dataclass
 from datetime import datetime
@@ -130,6 +131,34 @@ def read_decimal(prompt: str, *, allow_blank: bool = False) -> Decimal | None:
             print("Please enter a finite number.")
             continue
         return value
+
+
+def choose_target_reward_size(target_ul: float | None = None) -> float:
+    """Use a supplied target or ask whether to use the default target."""
+
+    if target_ul is None:
+        if read_yes_no(
+            f"Target reward volume: {DEFAULT_TARGET_REWARD_SIZE_UL:.1f} uL\n"
+            "Use the default target volume?",
+            default=True,
+        ):
+            target_ul = DEFAULT_TARGET_REWARD_SIZE_UL
+        else:
+            while True:
+                value = read_decimal("Enter target reward volume (uL): ")
+                assert value is not None
+                try:
+                    target_ul = float(value)
+                except OverflowError:
+                    target_ul = math.inf
+                if math.isfinite(target_ul) and target_ul > 0:
+                    break
+                print("Please enter a finite, positive volume.")
+    elif not math.isfinite(target_ul) or target_ul <= 0:
+        raise ValueError("Target reward size must be finite and greater than zero.")
+
+    print(f"Selected target reward volume: {target_ul:.3f} uL")
+    return target_ul
 
 
 def generate_solenoid_times(
@@ -292,8 +321,13 @@ def run_calibration(
     off_time_s: float = DEFAULT_OFF_TIME_S,
     pulse_count: int = DEFAULT_PULSE_COUNT,
     inter_reward_interval_s: float = DEFAULT_INTER_REWARD_INTERVAL_S,
+    target_reward_size_ul: float = DEFAULT_TARGET_REWARD_SIZE_UL,
+    early_stop: bool = True,
 ) -> list[CalibrationResult]:
     """Run the full interactive calibration sequence."""
+
+    if not math.isfinite(target_reward_size_ul) or target_reward_size_ul <= 0:
+        raise ValueError("Target reward size must be finite and greater than zero.")
 
     results: list[CalibrationResult] = []
     for solenoid_time_s in solenoid_times_s:
@@ -331,6 +365,14 @@ def run_calibration(
                 reward_size_ul_per_drop=reward_size_ul,
             )
         )
+        if early_stop:
+            estimate = estimate_solenoid_time_for_target(
+                results, target_reward_size_ul=target_reward_size_ul
+            )
+            if estimate.is_available:
+                print("Target estimate is available; stopping the calibration sweep.")
+                print_estimate_summary(estimate)
+                break
     return results
 
 
@@ -554,6 +596,7 @@ def plot_calibration_curve(
         label="Measured calibration",
     )
 
+    target = DEFAULT_TARGET_REWARD_SIZE_UL
     if estimate is not None:
         target = estimate.target_reward_size_ul
         ax.axhline(
@@ -584,7 +627,7 @@ def plot_calibration_curve(
                 edgecolor="black",
                 linewidth=0.7,
                 zorder=6,
-                label="Estimated 3 uL point",
+                label=f"Estimated {target:.3f} uL point",
             )
 
             lower = estimate.lower_result
@@ -624,7 +667,7 @@ def plot_calibration_curve(
             ax.text(
                 0.02,
                 0.98,
-                "3 uL target is outside the usable measured bracket.\n"
+                f"{target:.3f} uL target is outside the usable measured bracket.\n"
                 "Repeat calibration with an expanded time range.",
                 transform=ax.transAxes,
                 va="top",
@@ -639,7 +682,7 @@ def plot_calibration_curve(
 
     ax.set_xlabel("Solenoid time (s)")
     ax.set_ylabel("Reward size (uL/drop)")
-    ax.set_title("Reward calibration with 3 uL target estimate")
+    ax.set_title(f"Reward calibration with {target:.3f} uL target estimate")
     ax.grid(True, alpha=0.3)
     ax.legend(loc="best")
     fig.tight_layout()
@@ -666,6 +709,12 @@ def print_estimate_summary(estimate: CalibrationEstimate) -> None:
             print(
                 f"  {upper.solenoid_time_s:.4f} s -> "
                 f"{upper.reward_size_ul_per_drop:.3f} uL/drop"
+            )
+        elif lower is not None:
+            print("Exact target measurement:")
+            print(
+                f"  {lower.solenoid_time_s:.4f} s -> "
+                f"{lower.reward_size_ul_per_drop:.3f} uL/drop"
             )
         print(
             "Recommended solenoid time: "
@@ -705,8 +754,13 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--target-ul",
         type=float,
-        default=DEFAULT_TARGET_REWARD_SIZE_UL,
-        help="Target reward size in uL/drop. Default: 3.0.",
+        default=None,
+        help="Target reward size in uL/drop. If omitted, choose interactively (default 3.0).",
+    )
+    parser.add_argument(
+        "--full-sweep",
+        action="store_true",
+        help="Measure every configured solenoid time, even after an estimate is available.",
     )
     return parser
 
@@ -721,8 +775,10 @@ def main() -> None:
         parser.error("--reward-count must be greater than zero")
     if args.inter_reward_interval < 0:
         parser.error("--inter-reward-interval cannot be negative")
-    if args.target_ul <= 0:
-        parser.error("--target-ul must be greater than zero")
+    try:
+        target_reward_size_ul = choose_target_reward_size(args.target_ul)
+    except ValueError as error:
+        parser.error(str(error))
 
     solenoid_times_s = choose_solenoid_times_interactively()
 
@@ -740,6 +796,8 @@ def main() -> None:
             solenoid_times_s=solenoid_times_s,
             reward_count=args.reward_count,
             inter_reward_interval_s=args.inter_reward_interval,
+            target_reward_size_ul=target_reward_size_ul,
+            early_stop=not args.full_sweep,
         )
     except KeyboardInterrupt:
         print("\nCalibration stopped by user.")
@@ -750,7 +808,7 @@ def main() -> None:
 
     estimate = estimate_solenoid_time_for_target(
         results,
-        target_reward_size_ul=args.target_ul,
+        target_reward_size_ul=target_reward_size_ul,
     )
     written_csv_path = write_results_csv(results, csv_path)
     written_recommendation_path = write_recommendation_csv(
@@ -762,7 +820,8 @@ def main() -> None:
         estimate=estimate,
     )
 
-    print_estimate_summary(estimate)
+    if args.full_sweep or not estimate.is_available:
+        print_estimate_summary(estimate)
     print("\nCalibration complete.")
     print(f"Saved measurements CSV: {written_csv_path}")
     print(f"Saved recommendation CSV: {written_recommendation_path}")
