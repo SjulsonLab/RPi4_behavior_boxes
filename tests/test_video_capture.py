@@ -55,7 +55,7 @@ def camera_environment(monkeypatch):
         if (
             state.interrupt_preview
             and arguments[0] == "ssh"
-            and shlex.split(arguments[2]) == [PREVIEW_SCRIPT]
+            and shlex.split(arguments[2]) in ([PREVIEW_SCRIPT], ["python3", PREVIEW_SCRIPT])
         ):
             raise KeyboardInterrupt
         return subprocess.CompletedProcess(arguments, 0, stdout=state.resolved + "\n")
@@ -113,10 +113,11 @@ def test_start_preserves_paths_and_uses_downstream_default_camera_id(camera, cam
     state.interrupt_preview = True
     camera.video_start()
     commands = remote_commands(state)
-    assert [PREVIEW_SCRIPT] in commands
+    assert ["python3", PREVIEW_SCRIPT] in commands
     launch = next(command for command in commands if command[0] == "nohup")
-    assert launch[:4] == [
-        "nohup", ACQUISITION_SCRIPT, REMOTE_DIRECTORY + "/mouse 1; $name", "</dev/null",
+    assert launch[:5] == [
+        "nohup", "python3", ACQUISITION_SCRIPT,
+        REMOTE_DIRECTORY + "/mouse 1; $name", "</dev/null",
     ]
     mkdir = next(command for command in commands if command[0] == "mkdir")
     assert REMOTE_DIRECTORY in mkdir
@@ -130,7 +131,7 @@ def test_preview_interrupt_still_stops_only_the_preview(camera, camera_environme
     _, state = camera_environment
     state.interrupt_preview = True
     camera.video_preview_only()
-    assert [PREVIEW_SCRIPT] in remote_commands(state)
+    assert ["python3", PREVIEW_SCRIPT] in remote_commands(state)
     assert is_process_operation(state.calls[-1][0], "stop")
     assert shlex.split(state.calls[-1][0][2])[3] == PREVIEW_SCRIPT
 
