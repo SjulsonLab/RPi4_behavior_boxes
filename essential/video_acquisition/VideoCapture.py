@@ -8,6 +8,7 @@ Created on Fri Oct 28 12:30:51 2022
 based on the BehavBox class
 """
 import os
+import shlex
 import subprocess
 from colorama import Fore, Style
 import time
@@ -164,6 +165,10 @@ class VideoCapture():
             print(e)
 
     def video_stop(self):
+        """Stop and transfer using configured path strings; no arguments, returns None.
+
+        Report a failed rsync and stop before attempting another transfer.
+        """
         # Get the basename from the session information
         basename = self.basename
         dir_name = self.base_dir
@@ -202,7 +207,7 @@ class VideoCapture():
 
             # Move the video + log from the box_video SD card to the
             # box_behavior external hard drive
-            os.system(
+            transfer_status = os.system(
                 "rsync -av --progress --remove-source-files pi@"
                 + IP_address_video
                 + ":"
@@ -210,20 +215,19 @@ class VideoCapture():
                 + "/ "
                 + hd_dir
             )
+            if transfer_status != 0:
+                print("Video transfer failed.")
+                return
 
-            os.system(
+            transfer_status = os.system(
                 "rsync -av --progress --remove-source-files pi@"
                 + IP_address_video
                 + ":~/video/*.log "
                 + hd_dir
             )
-
-            os.system(
-                "rsync -arvz --progress --remove-source-files "
-                + dir_name
-                + "/ "
-                + hd_dir
-            )
+            if transfer_status != 0:
+                print("Video transfer failed.")
+                return
 
             print("rsync finished!")
             # print("Control-C to quit (ignore the error for now)")
@@ -232,6 +236,10 @@ class VideoCapture():
             print(e)
 
     def video_stop_windows(self):
+        """Copy the configured Pi directory/log, then delete them; return None.
+
+        Takes no arguments; uses scalar path strings. Failures are printed.
+        """
         # Get the basename from the session information
         basename = self.basename
         dir_name = self.base_dir
@@ -290,10 +298,14 @@ class VideoCapture():
             # Only delete source files after all copying succeeded
             print("Removing copied files from Raspberry Pi...")
 
+            quoted_dir_name = shlex.quote(dir_name)
+            if dir_name.startswith("~/"):
+                # Expand the Pi's home directory while quoting the remaining path.
+                quoted_dir_name = '"$HOME"/' + shlex.quote(dir_name[2:])
             subprocess.run([
                 "ssh",
                 "pi@" + IP_address_video,
-                "rm -rf " + dir_name
+                "rm -rf " + quoted_dir_name
             ], check=True)
 
             subprocess.run([
@@ -306,8 +318,7 @@ class VideoCapture():
             print("Video transfer finished!")
 
         except subprocess.CalledProcessError as e:
-            print("Video transfer failed.")
-            print("Source files were NOT deleted from the Raspberry Pi.")
+            print("Transfer or cleanup failed; check source files.")
             print(e)
 
         except Exception as e:
