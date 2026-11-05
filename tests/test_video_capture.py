@@ -3,6 +3,7 @@
 import builtins
 import importlib.util
 import io
+import json
 import os
 from pathlib import Path
 import shlex
@@ -39,6 +40,7 @@ def camera_environment(monkeypatch):
     state = types.SimpleNamespace(
         calls=[], fail=None, resolved=REMOTE_DIRECTORY, interrupt_preview=False,
         ssh_version="OpenSSH_for_Windows_9.5p1, LibreSSL 3.8.2",
+        entries=["mouse 1.h264", ".metadata", "sub directory"], created_directories=[],
     )
 
     def run_command(arguments, **options):
@@ -48,6 +50,8 @@ def camera_environment(monkeypatch):
             return subprocess.CompletedProcess(arguments, 0, stdout="", stderr=state.ssh_version)
         if state.fail is not None and state.fail(arguments):
             raise subprocess.CalledProcessError(1, arguments)
+        if arguments[0] == "ssh" and "json.dumps" in arguments[2]:
+            return subprocess.CompletedProcess(arguments, 0, stdout=json.dumps(state.entries))
         if (
             state.interrupt_preview
             and arguments[0] == "ssh"
@@ -62,6 +66,10 @@ def camera_environment(monkeypatch):
 
     monkeypatch.setattr(module.subprocess, "run", run_command)
     monkeypatch.setattr(module.os, "system", reject_shell_command)
+    monkeypatch.setattr(
+        module.os, "makedirs",
+        lambda path, exist_ok: state.created_directories.append((path, exist_ok)),
+    )
     monkeypatch.setattr(module.time, "sleep", lambda seconds: None)
     monkeypatch.setattr(builtins, "input", lambda prompt: "")
     return module, state
@@ -281,13 +289,29 @@ def test_remote_process_control_targets_script_and_never_force_kills(
 
 
 def test_legacy_windows_scp_quotes_remote_paths(camera, camera_environment):
-    """Accept fixtures; assert pre-9 OpenSSH receives one safely quoted remote path."""
+    """Accept fixtures; assert legacy SCP copies all entries without the rejected '/.' source."""
     _, state = camera_environment
     state.ssh_version = "OpenSSH_for_Windows_8.1p1, LibreSSL 3.0.2"
     camera.video_stop_windows()
-    transfer = next(argv for argv, _ in state.calls if argv[0] == "scp")
-    remote_path = transfer[-2].split(":", 1)[1]
-    assert shlex.split(remote_path) == [REMOTE_DIRECTORY + "/."]
+    transfers = [argv for argv, _ in state.calls if argv[:2] == ["scp", "-r"]]
+    remote_paths = [shlex.split(argv[-2].split(":", 1)[1]) for argv in transfers]
+    assert remote_paths == [[REMOTE_DIRECTORY + "/" + entry] for entry in state.entries]
+    assert state.created_directories == [(LOCAL_DIRECTORY, True)]
+
+
+def test_windows_destination_is_a_directory_before_any_copy(camera, camera_environment, monkeypatch):
+    """Accept fixtures; assert directory-creation failure blocks copying and source deletion."""
+    module, state = camera_environment
+
+    def fail_directory_creation(path, exist_ok):
+        """Accept destination str/bool; raise OSError to model an unavailable local drive."""
+        raise OSError("Destination drive is unavailable")
+
+    monkeypatch.setattr(module.os, "makedirs", fail_directory_creation)
+    with pytest.raises(OSError, match="unavailable"):
+        camera.video_stop_windows()
+    assert not any(argv[0] == "scp" for argv, _ in state.calls)
+    assert not any(command[0] == "rm" for command in remote_commands(state))
 
 
 def test_unknown_scp_protocol_prevents_transfer(camera, camera_environment):
