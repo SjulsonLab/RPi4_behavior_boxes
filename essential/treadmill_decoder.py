@@ -2,7 +2,7 @@
 GPIO rotary encoder decoder for the treadmill input.
 """
 
-from dataclasses import dataclass, replace
+from dataclasses import (dataclass, replace)
 from threading import Lock
 from time import monotonic
 from typing import Callable, Optional

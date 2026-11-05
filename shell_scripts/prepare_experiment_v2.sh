@@ -134,6 +134,11 @@ Date: $date_str
 Tag: $clean_tag
 Created: $(date)
 
+Experimenter:
+Protocol:
+Location:
+Weight:
+
 Notes:
 ---------------
 1.
