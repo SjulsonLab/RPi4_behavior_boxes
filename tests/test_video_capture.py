@@ -38,11 +38,14 @@ def camera_environment(monkeypatch):
     specification.loader.exec_module(module)
     state = types.SimpleNamespace(
         calls=[], fail=None, resolved=REMOTE_DIRECTORY, interrupt_preview=False,
+        ssh_version="OpenSSH_for_Windows_9.5p1, LibreSSL 3.8.2",
     )
 
     def run_command(arguments, **options):
         """Accept argv list/options; return CompletedProcess or the injected failure."""
         state.calls.append((arguments, options))
+        if arguments == ["ssh", "-V"]:
+            return subprocess.CompletedProcess(arguments, 0, stdout="", stderr=state.ssh_version)
         if state.fail is not None and state.fail(arguments):
             raise subprocess.CalledProcessError(1, arguments)
         if (
@@ -73,12 +76,15 @@ def camera(camera_environment):
 
 def remote_commands(state):
     """Accept fake state; return list[list[str]] of tokenized SSH commands, no units."""
-    return [shlex.split(argv[2]) for argv, _ in state.calls if argv[0] == "ssh"]
+    return [
+        shlex.split(argv[2]) for argv, _ in state.calls
+        if argv[0] == "ssh" and len(argv) == 3
+    ]
 
 
 def is_process_operation(arguments, operation):
     """Accept argv and mode strings; return bool identifying a remote process operation."""
-    if arguments[0] != "ssh":
+    if arguments[0] != "ssh" or len(arguments) != 3:
         return False
     tokens = shlex.split(arguments[2])
     return len(tokens) == 6 and tokens[:2] == ["python3", "-c"] and tokens[4] == operation
@@ -154,7 +160,7 @@ def test_windows_transfer_copies_whole_directory_then_quoted_cleanup(camera, cam
     copy_indices = [index for index, (argv, _) in enumerate(state.calls) if argv[0] == "scp"]
     delete_indices = [
         index for index, (argv, _) in enumerate(state.calls)
-        if argv[0] == "ssh" and shlex.split(argv[2])[0] == "rm"
+        if argv[0] == "ssh" and len(argv) == 3 and shlex.split(argv[2])[0] == "rm"
     ]
     assert max(copy_indices) < min(delete_indices)
     assert all(options.get("check") is True for _, options in state.calls)
@@ -218,7 +224,7 @@ def test_cleanup_failure_does_not_claim_sources_are_intact(
     """Accept fixtures/stage; assert cleanup failure is propagated with accurate status."""
     _, state = camera_environment
     state.fail = lambda argv: (
-        argv[0] == "ssh" and shlex.split(argv[2])[:2]
+        argv[0] == "ssh" and len(argv) == 3 and shlex.split(argv[2])[:2]
         == ["rm", "-rf" if failed_cleanup == "directory" else "-f"]
     )
     with pytest.raises(subprocess.CalledProcessError):
@@ -272,3 +278,46 @@ def test_remote_process_control_targets_script_and_never_force_kills(
     else:
         exec(module._CAMERA_PROCESS_CONTROL, {})
     assert signals == ([(123, signal.SIGINT)] if operation == "stop" else [])
+
+
+def test_legacy_windows_scp_quotes_remote_paths(camera, camera_environment):
+    """Accept fixtures; assert pre-9 OpenSSH receives one safely quoted remote path."""
+    _, state = camera_environment
+    state.ssh_version = "OpenSSH_for_Windows_8.1p1, LibreSSL 3.0.2"
+    camera.video_stop_windows()
+    transfer = next(argv for argv, _ in state.calls if argv[0] == "scp")
+    remote_path = transfer[-2].split(":", 1)[1]
+    assert shlex.split(remote_path) == [REMOTE_DIRECTORY + "/."]
+
+
+def test_unknown_scp_protocol_prevents_transfer(camera, camera_environment):
+    """Accept fixtures; assert unknown SSH implementations cannot copy/delete by guessing."""
+    _, state = camera_environment
+    state.ssh_version = "Unknown SSH implementation"
+    with pytest.raises(RuntimeError, match="OpenSSH"):
+        camera.video_stop_windows()
+    assert not any(argv[0] == "scp" for argv, _ in state.calls)
+    assert not any(command[0] == "rm" for command in remote_commands(state))
+
+
+def test_rsync_skips_logs_already_in_transferred_directory(camera, camera_environment):
+    """Accept fixtures; assert removing a parent directory's files does not recopy removed logs."""
+    _, state = camera_environment
+    camera.base_dir = "/home/pi/video"
+    state.resolved = camera.base_dir
+    camera.video_stop()
+    transfers = [argv for argv, _ in state.calls if argv[0] == "rsync"]
+    assert len(transfers) == 1
+
+
+@pytest.mark.parametrize("operation", ["stop", "check"])
+def test_remote_process_control_handles_absent_camera(camera_environment, monkeypatch, operation):
+    """Accept fixtures/mode; assert absent camera is stopped but cannot pass startup check."""
+    module, _ = camera_environment
+    monkeypatch.setattr(os, "listdir", lambda path: [])
+    monkeypatch.setattr(sys, "argv", ["-c", ACQUISITION_SCRIPT, operation, "0.2"])
+    if operation == "check":
+        with pytest.raises(SystemExit, match="exited during startup"):
+            exec(module._CAMERA_PROCESS_CONTROL, {})
+    else:
+        exec(module._CAMERA_PROCESS_CONTROL, {})
