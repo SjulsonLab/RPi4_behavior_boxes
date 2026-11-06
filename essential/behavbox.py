@@ -26,6 +26,7 @@ import traceback
 import logging
 from colorama import Fore, Style
 from essential.visual_stimuli.visualstim_concurrent import VisualStimMultiprocess
+from essential.file_transfer import transfer_files, transfer_locations, report_transfer
 
 # sys.path.insert(0, '.')  # essential (this folder) holds behavbox and equipment classes
 
@@ -550,50 +551,53 @@ class BehavBox(Box):
             ic('Failed to stop flipper!')
             print(error_message)
 
-    def transfer_files_to_external_storage(self):
-        nodes_to_transfer = self.recording_camera_nodes
-        n_fails = 0
-        while True:
-            try:
-                for node in nodes_to_transfer:
-                    destination_dir = Path(self.session_info['external_storage_dir'])
-                    destination_dir.mkdir(parents=True, exist_ok=True)
-                    remote_source = f"{self._ssh_target(node)}:{self._remote_recording_dir()}/"
-                    shell_output = subprocess.run(
-                        ['rsync', '-av', '--progress', '--remove-source-files', remote_source, str(destination_dir)],
-                        capture_output=True,
-                        text=True,
-                    )
-                    if shell_output.returncode != 0:
-                        raise RuntimeError(
-                            f"Video transfer failed for {node['camera_id']} ({node['host']}): {shell_output.stderr}"
-                        )
+    def transfer_files_to_external_storage(self) -> bool:
+        """Move recorded camera/local session directories to external storage.
 
-                local_transfer = subprocess.run(
-                    [
-                        'rsync',
-                        '-arvz',
-                        '--progress',
-                        '--remove-source-files',
-                        f"{self.session_info['output_dir']}/",
-                        self.session_info['external_storage_dir'],
-                    ],
-                    capture_output=True,
-                    text=True,
-                )
-                if local_transfer.returncode != 0:
-                    raise RuntimeError(f"Buffer transfer failed: {local_transfer.stderr}")
-
-                print("rsync finished!")
-                break
-
-            except Exception as transfer_error_message:
-                n_fails += 1
-                if n_fails >= 5:
-                    print(f"rsync failed 5 times, giving up ({transfer_error_message})")
+        No arguments. Uses scalar paths and camera-node dictionaries from this box.
+        Returns bool: True only when every selected source transfers successfully.
+        Logs remain in buffer_dir, outside the session being moved. Failed transfers
+        may leave completed files at destination and remaining files on source Pis.
+        Cancellation stops subsequent sources and returns False with their locations.
+        """
+        destination = self.session_info['external_storage_dir']
+        log_path = str(Path(self.session_info['buffer_dir']) /
+                       (self.session_info['session_name'] + '_transfer.log'))
+        sources = [
+            {'label': 'Camera ' + node['camera_id'], 'source': self._remote_recording_dir(),
+             'ssh_target': self._ssh_target(node)}
+            for node in self.recording_camera_nodes
+        ]
+        sources.append({'label': 'Behavior data', 'source': self.session_info['output_dir'], 'ssh_target': None})
+        locations = '\n\n'.join(
+            transfer_locations(destination=destination, log_path=log_path, **source)
+            for source in sources
+        )
+        report_transfer('Session transfer locations:\n' + locations, log_path)
+        failed_sources = []
+        try:
+            if not os.path.ismount(self.session_info['external_storage']):
+                raise OSError('External storage is not mounted: ' + self.session_info['external_storage'])
+            Path(destination).mkdir(parents=True, exist_ok=True)
+            for index, source in enumerate(sources):
+                try:
+                    if not transfer_files(destination=destination, log_path=log_path, **source):
+                        failed_sources.append(source['label'])
+                except KeyboardInterrupt:
+                    failed_sources.append(source['label'] + ' (cancelled)')
+                    unattempted = [item['label'] for item in sources[index + 1:]]
+                    if unattempted:
+                        report_transfer('Sources not attempted: ' + ', '.join(unattempted), log_path)
                     break
-                print(f"rsync failed, retrying in 2 seconds ({transfer_error_message})")
-                time.sleep(2)
+        except OSError as error:
+            failed_sources.append(str(error))
+
+        if failed_sources:
+            report_transfer('TRANSFER INCOMPLETE — MANUAL RECOVERY REQUIRED\nFailed: ' +
+                            ', '.join(failed_sources) + '\n' + locations, log_path)
+            return False
+        report_transfer('rsync finished! All selected sources transferred to ' + destination, log_path)
+        return True
 
 # this is for the cue LEDs. BoxLED.value is the intensity value (PWM duty cycle, from 0 to 1)
 # currently. BoxLED.set_value is the saved intensity value that determines how bright the
