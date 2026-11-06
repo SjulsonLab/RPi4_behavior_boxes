@@ -22,8 +22,6 @@ import logging
 import logging.config
 from pathlib import Path
 from session_info import make_session_info
-from subprocess import check_output
-import re
 import argparse
 import numpy as np
 
@@ -265,6 +263,14 @@ def configure_session_output_paths(
 
 
 def run_program(session_info: dict = None, camera_dry_run: bool = False, external_output_dir: str = None) -> int:
+    """Run a session and clean up its devices and selected data transfers.
+
+    Inputs: optional session-settings dict, bool camera-only verification flag,
+    and optional external parent-directory str. Existing session units are unchanged.
+    Returns int exit status: zero on normal completion, nonzero on a reported
+    runtime or transfer failure. Transfer failure still closes the GUI and leaves
+    source/destination locations and recovery instructions in the transfer report.
+    """
     exit_code = 0
     session_cleanup_done = False
     try:
@@ -281,12 +287,10 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False, externa
             from essential import behavbox
 
             if not camera_dry_run:
-                # check for presence of external hd
-                storage = check_output('lsblk')
-                if re.search(r'sda', storage.decode('utf-8')):
-                    print('[***] External storage found [***]')
-                else:
-                    raise RuntimeError('External storage not found')
+                # Validate the actual mount before creating a session destination.
+                if not os.path.ismount(session_info['external_storage']):
+                    raise RuntimeError('External storage is not mounted: ' + session_info['external_storage'])
+                print('[***] External storage mounted [***]')
 
         if camera_dry_run:
             box = behavbox.BehavBox(session_info=session_info)
@@ -461,20 +465,29 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False, externa
         exit_code = 1
 
     finally:
-        if (not camera_dry_run
-                and session_info is not None
-                and session_info.get('debug') is False
-                and 'box' in locals()):
-            if not session_cleanup_done:
-                box.video_stop()
-            if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is not None:
-                box.visualstim.myscreen.close()
-            time.sleep(2)
-            box.transfer_files_to_external_storage()
-
-        pygame.display.quit()
-        pygame.quit()
-        print("Exiting now...")
+        transfer_incomplete = False
+        try:
+            if (not camera_dry_run
+                    and session_info is not None
+                    and session_info.get('debug') is False
+                    and 'box' in locals()):
+                if not session_cleanup_done:
+                    box.video_stop()
+                if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is not None:
+                    box.visualstim.myscreen.close()
+                time.sleep(2)
+                if not box.transfer_files_to_external_storage():
+                    exit_code = 1
+                    transfer_incomplete = True
+        finally:
+            pygame.display.quit()
+            pygame.quit()
+        if transfer_incomplete:
+            transfer_log = Path(session_info['buffer_dir']) / (session_info['session_name'] + '_transfer.log')
+            print('TRANSFER INCOMPLETE — MANUAL RECOVERY REQUIRED. Check the source/destination locations above.\n'
+                  'Transfer log: ' + str(transfer_log), flush=True)
+        else:
+            print("Exiting now...")
     return exit_code
 
 
