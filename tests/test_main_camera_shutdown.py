@@ -139,6 +139,10 @@ def load_main_with_fakes(monkeypatch, presenter_class):
         "task_protocol.alternating_latent.alternating_latent_presenter",
         fake_presenter_module,
     )
+    # Earlier tests may have imported these submodules onto the package itself.
+    task_package = importlib.import_module("task_protocol.alternating_latent")
+    monkeypatch.setattr(task_package, "alternating_latent_model", fake_model_module, raising=False)
+    monkeypatch.setattr(task_package, "alternating_latent_presenter", fake_presenter_module, raising=False)
     monkeypatch.setitem(
         sys.modules,
         "icecream",
@@ -164,7 +168,6 @@ def make_session_info(tmp_path):
 
 def prepare_main_for_shutdown_test(monkeypatch, main_module):
     monkeypatch.setattr(main_module, "confirm_options", lambda session_info: True)
-    monkeypatch.setattr(main_module, "check_output", lambda command: b"sda\n")
     monkeypatch.setattr(main_module.scipy.io, "savemat", lambda *args, **kwargs: None)
     monkeypatch.setattr(main_module.os.path, "ismount", fake_external_mount)
 

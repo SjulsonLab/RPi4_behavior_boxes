@@ -1,4 +1,5 @@
 import subprocess
+import shlex
 import sys
 import time
 from pathlib import Path
@@ -21,10 +22,15 @@ def run_script(script_path, *args):
 
 
 def start_signal_ignoring_process(process_name):
+    """Accept an argv[0] label str; return a child Popen that ignores SIGINT.
+
+    Quote the interpreter path because test interpreters may live in project
+    directories containing spaces. The child sleeps for 60 seconds unless killed.
+    """
     command = (
         "trap '' INT; "
         f"exec -a {process_name} "
-        f"{sys.executable} -c 'import time; time.sleep(60)'"
+        f"{shlex.quote(sys.executable)} -c 'import time; time.sleep(60)'"
     )
     return subprocess.Popen(["bash", "-c", command])
 
