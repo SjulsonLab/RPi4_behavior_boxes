@@ -210,7 +210,9 @@ def test_remote_paths_and_printed_recovery_commands_preserve_literal_names(
     transfer_module.transfer_files(**transfer_arguments)
     command = transfer_environment.calls[0][0]
     remote_path = command[-2].split(":", 1)[1]
-    assert shlex.split(remote_path) == [source + "/"]
+    # -s passes filenames through the rsync protocol on both old and new rsync.
+    assert "-s" in command
+    assert remote_path == source + "/"
     report = Path(transfer_arguments["log_path"]).read_text()
     recovery_line = next(line for line in report.splitlines() if line.startswith("rsync "))
     assert shlex.split(recovery_line)[-2:] == command[-2:]
@@ -248,8 +250,8 @@ def test_real_rsync_recovers_an_interrupted_video(transfer_module, tmp_path, mon
     ssh_script = tmp_path / "local_ssh.sh"
     ssh_script.write_text('#!/bin/sh\nshift\nexec /bin/sh -c "$*"\n')
     ssh_script.chmod(0o700)
-    remote_source = "local:" + shlex.quote(str(source_dir) + "/")
-    command = ["rsync", "-av", "--partial-dir=.rsync-partial", "--bwlimit=1024", "-e", str(ssh_script), remote_source, str(destination)]
+    remote_source = "local:" + str(source_dir) + "/"
+    command = ["rsync", "-av", "-s", "--partial-dir=.rsync-partial", "--bwlimit=1024", "-e", shlex.quote(str(ssh_script)), remote_source, str(destination)]
     process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     try:
         with pytest.raises(subprocess.TimeoutExpired):
