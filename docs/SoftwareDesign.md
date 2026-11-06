@@ -210,6 +210,33 @@ Do not implement functionality beyond what is currently required. Focus on the m
 These principles can conflict with the use of abstractions. The appropriate level of generality is a design decision that should be made deliberately, not enforced as a rigid rule. 
 
 
+## Packages and imports
+
+- Within a package, relative imports may be used to reference other modules in the same package. Prefer absolute imports when importing from other packages.
+- Aim to keep packages independent and loosely coupled. Avoid cross-package imports when the dependency is unnecessary or indicates that package responsibilities are poorly separated.
+- Keep module names short, descriptive, and lowercase.
+- Avoid vague package or module names such as `utils`, `helpers`, or `managers`. Names should communicate the specific responsibility of the code they contain.
+- Minimize unnecessary levels of nested subpackages. Deep package hierarchies make navigation more difficult and can encourage coupling between implementation details at different levels.
+- Avoid wildcard imports (`from module import *`). Imports should make it clear which objects are being used and where they come from.
+
+
+## Avoid overengineering
+
+Design for the project's realistic operating conditions and failure modes, not hypothetical adversarial or extremely unlikely scenarios.
+
+Prefer the simplest implementation that safely handles expected use, ordinary user mistakes, malformed inputs, interrupted runs, and normal filesystem or dependency failures. Do not add wrappers, transactional machinery, elaborate recovery systems, concurrency defenses, or additional abstractions unless they address a concrete and plausible requirement.
+
+Before adding substantial complexity, ask:
+
+1. What specific failure or requirement does this address?
+2. Is that failure realistically expected in this project?
+3. Is the added complexity proportional to its likelihood and consequences?
+4. Could a simpler implementation handle it adequately?
+
+If these questions do not justify the complexity, do not add it.
+
+If implementation or review begins expanding substantially beyond the agreed scope, stop and reconsider the design before continuing. Prefer deleting unnecessary machinery over preserving it because it has already been implemented.
+
 # Editing constraints - NON-NEGOTIABLE
 
 Note that this should really be in AGENTS.md, but it is provided here as well for safety.
