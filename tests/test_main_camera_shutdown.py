@@ -25,7 +25,9 @@ class FakeBox:
         self.video_stop_calls += 1
 
     def transfer_files_to_external_storage(self):
+        """Record a transfer; return bool success under the revised box contract."""
         self.transfer_called = True
+        return True
 
 
 class FakePump:
@@ -164,6 +166,54 @@ def prepare_main_for_shutdown_test(monkeypatch, main_module):
     monkeypatch.setattr(main_module, "confirm_options", lambda session_info: True)
     monkeypatch.setattr(main_module, "check_output", lambda command: b"sda\n")
     monkeypatch.setattr(main_module.scipy.io, "savemat", lambda *args, **kwargs: None)
+    monkeypatch.setattr(main_module.os.path, "ismount", fake_external_mount)
+
+
+def fake_external_mount(path):
+    """Accept filesystem path; return True for tests with disposable external storage."""
+    return True
+
+
+def test_failed_transfer_returns_nonzero_and_still_closes_gui(monkeypatch, tmp_path, capsys):
+    """Accept fixtures; False transfer status yields a visible failure and GUI cleanup."""
+    module = load_main_with_fakes(monkeypatch, InterruptingPresenter)
+    prepare_main_for_shutdown_test(monkeypatch, module)
+    cleanup_calls = []
+
+    def failed_transfer(self):
+        """Accept fake box; return False to simulate exhausted transfer retries."""
+        return False
+
+    def close_display():
+        """Record display closure; no inputs or return value."""
+        cleanup_calls.append("display")
+
+    def close_pygame():
+        """Record GUI closure; no inputs or return value."""
+        cleanup_calls.append("pygame")
+
+    monkeypatch.setattr(FakeBox, "transfer_files_to_external_storage", failed_transfer)
+    monkeypatch.setattr(module.pygame.display, "quit", close_display)
+    monkeypatch.setattr(module.pygame, "quit", close_pygame)
+    assert module.run_program(session_info=make_session_info(tmp_path)) != 0
+    assert cleanup_calls == ["display", "pygame"]
+    assert "TRANSFER INCOMPLETE" in capsys.readouterr().out
+
+
+def test_missing_mount_aborts_before_creating_external_session_directory(monkeypatch, tmp_path, capsys):
+    """Accept fixtures; reject unmounted storage even when lsblk contains sda."""
+    module = load_main_with_fakes(monkeypatch, InterruptingPresenter)
+    prepare_main_for_shutdown_test(monkeypatch, module)
+
+    def no_mount(path):
+        """Accept path; simulate an unmounted external disk."""
+        return False
+
+    monkeypatch.setattr(module.os.path, "ismount", no_mount)
+    session_info = make_session_info(tmp_path)
+    assert module.run_program(session_info=session_info) != 0
+    assert not Path(session_info["external_storage"]).exists()
+    assert "mount" in capsys.readouterr().out.lower()
 
 
 def test_keyboard_interrupt_stops_camera_only_once_after_successful_end_session(
