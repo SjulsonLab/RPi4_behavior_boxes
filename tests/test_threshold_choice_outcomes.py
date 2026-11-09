@@ -4,10 +4,9 @@ import logging
 import random
 import time
 
-import numpy as np
 import pytest
 
-from test_latent_inference_lick_processing import (
+from .test_latent_inference_lick_processing import (
     FakeTimer, fake_timer, make_event, session_info,
 )
 from task_protocol.latent_inference_forage.latent_inference_model import LatentInferenceModel

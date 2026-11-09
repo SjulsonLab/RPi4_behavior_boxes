@@ -123,6 +123,7 @@ def session_info():
     """
 
     return {
+        "errors_to_reward_delivery": 5,
         "max_correct_trials_in_block": 100,
         "intertrial_interval": 2.0,
         "lick_threshold": 1,

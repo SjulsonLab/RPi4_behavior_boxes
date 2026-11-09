@@ -153,14 +153,17 @@ class LatentInferenceModel(Model):  # subclass from base task
 
         return reward_earned
 
-    def drain_pending_input_events(self) -> bool:
-        """Process all queued input events that are eligible for the current choice window.
+    def drain_pending_input_events(self) -> Tuple[str, bool]:
+        """Consume FIFO inputs until the first terminal threshold decision.
 
         Data contract:
-        - Inputs: none; queued event timestamps use seconds from `time.time()`.
-        - Output:
-          - `bool`, true when one or more lick events occurred during ITI and should
-            restart the ITI if `quiet_ITI` is enabled.
+        - Inputs: none; queued InputEvent timestamps are epoch seconds.
+        - Output: (choice_side, iti_lick_detected), a tuple[str, bool]. The side
+          is empty, 'right', 'left', or 'switch'; the bool records discarded ITI
+          licks for quiet-ITI handling. Later inputs remain queued until ITI.
+
+        Classify after each eligible event so queue batching cannot turn an
+        already threshold-satisfying choice into a both-port invalid attempt.
         """
         iti_lick_detected = False
         while self.event_list:
@@ -180,7 +183,11 @@ class LatentInferenceModel(Model):  # subclass from base task
             else:
                 self.detect_lick_no_debounce(event.name)
 
-        return iti_lick_detected
+            choice_side = self.determine_choice()
+            if choice_side:
+                return choice_side, iti_lick_detected
+
+        return '', iti_lick_detected
 
     def restart_ITI(self) -> None:
         """Restart the current intertrial interval after a quiet-ITI lick.
@@ -229,11 +236,18 @@ class LatentInferenceModel(Model):  # subclass from base task
         else:
             self.next_dark_time = np.inf
 
-    def run_event_loop(self, control: bool = False):
+    def run_event_loop(self, control: bool = False) -> float:
+        """Process one event batch up to a terminal decision and perform its effects.
+
+        control is a bool selecting the existing reward protocol. Returns float
+        elapsed session seconds. InputEvent timestamps are epoch seconds; action
+        codes remain 0=right/1=left. Invalid switches deliver no reward and do
+        not advance valid-choice counters. Remaining queued licks face ITI checks.
+        """
         cur_time = time.time()
         time_since_start = cur_time - self.t_session_start
 
-        iti_lick_detected = self.drain_pending_input_events()
+        choice_side, iti_lick_detected = self.drain_pending_input_events()
 
         if self.state in ['standby', 'dark_period']:
             self.lick_side_buffer *= 0
@@ -251,12 +265,13 @@ class LatentInferenceModel(Model):  # subclass from base task
                 self.restart_ITI()
             return time_since_start
 
-        choice_side = self.determine_choice()
         choice_flag = choice_side in ['right', 'left', 'switch']
         training_reward_flag = ((self.error_count >= self.errors_to_reward and self.automate_training_rewards)
                                 or self.give_training_reward)
 
         if choice_flag or training_reward_flag:
+            if choice_side == 'switch' and not training_reward_flag:
+                logging.info(";{};[outcome];invalid_switch;reason_both_ports".format(time.time()))
             self.activate_ITI()
             logging.info(";" + str(time.time()) + ";[transition];trial_stop;" + str())
 
@@ -364,7 +379,12 @@ class LatentInferenceModel(Model):  # subclass from base task
         logging.info(";" + str(time.time()) + ";[transition];exit_dark_period;" + str())
         self.schedule_next_dark_period()
 
-    def start_task(self):
+    def start_task(self) -> None:
+        """Start a session and log its rule version; return None, with no inputs.
+
+        Existing session parameters select the patch and epoch-second window.
+        """
+        logging.info(";{};[configuration];choice_rule;threshold_ordered_v1".format(time.time()))
         ic('starting task')
         self.schedule_next_dark_period()
 
