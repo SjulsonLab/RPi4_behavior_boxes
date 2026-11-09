@@ -53,6 +53,7 @@ def session_info():
       - `dict` with time values in seconds and reward sizes in microliters.
     """
     return {
+        "errors_to_reward_delivery": 5,
         "intertrial_interval": 1.0,
         "lick_threshold": 1,
         "right_ix": 0,
