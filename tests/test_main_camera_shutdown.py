@@ -177,6 +177,123 @@ def fake_external_mount(path):
     return True
 
 
+@pytest.fixture
+def timed_latent_session(monkeypatch, tmp_path):
+    """Build a hardware-free session with independently adjustable setup delays.
+
+    Inputs: pytest monkeypatch and tmp_path fixtures. Returns a SimpleNamespace
+    with a run() callable, mutable clock/settings in seconds, the constructed
+    model, task start/stop epoch seconds, and a list of plotted elapsed seconds.
+    Each simulated presenter iteration advances the clock by one second.
+    """
+    module = load_main_with_fakes(monkeypatch, CompletingPresenter)
+    prepare_main_for_shutdown_test(monkeypatch, module)
+    session = types.SimpleNamespace(
+        now=1_000_000.0,
+        preview_delay=180.0,
+        input_delay=45.0,
+        controls_delay=15.0,
+        model=None,
+        task_started_at=None,
+        stopped_at=None,
+        plotted_times=[],
+    )
+
+    def current_time():
+        """Return the simulated float epoch time in seconds; accepts no inputs."""
+        return session.now
+
+    def skip_sleep(seconds):
+        """Accept sleep duration in seconds; return None without a real delay."""
+        return None
+
+    def record_task_start():
+        """Record task start as float epoch seconds; no inputs or return value."""
+        session.task_started_at = session.now
+
+    def make_timed_model(session_info):
+        """Accept settings dict; return a fake model with an epoch-second origin."""
+        model = FakeModel(session_info)
+        model.t_session_start = session.now
+        model.start_task = record_task_start
+        session.model = model
+        return model
+
+    def preview_camera(presenter):
+        """Accept fake presenter; advance setup seconds and return None."""
+        session.now += session.preview_delay
+
+    def enter_duration():
+        """Simulate input delay in seconds; accept no inputs and return 60 minutes."""
+        session.now += session.input_delay
+        return 60
+
+    def print_controls(presenter):
+        """Accept fake presenter; advance pre-task seconds and return None."""
+        session.now += session.controls_delay
+
+    def run_iteration(presenter):
+        """Accept fake presenter; record elapsed seconds, advance 1 s, return None."""
+        if len(session.plotted_times) >= 3_610:
+            pytest.fail("Session did not stop after the configured duration")
+        session.plotted_times.append(session.now - session.model.t_session_start)
+        session.now += 1.0
+
+    def stop_session(presenter):
+        """Accept fake presenter; record stop epoch seconds, stop camera, return None."""
+        session.stopped_at = session.now
+        presenter.end_session_calls += 1
+        presenter.box.video_stop()
+
+    def run_session():
+        """Run simulated latent inference; accept no inputs and return int status."""
+        settings = make_session_info(tmp_path)
+        settings["task_config"] = "latent_inference"
+        return module.run_program(session_info=settings)
+
+    # Select the latent-inference branch while keeping hardware-facing code fake.
+    task_package = importlib.import_module("task_protocol.latent_inference_forage")
+    model_module = types.SimpleNamespace(LatentInferenceModel=make_timed_model)
+    presenter_module = types.SimpleNamespace(LatentInferencePresenter=CompletingPresenter)
+    monkeypatch.setitem(sys.modules, task_package.__name__ + ".latent_inference_model", model_module)
+    monkeypatch.setitem(sys.modules, task_package.__name__ + ".latent_inference_presenter", presenter_module)
+    monkeypatch.setattr(task_package, "latent_inference_model", model_module, raising=False)
+    monkeypatch.setattr(task_package, "latent_inference_presenter", presenter_module, raising=False)
+    monkeypatch.setattr(module, "time", types.SimpleNamespace(time=current_time, sleep=skip_sleep))
+    monkeypatch.setattr(module, "set_session_time", enter_duration)
+    monkeypatch.setattr(CompletingPresenter, "start_session", preview_camera)
+    monkeypatch.setattr(CompletingPresenter, "print_controls", print_controls)
+    monkeypatch.setattr(CompletingPresenter, "run", run_iteration)
+    monkeypatch.setattr(CompletingPresenter, "end_session", stop_session)
+    session.run = run_session
+    return session
+
+
+@pytest.mark.parametrize("preview_delay,input_delay", [(0, 0), (180, 45), (1800, 120)])
+def test_latent_session_plot_excludes_setup_delay(timed_latent_session, preview_delay, input_delay):
+    """Accept timing fixture and setup seconds; assert plotted time starts at zero."""
+    session = timed_latent_session
+    session.preview_delay = preview_delay
+    session.input_delay = input_delay
+
+    assert session.run() == 0
+
+    assert session.model.t_session_start == session.task_started_at
+    assert session.plotted_times[0] == 0.0
+
+
+def test_latent_session_stops_3600_seconds_after_task_start(timed_latent_session):
+    """Accept timing fixture; assert 60 minutes of task time and no later trials."""
+    session = timed_latent_session
+
+    assert session.run() == 0
+
+    assert session.stopped_at - session.task_started_at == 3_600.0
+    assert session.plotted_times[-1] == 3_599.0
+    assert len(session.plotted_times) == 3_600
+    assert FakeBox.last_instance.video_stop_calls == 1
+
+
 def test_failed_transfer_returns_nonzero_and_still_closes_gui(monkeypatch, tmp_path, capsys):
     """Accept fixtures; False transfer status yields a visible failure and GUI cleanup."""
     module = load_main_with_fakes(monkeypatch, InterruptingPresenter)

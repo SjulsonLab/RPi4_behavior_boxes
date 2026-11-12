@@ -411,7 +411,6 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False, externa
 
         presenter.start_session()
         t_minute = set_session_time()
-        t_end = time.time() + 60 * t_minute
 
         task.presenter_commands.clear()
         if session_info['visual_stimulus'] and getattr(box, 'visualstim', None) is not None:
@@ -420,6 +419,9 @@ def run_program(session_info: dict = None, camera_dry_run: bool = False, externa
 
         run = True
         presenter.print_controls()
+        # Start plotted elapsed seconds and the duration limit together, after setup.
+        task.t_session_start = time.time()
+        t_end = task.t_session_start + 60 * t_minute
         task.start_task()
         while run:
             if time.time() < t_end:
