@@ -6,6 +6,7 @@ dependencies:
   - pip
   - pip:
     - numpy
+    - pygame
     - scipy
     - matplotlib
     - RPi.GPIO
