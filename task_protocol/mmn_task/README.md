@@ -39,6 +39,19 @@ This shows a fullscreen, 45-degree drifting grating on SDL display index 1
 duration, or `--windowed` for a windowed check. This is only a display test; it
 does not run the MMN schedule or write session logs.
 
+## Diagnose desktop/display setup
+
+If the Pi still boots to a text console, run this diagnostic from the repository
+root:
+
+```bash
+python3 -m task_protocol.mmn_task.check_display
+```
+
+It reports the boot target, display-manager and desktop-package status, DRM
+connector status, and (when run inside an X desktop session) the `xrandr`
+layout. It does not change system settings or install packages.
+
 The renderer uses the MATLAB reference's spatial/temporal frequencies, grating
 size, screen offset, and photodiode patch placement. The reference sets the
 Gabor sigma to zero, so this implementation uses an unwindowed sinusoidal
