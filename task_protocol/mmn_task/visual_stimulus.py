@@ -8,29 +8,34 @@ from task_protocol.mmn_task.mmn_protocol import MMNConfig
 
 
 class DriftingGratingDisplay:
-    def __init__(self, config: MMNConfig, windowed: bool = False) -> None:
+    def __init__(
+        self, config: MMNConfig, windowed: bool = False, display_index: int = 0
+    ) -> None:
         import numpy as np
         import pygame
+
+        if display_index < 0:
+            raise ValueError("display_index cannot be negative")
 
         self.config = config
         self.np = np
         self.pygame = pygame
         pygame.init()
+        self.display_index = display_index
 
         if windowed:
             display_info = pygame.display.Info()
             width = min(display_info.current_w or 1280, 1280)
             height = min(display_info.current_h or 800, 800)
-            self.screen = pygame.display.set_mode((width, height))
-        else:
-            display_info = pygame.display.Info()
-            if display_info.current_w < 1 or display_info.current_h < 1:
-                raise RuntimeError("Could not determine the fullscreen display size")
             self.screen = pygame.display.set_mode(
-                (display_info.current_w, display_info.current_h), pygame.FULLSCREEN
+                (width, height), display=display_index
+            )
+        else:
+            self.screen = pygame.display.set_mode(
+                (0, 0), pygame.FULLSCREEN, display=display_index
             )
 
-        pygame.display.set_caption("Visual MMN")
+        pygame.display.set_caption("Visual MMN - display {}".format(display_index + 1))
         self.screen_width, self.screen_height = self.screen.get_size()
         self.clock = pygame.time.Clock()
         self.gray_level = 128
@@ -165,6 +170,21 @@ class DriftingGratingDisplay:
             self.clock.tick(self.config.refresh_rate_hz)
 
         return actual_onset
+
+    def preview_grating(self, orientation_deg: int, duration_s: float) -> None:
+        if duration_s <= 0:
+            raise ValueError("duration_s must be positive")
+
+        start = time.monotonic()
+        deadline = start + duration_s
+        try:
+            while time.monotonic() < deadline and self._process_events():
+                elapsed_s = time.monotonic() - start
+                self._draw_grating(orientation_deg, elapsed_s)
+                self.pygame.display.flip()
+                self.clock.tick(self.config.refresh_rate_hz)
+        finally:
+            self.show_gray()
 
     def close(self) -> None:
         if self.pygame.get_init():

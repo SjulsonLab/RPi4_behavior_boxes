@@ -25,6 +25,20 @@ under `~/experimental_data/mmn`. Use `--output-dir PATH` to select another
 location, `--seed N` for reproducible trial ordering, `--windowed` for a
 windowed display, or `--test-mode` to present one short trial.
 
+## Check the second monitor
+
+From a terminal on the Raspberry Pi desktop, run:
+
+```bash
+python3 -m task_protocol.mmn_task.test_grating
+```
+
+This shows a fullscreen, 45-degree drifting grating on SDL display index 1
+(the second display) for 10 seconds, then returns to the terminal. Use
+`--display 0` to select the first display, `--seconds 20` to change the preview
+duration, or `--windowed` for a windowed check. This is only a display test; it
+does not run the MMN schedule or write session logs.
+
 The renderer uses the MATLAB reference's spatial/temporal frequencies, grating
 size, screen offset, and photodiode patch placement. The reference sets the
 Gabor sigma to zero, so this implementation uses an unwindowed sinusoidal
