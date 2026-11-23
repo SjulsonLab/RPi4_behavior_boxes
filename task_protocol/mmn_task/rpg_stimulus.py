@@ -194,4 +194,9 @@ class RPGGratingDisplay:
                 write_rpg_grating(temporary_path, options)
             temporary_path.replace(path)
         finally:
-            temporary_path.unlink(missing_ok=True)
+            # The rename removes the temporary filename on success. Python 3.7
+            # has no unlink(missing_ok=...), so ignore only an absent file.
+            try:
+                temporary_path.unlink()
+            except FileNotFoundError:
+                pass

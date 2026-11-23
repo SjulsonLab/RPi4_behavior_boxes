@@ -159,3 +159,33 @@ def test_patch_can_be_disabled_and_changes_cache_files(fake_rpg, tmp_path):
         display.close()
     assert len([call for call in calls if call[0] == 'build']) == 24
     assert len([call for call in calls if call[0] == 'build_gray']) == 2
+
+
+@pytest.mark.parametrize('frame_type', ['gray', 'grating'])
+@pytest.mark.parametrize('build_fails', [False, True])
+def test_cache_cleanup_supports_legacy_python_unlink(monkeypatch, tmp_path, frame_type, build_fails):
+    """Simulate Python 3.7, whose Path.unlink accepts no missing_ok keyword."""
+    from task_protocol.mmn_task import rpg_stimulus
+
+    original_unlink = Path.unlink
+
+    def legacy_unlink(self):
+        return original_unlink(self)
+
+    def build(path, options):
+        path.write_bytes(b'generated frame')
+        if build_fails:
+            raise OSError('grating generation failed')
+
+    monkeypatch.setattr(Path, 'unlink', legacy_unlink)
+    monkeypatch.setattr(rpg_stimulus, 'write_rpg_gray', build)
+    monkeypatch.setattr(rpg_stimulus, 'write_rpg_grating', build)
+    path = tmp_path / 'cached.dat'
+    if build_fails:
+        with pytest.raises(OSError, match='grating generation failed'):
+            rpg_stimulus.RPGGratingDisplay._build_grating(path, {'frame_type': frame_type})
+        assert list(tmp_path.iterdir()) == []
+    else:
+        rpg_stimulus.RPGGratingDisplay._build_grating(path, {'frame_type': frame_type})
+        assert path.read_bytes() == b'generated frame'
+        assert list(tmp_path.iterdir()) == [path]
