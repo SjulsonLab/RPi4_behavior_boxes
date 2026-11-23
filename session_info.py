@@ -14,7 +14,34 @@ def make_session_info() -> Dict[str, Any]:
     session_info['box_name'] = socket.gethostname()
     session_info['task_config'] = 'mmn'
     session_info['output_dir'] = str(Path.home() / 'experimental_data' / 'mmn')
-    session_info['task_output_dir'] = 'task_output'  # Relative to output_dir, or an absolute path.
+    session_info['task_output_dir'] = 'task_output'  # Relative to the dated session folder, or absolute.
+
+    # Enable these after checking camera SSH/library access and the treadmill source.
+    # Recording starts before spontaneous gray and stops after the last block.
+    session_info['camera_enabled'] = False
+    session_info['camera_nodes'] = [{
+        'camera_id': 'cam0',
+        'transport': 'ssh',  # 'local' for a camera on the stimulus Pi.
+        'host': '10.49.98.252',  # Separate camera Pi.
+        'ssh_user': 'pi',
+        'backend': 'picamera2',  # 'picamera' on older Raspberry Pi OS.
+        'remote_output_dir': '/home/pi/experimental_data/mmn',
+        'python': 'python3',
+        'camera_num': 0,
+        'resolution': (640, 480),
+        'framerate': 30,
+        'bitrate': 2000000,  # H264 bits per second.
+    }]
+    session_info['treadmill'] = False
+    session_info['treadmill_setup'] = {
+        'backend': 'file',  # Capture an existing treadmill CSV without claiming GPIO pins.
+        'source_file': '',  # Full path of the CSV another program is writing on this Pi.
+        'source_header_lines': 1,  # Use 0 for a source without a CSV header.
+        'include_existing_data': False,  # Save newly appended rows for this session.
+        'poll_interval_s': 0.05,
+    }
+    session_info['acquisition_start_timeout_s'] = 30.0
+    session_info['acquisition_stop_timeout_s'] = 30.0
 
     # Record spontaneous activity on gray before the first stimulus block.
     session_info['spontaneous_duration_s'] = 15 * 60  # Seconds; 0 skips this period.

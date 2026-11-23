@@ -12,6 +12,9 @@ from pathlib import Path
 from typing import Dict, Optional
 
 from session_info import make_session_info
+from task_protocol.mmn_task.acquisition import (
+    RecordingDisplay, SessionAcquisition, create_session_directory,
+)
 from task_protocol.mmn_task.mmn_protocol import MMNConfig, StimulusEvent, build_schedule
 from task_protocol.mmn_task.rpg_stimulus import RPGGratingDisplay
 from task_protocol.mmn_task.stimulus_sequence import (
@@ -120,7 +123,7 @@ def run_protocol(
     windowed: bool = False,
     session_info: Optional[Dict[str, object]] = None,
 ) -> int:
-    """Run config, writing CSV/JSON to output_dir; return 0 or 130 on interruption.
+    """Run config, saving to output_dir; return 0, 130 if interrupted, or 1 on failure.
 
     session_info is a settings dict from make_session_info(); config holds the
     effective schedule in seconds/degrees. windowed applies to Pygame only.
@@ -203,7 +206,10 @@ def run_protocol(
     write_stimulus_sequence(sequence_path, schedule)
     print(f"Stimulus sequence: {sequence_path}", flush=True)
 
+    recordings = SessionAcquisition(settings, output_dir)
+    metadata['acquisition'] = recordings.report
     aborted = False
+    failed = False
     if backend == 'rpg':
         display = RPGGratingDisplay(
             config,
@@ -221,11 +227,18 @@ def run_protocol(
             photodiode_patch_enabled=settings['photodiode_patch_enabled'],
             photodiode_patch_size_px=tuple(settings['photodiode_patch_size_px']),
         )
+    display = RecordingDisplay(display, recordings, clock=time.monotonic)
     metadata["display"] = display.display_settings
     metadata["status"] = "running"
     session_start_monotonic = time.monotonic()
     session_start_wall = time.time()
     try:
+        _write_metadata(metadata_path, metadata)
+        recordings.start()
+        # Recording startup and first-frame readiness precede the timed gray
+        # period. Camera/treadmill files include all spontaneous activity.
+        session_start_monotonic = time.monotonic()
+        session_start_wall = time.time()
         metadata["started_at"] = datetime.now().astimezone().isoformat(
             timespec="seconds"
         )
@@ -305,7 +318,19 @@ def run_protocol(
                         break
 
                     offset_target = actual_onset + config.stimulus_duration_s
-                    if not display.wait_until(offset_target):
+                    try:
+                        stimulus_completed = display.wait_until(offset_target)
+                    except (Exception, KeyboardInterrupt) as error:
+                        display.show_gray()
+                        writer.writerow(_event_row(
+                            event, target_onset, actual_onset, time.monotonic(), block_start,
+                            session_start_monotonic, session_start_wall,
+                            'aborted_during_stimulus' if isinstance(error, KeyboardInterrupt)
+                            else 'failed_during_stimulus', stimulus_index,
+                        ))
+                        output.flush()
+                        raise
+                    if not stimulus_completed:
                         display.show_gray()
                         actual_offset = time.monotonic()
                         writer.writerow(
@@ -359,10 +384,31 @@ def run_protocol(
 
     except KeyboardInterrupt:
         aborted = True
+    except Exception as error:
+        failed = True
+        metadata['error'] = str(error)
+        print('MMN failed: {}'.format(error), flush=True)
     finally:
-        display.close()
+        recording_errors = []
+        try:
+            display.show_gray()
+        except Exception as error:
+            recording_errors.append('Could not restore gray background: {}'.format(error))
+        try:
+            recording_errors.extend(recordings.stop())
+        except (Exception, KeyboardInterrupt) as error:
+            recording_errors.append('Recording shutdown interrupted or failed: {}'.format(error))
+        finally:
+            try:
+                display.close()
+            except Exception as error:
+                recording_errors.append('Display shutdown failed: {}'.format(error))
+        if recording_errors:
+            failed = True
+            metadata['recording_errors'] = recording_errors
+            print('\n'.join(recording_errors), flush=True)
 
-    metadata["status"] = "aborted" if aborted else "complete"
+    metadata["status"] = "failed" if failed else "aborted" if aborted else "complete"
     metadata["finished_at"] = datetime.now().astimezone().isoformat(
         timespec="seconds"
     )
@@ -373,7 +419,7 @@ def run_protocol(
     _write_metadata(metadata_path, metadata)
     print(f"Event log: {csv_path}")
     print(f"Session metadata: {metadata_path}")
-    return 130 if aborted else 0
+    return 1 if failed else 130 if aborted else 0
 
 
 def _parse_args() -> argparse.Namespace:
@@ -408,6 +454,11 @@ def _parse_args() -> argparse.Namespace:
         type=int,
         default=None,
         help="Override the zero-based SDL display index for the pygame backend",
+    )
+    parser.add_argument(
+        '--no-recording',
+        action='store_true',
+        help='Disable camera/treadmill acquisition for a visual-only check',
     )
     parser.add_argument(
         "--windowed",
@@ -445,6 +496,9 @@ def main() -> int:
         session_info['visual_backend'] = 'pygame'
     if args.display is not None:
         session_info['display_index'] = args.display
+    if args.no_recording:
+        session_info['camera_enabled'] = False
+        session_info['treadmill'] = False
     windowed = args.windowed or session_info['windowed']
     config = _config_from_session_info(session_info)
     if args.test_mode:
@@ -460,13 +514,19 @@ def main() -> int:
     if args.seed is not None:
         config = replace(config, random_seed=args.seed)
 
-    output_dir = (args.output_dir or Path(session_info['output_dir'])).expanduser()
+    output_root = (args.output_dir or Path(session_info['output_dir'])).expanduser()
+    output_dir = create_session_directory(output_root, session_info['mouse_name'])
+    session_info['output_root'] = str(output_root)
+    session_info['session_name'] = output_dir.name
     print(
         f"Mouse: {session_info['mouse_name']}; backend: {session_info['visual_backend']}; "
         f"orientations: {config.orientations_deg}; "
         f"grating/gray: {config.stimulus_duration_s}/{config.inter_stimulus_interval_s} s"
     )
     print(f"Block order: {' -> '.join(config.block_types)}")
+    print('Camera recording: {}; treadmill recording: {}'.format(
+        session_info.get('camera_enabled', False), session_info.get('treadmill', False)))
+    print('Session directory: {}'.format(output_dir), flush=True)
     return run_protocol(config, output_dir, windowed=windowed, session_info=session_info)
 
 

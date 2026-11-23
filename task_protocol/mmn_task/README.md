@@ -47,7 +47,7 @@ Each run saves the full planned presentation order before opening the display
 or starting the spontaneous period. The default destination is:
 
 ```text
-~/experimental_data/mmn/task_output/mmn_stimulus_sequence_YYYYMMDD_HHMMSS.csv
+~/experimental_data/mmn/<mouse>_YYYYMMDD_HHMMSS_microseconds/task_output/mmn_stimulus_sequence_YYYYMMDD_HHMMSS.csv
 ```
 
 The file contains one row per grating across every oddball and control block
@@ -78,7 +78,7 @@ file preserves the entire planned order. The JSON metadata records the
 sequence filename, planned count, and ID-to-angle mapping.
 
 Set `task_output_dir` in `session_info.py` to choose a different sequence
-directory. Its default, `'task_output'`, is relative to `output_dir`, so
+directory. Its default, `'task_output'`, is inside the dated session folder, so
 `--output-dir PATH` also moves this subfolder. An absolute `task_output_dir`
 is used directly.
 
@@ -102,8 +102,12 @@ The Pi settings in `session_info.py` are:
 
 | Setting | Meaning |
 | --- | --- |
-| `output_dir` | Session event-log and metadata directory |
-| `task_output_dir` | Planned-sequence directory; default `'task_output'` inside `output_dir` |
+| `output_dir` | Parent directory for the dated session folders |
+| `task_output_dir` | Planned-sequence directory; default `'task_output'` inside each session folder |
+| `camera_enabled` | Start the configured camera Pi recorders; default `False` until configured |
+| `camera_nodes` | Camera hosts, SSH usernames, camera backends and video settings |
+| `treadmill` | Copy an existing treadmill file during the session; default `False` until configured |
+| `treadmill_setup` | Source file path, header count and file-copy options |
 | `spontaneous_duration_s` | Initial gray-background period in seconds; default 900 (15 minutes), 0 to skip |
 | `block_order` | Cycle order: A → B → control, or control → A → B |
 | `block_count` | Total blocks; default 9, repeating the selected cycle three times |
@@ -183,10 +187,120 @@ seconds between blocks):
 python3 main.py --test-mode
 ```
 
-Session CSV/JSON files are written under `output_dir` (by default,
-`~/experimental_data/mmn`). Use `--output-dir PATH` or `--seed N` to override
+Each run creates a new `<mouse>_YYYYMMDD_HHMMSS_microseconds` folder under
+`output_dir` (by default, `~/experimental_data/mmn`). Use `--output-dir PATH` or `--seed N` to override
 the corresponding session setting for a run. Optogenetic outputs remain
 disabled. RPG retains its own native frame-output behavior.
+
+## Camera and treadmill recording
+
+Enable recording in the repository-root `session_info.py` after setting the
+rig's camera host and existing treadmill file path. Recording starts before
+the 15-minute spontaneous period and stops after the final stimulus or on
+interruption. Recorders run in separate processes so the native RPG display
+calls cannot block data capture. An enabled recorder that cannot start prevents
+the timed session from starting; a recorder that exits during the task aborts
+the session and is reported in the metadata.
+
+All files are grouped in the dated session folder:
+
+```text
+~/experimental_data/mmn/<mouse>_YYYYMMDD_HHMMSS_microseconds/
+    mmn_events_*.csv
+    mmn_metadata_*.json
+    task_output/mmn_stimulus_sequence_*.csv
+    treadmill.csv
+    treadmill_copy_times.csv
+    acquisition/                 # Treadmill config, worker log and result
+    recording_result.json
+    video/cam0/
+        video.h264
+        frames.csv
+        recording_result.json
+        acquisition/             # Camera config and worker log
+```
+
+Treadmill files appear only when `treadmill=True`; camera files appear only
+when `camera_enabled=True`. Metadata records the effective settings, worker
+status, source paths, output paths and failures.
+
+### Existing treadmill CSV
+
+The `matt-behavior` task writes `<session_name>_treadmill.csv` using a GPIO
+encoder. For this rig's independently recorded treadmill file, MMN instead
+opens the existing source read-only and copies new bytes into `treadmill.csv`:
+
+```python
+session_info['treadmill'] = True
+session_info['treadmill_setup'] = {
+    'backend': 'file',
+    'source_file': '/absolute/path/to/the/active/treadmill.csv',
+    'source_header_lines': 1,
+    'include_existing_data': False,
+    'poll_interval_s': 0.05,
+}
+```
+
+Start the existing treadmill writer before MMN, and ensure it flushes data
+during recording. MMN does not start or stop that program. By default it copies
+the header and only data appended after its worker starts, skipping old rows.
+Set `source_header_lines=0` for a headerless file; set
+`include_existing_data=True` if a newly created source already contains data
+you want to keep. Source values, delimiters, units and timestamps are preserved.
+Naming the copy `.csv` does not convert a differently formatted source.
+
+`treadmill_copy_times.csv` records byte offsets and receipt times for each
+copied chunk. Those times are not per-sample measurement timestamps; use the
+source's timestamps or the treadmill analog signal in the electrophysiology
+recording for analysis. A missing source fails startup; replacing or truncating
+it during the session fails recording. A source that produces no new bytes
+is reported with a warning in the worker metadata.
+
+### Separate camera Pi
+
+The camera entry uses the supplied address `pi@10.49.98.252` with `picamera2`.
+Check SSH/library access with the diagnostic below, then set `camera_enabled=True`.
+Use `backend='picamera'` for the older PiCamera library; set `transport='local'`
+only if the camera is connected to the stimulus Pi.
+
+The stimulus Pi needs `ssh` and `rsync`, and working noninteractive SSH access
+to the camera Pi. The camera Pi needs the selected Python camera library and
+`rsync`. MMN stages its standalone worker in a new recording folder on that Pi;
+the camera Pi does not need a checkout of this branch. There is no preview
+window. Readiness requires camera timestamps and nonempty video output.
+
+The camera first saves under
+`<remote_output_dir>/<session_name>/video/<camera_id>/` on its own Pi. After all
+recorders stop, MMN uses `rsync` to copy the recording into the matching local
+session folder. Remote files are retained. A failed copy marks the session
+failed and records the remote location so the recording can be recovered.
+Video transfer adds time after stimulation ends.
+
+`frames.csv` contains frame indices, sensor timestamps (nanoseconds for
+Picamera2, microseconds for PiCamera), wall-clock epoch seconds and camera-Pi
+monotonic times. Picamera2 records metadata for camera requests; the video
+encoder can drop frames. Monotonic clocks on separate Pis cannot be compared
+directly. Wall-clock comparison requires synchronized clocks; these software
+timestamps do not establish hardware synchronization with electrophysiology.
+
+To check camera SSH/library availability and locate existing treadmill files
+without starting recording, run this on the stimulus Pi:
+
+```bash
+python3 -m task_protocol.mmn_task.check_acquisition --check-camera
+```
+
+The file search prints active treadmill-related log handles and recent
+treadmill/Teensy/wheel file candidates. It is bounded and does not select a
+source automatically. Add `--search-root /path/to/recordings` to search a
+specific directory. Set the verified source path in `session_info.py`.
+
+Test the configured recordings with `python3 main.py --test-mode`. For a visual
+check with recording temporarily disabled, use:
+
+```bash
+python3 main.py --test-mode --no-recording
+```
 
 ## Desktop/Pygame check
 

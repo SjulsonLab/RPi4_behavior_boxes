@@ -45,7 +45,8 @@ def test_main_loads_session_file_and_applies_cli_overrides(monkeypatch, tmp_path
     assert config.temporal_frequency_hz == 1.0
     assert config.spontaneous_duration_s == 120.0
     assert config.random_seed == 42
-    assert captured["output_dir"] == tmp_path
+    assert captured["output_dir"].parent == tmp_path
+    assert captured["output_dir"].name.startswith('mouse-7_')
     assert captured["session_info"]["mouse_name"] == "mouse-7"
     assert captured["session_info"]["visual_backend"] == "rpg"
 
@@ -391,3 +392,105 @@ def test_task_output_directory_can_be_configured(spontaneous_display, tmp_path, 
     )
     assert runner.run_protocol(config, tmp_path / 'session', session_info=settings) == 0
     assert len(list(destination.glob('mmn_stimulus_sequence_*.csv'))) == 1
+
+
+@pytest.mark.parametrize('mode', ['complete', 'interrupt', 'start_failure', 'stop_failure'])
+def test_recording_lifecycle_surrounds_spontaneous_and_always_stops(
+    spontaneous_display, monkeypatch, tmp_path, mode
+):
+    from session_info import make_session_info
+    from task_protocol.mmn_task.mmn_protocol import MMNConfig
+
+    clock, calls = spontaneous_display
+    if mode == 'interrupt':
+        clock.interrupt = 'keyboard'
+
+    class Recorders:
+        workers = []
+
+        def __init__(self, settings, directory):
+            self.report = {'stopped': False}
+
+        def start(self):
+            calls.append(('recording_start', clock.now))
+            if mode == 'start_failure':
+                raise RuntimeError('camera startup failed')
+
+        def check_health(self):
+            pass
+
+        def stop(self):
+            calls.append(('recording_stop', clock.now))
+            self.report['stopped'] = True
+            return ['camera transfer failed'] if mode == 'stop_failure' else []
+
+    monkeypatch.setattr(runner, 'SessionAcquisition', Recorders)
+    config = MMNConfig(block_count=1, trials_per_block=1, standard_count_options=(4,))
+    result = runner.run_protocol(config, tmp_path, session_info=make_session_info())
+    assert result == {'complete': 0, 'interrupt': 130, 'start_failure': 1, 'stop_failure': 1}[mode]
+    assert calls[0][0] == 'recording_start'
+    assert calls[-2][0] == 'recording_stop'
+    assert calls[-1][0] == 'close'
+    assert len([call for call in calls if call[0] == 'recording_stop']) == 1
+    if mode in ('interrupt', 'start_failure'):
+        assert not any(call[0] == 'present' for call in calls)
+    metadata = json.loads(next(tmp_path.glob('mmn_metadata_*.json')).read_text())
+    assert metadata['acquisition']['stopped'] is True
+    assert metadata['status'] == {'complete': 'complete', 'interrupt': 'aborted', 'start_failure': 'failed', 'stop_failure': 'failed'}[mode]
+
+
+def test_recording_failure_after_grating_still_logs_presented_stimulus(
+    spontaneous_display, monkeypatch, tmp_path
+):
+    from session_info import make_session_info
+    from task_protocol.mmn_task.mmn_protocol import MMNConfig
+
+    _, calls = spontaneous_display
+
+    class Recorders:
+        workers = [object()]
+
+        def __init__(self, settings, directory):
+            self.report = {}
+
+        def start(self):
+            pass
+
+        def check_health(self):
+            if any(call[0] == 'present' for call in calls):
+                raise RuntimeError('camera exited during stimulus')
+
+        def stop(self):
+            return []
+
+    monkeypatch.setattr(runner, 'SessionAcquisition', Recorders)
+    config = MMNConfig(
+        block_count=1, trials_per_block=1, standard_count_options=(4,), spontaneous_duration_s=0,
+    )
+    assert runner.run_protocol(config, tmp_path, session_info=make_session_info()) == 1
+    with next(tmp_path.glob('mmn_events_*.csv')).open() as output:
+        rows = list(csv.DictReader(output))
+    assert len(rows) == 1
+    assert rows[0]['status'] == 'failed_during_stimulus'
+    assert float(rows[0]['actual_duration_s']) == 0.5
+    assert rows[0]['onset_wall_time']
+    assert calls[-1][0] == 'close'
+
+
+def test_no_recording_cli_overrides_enabled_settings(monkeypatch, tmp_path):
+    from session_info import make_session_info
+
+    settings = make_session_info()
+    settings.update(camera_enabled=True, treadmill=True)
+    captured = {}
+
+    def run(config, output_dir, **kwargs):
+        captured.update(kwargs['session_info'])
+        return 0
+
+    monkeypatch.setattr(runner, 'make_session_info', lambda: settings)
+    monkeypatch.setattr(runner, 'run_protocol', run)
+    monkeypatch.setattr(sys, 'argv', ['main.py', '--test-mode', '--no-recording', '--output-dir', str(tmp_path)])
+    assert runner.main() == 0
+    assert captured['camera_enabled'] is False
+    assert captured['treadmill'] is False
