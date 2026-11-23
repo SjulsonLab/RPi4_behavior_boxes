@@ -3,6 +3,7 @@
 
 # temporary folder
 temp/
+task_output/
 
 # matlab stuff
 # Windows default autosave extension

@@ -2,20 +2,25 @@
 
 import math
 import time
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 from task_protocol.mmn_task.mmn_protocol import MMNConfig
+from task_protocol.mmn_task.photodiode import bottom_left_patch_rect
 
 
 class DriftingGratingDisplay:
     def __init__(
-        self, config: MMNConfig, windowed: bool = False, display_index: int = 0
+        self, config: MMNConfig, windowed: bool = False, display_index: int = 0,
+        photodiode_patch_enabled: bool = True,
+        photodiode_patch_size_px: Tuple[int, int] = (80, 40),
     ) -> None:
         import numpy as np
         import pygame
 
         if display_index < 0:
             raise ValueError("display_index cannot be negative")
+        if not isinstance(photodiode_patch_enabled, bool):
+            raise ValueError("photodiode_patch_enabled must be True or False")
 
         self.config = config
         self.np = np
@@ -61,26 +66,31 @@ class DriftingGratingDisplay:
             (self._grating_size_px, self._grating_size_px)
         )
         self._x_grid, self._y_grid = self._coordinate_grids(self._grating_size_px)
-        self._phase_grids: Dict[int, object] = {}
+        self._phase_grids: Dict[float, object] = {}
         self._scratch = np.empty(
             (self._grating_size_px, self._grating_size_px), dtype=np.float32
         )
         self._frequency_cycles_per_pixel = (
             config.spatial_frequency_cycles_per_cm / self._pixels_per_cm
         )
-        self._photodiode_rect = pygame.Rect(
-            0,
-            0,
-            max(1, self.screen_width // 15),
-            max(1, self.screen_height // 25),
+        self._photodiode_rect = (
+            pygame.Rect(bottom_left_patch_rect(
+                (self.screen_width, self.screen_height), photodiode_patch_size_px
+            )) if photodiode_patch_enabled else None
         )
         self._aborted = False
         self.display_settings = {
+            "backend": "pygame_procedural_drifting_grating",
+            "display_index": display_index,
             "screen_width_px": self.screen_width,
             "screen_height_px": self.screen_height,
             "pixels_per_cm_used": self._pixels_per_cm,
             "grating_rect_px": list(self._grating_rect),
-            "photodiode_rect_px": list(self._photodiode_rect),
+            "photodiode_rect_px": list(self._photodiode_rect) if self._photodiode_rect else None,
+            "photodiode_patch_enabled": photodiode_patch_enabled,
+            "photodiode_gray_level": 255 if photodiode_patch_enabled else None,
+            "photodiode_stimulus_level": 0 if photodiode_patch_enabled else None,
+            "onset_time_reference": "software_time_after_first_pygame_flip",
         }
         self.show_gray()
 
@@ -91,7 +101,7 @@ class DriftingGratingDisplay:
         y_grid = np.broadcast_to(coordinates[None, :], (size, size))
         return x_grid, y_grid
 
-    def _phase_grid(self, orientation_deg: int):
+    def _phase_grid(self, orientation_deg: float):
         if orientation_deg not in self._phase_grids:
             radians = math.radians(orientation_deg)
             projection = (
@@ -124,10 +134,11 @@ class DriftingGratingDisplay:
 
     def show_gray(self) -> None:
         self.screen.fill((self.gray_level, self.gray_level, self.gray_level))
-        self.pygame.draw.rect(self.screen, (255, 255, 255), self._photodiode_rect)
+        if self._photodiode_rect is not None:
+            self.pygame.draw.rect(self.screen, (255, 255, 255), self._photodiode_rect)
         self.pygame.display.flip()
 
-    def _draw_grating(self, orientation_deg: int, elapsed_s: float) -> None:
+    def _draw_grating(self, orientation_deg: float, elapsed_s: float) -> None:
         np = self.np
         phase = 2.0 * math.pi * self.config.temporal_frequency_hz * elapsed_s
         np.add(self._phase_grid(orientation_deg), phase, out=self._scratch)
@@ -144,9 +155,10 @@ class DriftingGratingDisplay:
 
         self.screen.fill((self.gray_level, self.gray_level, self.gray_level))
         self.screen.blit(self._grating_surface, self._grating_rect.topleft)
-        self.pygame.draw.rect(self.screen, (0, 0, 0), self._photodiode_rect)
+        if self._photodiode_rect is not None:
+            self.pygame.draw.rect(self.screen, (0, 0, 0), self._photodiode_rect)
 
-    def present_grating(self, orientation_deg: int) -> Optional[float]:
+    def present_grating(self, orientation_deg: float) -> Optional[float]:
         actual_onset: Optional[float] = None
 
         while (
@@ -171,7 +183,7 @@ class DriftingGratingDisplay:
 
         return actual_onset
 
-    def preview_grating(self, orientation_deg: int, duration_s: float) -> None:
+    def preview_grating(self, orientation_deg: float, duration_s: float) -> None:
         if duration_s <= 0:
             raise ValueError("duration_s must be positive")
 
