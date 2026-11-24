@@ -177,7 +177,8 @@ python3 main.py
 The module entry point, `python3 -m task_protocol.mmn_task.run_mmn_task`, also
 loads `session_info.py`. No desktop session or SDL monitor selection is needed
 for RPG; it uses `/dev/fb0`, just like the working behavior task. Stop with
-Ctrl+C.
+Ctrl+C during recording. When camera recording is enabled, the initial camera
+adjustment step uses Ctrl+C to continue to recording, as described below.
 
 For a shortened cycle (five seconds of spontaneous gray, one eight-grating
 trial per oddball block, one presentation of each control angle, and five
@@ -201,6 +202,35 @@ interruption. Recorders run in separate processes so the native RPG display
 calls cannot block data capture. An enabled recorder that cannot start prevents
 the timed session from starting; a recorder that exits during the task aborts
 the session and is reported in the metadata.
+
+### Adjust the camera, then press Ctrl+C to start recording
+
+With `camera_enabled=True`, `python3 main.py` first opens a live camera preview
+on the camera Pi. **MMN saves no camera video or treadmill copy during this
+adjustment step.** Adjust the camera, then press **Ctrl+C in the stimulus Pi
+terminal running main.py** when it says `START RECORDING`.
+
+MMN closes the adjustment preview and releases the camera, prepares the stimulus
+display, then starts camera/treadmill recording and the configured spontaneous
+gray period. A new dated session folder is created after the adjustment step.
+The time spent adjusting the camera is excluded from the spontaneous period
+and session recording duration. Startup, rendering or cleanup failures prevent
+the session from starting. Ctrl+C before the preview becomes ready cancels
+startup; Ctrl+C after recording begins aborts the session normally.
+
+The adjustment step defaults to DRM preview for this rig's attached camera-Pi
+monitor; an explicit `preview_backend='qt'` or `'qtgl'` is also honored. Keep
+LightDM stopped on the camera Pi while using DRM, including throughout the
+recording if its preview is enabled. The node's `preview` flag still controls
+whether the preview is shown **during** recording.
+
+Both full sessions and `--test-mode` include this adjustment step when camera
+recording is enabled. `--no-recording` skips it. To skip adjustment while still
+recording camera video, add this inside `make_session_info()` before `return`:
+
+```python
+    session_info['camera_preview_before_recording'] = False
+```
 
 All files are grouped in the dated session folder:
 

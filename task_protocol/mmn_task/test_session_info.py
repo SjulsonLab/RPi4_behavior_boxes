@@ -510,3 +510,110 @@ def test_no_recording_cli_overrides_enabled_settings(monkeypatch, tmp_path):
     assert runner.main() == 0
     assert captured['camera_enabled'] is False
     assert captured['treadmill'] is False
+
+
+@pytest.mark.parametrize('preview_status', [0, 1, 130])
+def test_main_adjustment_precedes_session_creation_and_recording(monkeypatch, tmp_path, preview_status):
+    from session_info import make_session_info
+
+    settings = make_session_info()
+    settings.update(camera_enabled=True, camera_preview_before_recording=True,
+                    spontaneous_duration_s=300, block_count=3)
+    # An older recording-day file without preview_backend should use the
+    # physical camera monitor in main.py's new adjustment stage.
+    settings['camera_nodes'][0].pop('preview_backend', None)
+    calls = []
+    original_create = runner.create_session_directory
+
+    def preview(info, continue_to_recording):
+        assert continue_to_recording is True
+        assert info['camera_nodes'][0]['preview_backend'] == 'drm'
+        assert list(tmp_path.iterdir()) == []
+        calls.append('preview_and_ctrl_c')
+        return preview_status
+
+    def create(*args):
+        calls.append('session_directory')
+        return original_create(*args)
+
+    def run(config, directory, **kwargs):
+        calls.append('recording_and_mmn')
+        assert config.spontaneous_duration_s == 300
+        assert config.block_count == 3
+        assert kwargs['session_info']['camera_enabled'] is True
+        return 0
+
+    monkeypatch.setattr(runner, 'make_session_info', lambda: settings)
+    monkeypatch.setattr(runner, 'run_preview', preview)
+    monkeypatch.setattr(runner, 'create_session_directory', create)
+    monkeypatch.setattr(runner, 'run_protocol', run)
+    monkeypatch.setattr(sys, 'argv', ['main.py', '--output-dir', str(tmp_path)])
+    assert runner.main() == preview_status
+    assert calls == (['preview_and_ctrl_c', 'session_directory', 'recording_and_mmn']
+                     if preview_status == 0 else ['preview_and_ctrl_c'])
+
+
+def test_ctrl_c_during_session_still_aborts_after_adjustment(spontaneous_display, monkeypatch, tmp_path):
+    from session_info import make_session_info
+
+    clock, calls = spontaneous_display
+    clock.interrupt = 'keyboard'
+    settings = make_session_info()
+    settings.update(camera_enabled=True, camera_preview_before_recording=True, output_dir=str(tmp_path))
+
+    def preview(info, continue_to_recording):
+        calls.append(('preview_done', clock.now))
+        return 0  # First Ctrl+C has closed the adjustment preview.
+
+    class Recorders:
+        workers = []
+
+        def __init__(self, *args):
+            self.report = {}
+
+        def start(self):
+            calls.append(('recording_start', clock.now))
+
+        def check_health(self):
+            pass
+
+        def stop(self):
+            calls.append(('recording_stop', clock.now))
+            return []
+
+    monkeypatch.setattr(runner, 'make_session_info', lambda: settings)
+    monkeypatch.setattr(runner, 'run_preview', preview)
+    monkeypatch.setattr(runner, 'SessionAcquisition', Recorders)
+    monkeypatch.setattr(sys, 'argv', ['main.py', '--test-mode'])
+    assert runner.main() == 130  # Second Ctrl+C aborts the timed session.
+    kinds = [call[0] for call in calls]
+    assert kinds.index('preview_done') < kinds.index('recording_start') < kinds.index('recording_stop')
+    assert 'present' not in kinds
+    session = next(path for path in tmp_path.iterdir() if path.is_dir())
+    metadata = json.loads(next(session.glob('mmn_metadata_*.json')).read_text())
+    assert metadata['status'] == 'aborted'
+    assert metadata['spontaneous']['status'] == 'aborted'
+
+
+@pytest.mark.parametrize('no_recording', [False, True])
+def test_main_can_skip_adjustment_without_starting_preview(monkeypatch, tmp_path, no_recording):
+    from session_info import make_session_info
+
+    settings = make_session_info()
+    settings.update(camera_enabled=True, camera_preview_before_recording=no_recording,
+                    output_dir=str(tmp_path))
+    captured = {}
+
+    def preview(*args, **kwargs):
+        pytest.fail('Camera adjustment should have been skipped')
+
+    def run(config, directory, **kwargs):
+        captured.update(kwargs['session_info'])
+        return 0
+
+    monkeypatch.setattr(runner, 'make_session_info', lambda: settings)
+    monkeypatch.setattr(runner, 'run_preview', preview)
+    monkeypatch.setattr(runner, 'run_protocol', run)
+    monkeypatch.setattr(sys, 'argv', ['main.py'] + (['--no-recording'] if no_recording else []))
+    assert runner.main() == 0
+    assert captured['camera_enabled'] is not no_recording

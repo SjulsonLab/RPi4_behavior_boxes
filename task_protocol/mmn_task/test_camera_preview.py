@@ -118,6 +118,7 @@ def test_preview_cli_starts_even_if_recording_disabled_and_stops_on_ctrl_c(monke
     class Worker:
         def __init__(self, name, config, directory, *args):
             captured.update(config=config, directory=directory)
+            self.name, self.config = name, config
             self.info = {'host': 'pi@10.49.98.252', 'log_file': str(tmp_path / 'worker.log')}
 
         def start(self):
@@ -194,3 +195,37 @@ class Picamera2:
     assert worker.info['result']['preview_only'] is True
     assert trace.read_text().splitlines() == ['open', 'preview', 'start', 'stop', 'stop_preview', 'close']
     assert not list(directory.glob('*.h264'))
+
+
+@pytest.mark.parametrize('failure', [None, 'startup_interrupt', 'startup_error', 'cleanup_error'])
+def test_adjustment_starts_recording_only_after_ready_preview_and_clean_shutdown(monkeypatch, tmp_path, failure):
+    from task_protocol.mmn_task import camera_preview
+
+    calls = []
+
+    class Worker:
+        def __init__(self, name, config, directory, *args):
+            self.name, self.config = name, config
+            self.info = {'host': 'camera', 'log_file': str(tmp_path / 'worker.log')}
+
+        def start(self):
+            calls.append('preview_start')
+            if failure == 'startup_interrupt':
+                raise KeyboardInterrupt
+            if failure == 'startup_error':
+                raise RuntimeError('camera unavailable')
+
+        def check_health(self):
+            calls.append('adjustment')
+            raise KeyboardInterrupt
+
+        def stop(self):
+            calls.append('preview_stop')
+            return ['camera did not close'] if failure == 'cleanup_error' else []
+
+    monkeypatch.setattr(camera_preview, 'RecordingWorker', Worker)
+    monkeypatch.setattr(camera_preview.tempfile, 'mkdtemp', lambda **kwargs: str(tmp_path))
+    status = camera_preview.run_preview({'camera_nodes': [{'camera_id': 'cam0'}]}, continue_to_recording=True)
+    assert status == {None: 0, 'startup_interrupt': 130, 'startup_error': 1, 'cleanup_error': 1}[failure]
+    assert calls[-1] == 'preview_stop'
+    assert ('adjustment' in calls) is (failure not in ('startup_interrupt', 'startup_error'))

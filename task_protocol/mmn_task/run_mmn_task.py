@@ -15,6 +15,7 @@ from session_info import make_session_info
 from task_protocol.mmn_task.acquisition import (
     RecordingDisplay, SessionAcquisition, create_session_directory,
 )
+from task_protocol.mmn_task.camera_preview import run_preview
 from task_protocol.mmn_task.mmn_protocol import MMNConfig, StimulusEvent, build_schedule
 from task_protocol.mmn_task.rpg_stimulus import RPGGratingDisplay
 from task_protocol.mmn_task.stimulus_sequence import (
@@ -513,6 +514,17 @@ def main() -> int:
         )
     if args.seed is not None:
         config = replace(config, random_seed=args.seed)
+
+    session_info.setdefault('camera_preview_before_recording', True)
+    if session_info.get('camera_enabled', False) and session_info['camera_preview_before_recording']:
+        # The adjustment phase targets this rig's camera monitor by default;
+        # an explicitly configured Qt desktop preview is also supported.
+        session_info['camera_nodes'] = [dict(node, preview_backend=node.get('preview_backend', 'drm'))
+                                        for node in session_info.get('camera_nodes', [])]
+        preview_status = run_preview(session_info, continue_to_recording=True)
+        if preview_status != 0:
+            return preview_status
+        print('Camera adjustment complete. Preparing the display and starting recording. Ctrl+C now stops the session.', flush=True)
 
     output_root = (args.output_dir or Path(session_info['output_dir'])).expanduser()
     output_dir = create_session_directory(output_root, session_info['mouse_name'])
