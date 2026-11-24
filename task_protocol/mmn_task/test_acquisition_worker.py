@@ -54,8 +54,8 @@ def test_legacy_camera_streams_video_and_frame_timestamps(monkeypatch, tmp_path,
     assert calls == (['preview', 'stop', 'stop_preview', 'close'] if preview else ['stop', 'close'])
 
 
-@pytest.mark.parametrize('preview', [False, True])
-def test_picamera2_writes_sensor_nanoseconds_and_closes(monkeypatch, tmp_path, preview):
+@pytest.mark.parametrize('preview_backend', [None, 'qt', 'drm'])
+def test_picamera2_writes_sensor_nanoseconds_and_closes(monkeypatch, tmp_path, preview_backend):
     from task_protocol.mmn_task.acquisition_worker import record_camera
 
     stop = Event()
@@ -81,7 +81,7 @@ def test_picamera2_writes_sensor_nanoseconds_and_closes(monkeypatch, tmp_path, p
             }))
 
         def start_preview(self, mode, **geometry):
-            assert mode == 'qt'
+            assert mode == preview_backend
             assert geometry == {'x': 0, 'y': 0, 'width': 640, 'height': 480}
             calls.append('preview')
 
@@ -95,13 +95,14 @@ def test_picamera2_writes_sensor_nanoseconds_and_closes(monkeypatch, tmp_path, p
             calls.append('close')
 
     monkeypatch.setitem(sys.modules, 'picamera2', SimpleNamespace(
-        Picamera2=Camera, Preview=SimpleNamespace(QT='qt', QTGL='qtgl'),
+        Picamera2=Camera, Preview=SimpleNamespace(QT='qt', QTGL='qtgl', DRM='drm'),
     ))
     monkeypatch.setitem(sys.modules, 'picamera2.encoders', SimpleNamespace(H264Encoder=lambda bitrate: object()))
     from pathlib import Path
     monkeypatch.setitem(sys.modules, 'picamera2.outputs', SimpleNamespace(FileOutput=lambda filename: SimpleNamespace(path=Path(filename))))
     result = record_camera(
-        {'backend': 'picamera2', 'output_dir': str(tmp_path), 'preview': preview}, stop,
+        {'backend': 'picamera2', 'output_dir': str(tmp_path), 'preview': preview_backend is not None,
+         'preview_backend': preview_backend or 'qt'}, stop,
         lambda info: stop.set(),
     )
     with (tmp_path / 'frames.csv').open() as output:
@@ -109,7 +110,7 @@ def test_picamera2_writes_sensor_nanoseconds_and_closes(monkeypatch, tmp_path, p
     assert rows[0]['sensor_timestamp'] == '1234567890'
     assert rows[0]['sensor_timestamp_unit'] == 'ns'
     assert result['frame_count'] == 1
-    assert calls == (['preview', 'stop', 'stop_preview', 'close'] if preview else ['stop', 'close'])
+    assert calls == (['preview', 'stop', 'stop_preview', 'close'] if preview_backend else ['stop', 'close'])
 
 
 def test_existing_treadmill_csv_is_copied_without_changing_values(tmp_path):

@@ -9,7 +9,8 @@ import pytest
 
 
 @pytest.mark.parametrize('cancel_before_frame', [False, True])
-def test_preview_waits_for_frame_then_stops_camera_without_recording(monkeypatch, tmp_path, cancel_before_frame):
+@pytest.mark.parametrize('preview_backend', ['qt', 'drm'])
+def test_preview_waits_for_frame_then_stops_camera_without_recording(monkeypatch, tmp_path, cancel_before_frame, preview_backend):
     from task_protocol.mmn_task.acquisition_worker import preview_camera
 
     stop = Event()
@@ -26,9 +27,10 @@ def test_preview_waits_for_frame_then_stops_camera_without_recording(monkeypatch
             calls.append('configure')
 
         def start_preview(self, mode, **geometry):
-            assert os.environ['DISPLAY'] == ':1'
-            assert os.environ['XAUTHORITY'] == '/tmp/camera-desktop-auth'
-            assert mode == 'qt'
+            assert os.environ['DISPLAY'] == (':99' if preview_backend == 'drm' else ':1')
+            assert os.environ['XAUTHORITY'] == ('/tmp/original-desktop-auth' if preview_backend == 'drm' else '/tmp/camera-desktop-auth')
+            assert os.environ['QT_QPA_PLATFORM'] == ('offscreen' if preview_backend == 'drm' else 'xcb')
+            assert mode == preview_backend
             calls.append('preview')
 
         def start(self):
@@ -48,7 +50,7 @@ def test_preview_waits_for_frame_then_stops_camera_without_recording(monkeypatch
             calls.append('close')
 
     monkeypatch.setitem(sys.modules, 'picamera2', SimpleNamespace(
-        Picamera2=Camera, Preview=SimpleNamespace(QT='qt', QTGL='qtgl'),
+        Picamera2=Camera, Preview=SimpleNamespace(QT='qt', QTGL='qtgl', DRM='drm'),
     ))
     # Changes made by the worker must not escape this test process.
     monkeypatch.setenv('DISPLAY', ':99')
@@ -61,7 +63,8 @@ def test_preview_waits_for_frame_then_stops_camera_without_recording(monkeypatch
         stop.set()
 
     config = {'backend': 'picamera2', 'preview_display': ':1',
-              'preview_xauthority': '/tmp/camera-desktop-auth', 'output_dir': str(tmp_path)}
+              'preview_xauthority': '/tmp/camera-desktop-auth', 'output_dir': str(tmp_path),
+              'preview_backend': preview_backend}
     if cancel_before_frame:
         assert preview_camera(config, stop, ready) == {'preview_only': True, 'frame_received': False}
     else:
@@ -102,12 +105,13 @@ def test_preview_failure_still_releases_camera(monkeypatch):
     assert closed == [True]
 
 
-def test_preview_cli_starts_even_if_recording_disabled_and_stops_on_ctrl_c(monkeypatch, tmp_path):
+@pytest.mark.parametrize('preview_backend', ['qt', 'drm'])
+def test_preview_cli_starts_even_if_recording_disabled_and_stops_on_ctrl_c(monkeypatch, tmp_path, preview_backend):
     from session_info import make_session_info
     from task_protocol.mmn_task import camera_preview
 
     settings = make_session_info()
-    assert settings['camera_enabled'] is False
+    settings['camera_enabled'] = False
     captured = {}
     calls = []
 
@@ -129,18 +133,20 @@ def test_preview_cli_starts_even_if_recording_disabled_and_stops_on_ctrl_c(monke
     monkeypatch.setattr(camera_preview, 'make_session_info', lambda: settings)
     monkeypatch.setattr(camera_preview, 'RecordingWorker', Worker)
     monkeypatch.setattr(camera_preview.tempfile, 'mkdtemp', lambda **kwargs: str(tmp_path))
-    monkeypatch.setattr(sys, 'argv', ['preview', '--display', ':1'])
+    monkeypatch.setattr(sys, 'argv', ['preview', '--display', ':1', '--backend', preview_backend])
     assert camera_preview.main() == 0
     assert calls == ['start', 'stop']
     assert captured['config']['kind'] == 'preview'
     assert captured['config']['preview_display'] == ':1'
     assert captured['config']['preview'] is True
+    assert captured['config']['preview_backend'] == preview_backend
     assert captured['config']['host'] == '10.49.98.252'
     assert captured['config']['remote_output_dir'] == '/tmp/mmn_camera_preview'
     assert 'preview_display' not in settings['camera_nodes'][0]
 
 
-def test_preview_worker_stops_cleanly_in_real_subprocess(monkeypatch, tmp_path):
+@pytest.mark.parametrize('preview_backend', ['qt', 'drm'])
+def test_preview_worker_stops_cleanly_in_real_subprocess(monkeypatch, tmp_path, preview_backend):
     from task_protocol.mmn_task.acquisition import RecordingWorker
 
     # No camera/Qt hardware is used; the real worker process still performs
@@ -148,7 +154,7 @@ def test_preview_worker_stops_cleanly_in_real_subprocess(monkeypatch, tmp_path):
     (tmp_path / 'picamera2.py').write_text('''import os
 from pathlib import Path
 from types import SimpleNamespace
-Preview = SimpleNamespace(QT='qt', QTGL='qtgl')
+Preview = SimpleNamespace(QT='qt', QTGL='qtgl', DRM='drm')
 def log(event):
     with Path(os.environ['MMN_PREVIEW_TEST_TRACE']).open('a') as output:
         output.write(event + '\\n')
@@ -157,8 +163,8 @@ class Picamera2:
     def create_video_configuration(self, **kwargs): return kwargs
     def configure(self, config): pass
     def start_preview(self, mode, **kwargs):
-        assert mode == 'qt'
-        assert os.environ['DISPLAY'] == ':1'
+        assert mode == os.environ['MMN_PREVIEW_TEST_BACKEND']
+        assert os.environ['DISPLAY'] == (':99' if mode == 'drm' else ':1')
         log('preview')
     def start(self):
         log('start')
@@ -169,14 +175,18 @@ class Picamera2:
 ''')
     trace = tmp_path / 'camera_trace.txt'
     monkeypatch.setenv('MMN_PREVIEW_TEST_TRACE', str(trace))
+    monkeypatch.setenv('MMN_PREVIEW_TEST_BACKEND', preview_backend)
+    monkeypatch.setenv('DISPLAY', ':99')
     monkeypatch.setenv('PYTHONPATH', str(tmp_path))
     directory = tmp_path / 'session' / 'video' / 'cam0'
     worker = RecordingWorker('cam0', {
         'kind': 'preview', 'backend': 'picamera2', 'transport': 'local', 'preview_display': ':1',
+        'preview_backend': preview_backend,
     }, directory, 2, 2, sys.executable)
     try:
         worker.start()
-        assert worker.info['ready']['display'] == ':1'
+        assert worker.info['ready']['display'] == (None if preview_backend == 'drm' else ':1')
+        assert worker.info['ready']['preview_backend'] == preview_backend
     finally:
         errors = worker.stop()
     assert errors == []

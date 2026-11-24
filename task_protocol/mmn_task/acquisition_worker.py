@@ -18,6 +18,8 @@ from threading import Event, Thread
 def _prepare_preview_environment(config):
     """Select the camera Pi's X desktop before loading Qt; leave the controller untouched."""
     if config.get('backend', 'picamera2') == 'picamera2':
+        if config.get('preview_backend', 'qt') == 'drm':
+            return  # Direct monitor rendering needs no X desktop or Qt environment.
         display = config.get('preview_display', ':0')
         if not isinstance(display, str) or not display:
             raise ValueError('Set preview_display to the camera desktop DISPLAY, e.g. :0')
@@ -38,9 +40,9 @@ def _start_camera_preview(camera, config):
     if config.get('backend', 'picamera2') == 'picamera2':
         from picamera2 import Preview
         mode = config.get('preview_backend', 'qt')
-        if mode not in ('qt', 'qtgl'):
-            raise ValueError('preview_backend must be qt or qtgl')
-        camera.start_preview(Preview.QT if mode == 'qt' else Preview.QTGL,
+        if mode not in ('qt', 'qtgl', 'drm'):
+            raise ValueError('preview_backend must be qt, qtgl or drm')
+        camera.start_preview(getattr(Preview, mode.upper()),
                              x=x, y=y, width=width, height=height)
     else:
         camera.start_preview(fullscreen=False, window=(x, y, width, height))
@@ -82,7 +84,9 @@ def preview_camera(config, stop, ready):
             camera.capture(io.BytesIO(), format='jpeg', use_video_port=True)
         else:
             raise ValueError('Camera backend must be picamera or picamera2')
-        ready({'timestamp': time.time(), 'display': config.get('preview_display', ':0')})
+        mode = config.get('preview_backend', 'qt')
+        ready({'timestamp': time.time(), 'preview_backend': mode,
+               'display': None if mode == 'drm' else config.get('preview_display', ':0')})
         stop.wait()
     finally:
         try:

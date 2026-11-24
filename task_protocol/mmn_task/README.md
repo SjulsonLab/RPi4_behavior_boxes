@@ -304,12 +304,25 @@ python3 main.py --test-mode --no-recording
 
 ### Live camera preview for adjustment
 
-To adjust camera position or focus before recording, open the camera Pi's
-desktop on its monitor or through remote desktop. From the **stimulus Pi's**
-repository root, run:
+To adjust camera position or focus before recording, choose the mode for the
+camera Pi's screen. Run these commands from the **stimulus Pi's** repository root.
+
+If the camera Pi's attached monitor shows a **text console/login prompt**, use
+the direct-monitor preview:
 
 ```bash
-python3 -m task_protocol.mmn_task.camera_preview
+python3 -m task_protocol.mmn_task.camera_preview --backend drm
+```
+
+This uses Picamera2's [DRM preview](https://github.com/raspberrypi/picamera2/blob/main/picamera2/previews/drm_preview.py)
+to render on the camera Pi's physical monitor. It does not require an X desktop,
+`DISPLAY`, or Qt. The camera user must have access to the DRM display device.
+
+If the camera Pi has a **graphical desktop** on its monitor or remote desktop,
+use the Qt preview:
+
+```bash
+python3 -m task_protocol.mmn_task.camera_preview --backend qt
 ```
 
 The window opens on the configured camera Pi (`pi@10.49.98.252`), using the
@@ -323,15 +336,22 @@ To also show the preview while MMN records, add these assignments in
 `session_info.py`, inside `make_session_info()` before its `return`:
 
 ```python
-session_info['camera_enabled'] = True
-session_info['camera_nodes'][0]['preview'] = True
-session_info['camera_nodes'][0]['preview_display'] = ':0'
+    session_info['camera_enabled'] = True
+    session_info['camera_nodes'][0]['preview'] = True
+    session_info['camera_nodes'][0]['preview_backend'] = 'drm'  # Attached monitor showing a text console.
+```
+
+For a graphical desktop, use these settings instead:
+
+```python
+    session_info['camera_nodes'][0]['preview_backend'] = 'qt'
+    session_info['camera_nodes'][0]['preview_display'] = ':0'
 ```
 
 Both test mode and full sessions honor this option. The preview and video
 recording share one camera instance.
 
-`preview_display` defaults to `':0'`. To find the correct value, run
+For Qt preview, `preview_display` defaults to `':0'`. To find the correct value, run
 `echo "$DISPLAY"` in a terminal **inside the camera Pi's desktop/remote
 desktop**. If it reports `:1`, set `preview_display=':1'` in the camera entry,
 or use this for the adjustment command:
@@ -340,14 +360,14 @@ or use this for the adjustment command:
 python3 -m task_protocol.mmn_task.camera_preview --display :1
 ```
 
-Picamera2 uses the Qt preview (`preview_backend='qt'`), which renders in the
+The Qt preview (`preview_backend='qt'`) renders in the
 desktop window for remote viewing. Its Qt dependencies and a logged-in
 X11/Xwayland desktop must be available on the camera Pi. The worker selects
 the camera Pi's `DISPLAY` and uses `~/.Xauthority` when available. If the
 desktop uses a different authentication file, set `preview_xauthority` in the
 camera entry or pass `--xauthority /path/on/camera/pi` to the adjustment command.
 No desktop permissions are changed. `preview_window=(0, 0, 640, 480)` controls
-the window's x, y, width and height in camera Pi desktop pixels.
+the image's x, y, width and height in camera Pi screen pixels for both modes.
 
 For multiple camera entries, choose one with `--camera cam0`. A startup error
 prints the camera worker's log in the stimulus Pi terminal. An unavailable

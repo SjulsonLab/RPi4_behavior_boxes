@@ -1,4 +1,4 @@
-"""Open the configured camera's desktop preview to adjust it before MMN."""
+"""Open a preview on the camera Pi's monitor or desktop to adjust it before MMN."""
 
 import argparse
 import sys
@@ -14,7 +14,9 @@ def main():
     """Use camera_nodes even if camera_enabled=False; preview until Ctrl+C without recording."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--camera', help='Camera ID from session_info.py; default: first camera')
-    parser.add_argument('--display', help="Camera Pi's desktop DISPLAY, e.g. :0 or :1")
+    parser.add_argument('--backend', dest='preview_backend', choices=('qt', 'qtgl', 'drm'),
+                        help='drm: attached monitor from text console; qt/qtgl: graphical desktop')
+    parser.add_argument('--display', help="Qt desktop DISPLAY on the camera Pi, e.g. :0 or :1")
     parser.add_argument('--xauthority', help="Camera Pi's XAUTHORITY file, if its desktop needs an explicit path")
     args = parser.parse_args()
     settings = make_session_info()
@@ -27,6 +29,8 @@ def main():
     name = node.get('camera_id', 'cam0')
     config = dict(node, kind='preview', preview=True)
     config['remote_output_dir'] = '/tmp/mmn_camera_preview'
+    if args.preview_backend is not None:
+        config['preview_backend'] = args.preview_backend
     if args.display is not None:
         config['preview_display'] = args.display
     if args.xauthority is not None:
@@ -37,8 +41,9 @@ def main():
                              settings.get('acquisition_stop_timeout_s', 30), sys.executable)
     status = 0
     try:
-        print('Opening {} preview on {} desktop {}...'.format(
-            name, worker.info['host'], config.get('preview_display', ':0')), flush=True)
+        mode = config.get('preview_backend', 'qt')
+        target = 'attached monitor (DRM)' if mode == 'drm' else 'desktop {}'.format(config.get('preview_display', ':0'))
+        print('Opening {} preview on {} {}...'.format(name, worker.info['host'], target), flush=True)
         worker.start()
         print('Live preview is running. Adjust the camera, then press Ctrl+C here before starting MMN.', flush=True)
         while True:

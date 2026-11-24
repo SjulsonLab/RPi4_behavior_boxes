@@ -10,6 +10,22 @@ import pytest
 from task_protocol.mmn_task import run_mmn_task as runner
 
 
+@pytest.fixture(autouse=True)
+def disable_hardware_in_scheduling_tests(monkeypatch):
+    """Use fake displays without starting the recording day's enabled hardware."""
+    import session_info
+
+    original_settings = session_info.make_session_info
+
+    def test_settings():
+        settings = original_settings()
+        settings.update(camera_enabled=False, treadmill=False)
+        return settings
+
+    monkeypatch.setattr(session_info, 'make_session_info', test_settings)
+    monkeypatch.setattr(runner, 'make_session_info', test_settings)
+
+
 def test_main_loads_session_file_and_applies_cli_overrides(monkeypatch, tmp_path):
     from session_info import make_session_info
 
