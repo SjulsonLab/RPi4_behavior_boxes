@@ -25,11 +25,24 @@ if c['kind'] == 'treadmill':
 else:
     (p / 'video.h264').write_bytes(b'video data')
     (p / 'frames.csv').write_text('frame_index,timestamp\\n1,1\\n')
+if c.get('native_prefix'):
+    sys.stderr.write(c['native_prefix'])
+    sys.stderr.flush()
 print('MMN_READY ' + json.dumps({'timestamp': 1, 'pid': 123}), flush=True)
 if c.get('crash'):
     raise SystemExit(7)
 for line in sys.stdin:
     if line.strip() == 'STOP': break
+    if line.strip() == 'RENDER_FAIL':
+        sys.stderr.write('commit ')
+        sys.stderr.flush()
+        import time
+        time.sleep(0.05)
+        sys.stderr.write('failed')
+        sys.stderr.flush()
+if c.get('native_prefix'):
+    sys.stderr.write('native log: ')
+    sys.stderr.flush()
 print('MMN_RESULT ' + json.dumps({'status': 'complete', 'timestamp': 2}), flush=True)
 ''')
     monkeypatch.setattr(acquisition, 'WORKER_SCRIPT', path)
@@ -125,6 +138,54 @@ def test_session_directory_has_mouse_date_time_and_never_reuses_a_folder(tmp_pat
     assert first.name.startswith('mouse_one_')
     assert first != second
     assert first.is_dir() and second.is_dir()
+
+
+def test_native_logs_without_newlines_do_not_hide_worker_messages(synthetic_worker, tmp_path):
+    from task_protocol.mmn_task.acquisition import RecordingWorker
+
+    worker = RecordingWorker('cam0', {
+        'kind': 'camera', 'backend': 'picamera2', 'native_prefix': 'native log: ',
+    }, tmp_path / 'session', 2, 2, sys.executable)
+    try:
+        worker.start()
+        assert worker.info['ready']['pid'] == 123
+    finally:
+        errors = worker.stop()
+    assert errors == []
+    assert worker.info['result']['status'] == 'complete'
+
+
+@pytest.mark.parametrize('during_startup', [True, False])
+def test_drm_commit_failure_is_reported_even_if_worker_remains_alive(synthetic_worker, tmp_path, during_startup):
+    from task_protocol.mmn_task.acquisition import RecordingWorker
+
+    worker = RecordingWorker('cam0', {
+        'kind': 'preview', 'backend': 'picamera2', 'preview_backend': 'drm',
+        'native_prefix': 'commit failed' if during_startup else '',
+    }, tmp_path / 'session', 2, 2, sys.executable)
+    try:
+        if during_startup:
+            with pytest.raises(RuntimeError, match='DRM preview.*commit failed'):
+                worker.start()
+        else:
+            worker.start()
+            worker.process.stdin.write('RENDER_FAIL\n')
+            worker.process.stdin.flush()
+            deadline = time.monotonic() + 2
+            while True:
+                try:
+                    worker.check_health()
+                except RuntimeError as error:
+                    assert 'commit failed' in str(error)
+                    break
+                if time.monotonic() >= deadline:
+                    pytest.fail('Live DRM rendering failure was not reported')
+                time.sleep(0.01)
+    finally:
+        worker.stop()
+    assert worker.process.returncode == 0
+    assert worker.info['status'] == 'failed'
+    assert 'commit failed' in worker.info['preview_error']
 
 
 def test_real_file_worker_captures_treadmill_csv_without_gpio(tmp_path):

@@ -311,7 +311,9 @@ def main():
     Thread(target=control, daemon=True).start()
 
     def ready(info):
-        print('MMN_READY ' + json.dumps(info), flush=True)
+        # Keep the control marker separate from partial native stderr messages.
+        sys.stdout.write('\nMMN_READY ' + json.dumps(info) + '\n')
+        sys.stdout.flush()
 
     status = 0
     try:
@@ -323,7 +325,8 @@ def main():
         status = 1
     result['timestamp'] = time.time()
     Path(config['output_dir'], 'recording_result.json').write_text(json.dumps(result, indent=2))
-    print('MMN_RESULT ' + json.dumps(result), flush=True)
+    sys.stdout.write('\nMMN_RESULT ' + json.dumps(result) + '\n')
+    sys.stdout.flush()
     return status
 
 

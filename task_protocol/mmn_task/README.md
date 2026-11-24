@@ -373,6 +373,14 @@ For multiple camera entries, choose one with `--camera cam0`. A startup error
 prints the camera worker's log in the stimulus Pi terminal. An unavailable
 requested preview fails startup, rather than silently running without a window.
 
+If DRM reports `commit failed`, camera frames can still be arriving while the
+monitor update fails. MMN reports that rendering failure even if the worker is
+still alive. A desktop/display service may be holding the display; check its
+status on the camera Pi with `systemctl status display-manager --no-pager`.
+Changing `preview_display` does not select a different physical display in DRM
+mode. Native messages without newlines are kept in the worker log and cannot
+hide the camera readiness/result messages.
+
 ## Desktop/Pygame check
 
 For a windowed check without the Raspberry Pi framebuffer:

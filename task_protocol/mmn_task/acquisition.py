@@ -1,5 +1,6 @@
 """Start isolated recording workers and keep all session outputs together."""
 
+import codecs
 import json
 import re
 import shlex
@@ -50,6 +51,7 @@ class RecordingWorker:
         self.reader = None
         self.closed = False
         self.errors = []
+        self.preview_error = None
         self.info = {
             'name': name, 'kind': config['kind'], 'backend': config.get('backend'),
             'host': self.target if self.remote else 'local',
@@ -89,18 +91,55 @@ class RecordingWorker:
             return self.ssh('exec ' + ' '.join(shlex.quote(arg) for arg in argv))
         return [self.python, '-u', str(WORKER_SCRIPT), str(self.control_dir / 'config.json')]
 
+    def _parse_control_line(self, line):
+        """Accept control markers after native messages that omitted their newline."""
+        decoder = json.JSONDecoder()
+        for marker, field in [('MMN_READY ', 'ready'), ('MMN_RESULT ', 'result')]:
+            position = line.find(marker)
+            if position < 0:
+                continue
+            try:
+                value, _ = decoder.raw_decode(line[position + len(marker):].lstrip())
+            except ValueError:
+                continue  # Keep malformed/interrupted messages in the log.
+            if not isinstance(value, dict):
+                continue
+            self.info[field] = value
+            if field == 'ready':
+                self.info['status'] = 'failed' if self.preview_error else 'recording'
+                self.ready.set()
+
     def _read_output(self):
-        """Drain process output to its log; READY and RESULT lines update serializable metadata."""
-        with (self.control_dir / 'worker.log').open('w') as output:
-            for line in self.process.stdout:
-                output.write(line)
+        """Log available chunks so newline-free native rendering errors are noticed promptly."""
+        decoder = codecs.getincrementaldecoder('utf-8')(errors='replace')
+        pending = ''
+        error_tail = ''
+        with (self.control_dir / 'worker.log').open('w', encoding='utf-8') as output:
+            while True:
+                chunk = self.process.stdout.buffer.read1(4096)
+                text = decoder.decode(chunk, final=not chunk)
+                output.write(text)
                 output.flush()
-                if line.startswith('MMN_READY '):
-                    self.info['ready'] = json.loads(line[len('MMN_READY '):])
-                    self.info['status'] = 'recording'
-                    self.ready.set()
-                elif line.startswith('MMN_RESULT '):
-                    self.info['result'] = json.loads(line[len('MMN_RESULT '):])
+                # The DRM error can straddle reads and has no terminating
+                # newline. Detect it before waiting for a complete log line.
+                recent = error_tail + text
+                if (self.config.get('preview_backend') == 'drm' and
+                        (self.config['kind'] == 'preview' or self.config.get('preview', False)) and
+                        'commit failed' in recent.lower() and self.preview_error is None):
+                    self.preview_error = '{} DRM preview cannot update the camera monitor (commit failed); inspect {}'.format(
+                        self.name, self.info['log_file'])
+                    self.info.update(preview_error=self.preview_error, status='failed')
+                    self.errors.append(self.preview_error)
+                error_tail = recent[-32:]
+                pending += text
+                lines = pending.split('\n')
+                pending = lines.pop()
+                for line in lines:
+                    self._parse_control_line(line)
+                if not chunk:
+                    self._parse_control_line(pending)
+                    break
+                pending = pending[-65536:]  # Bound native log lines without newlines.
 
     def start(self):
         """Start and wait up to start_timeout seconds for actual hardware/data readiness."""
@@ -118,14 +157,19 @@ class RecordingWorker:
         self.reader.start()
         deadline = time.monotonic() + self.start_timeout
         while not self.ready.wait(0.05):
+            if self.preview_error is not None:
+                self.check_health()
             if self.process.poll() is not None or time.monotonic() >= deadline:
-                message = '{} recording did not become ready; inspect {}'.format(self.name, self.info['log_file'])
+                activity = 'preview' if self.config['kind'] == 'preview' else 'recording'
+                message = '{} {} did not become ready; inspect {}'.format(self.name, activity, self.info['log_file'])
                 self.errors.append(message)
                 raise RuntimeError(message)
         self.check_health()
 
     def check_health(self):
         """Raise RuntimeError if a started recorder has exited unexpectedly."""
+        if self.preview_error is not None and not self.closed:
+            raise RuntimeError(self.preview_error)
         if self.process is not None and not self.closed and self.process.poll() is not None:
             raise RuntimeError('{} recorder exited with status {}; inspect {}'.format(
                 self.name, self.process.returncode, self.info['log_file']))
