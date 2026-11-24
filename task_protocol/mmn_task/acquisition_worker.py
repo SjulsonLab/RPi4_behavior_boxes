@@ -1,10 +1,11 @@
 """Independent camera/treadmill process; also runs standalone on a camera Pi.
 
-The controller sends STOP (or closes stdin) to request a clean shutdown. READY
-is emitted only after hardware starts and camera frames reach the output file.
+The controller sends STOP (or closes stdin) to request a clean shutdown. Camera
+recording waits for frames in the output file; preview waits for a camera frame.
 """
 
 import csv
+import io
 import json
 import os
 import signal
@@ -12,6 +13,89 @@ import sys
 import time
 from pathlib import Path
 from threading import Event, Thread
+
+
+def _prepare_preview_environment(config):
+    """Select the camera Pi's X desktop before loading Qt; leave the controller untouched."""
+    if config.get('backend', 'picamera2') == 'picamera2':
+        display = config.get('preview_display', ':0')
+        if not isinstance(display, str) or not display:
+            raise ValueError('Set preview_display to the camera desktop DISPLAY, e.g. :0')
+        os.environ['DISPLAY'] = display
+        os.environ['QT_QPA_PLATFORM'] = 'xcb'
+        authority = config.get('preview_xauthority')
+        if authority:
+            os.environ['XAUTHORITY'] = str(Path(authority).expanduser())
+        elif 'XAUTHORITY' not in os.environ and (Path.home() / '.Xauthority').is_file():
+            os.environ['XAUTHORITY'] = str(Path.home() / '.Xauthority')
+
+
+def _start_camera_preview(camera, config):
+    """Open a native preview on the camera's own desktop/monitor; return None."""
+    x, y, width, height = config.get('preview_window', (0, 0, 640, 480))
+    if width <= 0 or height <= 0:
+        raise ValueError('Preview width and height must be positive pixels')
+    if config.get('backend', 'picamera2') == 'picamera2':
+        from picamera2 import Preview
+        mode = config.get('preview_backend', 'qt')
+        if mode not in ('qt', 'qtgl'):
+            raise ValueError('preview_backend must be qt or qtgl')
+        camera.start_preview(Preview.QT if mode == 'qt' else Preview.QTGL,
+                             x=x, y=y, width=width, height=height)
+    else:
+        camera.start_preview(fullscreen=False, window=(x, y, width, height))
+
+
+def preview_camera(config, stop, ready):
+    """Show a preview until stop Event; wait for a real camera frame before readiness."""
+    _prepare_preview_environment(config)
+    camera = None
+    started = False
+    preview_started = False
+    first_frame = Event()
+    resolution = tuple(config.get('resolution', (640, 480)))
+    fps = config.get('framerate', 30)
+    backend = config.get('backend', 'picamera2')
+    try:
+        if backend == 'picamera2':
+            from picamera2 import Picamera2
+            camera = Picamera2(camera_num=config.get('camera_num', 0))
+            camera.configure(camera.create_video_configuration(
+                main={'size': resolution}, controls={'FrameRate': fps},
+            ))
+            camera.pre_callback = lambda request: first_frame.set()
+            _start_camera_preview(camera, config)
+            preview_started = True
+            camera.start()
+            started = True
+            while not first_frame.wait(0.05) and not stop.is_set():
+                pass
+            if not first_frame.is_set():
+                return {'preview_only': True, 'frame_received': False}
+        elif backend == 'picamera':
+            from picamera import PiCamera
+            camera = PiCamera(resolution=resolution, framerate=fps,
+                              camera_num=config.get('camera_num', 0))
+            _start_camera_preview(camera, config)
+            preview_started = True
+            # Capture into memory to confirm frames without creating a movie.
+            camera.capture(io.BytesIO(), format='jpeg', use_video_port=True)
+        else:
+            raise ValueError('Camera backend must be picamera or picamera2')
+        ready({'timestamp': time.time(), 'display': config.get('preview_display', ':0')})
+        stop.wait()
+    finally:
+        try:
+            if started:
+                camera.stop()
+        finally:
+            try:
+                if preview_started:
+                    camera.stop_preview()
+            finally:
+                if camera is not None:
+                    camera.close()
+    return {'preview_only': True}
 
 
 def record_camera(config, stop, ready):
@@ -30,11 +114,15 @@ def record_camera(config, stop, ready):
     fps = config.get('framerate', 30)
     bitrate = config.get('bitrate', 2000000)
     backend = config.get('backend', 'picamera')
+    config = dict(config, backend=backend)
     count = 0
     previous_sensor_time = None
     started = False
     camera = None
     callback_errors = []
+    preview_started = False
+    if config.get('preview', False):
+        _prepare_preview_environment(config)
     with (directory / 'frames.csv').open('x', newline='') as timestamps:
         writer = csv.writer(timestamps)
         writer.writerow(['frame_index', 'sensor_timestamp', 'sensor_timestamp_unit',
@@ -69,6 +157,9 @@ def record_camera(config, stop, ready):
                 camera.configure(camera.create_video_configuration(
                     main={'size': resolution}, controls={'FrameRate': fps}
                 ))
+                if config.get('preview', False):
+                    _start_camera_preview(camera, config)
+                    preview_started = True
 
                 def on_frame(request):
                     data = request.get_metadata()
@@ -82,6 +173,9 @@ def record_camera(config, stop, ready):
                 from picamera import PiCamera
                 camera = PiCamera(resolution=resolution, framerate=fps,
                                   camera_num=config.get('camera_num', 0))
+                if config.get('preview', False):
+                    _start_camera_preview(camera, config)
+                    preview_started = True
                 video = video_path.open('xb', buffering=0)
 
                 class VideoOutput:
@@ -116,8 +210,12 @@ def record_camera(config, stop, ready):
                     camera.stop_recording()
             finally:
                 try:
-                    if camera is not None:
-                        camera.close()
+                    try:
+                        if preview_started:
+                            camera.stop_preview()
+                    finally:
+                        if camera is not None:
+                            camera.close()
                 finally:
                     if 'video' in locals():
                         video.close()
@@ -213,7 +311,7 @@ def main():
 
     status = 0
     try:
-        operation = record_treadmill if config['kind'] == 'treadmill' else record_camera
+        operation = {'treadmill': record_treadmill, 'camera': record_camera, 'preview': preview_camera}[config['kind']]
         result = operation(config, stop, ready)
         result['status'] = 'complete'
     except Exception as error:
